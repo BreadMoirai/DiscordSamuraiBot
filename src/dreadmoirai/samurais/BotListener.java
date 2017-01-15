@@ -27,12 +27,19 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {  //when a message is sent in the channel
+        if (simpleResponse(event)) {
+            return;
+        } else if (roll()) {
+
+        }
+    }
+
+    private boolean simpleResponse(MessageReceivedEvent event) {
         String messageRecieved = event.getMessage().getRawContent().toLowerCase();
         String messageSent = "";
         if (messageRecieved.equals("who am i?")) {
             messageSent = " " + roleResponses.get(event.getMember().getRoles().toString());
-        } // !roll 1-100
-        else if (messageRecieved.contains("!roll")) {
+        } else if (messageRecieved.contains("!roll")) {
             if (messageRecieved.length() > 6) {
                 try {
                     int x = Integer.parseInt(messageRecieved.substring(6));
@@ -44,13 +51,16 @@ public class BotListener extends ListenerAdapter {
                 messageSent = " rolled " + (rand.nextInt(100) + 1) + "!";
             }
         }
-
-        //sends message if messageSent has content
         if (messageSent.length() > 0) {
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + messageSent).queue();
+            return true;
         }
+        return false;
     }
 
+    private boolean roll() {
 
+        return false;
+    }
 
 }
