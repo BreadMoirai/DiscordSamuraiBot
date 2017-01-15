@@ -8,15 +8,17 @@ This bot don't do much of anything
 
 DreadMoirai
 
-
 ## Usage
 
 TODO: Write usage instructions
 
+## Functions
+
+What can I do?!
+#### Responses
+<i>"who am i?"<i>
 
 ## Contributing
-
-
 
 1. Fork it!
 
