@@ -20,6 +20,8 @@ What can I do?!
 
 <i>"!roll [optional arg: upper limit (default:100)]"</i>
 
+<i>"!kys" | "!shutdown"</i>
+
 ## Contributing
 
 1. Fork it!

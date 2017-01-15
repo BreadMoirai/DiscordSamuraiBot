@@ -1,5 +1,6 @@
 package dreadmoirai.samurais;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -8,14 +9,18 @@ import java.util.Random;
 
 /**
  * Created by TonTL on 1/14/2017.
+ *
  */
 public class BotListener extends ListenerAdapter {
 
-    private static HashMap roleResponses;
+    private static HashMap<String, String> roleResponses;
     private static Random rand;
+    private static JDA jda;
 
     public BotListener() { //constructor
-        roleResponses = new HashMap(); //hashmap for responses to who am i?
+
+
+        roleResponses = new HashMap<>(); //hashmap for responses to who am i?
         roleResponses.put("[R:Shogun(267924909752188928)]", "a coding god");
         roleResponses.put("[R:Daimyo(268458081225146369)]", "ur ok");
         roleResponses.put("[R:Samurai(267925162991681547)]", "pretty cool");
@@ -25,10 +30,16 @@ public class BotListener extends ListenerAdapter {
         rand = new Random();
     }
 
+    public BotListener setParent(JDA jda) {
+        BotListener.jda = jda;
+        return this;
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {  //when a message is sent in the channel
         if (simpleResponse(event)) {
-        } else if (duel()) {
+        } else if (exitProtocol(event)) {
+        } else if (duel(event)) {
         }
     }
 
@@ -56,9 +67,23 @@ public class BotListener extends ListenerAdapter {
         return false;
     }
 
-    private boolean duel() {
+    private boolean exitProtocol(MessageReceivedEvent event) {
+        if (event.getMessage().getRawContent().equalsIgnoreCase("!kys")) {
+            event.getChannel().sendMessage("ok :(").queue();
+            event.getJDA().shutdown();
+            return true;
+        } else if (event.getMessage().getRawContent().equalsIgnoreCase("!shutdown")) {
+            event.getChannel().sendMessage("sad boop").queue();
+            event.getJDA().shutdown();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean duel(MessageReceivedEvent event) {
 
         return false;
     }
+
 
 }
