@@ -1,3 +1,4 @@
+
 # DiscordSamuraiBot
 
 ## About
@@ -11,15 +12,13 @@ https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/dreadmoirai/samurai
 
 DreadMoirai
 
-## Usage
-
-TODO: Write usage instructions
-
 ## Functions
 
 What can I do?!
-#### Responses
-<i>"who am i?"<i>
+#### Responds to:
+<i>"who am i?"</i>
+
+<i>"!roll [optional arg: upper limit (default:100)]"</i>
 
 ## Contributing
 
