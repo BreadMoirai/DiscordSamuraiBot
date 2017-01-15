@@ -15,8 +15,8 @@ DreadMoirai
 
 What can I do?!
 #### Responds to:
-<i>"who am i?"<i>
-<i>"!roll [optional arg: upper limit (default:100)]"
+<i>"who am i?"</i>
+<i>"!roll [optional arg: upper limit (default:100)]"</i>
 
 ## Contributing
 
