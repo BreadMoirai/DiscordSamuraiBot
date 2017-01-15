@@ -2,9 +2,7 @@ package dreadmoirai.samurais;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import net.dv8tion.jda.core.requests.Route;
 
-import javax.management.relation.Role;
 import java.util.HashMap;
 
 /**
