@@ -8,6 +8,11 @@ This bot don't do much of anything
 The Important File to edit:
 https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/dreadmoirai/samurais/BotListener.java
 
+#### Required
+uses JDA
+https://github.com/DV8FromTheWorld/JDA/releases
+download with dependencies
+
 ## Authors
 
 DreadMoirai

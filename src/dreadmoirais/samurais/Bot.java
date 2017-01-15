@@ -1,4 +1,4 @@
-package dreadmoirai.samurais;
+package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -15,7 +15,7 @@ public class Bot {
     public static void main(String[] args) {
 
         try {
-            jda = new JDABuilder(AccountType.BOT).addListener(new BotListener().setParent(jda)).setToken(BOT_TOKEN).buildBlocking();
+            jda = new JDABuilder(AccountType.BOT).addListener(new BotListener()).setToken(BOT_TOKEN).buildBlocking();
 
 
         } catch (LoginException | RateLimitedException | InterruptedException e) {

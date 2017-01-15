@@ -1,0 +1,25 @@
+#RoleResponses
+[R:Shogun(267924909752188928)]
+a coding god
+[R:Daimyo(268458081225146369)]
+ur ok
+[R:Samurai(267925162991681547)]
+pretty cool
+[R:Peasant(267924616574533634)]
+meh
+
+#FightWords
+fight
+duel
+challenge
+murder
+dare
+lets go
+come at me
+let's go
+bitch
+
+#ShadePhrases
+you know who sucks? %s
+%s is a fucking pussy.
+%s? more like stupid
