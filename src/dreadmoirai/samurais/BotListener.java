@@ -16,7 +16,7 @@ public class BotListener extends ListenerAdapter {
 
     public BotListener() { //constructor
         roleResponses = new HashMap(); //hashmap for responses to who am i?
-        roleResponses.put("[R:Shogun(267924909752188928)]", "somebody awesome!");
+        roleResponses.put("[R:Shogun(267924909752188928)]", "a coding god");
         roleResponses.put("[R:Daimyo(268458081225146369)]", "ur ok");
         roleResponses.put("[R:Samurai(267925162991681547)]", "pretty cool");
         roleResponses.put("[R:Peasant(267924616574533634)]", "meh");
