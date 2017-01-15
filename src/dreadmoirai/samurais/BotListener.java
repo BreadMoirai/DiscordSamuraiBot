@@ -16,9 +16,9 @@ public class BotListener extends ListenerAdapter {
 
     public BotListener() { //constructor
         roleResponses = new HashMap(); //hashmap for responses to who am i?
-        roleResponses.put("[R:Shogun(267924909752188928)]", "a 프로 게이머");
+        roleResponses.put("[R:Shogun(267924909752188928)]", "somebody awesome!");
         roleResponses.put("[R:Daimyo(268458081225146369)]", "ur ok");
-        roleResponses.put("[R:Samurai(267925162991681547)]", "cool");
+        roleResponses.put("[R:Samurai(267925162991681547)]", "pretty cool");
         roleResponses.put("[R:Peasant(267924616574533634)]", "meh");
 
         //Random object for rolls
@@ -28,9 +28,7 @@ public class BotListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {  //when a message is sent in the channel
         if (simpleResponse(event)) {
-            return;
-        } else if (roll()) {
-
+        } else if (duel()) {
         }
     }
 
@@ -58,7 +56,7 @@ public class BotListener extends ListenerAdapter {
         return false;
     }
 
-    private boolean roll() {
+    private boolean duel() {
 
         return false;
     }
