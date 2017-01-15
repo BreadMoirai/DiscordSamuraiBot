@@ -4,7 +4,8 @@
 
 This bot don't do much of anything
 
-The Important File to edit = https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/dreadmoirai/samurais/BotListener.java
+The Important File to edit:
+https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/dreadmoirai/samurais/BotListener.java
 
 ## Authors
 
