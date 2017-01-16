@@ -49,9 +49,9 @@ public class BotListener extends ListenerAdapter {
         jda.getGuilds();
         //System.out.println(jda.getGuilds().get(0).getMembers().get(2).getUser().getId());
         data = new BotData(jda.getGuilds().get(0).getMembers());
-
-
     }
+
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -89,11 +89,13 @@ public class BotListener extends ListenerAdapter {
             if (event.getMessage().getRawContent().toLowerCase().contains("flame") && mentions.size() == 2) {
                 int killNumber = rand.nextInt(shadePhrases.size());
                 String killPhrase = shadePhrases.get(killNumber);
+                User target = mentions.get((1-mentions.indexOf(event.getJDA().getSelfUser())));
                 if (killNumber == 2) {//"[user] more like stupid[(us)er]
-                    killPhrase += mentions.get(1).getName().substring(mentions.get(1).getName().length()/2);
+                    killPhrase += target.getName().substring(target.getName().length()/2);
                 }
-                killPhrase = String.format(killPhrase, mentions.get(1).getAsMention());
+                killPhrase = String.format(killPhrase, target.getAsMention());
                 event.getChannel().sendMessage(killPhrase).queue();
+                data.addFlame(target.getId());
             }
         }
         return false;
@@ -102,7 +104,9 @@ public class BotListener extends ListenerAdapter {
     private boolean simpleResponse(MessageReceivedEvent event) {//basic responses
         String messageReceived = event.getMessage().getRawContent().toLowerCase();
         String messageSent = "";
-        if (messageReceived.equals("who am i?")) {//who am i? response
+        if(messageReceived.contains("!stat")) {
+            getStat(event);
+        } else if (messageReceived.equals("who am i?")) {//who am i? response
             messageSent = " " + roleResponses.get(event.getMember().getRoles().toString());
         } else if (messageReceived.contains("!roll")) {//!roll response
             if (messageReceived.length() > 6) {
@@ -123,6 +127,13 @@ public class BotListener extends ListenerAdapter {
         return false;
     }
 
+    private void getStat(MessageReceivedEvent event) {
+        if (event.getMessage().getMentionedUsers().size()==0) {
+            event.getChannel().sendMessage(event.getAuthor().getAsMention() +
+                                        data.printStat(event.getAuthor().getId())).queue();
+        }
+    }
+
     private boolean exitProtocol(MessageReceivedEvent event) {
         boolean shutdown = false;
         if (event.getMessage().getRawContent().equalsIgnoreCase("!kys")) {
@@ -134,7 +145,7 @@ public class BotListener extends ListenerAdapter {
         }
         if (shutdown) {
             //save data?
-
+            data.saveDataFull();
             event.getJDA().shutdown();
         }
         return false;
@@ -152,17 +163,17 @@ public class BotListener extends ListenerAdapter {
     private void loadKeywords() {
         try(BufferedReader br = new BufferedReader(new FileReader("src\\dreadmoirais\\data\\keywords.txt"))) {
             String line = br.readLine();
-            System.out.println("Parsing " + line);
+            System.out.println("Reading " + line);
             while (!(line=br.readLine()).equals("")) {
                 roleResponses.put(line, br.readLine());
             }
             line = br.readLine();
-            System.out.println("Parsing " + line);
+            System.out.println("Reading " + line);
             while(!(line=br.readLine()).equals("")) {
                 fightWords.add(line);
             }
             line = br.readLine();
-            System.out.println("Parsing " + line);
+            System.out.println("Reading " + line);
             while((line=br.readLine()) != null) {
                 shadePhrases.add(line);
             }

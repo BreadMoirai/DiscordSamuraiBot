@@ -2,10 +2,9 @@ package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.entities.Member;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,18 +16,30 @@ public class BotData {
 
     private static final String BOT_ID = "270044218167132170";//18
 
-    private HashMap<String, userStat> users;
+    private HashMap<String, UserStat> users;
 
     public BotData(List<Member> memberList) {
         users = new HashMap<>();
         for (Member m : memberList) {
             String userID = m.getUser().getId();
             if (!userID.equals(BOT_ID)) {
-                users.put(userID, new userStat(userID));
+                users.put(userID, new UserStat(userID));
             }
         }
-        initData();
         //printid();
+        initData();
+
+    }
+
+    public void addFlame(String id) {
+        users.get(id).addFlame();
+    }
+
+    public String printStat(String id) {
+        String s = "\n```\n";
+        s += users.get(id).toString() + "\n```";
+        return s;
+
     }
 
     private void printid() {
@@ -39,12 +50,13 @@ public class BotData {
 
     private void initData() {
         //try(RandomAccessFile raf = new RandomAccessFile("src\\dreadmoirais\\data\\userData.samurai", "rw")) {
+        System.out.println("Parsing userData.samurai");
         try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream("src\\dreadmoirais\\data\\userData.samurai"))) {
             byte[] sizebyte = new byte[2];
             bis.read(sizebyte);
             //System.out.println(Hex.encodeHexString(size));
             int size = (sizebyte[0]<<8)|sizebyte[1];
-            System.out.println("size: " + size);
+            System.out.println("Number of Users: " + size);
             byte[] lastModifiedBytes = new byte[6];
             bis.read(lastModifiedBytes);
             //System.out.println(Hex.encodeHexString(lastModifiedBytes) + "\n" + Long.toHexString(System.currentTimeMillis()));
@@ -55,6 +67,43 @@ public class BotData {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
             Date resultDate = new Date(lastModifiedMillis);
             System.out.println("Last Modified: " + sdf.format(resultDate));
+            for (int i = 0; i < size; i++) {
+                byte[] userBytes = new byte[8];
+                bis.read(userBytes);
+                //System.out.println(Hex.encodeHexString(userBytes));
+                long userID = 0x00;
+                for (int j = 0; j < 8; j++) {
+                    //System.out.println(Long.toHexString(userID));
+                    userID = userID | (((long)userBytes[j]&0xFF) << ((7-j)*8));
+                }
+                //System.out.println(userID);
+                //System.out.println(users.containsKey(Long.toString(userID)));
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveData() {
+        System.out.println("Saving Data.");
+    }
+
+    public void saveDataFull() {
+        System.out.println("Writing File.");
+        try(DataOutputStream out = new DataOutputStream(new FileOutputStream("src\\dreadmoirais\\data\\userData.samurai"))) {
+            //WriteNumberofUsers
+            out.writeShort(users.size());
+            //writeCurrentTime
+            byte[] b = new byte[8];
+            long lastModified = System.currentTimeMillis();
+            for (int i = 0; i < 8; ++i) {
+                b[i] = (byte) (lastModified >> (8 - i - 1 << 3));
+            }
+            out.write(Arrays.copyOfRange(b, 2, 8));
+            for (UserStat u : users.values()) {
+                out.write(u.getDataBytes());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
