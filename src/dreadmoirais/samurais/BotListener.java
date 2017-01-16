@@ -2,13 +2,10 @@ package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.entities.impl.MessageEmbedImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import net.dv8tion.jda.core.managers.fields.Field;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,6 +21,8 @@ import java.util.Random;
 public class BotListener extends ListenerAdapter {
 
     private static final String BOT_ID = "270044218167132170";//18
+
+    private static User self;
 
     private static HashMap<String, String> roleResponses;
     private static Random rand;
@@ -49,8 +48,9 @@ public class BotListener extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         loadKeywords(); //loads keywords from file
         JDA jda = event.getJDA();
-        jda.getGuilds();
-        //System.out.println(jda.getGuilds().get(0).getMembers().get(2).getUser().getId());
+        //jda.getGuilds();
+        self = jda.getSelfUser();
+        System.out.println(jda.getSelfUser().getAvatarUrl() + "\n");
         data = new BotData(jda.getGuilds().get(0).getMembers());
 
     }
@@ -64,7 +64,7 @@ public class BotListener extends ListenerAdapter {
         JDA jda = event.getJDA(); //JDA, the core of the api.
 
         //Event specific information
-        User author = event.getAuthor(); //The user that sent the message
+        User author = event.getAuthor(); //The Member that sent the message
         Message message = event.getMessage();  //The message that was received.
         MessageChannel channel = event.getChannel(); //This is the MessageChannel that the message was sent to.
         //  This could be a TextChannel, PrivateChannel, or Group!
@@ -75,26 +75,55 @@ public class BotListener extends ListenerAdapter {
             channel.sendMessage("Boi why you dm me? Get the fuck outta here.");
         } else {
             if (active) {
-                if (selfResponse(event)) {
-                } else if (simpleResponse(event)) {
-                } else if (duel(event)) {
-                } else if (exitProtocol(event)) {
-                }
-            } else {
+                if (hasMention(event)) {
+                    flame(event);
+                    //supports flame
 
+                } else if (filetransfer(event)) {
+                    //supports file
+
+                } else if (simpleResponse(event)) {
+                    //!stat
+                    //who am i?
+                    //!roll
+                } else if (exitProtocol(event)) {
+                    //!shutdown
+                    //!kys
+                }
             }
         }
-
     }
 
-    private boolean selfResponse(MessageReceivedEvent event) {//checks for @samurai
+    private boolean hasMention(MessageReceivedEvent event) {
+        if (event.getMessage().getMentionedUsers().contains(self)) {
+            return true;
+        }
+        else return false;
+    }
+
+
+
+    private boolean filetransfer(MessageReceivedEvent event) {
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (attachments.size()>0) {
+            System.out.println("\nFound Attachment.");
+            for (Message.Attachment a : attachments) {
+                event.getChannel().sendMessage(String.format("Attachment Found.\n%s :%s bytes\n%s", a.getFileName(), a.getSize(), event.getMessage().getMentionedUsers().get(0).getName())).queue();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean flame(MessageReceivedEvent event) {//checks for @samurai
         List<User> mentions = event.getMessage().getMentionedUsers();
         if (mentions.contains(event.getJDA().getSelfUser())) {
             if (event.getMessage().getRawContent().toLowerCase().contains("flame") && mentions.size() == 2) {
                 int killNumber = rand.nextInt(shadePhrases.size());
                 String killPhrase = shadePhrases.get(killNumber);
                 User target = mentions.get((1-mentions.indexOf(event.getJDA().getSelfUser())));
-                if (killNumber == 2) {//"[user] more like stupid[(us)er]
+                if (killNumber == 2) {//"[Member] more like stupid[(us)er]
                     killPhrase += target.getName().substring(target.getName().length()/2);
                 }
                 killPhrase = String.format(killPhrase, target.getAsMention());
@@ -123,14 +152,6 @@ public class BotListener extends ListenerAdapter {
             } else {
                 messageSent = " rolled " + (rand.nextInt(100) + 1) + "!";
             }
-        } else if(messageReceived.equals("!help")) {
-            event.getChannel().sendMessage(new MessageEmbedImpl()
-                    .setAuthor(new MessageEmbed.AuthorInfo(event.getAuthor().getName(), null, null, null))
-                    .setColor(Color.CYAN)
-                    .setDescription("How do i do?")
-                    .setFields(makeFieldList()))
-                    .queue();
-
         }
         if (messageSent.length() > 0) {
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + messageSent).queue();
@@ -148,14 +169,11 @@ public class BotListener extends ListenerAdapter {
 
     private void getStat(MessageReceivedEvent event) {
         if (event.getMessage().getMentionedUsers().size()==0) {
-            event.getChannel().sendMessage(event.getAuthor().getAsMention() +
-                                        data.printStat(event.getAuthor().getId())).queue();
+            event.getChannel().sendMessage(new InfoPanel(data.users.get(event.getAuthor().getId()))).queue();
         } else {
-            String output = event.getAuthor().getAsMention();
             for (User u: event.getMessage().getMentionedUsers()) {
-                output += data.printStat(u.getId());
+                event.getChannel().sendMessage(new InfoPanel(data.users.get(u.getId()))).queue();
             }
-            event.getChannel().sendMessage(output).queue();
         }
     }
 

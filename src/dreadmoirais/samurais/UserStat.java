@@ -1,5 +1,7 @@
 package dreadmoirais.samurais;
 
+import net.dv8tion.jda.core.entities.Member;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,18 +15,18 @@ class UserStat {
 
     static final int BYTE_LENGTH = 10;
 
-    String name;
+    Member Member;
 
     private String userID;
-    private short timesFlamed;
+    short timesFlamed;
     private short duelsWon;
     private short duelsFought;
     private boolean[] change;
     private int position;
 
-    UserStat(String id, String name) {
+    UserStat(String id, Member member) {
         userID = id;
-        this.name = name;
+        this.Member = member;
         timesFlamed = 0;
     }
 
@@ -50,7 +52,13 @@ class UserStat {
 
     @Override
     public String toString() {
-        return "**" + name + "**\nTimes Flamed: " + timesFlamed;
+        return "UserStat{" +
+                "Member=" + Member +
+                ", timesFlamed=" + timesFlamed +
+                ", duelsWon=" + duelsWon +
+                ", duelsFought=" + duelsFought +
+                ", change=" + Arrays.toString(change) +
+                '}';
     }
 
     byte[] getDataBytes() {

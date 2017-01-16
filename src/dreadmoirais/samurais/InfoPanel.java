@@ -1,12 +1,9 @@
 package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.entities.EmbedType;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.impl.MessageEmbedImpl;
 
-import java.awt.*;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,76 +11,29 @@ import java.util.List;
  */
 public class InfoPanel extends MessageEmbedImpl {
 
-    private List<Field> fields;
+    private static final String avatarUrl = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
 
-    public InfoPanel() {
-        fields = new ArrayList<>();
-        fields.add(new Field("Body", "Body my ass", false));
+
+    public InfoPanel(UserStat stat) {
+        super();
+        this.setAuthor(new AuthorInfo(stat.Member.getEffectiveName(),null,stat.Member.getUser().getAvatarUrl(),null));
+        this.setTitle(null);
+        this.setColor(stat.Member.getColor());
+        //this.setThumbnail(new Thumbnail(stat.Member.getUser().getAvatarUrl(), null, 100, 100));
+        this.setType(EmbedType.RICH);
+        this.setFooter(new Footer("SamuraiStats™",avatarUrl,null));
+        this.setFields(generateFields(stat));
+
 
     }
 
-    @Override
-    public String getUrl() {
-        return null;
-    }
+    private List<Field> generateFields(UserStat stat) {
+        List<Field> fields = new LinkedList<>();
+        fields.add(new Field("Times Flamed", Short.toString(stat.timesFlamed), true));
 
-    @Override
-    public String getTitle() {
-        return "IsthisanEmbed?";
-    }
-
-    @Override
-    public String getDescription() {
-        return "what?";
-    }
-
-    @Override
-    public EmbedType getType() {
-        return null;
-    }
-
-    @Override
-    public Thumbnail getThumbnail() {
-        return null;
-    }
-
-    @Override
-    public Provider getSiteProvider() {
-        return null;
-    }
-
-    @Override
-    public AuthorInfo getAuthor() {
-        return new AuthorInfo("Samurai",null,null,null);
-    }
-
-    @Override
-    public VideoInfo getVideoInfo() {
-        return null;
-    }
-
-    @Override
-    public Footer getFooter() {
-        return null;
-    }
-
-    @Override
-    public ImageInfo getImage() {
-        return null;
-    }
-
-    @Override
-    public List<Field> getFields() {
         return fields;
+
     }
 
-    @Override
-    public Color getColor() {
-        return Color.CYAN;
-    }
 
-    @Override
-    public OffsetDateTime getTimestamp() {
-        return null;
-    }
 }

@@ -1,7 +1,6 @@
 package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.entities.Member;
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -17,7 +16,7 @@ public class BotData {
 
     private static final String BOT_ID = "270044218167132170";//18
 
-    private HashMap<String, UserStat> users;
+    HashMap<String, UserStat> users;
 
     public BotData(List<Member> memberList) {
         users = new HashMap<>();
@@ -25,7 +24,7 @@ public class BotData {
         for (Member m : memberList) {
             String userID = m.getUser().getId();
             if (!userID.equals(BOT_ID)) {
-                users.put(userID, new UserStat(userID, m.getEffectiveName()));
+                users.put(userID, new UserStat(userID, m));
             }
         }
         //printid();
