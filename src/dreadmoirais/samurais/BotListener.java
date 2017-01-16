@@ -2,10 +2,13 @@ package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.impl.MessageEmbedImpl;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.managers.fields.Field;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -49,6 +52,7 @@ public class BotListener extends ListenerAdapter {
         jda.getGuilds();
         //System.out.println(jda.getGuilds().get(0).getMembers().get(2).getUser().getId());
         data = new BotData(jda.getGuilds().get(0).getMembers());
+
     }
 
 
@@ -119,6 +123,14 @@ public class BotListener extends ListenerAdapter {
             } else {
                 messageSent = " rolled " + (rand.nextInt(100) + 1) + "!";
             }
+        } else if(messageReceived.equals("!help")) {
+            event.getChannel().sendMessage(new MessageEmbedImpl()
+                    .setAuthor(new MessageEmbed.AuthorInfo(event.getAuthor().getName(), null, null, null))
+                    .setColor(Color.CYAN)
+                    .setDescription("How do i do?")
+                    .setFields(makeFieldList()))
+                    .queue();
+
         }
         if (messageSent.length() > 0) {
             event.getChannel().sendMessage(event.getAuthor().getAsMention() + messageSent).queue();
@@ -127,10 +139,23 @@ public class BotListener extends ListenerAdapter {
         return false;
     }
 
+    private List<MessageEmbed.Field> makeFieldList() {
+        List<MessageEmbed.Field> fields = new ArrayList<MessageEmbed.Field>();
+        fields.add(new MessageEmbed.Field("BodyA", "Lorem Ipsum a la mode", false));
+        fields.add(new MessageEmbed.Field("BodyB", "Body like it's drop", false));
+        return fields;
+    }
+
     private void getStat(MessageReceivedEvent event) {
         if (event.getMessage().getMentionedUsers().size()==0) {
             event.getChannel().sendMessage(event.getAuthor().getAsMention() +
                                         data.printStat(event.getAuthor().getId())).queue();
+        } else {
+            String output = event.getAuthor().getAsMention();
+            for (User u: event.getMessage().getMentionedUsers()) {
+                output += data.printStat(u.getId());
+            }
+            event.getChannel().sendMessage(output).queue();
         }
     }
 

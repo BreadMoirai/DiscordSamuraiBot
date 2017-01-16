@@ -1,6 +1,7 @@
 package dreadmoirais.samurais;
 
 import net.dv8tion.jda.core.entities.Member;
+import org.apache.commons.codec.binary.Hex;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -20,10 +21,11 @@ public class BotData {
 
     public BotData(List<Member> memberList) {
         users = new HashMap<>();
+        System.out.println("Initializing BotData");
         for (Member m : memberList) {
             String userID = m.getUser().getId();
             if (!userID.equals(BOT_ID)) {
-                users.put(userID, new UserStat(userID));
+                users.put(userID, new UserStat(userID, m.getEffectiveName()));
             }
         }
         //printid();
@@ -76,7 +78,10 @@ public class BotData {
                     //System.out.println(Long.toHexString(userID));
                     userID = userID | (((long)userBytes[j]&0xFF) << ((7-j)*8));
                 }
-                //System.out.println(userID);
+                byte[] userData = new byte[UserStat.BYTE_LENGTH-8];
+                bis.read(userData);
+                users.get(Long.toString(userID)).setData(userData).setPosition(7+UserStat.BYTE_LENGTH*i);
+
                 //System.out.println(users.containsKey(Long.toString(userID)));
 
             }

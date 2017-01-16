@@ -2,11 +2,18 @@ package dreadmoirais.samurais;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by TonTL on 1/15/2017.
+ * Stats
+ *
  */
-public class UserStat {
+class UserStat {
+
+    static final int BYTE_LENGTH = 10;
+
+    String name;
 
     private String userID;
     private short timesFlamed;
@@ -15,12 +22,19 @@ public class UserStat {
     private boolean[] change;
     private int position;
 
-    public UserStat(String id) {
+    UserStat(String id, String name) {
         userID = id;
+        this.name = name;
         timesFlamed = 0;
     }
 
-    public void setPosition(int p) {
+    public UserStat setData(byte[] data) {
+        byte[] flame = Arrays.copyOfRange(data,0,2);
+        timesFlamed = (short) (((flame[0]&0xFF)<<8)|(flame[1]&0xFF));
+        return this;
+    }
+
+    void setPosition(int p) {
         position = p;
     }
 
@@ -30,17 +44,17 @@ public class UserStat {
 
     }
 
-    public void addFlame() {
+    void addFlame() {
         timesFlamed++;
     }
 
     @Override
     public String toString() {
-        return "Times Flamed: " + timesFlamed;
+        return "**" + name + "**\nTimes Flamed: " + timesFlamed;
     }
 
-    public byte[] getDataBytes() {
-        byte[] output = new byte[8+2];
+    byte[] getDataBytes() {
+        byte[] output = new byte[BYTE_LENGTH];
         //write userID
         long l = Long.parseLong(userID);
         for (int i = 7; i >= 0; i--) {
@@ -52,15 +66,6 @@ public class UserStat {
             timesFlamed >>= 8;
         }
         return output;
-    }
-
-    public static byte[] longToBytes(long l) {
-        byte[] result = new byte[8];
-        for (int i = 7; i >= 0; i--) {
-            result[i] = (byte)(l & 0xFF);
-            l >>= 8;
-        }
-        return result;
     }
 
 }
