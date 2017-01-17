@@ -1,7 +1,9 @@
 package dreadmoirais.samurais;
 
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -16,29 +18,31 @@ import java.util.Random;
 
 /**
  * Created by TonTL on 1/14/2017.
- * Does Stuff.
+ * Handles events
+ * API: http://home.dv8tion.net:8080/job/JDA/Promoted%20Build/javadoc/
+ *
  */
 public class BotListener extends ListenerAdapter {
 
     private static final String BOT_ID = "270044218167132170";//18
 
-    private static User self;
+    private static User self; //bot user
+
+    private static BotData data; //userData
 
     private static HashMap<String, String> roleResponses;
-    private static Random rand;
-    private static boolean active;
-    private static BotData data;
     private static ArrayList<String> fightWords;
     private static ArrayList<String> shadePhrases;
 
-    public BotListener() { //constructor
-        active = true;
+    private static Random rand;
 
+    /**
+     * constructor
+     */
+    public BotListener() {
         roleResponses = new HashMap<>(); //hashmap for responses to who am i?
         fightWords = new ArrayList<>(); //list of words that will trigger a duel
         shadePhrases = new ArrayList<>(); //What shade will the tree provide when you can have Samurai[Bot]
-
-
 
         //Random object for rolls
         rand = new Random();
@@ -46,12 +50,12 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        loadKeywords(); //loads keywords from file
-        JDA jda = event.getJDA();
-        //jda.getGuilds();
-        self = jda.getSelfUser();
-        System.out.println(jda.getSelfUser().getAvatarUrl() + "\n");
-        data = new BotData(jda.getGuilds().get(0).getMembers());
+        //fired when the connection is established
+
+        loadKeywords(); //loads phrases from keywords.txt
+
+        self = event.getJDA().getSelfUser();
+        data = new BotData(event.getJDA().getGuilds().get(0).getMembers());
 
     }
 
@@ -59,23 +63,13 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        //when a message is sent in the channel
+        //fires when a message is sent in the channel
 
-        JDA jda = event.getJDA(); //JDA, the core of the api.
-
-        //Event specific information
-        User author = event.getAuthor(); //The Member that sent the message
-        Message message = event.getMessage();  //The message that was received.
-        MessageChannel channel = event.getChannel(); //This is the MessageChannel that the message was sent to.
-        //  This could be a TextChannel, PrivateChannel, or Group!
-        String msg = message.getContent();  //This returns a human readable version of the Message. Similar to
-        // what you would see in the client.
-        if (!event.isFromType(ChannelType.TEXT)) //If this message was sent to a Guild TextChannel
-        {
-            channel.sendMessage("Boi why you dm me? Get the fuck outta here.");
+        if (!event.isFromType(ChannelType.TEXT))
+        {  //If this message was not sent to a Guild TextChannel
+            event.getChannel().sendMessage("Boi why you dm me? Get the fuck outta here.");
         } else {
-            if (active) {
-                if (hasMention(event)) {
+                if (event.getMessage().getMentionedUsers().contains(self)) {
                     flame(event);
                     //supports flame
 
@@ -91,29 +85,7 @@ public class BotListener extends ListenerAdapter {
                     //!kys
                 }
             }
-        }
-    }
 
-    private boolean hasMention(MessageReceivedEvent event) {
-        if (event.getMessage().getMentionedUsers().contains(self)) {
-            return true;
-        }
-        else return false;
-    }
-
-
-
-    private boolean filetransfer(MessageReceivedEvent event) {
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (attachments.size()>0) {
-            System.out.println("\nFound Attachment.");
-            for (Message.Attachment a : attachments) {
-                event.getChannel().sendMessage(String.format("Attachment Found.\n%s :%s bytes\n%s", a.getFileName(), a.getSize(), event.getMessage().getMentionedUsers().get(0).getName())).queue();
-            }
-            return true;
-        }
-
-        return false;
     }
 
     private boolean flame(MessageReceivedEvent event) {//checks for @samurai
@@ -131,6 +103,19 @@ public class BotListener extends ListenerAdapter {
                 data.addFlame(target.getId());
             }
         }
+        return false;
+    }
+
+    private boolean filetransfer(MessageReceivedEvent event) {
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (attachments.size()>0) {
+            System.out.println("\nFound Attachment.");
+            for (Message.Attachment a : attachments) {
+                event.getChannel().sendMessage(String.format("Attachment Found.\n%s :%s bytes\n%s", a.getFileName(), a.getSize(), event.getMessage().getMentionedUsers().get(0).getName())).queue();
+            }
+            return true;
+        }
+
         return false;
     }
 

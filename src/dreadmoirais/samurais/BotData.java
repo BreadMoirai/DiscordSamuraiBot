@@ -36,19 +36,6 @@ public class BotData {
         users.get(id).addFlame();
     }
 
-    public String printStat(String id) {
-        String s = "\n```\n";
-        s += users.get(id).toString() + "\n```";
-        return s;
-
-    }
-
-    private void printid() {
-        for (String id : users.keySet()) {
-            System.out.println(id);
-        }
-    }
-
     private void initData() {
         //try(RandomAccessFile raf = new RandomAccessFile("src\\dreadmoirais\\data\\userData.samurai", "rw")) {
         System.out.println("Parsing userData.samurai");
