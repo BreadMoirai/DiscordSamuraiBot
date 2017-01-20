@@ -20,16 +20,14 @@ let's go
 bitch
 
 #ShadePhrases
-you know who sucks? %s
-%s is a fucking pussy.
-%s? more like stupid
-%s is a scrub 
-What? No. %s is a nice person. :lying_face: 
-%s is a big meanie.
-It isn't even worth to flame %s.
-%s is a butt
-:fire::fire::fire:%s:fire::fire::fire:
-you're adopted, %s
-My :eggplant: is gonna :point_right::ok_hand: %s.:poop:
-%s:interrobang: I've never heard of that clown before.
-
+you know who sucks? [victim]
+[victim] is a fucking pussy.
+[victim]? more like stupid
+[victim] is a scrub
+What? No. [victim] is a nice person. :lying_face:
+[victim] is a big meanie.
+It isn't even worth to flame [victim].
+[victim] is a butt
+:fire::fire::fire:[victim]:fire::fire::fire:
+you're adopted, [victim]
+[victim]:interrobang: I've never heard of that clown before.
