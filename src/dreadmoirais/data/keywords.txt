@@ -20,16 +20,10 @@ let's go
 bitch
 
 #ShadePhrases
-<<<<<<< HEAD
-you know who sucks? [victim]
-[victim] is a fucking pussy.
-[victim]? more like stupid
-=======
 [victim]? more like stupid
 [victim] can go to hell.
 you know who sucks? [victim]
 [victim] is a fucking pussy.
->>>>>>> origin/master
 [victim] is a scrub
 What? No. [victim] is a nice person. :lying_face:
 [victim] is a big meanie.
@@ -37,9 +31,4 @@ It isn't even worth to flame [victim].
 [victim] is a butt
 :fire::fire::fire:[victim]:fire::fire::fire:
 you're adopted, [victim]
-<<<<<<< HEAD
 [victim]:interrobang: I've never heard of that clown before.
-=======
-My :eggplant: is gonna :point_right::ok_hand: [victim].:poop:
-[victim]:interrobang: I ain't ever heard of that clown before.
->>>>>>> origin/master
