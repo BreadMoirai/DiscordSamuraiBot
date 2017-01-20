@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 
 enum game {
-    Guess,
+    ConnectFour,
     Roshambo
 }
 
@@ -68,6 +68,8 @@ public class BotListener extends ListenerAdapter {
         basicCommands.add(BotListener::exitProtocol);
         mentionCommands = new ArrayList<>();
         mentionCommands.add(BotListener::getFlame);
+        mentionCommands.add(BotListener::getFile);
+
 
 
         active = false;
@@ -190,9 +192,7 @@ public class BotListener extends ListenerAdapter {
                             event.getChannel().sendMessage(messageBuilder.build()).queue();
                         } else if (x == 1) {
                             messageBuilder.setTTS(true);
-                            event.getChannel().sendMessage(messageBuilder.build()).queue(message -> {
-                                message.editMessage(victim.getAsMention()).queue();
-                            });
+                            event.getChannel().sendMessage(messageBuilder.build()).queue(message -> message.editMessage(victim.getAsMention()).queue());
                         } else {
                             event.getChannel().sendMessage(messageBuilder.build()).queue();
                         }
@@ -205,7 +205,7 @@ public class BotListener extends ListenerAdapter {
     }
 
 
-    private void filetransfer(MessageReceivedEvent event) {
+    private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             System.out.println("\nFound Attachment.");
@@ -237,6 +237,8 @@ public class BotListener extends ListenerAdapter {
      * return false;
      * }
      **/
+
+
     //miscMethods
     private void loadKeywords() {
         try (BufferedReader br = new BufferedReader(new FileReader("src\\dreadmoirais\\data\\keywords.txt"))) {
