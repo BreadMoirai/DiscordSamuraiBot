@@ -1,6 +1,8 @@
 package dreadmoirais.samurais;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -34,6 +36,15 @@ class UserStat {
         byte[] flame = Arrays.copyOfRange(data,0,2);
         timesFlamed = (short) (((flame[0]&0xFF)<<8)|(flame[1]&0xFF));
         return this;
+    }
+
+    public MessageEmbed buildEmbed() {
+        return new EmbedBuilder()
+                .setAuthor(Member.getEffectiveName(), Member.getUser().getAvatarUrl(), null)
+                .setColor(Member.getColor())
+                .setFooter("SamuraiStat™", "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg")
+                .addField(new MessageEmbed.Field("Times Flamed", Short.toString(timesFlamed), true))
+                .build();
     }
 
     void setPosition(int p) {
