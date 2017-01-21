@@ -86,9 +86,11 @@ public class BotListener extends ListenerAdapter {
             int x = duelReactions.indexOf(event.getReaction().getEmote().getName());
             if (x!=-1) {
                 for (Game g : games) {
-                    if (g.message.getId().equals(event.getMessageId())) {
-                        g.mansmanySucks(x, event.getUser());
+                    if (g.message.getId().equals(event.getMessageId()) && g.isPlayer(event.getUser())) {
+                        g.dropTile(x, event.getUser());
                         g.message.editMessage(g.buildBoard()).queue();
+                        event.getReaction().removeReaction(event.getUser()).queue();
+                        break;
                     }
                 }
             }
@@ -228,10 +230,16 @@ public class BotListener extends ListenerAdapter {
             for (String key : fightWords) {
                 if (message.contains(key)) {
                     Game game = new Game(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
-                    game.message = event.getChannel().sendMessage(game.buildBoard()).complete();
-                    duelReactions.forEach( reaction -> {
-                        game.message.addReaction(reaction).queue();
-                    });
+                    game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
+                    for (String reaction : duelReactions) {
+                        if (reaction.equals("8\u20e3")) {
+                            game.message.addReaction(reaction).queue( success -> {
+                                game.message.editMessage(game.buildBoard()).queue();
+                            });
+                        } else {
+                            game.message.addReaction(reaction).queue();
+                        }
+                    }
                     games.add(game);
                     break;
                 }

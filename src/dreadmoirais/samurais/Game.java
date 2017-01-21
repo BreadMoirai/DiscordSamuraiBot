@@ -1,8 +1,11 @@
 package dreadmoirais.samurais;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+
+import java.awt.*;
 
 /**
  * Created by TonTL on 1/20/2017.
@@ -26,11 +29,13 @@ public class Game {
             next = B;
 
         board = new char[X_BOUND][Y_BOUND];
-
-
     }
 
-    public boolean mansmanySucks(int columnChoice, User player) {
+    public boolean isPlayer(User player) {
+        return player==A || player==B;
+    }
+
+    public void dropTile(int columnChoice, User player) {
         if (player==next) {
             for (int y = 0; y < Y_BOUND; y++) {
                 if (board[columnChoice][y]=='\u0000') {
@@ -42,14 +47,14 @@ public class Game {
                         board[columnChoice][y] = 'b';
                         next = A;
                     }
-                    return true;
+                    return;
                 }
             }
         }
-        return false;
+        return;
     }
 
-    public Message buildBoard() {
+    public MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (next == A) {
             mb.append("***")
@@ -63,20 +68,29 @@ public class Game {
                     .append(B.getAsMention())
                     .append("***\n");
         }
-        mb.append("1\u20e32\u20e33\u20e34\u20e35\u20e36\u20e37\u20e38\u20e3\n");
+        return mb;
+    }
+
+    public Message buildBoard() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("1\u20e32\u20e33\u20e34\u20e35\u20e36\u20e37\u20e38\u20e3\n");
         for (int y = 5; y >= 0; y--) {
             for (int x = 0; x < X_BOUND; x++) {
                 if (board[x][y]=='a') {
-                    mb.append("\uD83D\uDD34");
+                    sb.append("\uD83D\uDD34");
                 } else if (board[x][y]=='b') {
-                    mb.append("\uD83D\uDD35");
+                    sb.append("\uD83D\uDD35");
                 } else {
-                    mb.append("\u26aa");
+                    sb.append("\u26aa");
                 }
             }
-            mb.append("\n");
+            sb.append("\n");
         }
-        return mb.build();
+        EmbedBuilder eb = new EmbedBuilder()
+                .addField("Connect 4", sb.toString(), true)
+                .setColor(Color.BLACK)
+                .setImage(A.getAvatarUrl());
+        return buildTitle().setEmbed(eb.build()).build();
     }
 
 
