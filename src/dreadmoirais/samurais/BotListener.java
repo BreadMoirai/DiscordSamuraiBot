@@ -1,5 +1,7 @@
 package dreadmoirais.samurais;
 
+import com.sun.javafx.UnmodifiableArrayList;
+
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
@@ -16,13 +18,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
-
-
-enum game {
-    ConnectFour,
-    Roshambo
-}
-
 
 /**
  * Created by TonTL on 1/14/2017.
@@ -43,12 +38,12 @@ public class BotListener extends ListenerAdapter {
 
     private static Random rand;
 
+    private static List<Game> games;
 
     private static List<Consumer<MessageReceivedEvent>> basicCommands;
     private static List<Consumer<MessageReceivedEvent>> mentionCommands;
 
-    private static boolean active;
-    private static game currentGame;
+    private static final List<String> duelReactions = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3"}, 8);
 
     /**
      * constructor
@@ -61,19 +56,17 @@ public class BotListener extends ListenerAdapter {
         //Random object for rolls
         rand = new Random();
 
+        games = new ArrayList<>();
+
         basicCommands = new ArrayList<>();
         basicCommands.add(BotListener::getStat);
         basicCommands.add(BotListener::getIdentity);
         basicCommands.add(BotListener::getRoll);
+        basicCommands.add(BotListener::startDuel);
         basicCommands.add(BotListener::exitProtocol);
         mentionCommands = new ArrayList<>();
         mentionCommands.add(BotListener::getFlame);
         mentionCommands.add(BotListener::getFile);
-
-
-
-        active = false;
-        currentGame = null;
     }
 
     @Override
@@ -84,13 +77,22 @@ public class BotListener extends ListenerAdapter {
 
         self = event.getJDA().getSelfUser();
         data = new BotData(event.getJDA().getGuilds().get(0).getMembers());
-
     }
 
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        System.out.println(event.getReaction().getEmote().getName());
+        if (games.size()!=0) {
+            int x = duelReactions.indexOf(event.getReaction().getEmote().getName());
+            if (x!=-1) {
+                for (Game g : games) {
+                    if (g.message.getId().equals(event.getMessageId())) {
+                        g.mansmanySucks(x, event.getUser());
+                        g.message.editMessage(g.buildBoard()).queue();
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -115,7 +117,7 @@ public class BotListener extends ListenerAdapter {
 
     //Basic Commands
     private static void getStat(MessageReceivedEvent event) {
-        if (event.getMessage().getContent().toLowerCase().contains("!stat")) {
+        if (event.getMessage().getRawContent().toLowerCase().contains("!stat")) {
             if (event.getMessage().getMentionedUsers().size() == 0) {
                 event.getChannel().sendMessage(data.users.get(event.getAuthor().getId()).buildEmbed()).queue();
             } else {
@@ -127,7 +129,7 @@ public class BotListener extends ListenerAdapter {
     }
 
     private static void getIdentity(MessageReceivedEvent event) {
-        if (event.getMessage().getContent().toLowerCase().contains(("who am i?"))) {
+        if (event.getMessage().getRawContent().toLowerCase().contains(("who am i?"))) {
             event.getChannel().sendMessage(new MessageBuilder()
                     .append(event.getAuthor().getAsMention())
                     .append(" ").append(roleResponses.get(event.getMember().getRoles().toString()))
@@ -136,7 +138,7 @@ public class BotListener extends ListenerAdapter {
     }
 
     private static void getRoll(MessageReceivedEvent event) {
-        String message = event.getMessage().getContent().toLowerCase();
+        String message = event.getMessage().getRawContent().toLowerCase();
         if (message.contains("!roll")) {
             int x = 1;
             if (message.length() < 7) {
@@ -158,7 +160,7 @@ public class BotListener extends ListenerAdapter {
     }
 
     private static void exitProtocol(MessageReceivedEvent event) {
-        if (event.getMessage().getContent().equalsIgnoreCase("!shutdown")) {
+        if (event.getMessage().getRawContent().equalsIgnoreCase("!shutdown")) {
             event.getChannel().sendMessage("sad boop").queue();
             data.saveDataFull();
             event.getJDA().shutdown();
@@ -168,7 +170,7 @@ public class BotListener extends ListenerAdapter {
     //MentionCommands
 
     private static void getFlame(MessageReceivedEvent event) {
-        if (event.getMessage().getContent().toLowerCase().contains("flame")) {
+        if (event.getMessage().getRawContent().toLowerCase().contains("flame")) {
             int upperBound = shadePhrases.size();
             List<User> victims = new ArrayList<>(event.getMessage().getMentionedUsers());
             for (Role r : event.getMessage().getMentionedRoles()) {
@@ -205,6 +207,10 @@ public class BotListener extends ListenerAdapter {
     }
 
 
+    /**
+     * INCOMPLETE
+     * @param event
+     */
     private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
@@ -216,27 +222,23 @@ public class BotListener extends ListenerAdapter {
     }
 
 
-    /**
-     * private boolean duel(MessageReceivedEvent event) {
-     * String message = event.getMessage().getRawContent();
-     * List<User> mentions = event.getMessage().getMentionedUsers();
-     * for (String key : fightWords) {
-     * if (message.contains(key)) {
-     * active = true;
-     * int a = rand.nextInt(1);
-     * <p>
-     * switch(a) {
-     * case 0:
-     * currentGame = game.Guess;
-     * return true;
-     * default:
-     * return false;
-     * }
-     * }
-     * }
-     * return false;
-     * }
-     **/
+    private static void startDuel(MessageReceivedEvent event) {
+        if (event.getMessage().getMentionedUsers().size() == 1) {
+            String message = event.getMessage().getRawContent().toLowerCase();
+            for (String key : fightWords) {
+                if (message.contains(key)) {
+                    Game game = new Game(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
+                    game.message = event.getChannel().sendMessage(game.buildBoard()).complete();
+                    duelReactions.forEach( reaction -> {
+                        game.message.addReaction(reaction).queue();
+                    });
+                    games.add(game);
+                    break;
+                }
+            }
+        }
+    }
+
 
 
     //miscMethods
