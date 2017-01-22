@@ -34,7 +34,7 @@ What can I do?!
  - <i>"!shutdown"</i>
 
 ## To Do:
- - [ ] Complete Connect 4.
+ - [x] Complete Connect 4.
  	- [x] responds to reactions
  - [ ] Standardize inputs into classic !command
  - [ ] Correct saveData()
