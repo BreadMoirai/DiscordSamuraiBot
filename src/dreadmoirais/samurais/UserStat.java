@@ -42,7 +42,7 @@ class UserStat {
         return new EmbedBuilder()
                 .setAuthor(Member.getEffectiveName(), Member.getUser().getAvatarUrl(), null)
                 .setColor(Member.getColor())
-                .setFooter("SamuraiStat™", "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg")
+                .setFooter("SamuraiStats\u2122", "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg")
                 .addField(new MessageEmbed.Field("Times Flamed", Short.toString(timesFlamed), true))
                 .build();
     }
