@@ -1,12 +1,7 @@
 package dreadmoirais.samurais;
 
-import com.sun.javafx.UnmodifiableArrayList;
-
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -16,7 +11,10 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 /**
@@ -42,8 +40,6 @@ public class BotListener extends ListenerAdapter {
 
     private static List<Consumer<MessageReceivedEvent>> basicCommands;
     private static List<Consumer<MessageReceivedEvent>> mentionCommands;
-
-    private static final List<String> duelReactions = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3"}, 8);
 
     /**
      * constructor
@@ -83,15 +79,27 @@ public class BotListener extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (games.size()!=0) {
-            int x = duelReactions.indexOf(event.getReaction().getEmote().getName());
-            if (x!=-1) {
-                for (Game g : games) {
-                    if (g.message.getId().equals(event.getMessageId()) && g.isPlayer(event.getUser())) {
-                        g.dropTile(x, event.getUser());
-                        g.message.editMessage(g.buildBoard()).queue();
-                        event.getReaction().removeReaction(event.getUser()).queue();
-                        break;
+            updateGames(event);
+        }
+    }
+
+    private void updateGames(MessageReactionAddEvent event) {
+        int x = Game.connect4Reactions.indexOf(event.getReaction().getEmote().getName());
+        if (x!=-1) {
+            for (Game g : games) {
+                if (g.message.getId().equals(event.getMessageId()) && g.isPlayer(event.getUser())) {
+                    g.dropTile(x, event.getUser());
+                    if (g.hasEnded()) {
+                        games.remove(g);
+                        for ( MessageReaction messageReaction: event.getChannel().getMessageById(event.getMessageId()).complete().getReactions()) {
+                            if (Game.connect4Reactions.contains(messageReaction.getEmote().getName())) {
+                                messageReaction.removeReaction().queue();
+                            }
+                        }
                     }
+                    g.message.editMessage(g.buildBoard()).queue();
+                    event.getReaction().removeReaction(event.getUser()).queue();
+                    break;
                 }
             }
         }
@@ -231,7 +239,8 @@ public class BotListener extends ListenerAdapter {
                 if (message.contains(key)) {
                     Game game = new Game(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
                     game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
-                    for (String reaction : duelReactions) {
+                    game.samurai = self;
+                    for (String reaction : Game.connect4Reactions) {
                         if (reaction.equals("8\u20e3")) {
                             game.message.addReaction(reaction).queue( success -> {
                                 game.message.editMessage(game.buildBoard()).queue();
