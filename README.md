@@ -34,19 +34,22 @@ What can I do?!
  - <i>"!shutdown"</i>
 
 ## To Do:
- - [ ] Complete Connect 4.
- 	- [x] responds to reactions
+ - [ ] Remove Bots from dataFiles
  - [ ] Standardize inputs into classic !command
- - [ ] Correct saveData()
+
  - [ ] Simplify @Override methods to increase clarity of commands
  	 - [ ] Delegate method bodies to helper methods	
- - [ ] Condense BotData and helper classes: Stat, UserStat 
-	 - [ ] collapse into inner classes 
-	 - [ ] Add duel data	
+
  - [ ] Add two more variations of Game
 	 - [ ] Custom emojis to select game?	
  - [ ] Add File input and output
 	 - [ ] Goal: Merge binary files and send back to guild
+ - [x] Complete Connect 4.
+ 	- [x] responds to reactions
+ - [x] Condense BotData and helper classes: Stat, UserStat 
+	 - [x] collapse into inner classes 
+	 - [x] Add duel data	
+ - [x] Correct saveData()
 
 
 ## Contributing
@@ -55,7 +58,7 @@ What can I do?!
 
 2. Create your feature branch: `git checkout -b my-new-feature`
 
-3. Commit your changes: `git commit -am 'Add some feature'`
+3. Commit your changes: `git commit -m 'Add some feature'`
 
 4. Push to the branch: `git push origin my-new-feature`
 

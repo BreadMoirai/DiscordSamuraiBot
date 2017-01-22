@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
+import java.util.HashMap;
 
 /**
  * Created by TonTL on 1/20/2017.
@@ -24,6 +25,8 @@ public class Game {
     private User winner;
 
     Message message;
+    private BotData.UserData userDataA;
+    private BotData.UserData userDataB;
 
     public Game(User Instigator, User Challenged, boolean first) {
         A = Instigator;
@@ -174,9 +177,19 @@ public class Game {
     private void setWinner(char w) {
         if (w == 'a') {
             winner = A;
+            userDataA.incrementStat("Duels Won");
+            userDataA.incrementStat("Duels Fought");
+            userDataB.incrementStat("Duels Fought");
         } else if (w == 'b') {
             winner = B;
+            userDataB.incrementStat("Duels Won");
+            userDataB.incrementStat("Duels Fought");
+            userDataA.incrementStat("Duels Fought");
         }
     }
 
+    void setData(HashMap<String, BotData.UserData> users) {
+        this.userDataA = users.get(A.getId());
+        this.userDataB = users.get(B.getId());
+    }
 }

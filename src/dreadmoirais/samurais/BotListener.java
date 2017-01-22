@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  */
 public class BotListener extends ListenerAdapter {
 
-    private static final String BOT_ID = "270044218167132170";//18
+    //private static final String BOT_ID = "270044218167132170";//18
 
     private static User self; //bot user
 
@@ -72,6 +72,7 @@ public class BotListener extends ListenerAdapter {
         loadKeywords(); //loads phrases from keywords.txt
 
         self = event.getJDA().getSelfUser();
+        Game.samurai = self;
         data = new BotData(event.getJDA().getGuilds().get(0).getMembers());
     }
 
@@ -208,7 +209,7 @@ public class BotListener extends ListenerAdapter {
                         } else {
                             event.getChannel().sendMessage(messageBuilder.build()).queue();
                         }
-                        data.addFlame(victim.getId());
+                        data.incrementStat(victim.getId(), "Times Flamed");
                     }
                 }
             }
@@ -219,7 +220,6 @@ public class BotListener extends ListenerAdapter {
 
     /**
      * INCOMPLETE
-     * @param event
      */
     private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
@@ -238,13 +238,11 @@ public class BotListener extends ListenerAdapter {
             for (String key : fightWords) {
                 if (message.contains(key)) {
                     Game game = new Game(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
+                    game.setData(data.users);
                     game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
-                    game.samurai = self;
                     for (String reaction : Game.connect4Reactions) {
                         if (reaction.equals("8\u20e3")) {
-                            game.message.addReaction(reaction).queue( success -> {
-                                game.message.editMessage(game.buildBoard()).queue();
-                            });
+                            game.message.addReaction(reaction).queue( success -> game.message.editMessage(game.buildBoard()).queue());
                         } else {
                             game.message.addReaction(reaction).queue();
                         }
