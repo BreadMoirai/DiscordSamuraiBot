@@ -5,7 +5,7 @@
 This bot don't do much of anything
 
 ###Overview
-All relevant code is stored in src\DreadMoirais\Samurais
+/All relevant code is stored in src\DreadMoirais\Samurais
 - Main class BotListener.java
 	`This class listens to events from discord and responds appropriately`
 
@@ -15,7 +15,6 @@ uses JDA
 https://github.com/DV8FromTheWorld/JDA/
 
 Download the latest Beta version with dependencies
-
 ## Authors
 
 DreadMoirai
@@ -29,18 +28,16 @@ What can I do?!
  - `!roll`
  - `!duel`**
  - `!flame`**
- - `!upload`<sup>&#8224</sup>
- - `!getScores`<sup>&#8224</sup>
+ - `!upload`<sup>†</sup>
+ - `!getScores`<sup>†</sup>
+ - `!shutdown`
  
- <sub>* @mention optional&#13;&#10;</sub>
- <sub>** @mention required&#13;&#10;</sub>
- <sub><sup>&#8224</sup> Under Construction&#13;&#10;</sub>
-
-###### In Progress:
- - <i>"duel"</i>
- - <i>"!shutdown"</i>
+ <br><sub>* @mention optional</sub></br>
+ <br><sub>** @mention required&#13;&#10;</sub></br>
+ <br><sub><sup>†</sup> Under Construction&#13;&#10;</sub></br>
 
 ## To Do:	
+ - [ ] Restrict !Shutdown permissions
  - [ ] Add File input and output `scores.db`
 	 - [ ] Merge binary files and send back to guild
 	 - [ ] take file data and rename to match user
