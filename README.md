@@ -1,4 +1,4 @@
-# DiscordSamuraiBot
+﻿# DiscordSamuraiBot
 
 ## About
 
@@ -31,10 +31,9 @@ What can I do?!
  - `!upload`<sup>†</sup>
  - `!getScores`<sup>†</sup>
  - `!shutdown`
- 
- <br><sub>* @mention optional</sub></br>
- <br><sub>** @mention required&#13;&#10;</sub></br>
- <br><sub><sup>†</sup> Under Construction&#13;&#10;</sub></br>
+ * <sub>@mention optional</sub>  
+ ** <sub>@mention required&#13;&#10;</sub> 
+ † <sub>Under Construction&#13;&#10;</sub> 
 
 ## To Do:	
  - [ ] Restrict !Shutdown permissions
