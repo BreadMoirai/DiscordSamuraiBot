@@ -1,4 +1,4 @@
-# DiscordSamuraiBot
+﻿# DiscordSamuraiBot
 
 ## About
 
@@ -24,15 +24,14 @@ DreadMoirai
 What can I do?!
 #### Responds to:
 <i> All commands are case-insensitive</i><br />
- - `!stat`*
- - `!roll`
- - `!duel`**
- - `!flame`**
+ - `!stat [@mention]`*
+ - `!roll [upperLimit]`*
+ - `!duel [@mention]`
+ - `!flame [@mention]`
  - `!upload`†
  - `!getScores`†
  - `!shutdown`<br />
- \* <sub>@mention optional</sub><br />
- ** <sub>@mention required&#13;&#10;</sub> <br />
+ \* <sub>argument optional</sub><br />
  † <sub>Under Construction&#13;&#10;</sub> <br />
 
 ## To Do:	
