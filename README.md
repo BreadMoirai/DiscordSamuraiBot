@@ -31,9 +31,9 @@ What can I do?!
  - `!upload`<sup>†</sup>
  - `!getScores`<sup>†</sup>
  - `!shutdown`
- * <sub>@mention optional</sub>  
- ** <sub>@mention required&#13;&#10;</sub> 
- † <sub>Under Construction&#13;&#10;</sub> 
+ \* <sub>@mention optional</sub><br />
+ ** <sub>@mention required&#13;&#10;</sub> <br />
+ † <sub>Under Construction&#13;&#10;</sub> <br />
 
 ## To Do:	
  - [ ] Restrict !Shutdown permissions
