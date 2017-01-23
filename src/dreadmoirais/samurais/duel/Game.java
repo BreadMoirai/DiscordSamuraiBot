@@ -18,9 +18,9 @@ public abstract class Game {
 
     public Message message;
 
-    protected User A, B;
-    protected User winner;
-    protected User next;
+    User A, B;
+    User winner;
+    User next;
 
     private BotData.UserData userDataA;
     private BotData.UserData userDataB;
@@ -61,7 +61,7 @@ public abstract class Game {
 
     public abstract boolean hasEnded();
 
-    protected void setWinner(char w) {
+    void setWinner(char w) {
         if (w == 'a') {
             winner = A;
             userDataA.incrementStat("Duels Won");

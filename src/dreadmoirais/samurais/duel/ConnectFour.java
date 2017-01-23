@@ -10,11 +10,12 @@ import java.util.List;
 
 /**
  * Created by TonTL on 1/23/2017.
+ * Connct Four
  */
 public class ConnectFour extends Game{
 
 
-    protected static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3"}, 8);
+    private static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3"}, 8);
 
     private static final int X_BOUND = 8, Y_BOUND = 6;
 

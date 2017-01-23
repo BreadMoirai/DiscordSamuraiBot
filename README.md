@@ -9,7 +9,7 @@ All relevant code is stored in src\DreadMoirais\Samurais
 - Main class BotListener.java
 	`This class listens to events from discord and responds appropriately`
 
-#### Required
+#### RequiredForDevelopment
 uses JDA
 
 https://github.com/DV8FromTheWorld/JDA/
@@ -25,29 +25,38 @@ DreadMoirai
 What can I do?!
 #### Responds to:
 <i> All commands are case-insensitive</i>
- - `who am i?`
- - `!stat`
- - `@samurai flame @user` - to be revised
+ - `!stat`*
+ - `!roll`
+ - `!duel`**
+ - `!flame`**
+ - `!upload`<sup>&#8224</sup>
+ - `!getScores`<sup>&#8224</sup>
+ 
+ <sub>* @mention optional&#13;&#10;</sub>
+ <sub>** @mention required&#13;&#10;</sub>
+ <sub><sup>&#8224</sup> Under Construction&#13;&#10;</sub>
 
 ###### In Progress:
  - <i>"duel"</i>
  - <i>"!shutdown"</i>
 
-## To Do:
- - [ ] Add two more variations of Game
-	 - [ ] Custom emojis to select game?	
+## To Do:	
  - [ ] Add File input and output `scores.db`
 	 - [ ] Merge binary files and send back to guild
 	 - [ ] take file data and rename to match user
 	 - [ ] analyze file data and transfer to SamuraiStats
+	 - [ ] expand saveData to correlate users
 	 - [ ] Add methods 
 		- [ ] !lowscore
 		- [ ] !noscore
 		- [ ] !getScore //requires Osu!API & osu.db
  - [ ] Remove Bots from dataFiles
+ - [x] Added empty hangman class for game
+    - [ ] Complete and Implement Duel.Hangman
+    - [ ] Custom emojis to select game?
  - [x] Standardize inputs into classic !command
  - [x] Simplify @Override methods to increase clarity of commands
- 	 - [x] Delegate method bodies to helper methods	
+ 	- [x] Delegate method bodies to helper methods	
  - [x] Complete Connect 4.
  	- [x] responds to reactions
  - [x] Condense BotData and helper classes: Stat, UserStat 

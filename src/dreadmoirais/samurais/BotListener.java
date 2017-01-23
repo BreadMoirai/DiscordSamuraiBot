@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -60,12 +61,12 @@ public class BotListener extends ListenerAdapter {
         keys.add("!roll");
         commands.add(BotListener::startDuel);
         keys.add("!duel");
-        commands.add(BotListener::exitProtocol);
-        keys.add("!shutdown");
         commands.add(BotListener::getFlame);
         keys.add("!flame");
         commands.add(BotListener::getFile);
         keys.add("!upload");
+        commands.add(BotListener::exitProtocol);
+        keys.add("!shutdown");
     }
 
     @Override
@@ -105,10 +106,15 @@ public class BotListener extends ListenerAdapter {
     }
 
     @Override
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+
+    }
+
+    @Override
     public void onDisconnect(DisconnectEvent event) {
-        super.onDisconnect(event);
         data.saveDataFull();
     }
+
 
     //Basic Commands
     private static void getStat(MessageReceivedEvent event) {
@@ -120,6 +126,7 @@ public class BotListener extends ListenerAdapter {
             }
         }
     }
+
 
     private static void getRoll(MessageReceivedEvent event) {
         String message = event.getMessage().getRawContent().toLowerCase();
@@ -145,13 +152,6 @@ public class BotListener extends ListenerAdapter {
 
     }
 
-    private static void exitProtocol(MessageReceivedEvent event) {
-        event.getMessage().addReaction("\uD83D\uDC4B").queue();
-        data.saveDataFull();
-        event.getJDA().shutdown();
-    }
-
-    //MentionCommands
 
     private static void getFlame(MessageReceivedEvent event) {
         List<User> victims = new ArrayList<>(event.getMessage().getMentionedUsers());
@@ -189,20 +189,6 @@ public class BotListener extends ListenerAdapter {
             }
 
 
-        }
-    }
-
-
-    /**
-     * INCOMPLETE
-     */
-    private static void getFile(MessageReceivedEvent event) {
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (attachments.size() > 0) {
-            System.out.println("\nFound Attachment.");
-            event.getMessage().addReaction("\u2705");
-        } else {
-            event.getMessage().addReaction("\uD83D\uDE12");
         }
     }
 
@@ -246,6 +232,27 @@ public class BotListener extends ListenerAdapter {
 
             }
         }
+    }
+
+
+    /**
+     * INCOMPLETE
+     */
+    private static void getFile(MessageReceivedEvent event) {
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (attachments.size() > 0) {
+            System.out.println("\nFound Attachment.");
+            event.getMessage().addReaction("\u2705");
+        } else {
+            event.getMessage().addReaction("\uD83D\uDE12");
+        }
+    }
+
+
+    private static void exitProtocol(MessageReceivedEvent event) {
+        event.getMessage().addReaction("\uD83D\uDC4B").queue();
+        data.saveDataFull();
+        event.getJDA().shutdown();
     }
 
 

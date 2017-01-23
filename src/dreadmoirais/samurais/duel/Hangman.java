@@ -8,11 +8,12 @@ import java.util.List;
 
 /**
  * Created by TonTL on 1/23/2017.
+ * Hangman
  */
 class Hangman extends Game {
 
-    protected static final List<String> HANGMAN_REACTIONS = new UnmodifiableArrayList<>(new String[] {""}, 0);
-    protected static final List<String> HANGMAN_IMAGES = new UnmodifiableArrayList<>(new String[]{"https://puu.sh/twqZM.jpg", "https://puu.sh/twr1V.jpg", "https://puu.sh/twr3V.jpg", "https://puu.sh/twrGc.jpg", "https://puu.sh/twrGx.jpg", "https://puu.sh/twrW2.jpg", "https://puu.sh/twrWn.jpg", "https://puu.sh/twrWJ.jpg", "https://puu.sh/twrWV.jpg", "https://puu.sh/twrX5.jpg", "https://puu.sh/twrXq.jpg"}, 11);
+    private static final List<String> HANGMAN_REACTIONS = new UnmodifiableArrayList<>(new String[] {""}, 0);
+    private static final List<String> HANGMAN_IMAGES = new UnmodifiableArrayList<>(new String[]{"https://puu.sh/twqZM.jpg", "https://puu.sh/twr1V.jpg", "https://puu.sh/twr3V.jpg", "https://puu.sh/twrGc.jpg", "https://puu.sh/twrGx.jpg", "https://puu.sh/twrW2.jpg", "https://puu.sh/twrWn.jpg", "https://puu.sh/twrWJ.jpg", "https://puu.sh/twrWV.jpg", "https://puu.sh/twrX5.jpg", "https://puu.sh/twrXq.jpg"}, 11);
 
     private String word;
 
