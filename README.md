@@ -1,4 +1,4 @@
-﻿# DiscordSamuraiBot
+# DiscordSamuraiBot
 
 ## About
 
@@ -30,7 +30,7 @@ What can I do?!
  - `!flame`**
  - `!upload`<sup>†</sup>
  - `!getScores`<sup>†</sup>
- - `!shutdown`
+ - `!shutdown`<br />
  \* <sub>@mention optional</sub><br />
  ** <sub>@mention required&#13;&#10;</sub> <br />
  † <sub>Under Construction&#13;&#10;</sub> <br />
