@@ -117,7 +117,7 @@ public class BotData {
         }
     }
 
-    class UserData {
+    public class UserData {
 
         static final int BYTE_LENGTH = 14;
 
@@ -165,7 +165,7 @@ public class BotData {
 
         //public void writeData(DataOutputStream os) throws IOException {}
 
-        void incrementStat(String statName) {
+        public void incrementStat(String statName) {
             for (Stat stat : stats) {
                 if (statName.equals(stat.name)) {
                     stat.value += 1;

@@ -1,5 +1,7 @@
 package dreadmoirais.samurais;
 
+import dreadmoirais.samurais.duel.ConnectFour;
+import dreadmoirais.samurais.duel.Game;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
@@ -33,7 +35,7 @@ public class BotListener extends ListenerAdapter {
 
     private static Random rand;
 
-    private static List<Game> games;
+    private static List<dreadmoirais.samurais.duel.Game> games;
 
     private static List<Consumer<MessageReceivedEvent>> commands;
     private static List<String> keys;
@@ -73,7 +75,7 @@ public class BotListener extends ListenerAdapter {
         loadKeywords(); //loads phrases from keywords.txt
 
         self = event.getJDA().getSelfUser();
-        Game.samurai = self;
+        dreadmoirais.samurais.duel.Game.samurai = self;
         data = new BotData(event.getJDA().getGuilds().get(0).getMembers());
     }
 
@@ -198,9 +200,7 @@ public class BotListener extends ListenerAdapter {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             System.out.println("\nFound Attachment.");
-            for (Message.Attachment a : attachments) {
-                event.getMessage().addReaction("\u2705");
-            }
+            event.getMessage().addReaction("\u2705");
         } else {
             event.getMessage().addReaction("\uD83D\uDE12");
         }
@@ -209,10 +209,12 @@ public class BotListener extends ListenerAdapter {
 
     private static void startDuel(MessageReceivedEvent event) {
         if (event.getMessage().getMentionedUsers().size() == 1) {
-            Game game = new Game(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
+            Game game = new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
+
             game.setData(data.users);
             game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
-            for (String reaction : Game.connect4Reactions) {
+
+            for (String reaction : game.getReactions()) {
                 if (reaction.equals("8\u20e3")) {
                     game.message.addReaction(reaction).queue(success -> game.message.editMessage(game.buildBoard()).queue());
                 } else {
@@ -224,23 +226,24 @@ public class BotListener extends ListenerAdapter {
     }
 
     private void updateGames(MessageReactionAddEvent event) {
-        int x = Game.connect4Reactions.indexOf(event.getReaction().getEmote().getName());
-        if (x != -1) {
-            for (Game g : games) {
-                if (g.message.getId().equals(event.getMessageId()) && g.isPlayer(event.getUser())) {
-                    g.dropTile(x, event.getUser());
-                    if (g.hasEnded()) {
-                        games.remove(g);
+        for (Game game : games) {
+            int x = game.getReactions().indexOf(event.getReaction().getEmote().getName());
+            if (x != -1) {
+                if (game.message.getId().equals(event.getMessageId()) && game.isPlayer(event.getUser())) {
+                    game.perform(x, event.getUser());
+                    if (game.hasEnded()) {
+                        games.remove(game);
                         for (MessageReaction messageReaction : event.getChannel().getMessageById(event.getMessageId()).complete().getReactions()) {
-                            if (Game.connect4Reactions.contains(messageReaction.getEmote().getName())) {
+                            if (game.getReactions().contains(messageReaction.getEmote().getName())) {
                                 messageReaction.removeReaction().queue();
                             }
                         }
                     }
-                    g.message.editMessage(g.buildBoard()).queue();
+                    game.message.editMessage(game.buildBoard()).queue();
                     event.getReaction().removeReaction(event.getUser()).queue();
                     break;
                 }
+
             }
         }
     }
