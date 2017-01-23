@@ -23,13 +23,13 @@ DreadMoirai
 
 What can I do?!
 #### Responds to:
-<i> All commands are case-insensitive</i>
+<i> All commands are case-insensitive</i><br />
  - `!stat`*
  - `!roll`
  - `!duel`**
  - `!flame`**
- - `!upload`<sup>†</sup>
- - `!getScores`<sup>†</sup>
+ - `!upload`†
+ - `!getScores`†
  - `!shutdown`<br />
  \* <sub>@mention optional</sub><br />
  ** <sub>@mention required&#13;&#10;</sub> <br />
