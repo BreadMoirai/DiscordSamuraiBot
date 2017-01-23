@@ -34,16 +34,20 @@ What can I do?!
  - <i>"!shutdown"</i>
 
 ## To Do:
- - [ ] Remove Bots from dataFiles
- - [ ] Standardize inputs into classic !command
-
- - [ ] Simplify @Override methods to increase clarity of commands
- 	 - [ ] Delegate method bodies to helper methods	
-
  - [ ] Add two more variations of Game
 	 - [ ] Custom emojis to select game?	
- - [ ] Add File input and output
-	 - [ ] Goal: Merge binary files and send back to guild
+ - [ ] Add File input and output `scores.db`
+	 - [ ] Merge binary files and send back to guild
+	 - [ ] take file data and rename to match user
+	 - [ ] analyze file data and transfer to SamuraiStats
+	 - [ ] Add methods 
+		- [ ] !lowscore
+		- [ ] !noscore
+		- [ ] !getScore //requires Osu!API & osu.db
+ - [ ] Remove Bots from dataFiles
+ - [x] Standardize inputs into classic !command
+ - [x] Simplify @Override methods to increase clarity of commands
+ 	 - [x] Delegate method bodies to helper methods	
  - [x] Complete Connect 4.
  	- [x] responds to reactions
  - [x] Condense BotData and helper classes: Stat, UserStat 
