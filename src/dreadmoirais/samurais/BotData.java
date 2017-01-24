@@ -73,7 +73,7 @@ public class BotData {
                 //file position
                 users.get(Long.toString(userID)).setData(userData).setPosition(7+ UserData.BYTE_LENGTH*i);
 
-                System.out.println(users.containsKey(Long.toString(userID)) ? "FOUND" : "NOT FOUND");
+                //System.out.println(users.containsKey(Long.toString(userID)) ? "FOUND" : "NOT FOUND");
             }
         } catch (IOException e) {
             e.printStackTrace();

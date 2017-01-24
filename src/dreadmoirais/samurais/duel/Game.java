@@ -45,12 +45,12 @@ public abstract class Game {
         if (next == A) {
             mb.append("***")
                     .append(A.getAsMention())
-                    .append("*** vs. ")
+                    .append("*** \uD83C\uDD9A ")
                     .append(B.getAsMention())
                     .append("\n");
         } else {
             mb.append(A.getAsMention())
-                    .append(" vs. ***")
+                    .append(" \uD83C\uDD9A ***")
                     .append(B.getAsMention())
                     .append("***\n");
         }

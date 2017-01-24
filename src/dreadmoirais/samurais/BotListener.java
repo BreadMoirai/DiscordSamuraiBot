@@ -63,11 +63,16 @@ public class BotListener extends ListenerAdapter {
         keys.add("!duel");
         commands.add(BotListener::getFlame);
         keys.add("!flame");
+        commands.add(BotListener::getOsu);
+        keys.add("!osu");
         commands.add(BotListener::getFile);
         keys.add("!upload");
+        commands.add(BotListener::saveFull);
+        keys.add("!save");
         commands.add(BotListener::exitProtocol);
         keys.add("!shutdown");
     }
+
 
     @Override
     public void onReady(ReadyEvent event) {
@@ -193,6 +198,17 @@ public class BotListener extends ListenerAdapter {
     }
 
 
+    private static void getOsu(MessageReceivedEvent event) {
+        Message userInfo = OsuJsonReader.getUserInfo(event.getMessage().getRawContent().substring(5));
+        if (userInfo==null) {
+            event.getMessage().addReaction("\u274c").queue();
+        } else {
+            event.getChannel().sendMessage(userInfo).queue();
+        }
+
+    }
+
+
     private static void startDuel(MessageReceivedEvent event) {
         if (event.getMessage().getMentionedUsers().size() == 1) {
             Game game = new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
@@ -248,10 +264,14 @@ public class BotListener extends ListenerAdapter {
         }
     }
 
+    private static void saveFull(MessageReceivedEvent event) {
+        data.saveDataFull();
+        event.getMessage().addReaction("\u2705").queue();
+    }
 
     private static void exitProtocol(MessageReceivedEvent event) {
-        event.getMessage().addReaction("\uD83D\uDC4B").queue();
         data.saveDataFull();
+        event.getMessage().addReaction("\uD83D\uDC4B").queue();
         event.getJDA().shutdown();
     }
 

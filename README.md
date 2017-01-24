@@ -28,6 +28,7 @@ What can I do?!
  - `!roll [upperLimit]`*
  - `!duel [@mention]`
  - `!flame [@mention]`
+ - `!osu [username]`
  - `!upload`†
  - `!getScores`†
  - `!shutdown`<br />
@@ -45,6 +46,7 @@ What can I do?!
 		- [ ] !lowscore
 		- [ ] !noscore
 		- [ ] !getScore //requires Osu!API & osu.db
+ - [x] Retrieve User Information from Osu
  - [ ] Remove Bots from dataFiles
  - [x] Added empty hangman class for game
     - [ ] Complete and Implement Duel.Hangman
