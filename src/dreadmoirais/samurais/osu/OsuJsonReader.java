@@ -1,4 +1,4 @@
-package dreadmoirais.samurais;
+package dreadmoirais.samurais.osu;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -22,7 +22,6 @@ public class OsuJsonReader {
     private static final String PROFILE_URL = "https://osu.ppy.sh/api/get_user?k=59258eb34b84d912c79cf1ecb7fc285b79e16194&type=string&u=";
 
     OsuJsonReader() {
-
     }
 
     public static Message getUserInfo(String name) {
@@ -39,7 +38,9 @@ public class OsuJsonReader {
         JSONObject profile = json.get(0);
         EmbedBuilder eb = new EmbedBuilder()
                 .setTitle(profile.getString("username"))
+                .setUrl("https://osu.ppy.sh/u/" + profile.getString("username"))
                 .setColor(Color.PINK)
+                .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
                 .addField("Play Count", profile.getString("playcount"), true)
                 .addField("Rank", profile.getString("pp_rank"), true)

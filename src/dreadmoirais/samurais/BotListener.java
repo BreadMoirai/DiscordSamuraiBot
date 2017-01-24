@@ -2,6 +2,9 @@ package dreadmoirais.samurais;
 
 import dreadmoirais.samurais.duel.ConnectFour;
 import dreadmoirais.samurais.duel.Game;
+import dreadmoirais.samurais.osu.OsuJsonReader;
+
+
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
@@ -12,6 +15,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -256,11 +260,16 @@ public class BotListener extends ListenerAdapter {
      */
     private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (attachments.size() > 0) {
+        if (!attachments.isEmpty()) {
             System.out.println("\nFound Attachment.");
-            event.getMessage().addReaction("\u2705");
+            String path = "src\\dreadmoirais\\data\\scores\\";
+            if (attachments.get(0).getFileName().equals("scores.db")) {
+                path += event.getAuthor().getId();
+            }
+            attachments.get(0).download(new File(path));
+            event.getMessage().addReaction("\u2705").queue();
         } else {
-            event.getMessage().addReaction("\uD83D\uDE12");
+            event.getMessage().addReaction("\uD83D\uDE12").queue();
         }
     }
 
