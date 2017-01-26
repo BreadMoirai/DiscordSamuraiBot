@@ -9,6 +9,8 @@ This bot don't do much of anything
 - Main class BotListener.java
 	`This class listens to events from discord and responds appropriately`
 
+[[https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/diagram/png|alt=diagram]]
+
 #### RequiredForDevelopment
 uses JDA
 
