@@ -2,88 +2,120 @@ package dreadmoirais.samurais.osu.parse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class Parser {
+abstract class Parser {
 
     InputStream in;
 
-    Parser() {};
-
-    public Parser(InputStream i) {
+    Parser(InputStream i) {
         in = i;
     }
 
-    abstract void parse();
+    public abstract Parser parse() throws IOException;
 
-    protected byte nextByte() {
+    byte nextByte() {
         try {
             byte a = (byte) in.read();
             return a;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return 0x00;
     }
-    protected String nextString() {
-        try {
-            byte a = (byte) in.read();
-            if (a == 0x0b) {
-                int sLength = in.read();
-                String s = "";
-                if (sLength > 0) {
-                    try {
-                        byte[] b = new byte[sLength];
-                        in.read(b);
-                        s = new String(b, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    return s;
-                }
-                else {
-                    return "";
-                }
-            }
-            else if (a == 0x00) {
-                return "Not Found";
-            }
-            else return "Error";
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+    short nextShort() throws IOException {
+        byte[] bytes = new byte[2];
+        in.read(bytes);
+        ByteBuffer wrapper = ByteBuffer.wrap(bytes);
+        wrapper.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapper.getShort();
     }
 
-    protected int nextInt() {
-        byte[] a = new byte[4];
-        try {
-            in.read(a);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    private int nextULEB128() throws IOException {
+        byte[] bytes = new byte[10];
+        int i;
+        for (i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) in.read();
+            if ((bytes[i] & 128) != 128) {
+                break;
+            }
         }
-        //System.out.println(bytesToHex(intbyte));
-        return byteToInt(a);
+        int uleb = 0;
+        for (int j = 0; j <= i; j++) {
+            int b = bytes[j];
+            b = (b & 127) << 7 * j;
+            uleb = b ^ uleb;
+        }
+        return uleb;
     }
 
-    private static int byteToInt(byte[] r) {
-        ByteBuffer wrapped = ByteBuffer.wrap(r);
+    String nextString() throws IOException {
+        if (in.read() == 0x0b) {
+            int stringSize = nextULEB128();
+
+            byte[] b = new byte[stringSize];
+            in.read(b);
+            return new String(b, "UTF-8");
+
+        } else {
+            return "Not Found";
+        }
+    }
+
+
+    int nextInt() throws IOException {
+        byte[] bytes = new byte[4];
+        in.read(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getInt();
     }
 
-    protected void skip(int n) {
-        try {
-            in.skip(n);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    long nextLong() throws  IOException {
+        byte[] bytes = new byte[8];
+        in.read(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getLong();
     }
+
+    double nextDouble() throws IOException {
+        byte[] bytes = new byte[8];
+        in.read(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getDouble();
+    }
+
+    float nextSingle() throws IOException {
+        byte[] bytes = new byte[4];
+        in.read(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getFloat();
+    }
+
+    Map<Integer, Double> nextIntDoublePairs() throws IOException {
+        int count = nextInt();
+        Map<Integer, Double> pairs = new HashMap<>(count);
+        for (int i = 0; i < count; i++) {
+            skip(1);
+            int modCombo = nextInt();
+            skip (1);
+            double starRating = nextDouble();
+            pairs.put(modCombo, starRating);
+        }
+        return pairs;
+    }
+
+    void skip(int n) throws IOException {
+        in.skip(n);
+
+    }
+
+
 }

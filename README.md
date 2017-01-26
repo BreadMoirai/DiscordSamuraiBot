@@ -22,27 +22,38 @@ DreadMoirai
 ## Functions
 
 What can I do?!
-#### Responds to:
+### Responds to:
 <i> All commands are case-insensitive</i><br />
+##### Basic Commands:
  - `!stat [@mention]`*
  - `!roll [upperLimit]`*
  - `!duel [@mention]`
  - `!flame [@mention]`
+ - `!shutdown`
+##### Osu-related Commands
  - `!osu [username]`
- - `!upload`†
- - `!getScores`†
- - `!shutdown`<br />
+ - `!initialize`
+ 	- `!upload`
+	- `!beatmap` 
+ 	- `!getScores`†
+<br />
  \* <sub>argument optional</sub><br />
  † <sub>Under Construction&#13;&#10;</sub> <br />
 
-## To Do:	
+## To Do List:	
  - [ ] Restrict !Shutdown permissions
- - [ ] Add File input and output `scores.db`
+ - [ ] Integrate Osu!
+	 - [x] Add file Parser
+	 - [x] Add Enums
+	 - [ ] create File Writer
 	 - [ ] Merge binary files and send back to guild
-	 - [ ] take file data and rename to match user
-	 - [ ] analyze file data and transfer to SamuraiStats
+	 - [x] take file data and rename to match user
+	 - [x] analyze file data and transfer to SamuraiStats
+	 - [x] add custom emojis for score_, rank_, and combo_
 	 - [ ] expand saveData to correlate users
-	 - [ ] Add methods 
+	 - [ ] Add methods
+		- [x] !beatmap //getRandomMap
+			- [x] Reaction Interactable
 		- [ ] !lowscore
 		- [ ] !noscore
 		- [ ] !getScore //requires Osu!API & osu.db

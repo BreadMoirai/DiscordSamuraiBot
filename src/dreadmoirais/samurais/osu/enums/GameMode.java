@@ -18,12 +18,21 @@ public enum GameMode {
         this.value = value;
     }
 
-    public int getValue() {
+    public int value() {
         return value;
     }
 
     @Override
     public String toString() {
         return WordUtils.capitalizeFully(this.name());
+    }
+
+    public static GameMode get(int value) {
+        for ( GameMode mode: GameMode.values()) {
+            if (mode.value() == value) {
+                return mode;
+            }
+        }
+        return OSU;
     }
 }

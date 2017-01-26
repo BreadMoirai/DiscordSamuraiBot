@@ -1,13 +1,13 @@
+
 package dreadmoirais.samurais.osu.parse;
 
 import dreadmoirais.samurais.osu.Beatmap;
+import dreadmoirais.samurais.osu.enums.GameMode;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.HashMap;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -17,64 +17,49 @@ public class OsuParser extends Parser {
 
     private int versionNumber, folderCount, totalBeatmaps, proccessedTotal;
     private String playerName;
-    private List<Beatmap> beatmaps;
+    private HashMap<String, Beatmap> beatmaps;
 
-    public OsuParser(String fileIn) {
+    public OsuParser(String filepath) throws FileNotFoundException {
+        super(new FileInputStream(filepath));
         proccessedTotal = 0;
-        try {
-            in = new FileInputStream(fileIn);
-        }
-        catch(FileNotFoundException e) {
-            System.err.println("File not Found\n" + e.getMessage());
-            return;
-        }
-        parse();
     }
 
-    void parse() {
+    public OsuParser parse() throws IOException {
         versionNumber = nextInt();
         folderCount = nextInt();
         skip(9);
         playerName = nextString();
         totalBeatmaps = nextInt();
 
-
         System.out.println("Version: " + versionNumber +
                 "\nFolderCount: " + folderCount +
                 "\nPlayerName: " + playerName +
                 "\nTotalBeatmaps: " + totalBeatmaps);
 
-
-        beatmaps = new ArrayList<>(totalBeatmaps);
+        beatmaps = new HashMap<>(totalBeatmaps);
 
         for (int i = 0; i < totalBeatmaps; i++) {
             int beatmapSize = nextInt();
             byte[] b = new byte[beatmapSize];
-            try {
-                in.read(b);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+
+            in.read(b);
+
+            Beatmap beatmap = new BeatmapParser(b).parse().getBeatmap();
+            if (beatmap.getGameMode() == GameMode.OSU) {
+                beatmaps.put(beatmap.getHash(), beatmap);
             }
-            BeatmapParser bparser = new BeatmapParser(b);
-            beatmaps.put(bparser.getBeatmap().getHash(), bparser.getBeatmap());
             proccessedTotal++;
         }
 
         int unknown = nextInt();
-        if ( unknown != 4) {
+        if (unknown != 4) {
             System.out.println("Beatmaps Parsed: " + proccessedTotal);
         }
-        try {
-            if (in.read() == -1) {
-                System.out.println("Parsing Complete.");
-            }
-            in.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (in.read() == -1) {
+            System.out.println("Parsing Complete.");
         }
-        return;
+        in.close();
+        return this;
     }
 
     public int getVersionNumber() {

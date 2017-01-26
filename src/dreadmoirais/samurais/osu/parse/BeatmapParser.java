@@ -1,8 +1,15 @@
 package dreadmoirais.samurais.osu.parse;
 
 import dreadmoirais.samurais.osu.Beatmap;
+import dreadmoirais.samurais.osu.enums.Grade;
+import dreadmoirais.samurais.osu.enums.GameMode;
+import dreadmoirais.samurais.osu.enums.RankedStatus;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -10,52 +17,57 @@ import java.io.ByteArrayInputStream;
  */
 public class BeatmapParser extends Parser {
 
-    private Beatmap bmap;
+    private Beatmap beatmap;
 
-    public BeatmapParser(byte[] b) {
+    BeatmapParser(byte[] b) {
         super(new ByteArrayInputStream(b));
-        bmap = new Beatmap();
-        parse();
+        beatmap = new Beatmap();
     }
 
-    void parse() {
-        bmap.setArtist(nextString()); //artist
-        nextString();
-        bmap.setSong(nextString()); //song
-        nextString();
-        bmap.setMapper(nextString()); //Mapper
-        bmap.setDifficulty(nextString()); //Diff
-        nextString();
-        bmap.setHash(nextString()); //Hash
-        bmap.setFilename(nextString()); //filename
-        bmap.setRankedStatus(nextByte()); //rankedStatus
-
-        //skips extra information not relevant
-        skip(38);
+    public BeatmapParser parse() throws IOException {
+        beatmap.setArtist(nextString());
+        nextString(); //unicode Artist
+        beatmap.setSong(nextString());
+        nextString(); //unicode song
+        beatmap.setMapper(nextString())
+                .setDifficulty(nextString())
+                .setAudiofile(nextString())
+                .setHash(nextString())
+                .setFilename(nextString())
+                .setRankedStatus(RankedStatus.get(nextByte()));
+        skip(14); //# of circles, sliders, and spinners & last modified time
+        beatmap.setAr(nextSingle())
+                .setCs(nextSingle())
+                .setHp(nextSingle())
+                .setOd(nextSingle());
+        skip(8); //slider velocity
+        List<Map<Integer, Double>> starRating = new ArrayList<>(4);
         for (int i = 0; i < 4; i++) {
-            int pairs = nextInt();
-            skip(pairs*14);
+            starRating.add(nextIntDoublePairs());
         }
-        skip(12);
-        int timings = nextInt();
-        //System.out.println(timings);
-        skip(timings*17);
-        //System.out.println(bytesToHex(Arrays.copyOfRange(b, itr, itr + 6)));
-        bmap.setMapID(nextInt());
-        bmap.setSetID(nextInt());
-        skip(14);
-        bmap.setMode(nextByte());
-        bmap.setSource(nextString());
-        bmap.setTags(nextString());
-        skip(3);
+        beatmap.setStarRating(starRating)
+                .setDrainTime(nextInt())
+                .setTotalTime(nextInt());
+        skip(4); //audioPreview time
+        skip(nextInt()*17); //timing points
+
+        beatmap.setMapID(nextInt())
+                .setSetID(nextInt());
+        skip(4);
+        beatmap.setGrade(Grade.get(nextByte()));
+        skip(9);
+        beatmap.setGameMode(GameMode.get(nextByte()))
+                .setSource(nextString())
+                .setTags(nextString());
+        skip(2);
         nextString();
         skip(10);
-        bmap.setFoldername(nextString());
-
-        //System.out.println(bmap);
+        beatmap.setFoldername(nextString());
+        skip(18);
+        return this;
     }
 
-    Beatmap getBeatmap() {return bmap;}
+    Beatmap getBeatmap() {return beatmap;}
 
     //debugging
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();

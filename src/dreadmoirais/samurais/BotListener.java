@@ -2,15 +2,17 @@ package dreadmoirais.samurais;
 
 import dreadmoirais.samurais.duel.ConnectFour;
 import dreadmoirais.samurais.duel.Game;
+import dreadmoirais.samurais.osu.OsuData;
 import dreadmoirais.samurais.osu.OsuJsonReader;
-
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -18,9 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -40,10 +40,13 @@ public class BotListener extends ListenerAdapter {
 
     private static Random rand;
 
-    private static List<dreadmoirais.samurais.duel.Game> games;
+    private static HashMap<String, Game> games;
 
     private static List<Consumer<MessageReceivedEvent>> commands;
     private static List<String> keys;
+
+    private static OsuData osuData;
+    private static Set<String> osuMessages;
 
     /**
      * constructor
@@ -54,7 +57,8 @@ public class BotListener extends ListenerAdapter {
         //Random object for rolls
         rand = new Random();
 
-        games = new ArrayList<>();
+        games = new HashMap<>();
+        osuMessages = new HashSet<>();
 
         keys = new ArrayList<>();
         commands = new ArrayList<>();
@@ -67,8 +71,12 @@ public class BotListener extends ListenerAdapter {
         keys.add("!duel");
         commands.add(BotListener::getFlame);
         keys.add("!flame");
-        commands.add(BotListener::getOsu);
+        commands.add(BotListener::getOsuUser);
         keys.add("!osu");
+        commands.add(BotListener::getOsuData);
+        keys.add("!initialize");
+        commands.add(BotListener::getBeatmap);
+        keys.add("!beatmap");
         commands.add(BotListener::getFile);
         keys.add("!upload");
         commands.add(BotListener::saveFull);
@@ -92,9 +100,16 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        System.out.println(event.getReaction().getEmote().getName());
-        if (games.size() != 0) {
+        //System.out.println(event.getReaction().getEmote().toString());
+        if (games.containsKey(event.getMessageId())) {
             updateGames(event);
+        }
+    }
+
+    @Override
+    public void onGenericMessageReaction(GenericMessageReactionEvent event) {
+        if (osuMessages.contains(event.getMessageId())) {
+            updateOsuMessage(event);
         }
     }
 
@@ -116,7 +131,7 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-
+        event.getChannel().sendMessage("Ready for some nudes?!").queue();
     }
 
     @Override
@@ -124,6 +139,10 @@ public class BotListener extends ListenerAdapter {
         data.saveDataFull();
     }
 
+    @Override
+    public void onGenericEvent(Event event) {
+        System.out.println(event.getClass());
+    }
 
     //Basic Commands
     private static void getStat(MessageReceivedEvent event) {
@@ -158,6 +177,46 @@ public class BotListener extends ListenerAdapter {
                         .append(x)
                         .build())
                 .queue();
+
+    }
+
+    private static void startDuel(MessageReceivedEvent event) {
+        if (event.getMessage().getMentionedUsers().size() == 1) {
+            Game game = new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
+
+            game.setData(data.users);
+            game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
+
+            for (String reaction : game.getReactions()) {
+                if (reaction.equals("8\u20e3")) {
+                    game.message.addReaction(reaction).queue(success -> game.message.editMessage(game.buildBoard()).queue());
+                } else {
+                    game.message.addReaction(reaction).queue();
+                }
+            }
+            games.put(game.message.getId(), game);
+        }
+    }
+
+    private void updateGames(MessageReactionAddEvent event) {
+        Game game = games.get(event.getMessageId());
+        int x = game.getReactions().indexOf(event.getReaction().getEmote().getName());
+        if (x != -1) {
+            if (game.isPlayer(event.getUser())) {
+                game.perform(x, event.getUser());
+
+                if (game.hasEnded()) {
+                    games.remove(game);
+                    for (MessageReaction messageReaction : event.getChannel().getMessageById(event.getMessageId()).complete().getReactions()) {
+                        if (game.getReactions().contains(messageReaction.getEmote().getName())) {
+                            messageReaction.removeReaction().queue();
+                        }
+                    }
+                }
+                game.message.editMessage(game.buildBoard()).queue();
+                event.getReaction().removeReaction(event.getUser()).queue();
+            }
+        }
 
     }
 
@@ -202,9 +261,9 @@ public class BotListener extends ListenerAdapter {
     }
 
 
-    private static void getOsu(MessageReceivedEvent event) {
+    private static void getOsuUser(MessageReceivedEvent event) {
         Message userInfo = OsuJsonReader.getUserInfo(event.getMessage().getRawContent().substring(5));
-        if (userInfo==null) {
+        if (userInfo == null) {
             event.getMessage().addReaction("\u274c").queue();
         } else {
             event.getChannel().sendMessage(userInfo).queue();
@@ -212,62 +271,78 @@ public class BotListener extends ListenerAdapter {
 
     }
 
-
-    private static void startDuel(MessageReceivedEvent event) {
-        if (event.getMessage().getMentionedUsers().size() == 1) {
-            Game game = new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), rand.nextBoolean());
-
-            game.setData(data.users);
-            game.message = event.getChannel().sendMessage(game.buildTitle().build()).complete();
-
-            for (String reaction : game.getReactions()) {
-                if (reaction.equals("8\u20e3")) {
-                    game.message.addReaction(reaction).queue(success -> game.message.editMessage(game.buildBoard()).queue());
-                } else {
-                    game.message.addReaction(reaction).queue();
-                }
-            }
-            games.add(game);
+    private static void getOsuData(MessageReceivedEvent event) {
+        osuData = new OsuData();
+        osuMessages = new HashSet<>();
+        if (osuData.readOsuDB("src\\dreadmoirais\\data\\osu!.db")) {
+            event.getMessage().addReaction("\u2705").queue();
         }
+        osuData.setEmotes(event.getGuild().getEmotes());
+
     }
 
-    private void updateGames(MessageReactionAddEvent event) {
-        for (Game game : games) {
-            int x = game.getReactions().indexOf(event.getReaction().getEmote().getName());
-            if (x != -1) {
-                if (game.message.getId().equals(event.getMessageId()) && game.isPlayer(event.getUser())) {
-                    game.perform(x, event.getUser());
-                    if (game.hasEnded()) {
-                        games.remove(game);
-                        for (MessageReaction messageReaction : event.getChannel().getMessageById(event.getMessageId()).complete().getReactions()) {
-                            if (game.getReactions().contains(messageReaction.getEmote().getName())) {
-                                messageReaction.removeReaction().queue();
-                            }
-                        }
-                    }
-                    game.message.editMessage(game.buildBoard()).queue();
-                    event.getReaction().removeReaction(event.getUser()).queue();
-                    break;
-                }
+    private static void getBeatmap(MessageReceivedEvent event) {
+        if (osuData == null) {
+            //Emote emote = event.getGuild().getEmoteById("hit_miss")
+            event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
+            //event.getGuild().getEmoteById("hit_miss");//event.getGuild().getEmotesByName("hit_miss", false).get(0).getId());
+            return;
+        }
+        event.getChannel().sendMessage("Getting Beatmap...").queue(message -> {
+            message.addReaction("\uD83D\uDDFA").queue();
+            message.addReaction("\uD83D\uDC65").queue(success1 -> message.editMessage(osuData.getBeatmap(rand)).queue(success2 -> osuMessages.add(message.getId())));
+        });
+    }
 
+
+    private void updateOsuMessage(GenericMessageReactionEvent event) {
+        if (event.getReaction().getEmote().getName().equals("\uD83D\uDDFA") || event.getReaction().getEmote().getName().equals("\uD83D\uDC65")) {
+
+            boolean fullMap = false, fullScore = false;
+
+            List<MessageReaction> reactions = event.getChannel().getMessageById(event.getMessageId()).complete().getReactions();
+            for (MessageReaction messageReaction : reactions) {
+
+                if (messageReaction.getEmote().getName().equals("\uD83D\uDDFA")) {//map
+                    if (messageReaction.getCount() == 1) {
+                        fullMap = false;
+                    } else if (messageReaction.getCount() > 1) {
+                        fullMap = true;
+                    }
+
+                } else if (messageReaction.getEmote().getName().equals("\uD83D\uDC65")) {
+                    if (messageReaction.getCount() == 1) {
+                        fullScore = false;
+                    } else if (messageReaction.getCount() > 1) {
+                        fullScore = true;
+                    }
+
+                }
             }
+            String hash = event.getChannel().getMessageById(event.getMessageId()).complete().getEmbeds().get(0).getFooter().getText();
+            event.getChannel().editMessageById(event.getMessageId(), osuData.buildBeatmapInfo(hash, fullScore, fullMap)).queue();
         }
     }
 
 
     /**
-     * INCOMPLETE
+     *
      */
     private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (!attachments.isEmpty()) {
+            if (osuData == null) {
+                event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
+                return;
+            }
             System.out.println("\nFound Attachment.");
             String path = "src\\dreadmoirais\\data\\scores\\";
             if (attachments.get(0).getFileName().equals("scores.db")) {
-                path += event.getAuthor().getId();
+                path += event.getMessage().getId() + ".db";
             }
             attachments.get(0).download(new File(path));
             event.getMessage().addReaction("\u2705").queue();
+            osuData.readScoresDB(path);
         } else {
             event.getMessage().addReaction("\uD83D\uDE12").queue();
         }
@@ -298,4 +373,5 @@ public class BotListener extends ListenerAdapter {
             e.printStackTrace();
         }
     }
+
 }
