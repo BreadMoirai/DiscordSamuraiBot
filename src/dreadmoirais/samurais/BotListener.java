@@ -206,7 +206,7 @@ public class BotListener extends ListenerAdapter {
                 game.perform(x, event.getUser());
 
                 if (game.hasEnded()) {
-                    games.remove(game);
+                    games.remove(game.message.getId());
                     for (MessageReaction messageReaction : event.getChannel().getMessageById(event.getMessageId()).complete().getReactions()) {
                         if (game.getReactions().contains(messageReaction.getEmote().getName())) {
                             messageReaction.removeReaction().queue();
@@ -277,7 +277,6 @@ public class BotListener extends ListenerAdapter {
         if (osuData.readOsuDB("src\\dreadmoirais\\data\\osu!.db")) {
             event.getMessage().addReaction("\u2705").queue();
         }
-        osuData.setEmotes(event.getGuild().getEmotes());
 
     }
 
@@ -290,7 +289,11 @@ public class BotListener extends ListenerAdapter {
         }
         event.getChannel().sendMessage("Getting Beatmap...").queue(message -> {
             message.addReaction("\uD83D\uDDFA").queue();
-            message.addReaction("\uD83D\uDC65").queue(success1 -> message.editMessage(osuData.getBeatmap(rand)).queue(success2 -> osuMessages.add(message.getId())));
+            message.addReaction("\uD83D\uDC65").queue(success1 -> {
+                message.editMessage(osuData.getBeatmap(rand)).queue(success2 -> {
+                    osuMessages.add(message.getId());
+                });
+            });
         });
     }
 

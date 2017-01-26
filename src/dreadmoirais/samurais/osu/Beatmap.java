@@ -23,8 +23,11 @@ public class Beatmap {
     private RankedStatus rankedStatus;
     private List<Map<Integer, Double>> starRating;
     private List<Score> scores;
+    private double difficultyRating;
+    private boolean isEmpty;
 
     public Beatmap() {
+        isEmpty = false;
         scores = new ArrayList<>();
     }
 
@@ -257,8 +260,9 @@ public class Beatmap {
         return scores;
     }
 
-    public void setScores(List<Score> scores) {
+    public Beatmap setScores(List<Score> scores) {
         this.scores = scores;
+        return this;
     }
 
     void appendScores(List<Score> scores) {
@@ -293,6 +297,28 @@ public class Beatmap {
                 ", starRating=" + starRating +
                 ", scores=" + scores +
                 '}';
+    }
+
+    public double getDifficultyRating() {
+        return difficultyRating;
+    }
+
+    public Beatmap setDifficultyRating(double difficultyRating) {
+        this.difficultyRating = difficultyRating;
+        return this;
+    }
+
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
+    public Beatmap setEmpty(boolean empty) {
+        isEmpty = empty;
+        return this;
+    }
+
+    public boolean hasScores() {
+        return !scores.isEmpty();
     }
 }
 

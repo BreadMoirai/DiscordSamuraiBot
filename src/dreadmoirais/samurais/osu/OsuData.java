@@ -23,8 +23,6 @@ public class OsuData {
     private HashMap<String, Beatmap> beatmaps;
     private List<String> hashes;
 
-    private List<Emote> emotes;
-
     public OsuData() {
         hashes = new ArrayList<>();
     }
@@ -37,6 +35,8 @@ public class OsuData {
             for (String hash : scoreMap.keySet()) {
                 if (beatmaps.containsKey(hash)) {
                     beatmaps.get(hash).appendScores(scoreMap.get(hash));
+                } else {
+                    beatmaps.put(hash, new Beatmap().setEmpty(true));
                 }
             }
             return true;
@@ -55,11 +55,8 @@ public class OsuData {
 
     public Message buildBeatmapInfo(String hash, boolean fullScore, boolean fullMap) {
         Beatmap beatmap = beatmaps.get(hash);
-        if (beatmap == null) {
-            return null;
-            /**
-             * use api to get info
-             */
+        if (beatmap.isEmpty()) {
+            beatmap = OsuJsonReader.getBeatmapInfo(hash);
         }
         //System.out.println(beatmap);
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -67,7 +64,7 @@ public class OsuData {
                 .setColor(Color.PINK)
                 .setAuthor("Osu!BeatmapInfo", String.format("https://osu.ppy.sh/b/%s&m=%d", beatmap.getMapID(), beatmap.getGameMode().value()), "http://w.ppy.sh/c/c9/Logo.png")
                 .setFooter(beatmap.getHash(), "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg");
-        double stars = beatmap.getStarRating().get(beatmap.getGameMode().value()).get(Mod.None.value());
+        double stars = beatmap.getDifficultyRating();
         String diff = beatmap.getRankedStatus().getEmote();
         diff += String.format("[**%s**] ", beatmap.getDifficulty());
         for (int i = 0; i < (int)stars; i++) {
@@ -107,7 +104,4 @@ public class OsuData {
         return true;
     }
 
-    public void setEmotes(List<Emote> emotes) {
-        this.emotes = emotes;
-    }
 }

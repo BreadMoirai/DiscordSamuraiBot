@@ -64,6 +64,8 @@ public class BeatmapParser extends Parser {
         skip(10);
         beatmap.setFoldername(nextString());
         skip(18);
+
+        beatmap.setDifficultyRating(starRating.get(beatmap.getGameMode().value()).get(0));
         return this;
     }
 

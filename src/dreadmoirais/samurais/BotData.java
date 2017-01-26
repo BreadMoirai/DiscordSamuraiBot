@@ -71,7 +71,7 @@ public class BotData {
                 bis.read(userData);
 
                 //file position
-                users.get(Long.toString(userID)).setData(userData).setPosition(7+ UserData.BYTE_LENGTH*i);
+                users.get(Long.toString(userID)).setData(userData);//.setPosition(7+ UserData.BYTE_LENGTH*i);
 
                 //System.out.println(users.containsKey(Long.toString(userID)) ? "FOUND" : "NOT FOUND");
             }
@@ -80,10 +80,12 @@ public class BotData {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     void incrementStat(String id, String statName) {
         users.get(id).incrementStat(statName);
     }
 
+    /*
     public void saveData() {
         try(RandomAccessFile raf = new RandomAccessFile("src\\dreadmoirais\\data\\userData.samurai", "rw")) {
 
@@ -92,6 +94,7 @@ public class BotData {
             e.printStackTrace();
         }
     }
+    */
 
     void saveDataFull() {
         System.out.println("Writing File.");
@@ -125,7 +128,7 @@ public class BotData {
         private String EffectiveName, AvatarUrl;
         private Color color;
 
-        private int position;
+        //private int position;
 
         private List<Stat> stats;
 
@@ -159,9 +162,11 @@ public class BotData {
             return eb.build();
         }
 
+        /*
         void setPosition(int p) {
             position = p;
         }
+        */
 
         //public void writeData(DataOutputStream os) throws IOException {}
 

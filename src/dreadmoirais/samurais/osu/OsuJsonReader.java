@@ -1,5 +1,8 @@
 package dreadmoirais.samurais.osu;
 
+import dreadmoirais.samurais.osu.enums.GameMode;
+import dreadmoirais.samurais.osu.enums.Grade;
+import dreadmoirais.samurais.osu.enums.RankedStatus;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -10,7 +13,8 @@ import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.text.StringCharacterIterator;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -19,7 +23,9 @@ import java.util.List;
  */
 public class OsuJsonReader {
 
-    private static final String PROFILE_URL = "https://osu.ppy.sh/api/get_user?k=59258eb34b84d912c79cf1ecb7fc285b79e16194&type=string&u=";
+    private static final String OSU_API = "https://osu.ppy.sh/api/";
+    private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
+    private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
 
     OsuJsonReader() {
     }
@@ -27,7 +33,7 @@ public class OsuJsonReader {
     public static Message getUserInfo(String name) {
         List<JSONObject> json;
         try {
-            json = readJsonFromUrl(PROFILE_URL+name);
+            json = readJsonFromUrl(OSU_API + GET_USER + KEY + "&type=string" + "&u=" + name);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -42,15 +48,53 @@ public class OsuJsonReader {
                 .setColor(Color.PINK)
                 .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
+                .addField("Rank", profile.getString("pp_rank").substring(0,5), true)
                 .addField("Play Count", profile.getString("playcount"), true)
-                .addField("Rank", profile.getString("pp_rank"), true)
-                .addField("Accuracy", profile.getString("accuracy"), true)
-                .addField("SS Count", profile.getString("count_rank_ss"), true)
-                .addField("S Count", profile.getString("count_rank_s"), true)
-                .addField("A Count", profile.getString("count_rank_a"), true)
+                .addField("Accuracy", profile.getString("accuracy").substring(0,5)+"%", true)
+                .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
                 .setFooter("Osu!API", "http://w.ppy.sh/c/c9/Logo.png");
         return new MessageBuilder().setEmbed(eb.build()).build();
+    }
 
+    public static Beatmap getBeatmapInfo(String hash) {
+        List<JSONObject> json;
+        try {
+            json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (json.isEmpty()) {
+            return null;
+        }
+        JSONObject info = json.get(0);
+        Beatmap beatmap = new Beatmap();
+        switch (info.getInt("approved")) {
+            case (1):
+                beatmap.setRankedStatus(RankedStatus.RANKED);
+            case (2):
+                beatmap.setRankedStatus(RankedStatus.APPROVED);
+            default:
+                beatmap.setRankedStatus(RankedStatus.UNKNOWN);
+        }
+        beatmap.setArtist(info.getString("artist"));
+        beatmap.setMapID(info.getInt("beatmap_id"));
+        beatmap.setMapID(info.getInt("beatmapset_id"));
+        beatmap.setMapper(info.getString("creator"));
+        beatmap.setDifficultyRating(info.getDouble("difficultyrating"));
+        beatmap.setCs((float)info.getDouble("diff_size"));
+        beatmap.setOd((float)info.getDouble("diff_overall" ));
+        beatmap.setAr((float)info.getDouble("diff_approach"));
+        beatmap.setHp((float)info.getDouble("diff_drain"));
+        beatmap.setDrainTime(info.getInt("hit_length"));
+        beatmap.setTotalTime(info.getInt("total_length")*1000);
+        beatmap.setSource(info.getString("source"));
+        beatmap.setSong(info.getString("title"));
+        beatmap.setDifficulty(info.getString("version"));
+        beatmap.setHash(hash);
+        beatmap.setGameMode(GameMode.get(info.getInt("mode")));
+        beatmap.setTags(info.getString("tags"));
+        return beatmap;
     }
 
     private static List<String> readAll(Reader rd) throws IOException {
@@ -62,11 +106,21 @@ public class OsuJsonReader {
         String text = sb.toString();
         text = text.substring(1,text.length()-1);
         List<String> jsonStrings = new ArrayList<>();
-        int i = -1;
-        while ((i=text.indexOf('{',i)) != -1) {
-            int j = text.indexOf("]}")+2;
-            jsonStrings.add(text.substring(i,j));
-            i=j;
+        int splitter = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c =='{') {
+                splitter++;
+            } else if (c =='}') {
+                splitter--;
+                if (splitter==0) {
+                    jsonStrings.add(text.substring(0,i+1));
+                    if (i+2 < text.length()) {
+                        text = text.substring(i + 2);
+                        i = 0;
+                    }
+                }
+            }
         }
         System.out.println(jsonStrings);
         return jsonStrings;
