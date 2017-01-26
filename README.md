@@ -1,15 +1,15 @@
-﻿# DiscordSamuraiBot
+# DiscordSamuraiBot
 
 ## About
 
 This bot don't do much of anything
 
-###Overview
-/All relevant code is stored in src\DreadMoirais\Samurais
+### Overview
+All relevant code is stored in src\DreadMoirais\Samurais
 - Main class BotListener.java
 	`This class listens to events from discord and responds appropriately`
 
-[[https://github.com/Mansfew/DiscordSamuraiBot/blob/master/src/diagram/png|alt=diagram]]
+![diagram](src/diagram.png)
 
 #### RequiredForDevelopment
 uses JDA
