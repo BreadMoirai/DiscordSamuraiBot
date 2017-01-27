@@ -4,12 +4,16 @@
 
 This bot don't do much of anything
 
+NOT TESTED for multiple guilds
+Invite token
+https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&permissions=1074003008
+
 ### Overview
 All relevant code is stored in src\DreadMoirais\Samurais
 - Main class BotListener.java
 	`This class listens to events from discord and responds appropriately`
 
-![diagram](src/diagram.png)
+![diagram](src/images/diagram.png)
 
 #### RequiredForDevelopment
 uses JDA
@@ -26,13 +30,13 @@ DreadMoirai
 What can I do?!
 ### Responds to:
 <i> All commands are case-insensitive</i><br />
-##### Basic Commands:
+#### Basic Commands:
  - `!stat [@mention]`*
  - `!roll [upperLimit]`*
  - `!duel [@mention]`
  - `!flame [@mention]`
- - `!shutdown`
-##### Osu-related Commands
+ - `!shutdown` //required to save data
+#### Osu-related Commands
  - `!osu [username]`
  - `!build` recommended use `!build partial`
  - `!upload`
@@ -43,6 +47,8 @@ What can I do?!
  † <sub>Under Construction&#13;&#10;</sub> <br />
 
 ## To Do List:
+ - [ ] catch permission exceptions
+ - [ ] make cross guild compatable
  - [ ] Track api requests
  - [ ] Create custom save files for beatmap info.	
  - [ ] Restrict !Shutdown permissions
