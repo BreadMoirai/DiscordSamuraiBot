@@ -1,0 +1,12 @@
+<application>
+  <component name="PrintSettings">
+    <option name="includeSubdirectories" value="true" />
+    <option name="printScope" value="2" />
+    <option name="COLOR_PRINTING" value="true" />
+    <option name="FONT_SIZE" value="9" />
+    <option name="DRAW_BORDER" value="false" />
+    <option name="FOOTER_HEADER_PLACEMENT2" value="Header" />
+    <option name="FOOTER_HEADER_ALIGNMENT2" value="Right" />
+    <option name="FOOTER_HEADER_FONT_NAME" value="Arial Narrow Bold" />
+  </component>
+</application>
