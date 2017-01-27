@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -56,8 +58,10 @@ public class BotListener extends ListenerAdapter {
 
         //Random object for rolls
         rand = new Random();
-
         games = new HashMap<>();
+
+        osuMessages = new HashSet<>();
+        osuData = new OsuData();
         osuMessages = new HashSet<>();
 
         keys = new ArrayList<>();
@@ -74,7 +78,7 @@ public class BotListener extends ListenerAdapter {
         commands.add(BotListener::getOsuUser);
         keys.add("!osu");
         commands.add(BotListener::getOsuData);
-        keys.add("!initialize");
+        keys.add("!build");
         commands.add(BotListener::getBeatmap);
         keys.add("!beatmap");
         commands.add(BotListener::getFile);
@@ -100,7 +104,6 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        //System.out.println(event.getReaction().getEmote().toString());
         if (games.containsKey(event.getMessageId())) {
             updateGames(event);
         }
@@ -141,7 +144,7 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onGenericEvent(Event event) {
-        System.out.println(event.getClass());
+        //System.out.println(event.getClass());
     }
 
     //Basic Commands
@@ -272,29 +275,34 @@ public class BotListener extends ListenerAdapter {
     }
 
     private static void getOsuData(MessageReceivedEvent event) {
-        osuData = new OsuData();
-        osuMessages = new HashSet<>();
-        if (osuData.readOsuDB("src\\dreadmoirais\\data\\osu!.db")) {
-            event.getMessage().addReaction("\u2705").queue();
+        boolean readAll;
+        readAll = !event.getMessage().getRawContent().toLowerCase().contains("partial");
+        if (osuData.readOsuDB("src\\dreadmoirais\\data\\osu!.db", readAll)) {
+            event.getMessage().addReaction(readAll ? "\u2705" : "\u2611").queue();
+        } else {
+            event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
         }
-
     }
 
     private static void getBeatmap(MessageReceivedEvent event) {
         if (osuData == null) {
-            //Emote emote = event.getGuild().getEmoteById("hit_miss")
             event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
-            //event.getGuild().getEmoteById("hit_miss");//event.getGuild().getEmotesByName("hit_miss", false).get(0).getId());
             return;
         }
-        event.getChannel().sendMessage("Getting Beatmap...").queue(message -> {
-            message.addReaction("\uD83D\uDDFA").queue();
-            message.addReaction("\uD83D\uDC65").queue(success1 -> {
-                message.editMessage(osuData.getBeatmap(rand)).queue(success2 -> {
-                    osuMessages.add(message.getId());
+        if (event.getMessage().getRawContent().toLowerCase().contains("all")) {
+            osuData.getAllBeatmaps().forEach( message -> {
+                event.getChannel().sendMessage(message).queue();
+            });
+        } else {
+            event.getChannel().sendMessage("Getting Beatmap...").queue(message -> {
+                message.addReaction("\uD83D\uDDFA").queue();
+                message.addReaction("\uD83D\uDC65").queue(success1 -> {
+                    message.editMessage(osuData.getBeatmap(rand)).queue(success2 -> {
+                        osuMessages.add(message.getId());
+                    });
                 });
             });
-        });
+        }
     }
 
 
@@ -333,19 +341,18 @@ public class BotListener extends ListenerAdapter {
      */
     private static void getFile(MessageReceivedEvent event) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (!attachments.isEmpty()) {
+        if (!attachments.isEmpty() && attachments.get(0).getFileName().equals("scores.db")) {
             if (osuData == null) {
                 event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
                 return;
             }
             System.out.println("\nFound Attachment.");
             String path = "src\\dreadmoirais\\data\\scores\\";
-            if (attachments.get(0).getFileName().equals("scores.db")) {
-                path += event.getMessage().getId() + ".db";
-            }
+            path += event.getMessage().getAuthor().getName() + event.getMessage().getCreationTime().format(DateTimeFormatter.ofPattern("MMMdd_HH-mm-ss")) + ".db";
+            path = path.replaceAll(" ", "");
             attachments.get(0).download(new File(path));
-            event.getMessage().addReaction("\u2705").queue();
-            osuData.readScoresDB(path);
+            //event.getMessage().addReaction("\u2705").queue();
+            event.getChannel().sendMessage(String.format("Scores Found   `%d`", osuData.readScoresDB(path))).queue();
         } else {
             event.getMessage().addReaction("\uD83D\uDE12").queue();
         }

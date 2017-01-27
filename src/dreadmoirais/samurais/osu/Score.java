@@ -211,4 +211,8 @@ public class Score {
         this.count0 = count0;
         return this;
     }
+
+    public String toString() {
+        return beatmapHash + " " + player + " " + score;
+    }
 }

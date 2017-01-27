@@ -106,7 +106,7 @@ public class OsuJsonReader {
         }
         String text = sb.toString();
         try {
-            if (text.charAt(0) != '[') {
+            if (text.charAt(0) != '[' || text.equals("[]")) {
                 throw new Exception("Osu!API Error: " + text);
             }
         } catch (Exception e) {

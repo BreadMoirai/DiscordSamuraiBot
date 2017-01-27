@@ -4,9 +4,7 @@ import dreadmoirais.samurais.osu.enums.Grade;
 import dreadmoirais.samurais.osu.enums.GameMode;
 import dreadmoirais.samurais.osu.enums.RankedStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -262,11 +260,13 @@ public class Beatmap {
 
     public Beatmap setScores(List<Score> scores) {
         this.scores = scores;
+        Collections.sort(scores, (o1, o2) -> o2.getScore() - o1.getScore());
         return this;
     }
 
     void appendScores(List<Score> scores) {
         this.scores.addAll(scores);
+        Collections.sort(scores, (o1, o2) -> o2.getScore() - o1.getScore());
     }
 
 

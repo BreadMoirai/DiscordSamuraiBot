@@ -1,4 +1,4 @@
-# DiscordSamuraiBot
+﻿# DiscordSamuraiBot
 
 ## About
 
@@ -34,17 +34,20 @@ What can I do?!
  - `!shutdown`
 ##### Osu-related Commands
  - `!osu [username]`
- - `!initialize`
- 	- `!upload`
-	- `!beatmap` 
- 	- `!getScores`†
+ - `!build` recommended use `!build partial`
+ - `!upload`
+ - `!beatmap` 
+ - `!getScores`†
 <br />
  \* <sub>argument optional</sub><br />
  † <sub>Under Construction&#13;&#10;</sub> <br />
 
-## To Do List:	
+## To Do List:
+ - [ ] Track api requests
+ - [ ] Create custom save files for beatmap info.	
  - [ ] Restrict !Shutdown permissions
  - [ ] Integrate Osu!
+	 - [x] Beatmap Embed
 	 - [x] Add file Parser
 	 - [x] Add Enums
 	 - [ ] create File Writer

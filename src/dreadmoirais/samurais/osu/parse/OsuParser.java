@@ -45,9 +45,7 @@ public class OsuParser extends Parser {
             in.read(b);
 
             Beatmap beatmap = new BeatmapParser(b).parse().getBeatmap();
-            if (beatmap.getGameMode() == GameMode.OSU) {
-                beatmaps.put(beatmap.getHash(), beatmap);
-            }
+            beatmaps.put(beatmap.getHash(), beatmap);
             proccessedTotal++;
         }
 

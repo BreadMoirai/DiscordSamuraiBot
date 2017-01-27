@@ -35,12 +35,21 @@ public enum Mod {
 
     public static List<Mod> getMods(int modCombo) {
         List<Mod> mods = new ArrayList<>();
+        if (modCombo == 0) {
+            mods.add(Mod.None);
+            return mods;
+        }
         for (Mod mod : Mod.values()) {
             if ((modCombo & mod.value) == mod.value) {
                 mods.add(mod);
             }
         }
         return mods;
+    }
+
+    @Override
+    public String toString() {
+        return this.name();
     }
 
 }
