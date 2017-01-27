@@ -4,7 +4,6 @@ import dreadmoirais.samurais.duel.ConnectFour;
 import dreadmoirais.samurais.duel.Game;
 import dreadmoirais.samurais.osu.OsuData;
 import dreadmoirais.samurais.osu.OsuJsonReader;
-
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
@@ -20,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
@@ -103,23 +101,8 @@ public class BotListener extends ListenerAdapter {
 
 
     @Override
-    public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (games.containsKey(event.getMessageId())) {
-            updateGames(event);
-        }
-    }
-
-    @Override
-    public void onGenericMessageReaction(GenericMessageReactionEvent event) {
-        if (osuMessages.contains(event.getMessageId())) {
-            updateOsuMessage(event);
-        }
-    }
-
-    @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        //fires when a message is sent in the channel
-        if (event.isFromType(ChannelType.TEXT)) {
+        if (event.isFromType(ChannelType.TEXT) && event.getAuthor()!=self) {
             getCommand(event);
         }
     }
@@ -134,8 +117,24 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        if (event.getAuthor()!=self)
         event.getChannel().sendMessage("Ready for some nudes?!").queue();
     }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (games.containsKey(event.getMessageId())) {
+            updateGames(event);
+        }
+    }
+
+    @Override
+    public void onGenericMessageReaction(GenericMessageReactionEvent event) {
+        if (osuMessages.contains(event.getMessageId())) {
+            updateOsuMessage(event);
+        }
+    }
+
 
     @Override
     public void onDisconnect(DisconnectEvent event) {
@@ -290,7 +289,7 @@ public class BotListener extends ListenerAdapter {
             return;
         }
         if (event.getMessage().getRawContent().toLowerCase().contains("all")) {
-            osuData.getAllBeatmaps().forEach( message -> {
+            osuData.getAllBeatmaps().forEach(message -> {
                 event.getChannel().sendMessage(message).queue();
             });
         } else {
