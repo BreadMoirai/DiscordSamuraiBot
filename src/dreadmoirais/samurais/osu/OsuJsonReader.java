@@ -13,8 +13,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.StringCharacterIterator;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +36,8 @@ public class OsuJsonReader {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } catch (Exception e) {
+            return null;
         }
         if (json.isEmpty()) {
             return null;
@@ -48,15 +49,15 @@ public class OsuJsonReader {
                 .setColor(Color.PINK)
                 .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
-                .addField("Rank", profile.getString("pp_rank").substring(0,5), true)
+                .addField("Rank", profile.getString("pp_rank").substring(0, 5), true)
                 .addField("Play Count", profile.getString("playcount"), true)
-                .addField("Accuracy", profile.getString("accuracy").substring(0,5)+"%", true)
+                .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
                 .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
                 .setFooter("Osu!API", "http://w.ppy.sh/c/c9/Logo.png");
         return new MessageBuilder().setEmbed(eb.build()).build();
     }
 
-    public static Beatmap getBeatmapInfo(String hash) {
+    static Beatmap getBeatmapInfo(String hash) {
         List<JSONObject> json;
         try {
             json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
@@ -82,12 +83,12 @@ public class OsuJsonReader {
         beatmap.setMapID(info.getInt("beatmapset_id"));
         beatmap.setMapper(info.getString("creator"));
         beatmap.setDifficultyRating(info.getDouble("difficultyrating"));
-        beatmap.setCs((float)info.getDouble("diff_size"));
-        beatmap.setOd((float)info.getDouble("diff_overall" ));
-        beatmap.setAr((float)info.getDouble("diff_approach"));
-        beatmap.setHp((float)info.getDouble("diff_drain"));
+        beatmap.setCs((float) info.getDouble("diff_size"));
+        beatmap.setOd((float) info.getDouble("diff_overall"));
+        beatmap.setAr((float) info.getDouble("diff_approach"));
+        beatmap.setHp((float) info.getDouble("diff_drain"));
         beatmap.setDrainTime(info.getInt("hit_length"));
-        beatmap.setTotalTime(info.getInt("total_length")*1000);
+        beatmap.setTotalTime(info.getInt("total_length") * 1000);
         beatmap.setSource(info.getString("source"));
         beatmap.setSong(info.getString("title"));
         beatmap.setDifficulty(info.getString("version"));
@@ -104,18 +105,26 @@ public class OsuJsonReader {
             sb.append((char) cp);
         }
         String text = sb.toString();
-        text = text.substring(1,text.length()-1);
+        try {
+            if (text.charAt(0) != '[') {
+                throw new Exception("Osu!API Error: " + text);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        text = text.substring(1, text.length() - 1);
         List<String> jsonStrings = new ArrayList<>();
         int splitter = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (c =='{') {
+            if (c == '{') {
                 splitter++;
-            } else if (c =='}') {
+            } else if (c == '}') {
                 splitter--;
-                if (splitter==0) {
-                    jsonStrings.add(text.substring(0,i+1));
-                    if (i+2 < text.length()) {
+                if (splitter == 0) {
+                    jsonStrings.add(text.substring(0, i + 1));
+                    if (i + 2 < text.length()) {
                         text = text.substring(i + 2);
                         i = 0;
                     }

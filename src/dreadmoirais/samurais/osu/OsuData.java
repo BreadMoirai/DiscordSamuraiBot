@@ -1,11 +1,9 @@
 package dreadmoirais.samurais.osu;
 
-import dreadmoirais.samurais.osu.enums.Mod;
 import dreadmoirais.samurais.osu.parse.OsuParser;
 import dreadmoirais.samurais.osu.parse.ScoresParser;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Message;
 
 import java.awt.*;
@@ -58,6 +56,7 @@ public class OsuData {
         if (beatmap.isEmpty()) {
             beatmap = OsuJsonReader.getBeatmapInfo(hash);
         }
+        assert beatmap != null;
         //System.out.println(beatmap);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle(String.format("%s by %s", beatmap.getSong(), beatmap.getArtist()))
@@ -88,7 +87,6 @@ public class OsuData {
         try {
             beatmaps = new OsuParser(filepath).parse().getBeatmaps();
             hashes.addAll(beatmaps.keySet());
-
             return true;
         } catch (IOException e) {
             e.printStackTrace();
