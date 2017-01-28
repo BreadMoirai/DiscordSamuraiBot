@@ -1,7 +1,7 @@
 ﻿# DiscordSamuraiBot
 
 ## About
-
+SHIFTED TO GRADLE
 This bot don't do much of anything
 
 NOT TESTED for multiple guilds
