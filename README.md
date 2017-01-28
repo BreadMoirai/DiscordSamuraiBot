@@ -11,16 +11,18 @@ https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&p
 ### Overview
 All relevant code is stored in src\DreadMoirais\Samurais
 - Main class BotListener.java
-	`This class listens to events from discord and responds appropriately`
+	`listens to events from discord and responds appropriately`
 
-![diagram](src/images/diagram.png)
 
 #### RequiredForDevelopment
 uses JDA
 
 https://github.com/DV8FromTheWorld/JDA/
 
-Download the latest Beta version with dependencies
+~~Download the latest Beta version with dependencies~~
+
+Uses Gradle
+
 ## Authors
 
 DreadMoirai
@@ -45,6 +47,37 @@ What can I do?!
 <br />
  \* <sub>argument optional</sub><br />
  † <sub>Under Construction&#13;&#10;</sub> <br />
+
+
+## Contributing
+
+1. Fork it!
+
+2. Create your feature branch: `git checkout -b my-new-feature`
+
+3. Commit your changes: `git commit -m 'Add some feature'`
+
+4. Push to the branch: `git push origin my-new-feature`
+
+5. Submit a pull request
+
+#### Step by step for the incompetents
+0. Highly recommend using [IntelliJ](https://www.jetbrains.com/idea/) 
+1. Register a GitHub Account
+2. Download [GitHub](https://desktop.github.com/)
+###### Using GitHub (Desktop)
+3. Click the green button up there `Clone or download ▼`
+4. Click `Open in Desktop`
+5. Select location to download repository
+###### Using Git Shell
+3. Click the green button up there `Clone or download ▼`
+6. Import into IDE
+
+
+
+## History
+
+Created 1/14/2017
 
 ## To Do List:
  - [ ] catch permission exceptions
@@ -82,21 +115,3 @@ What can I do?!
 	 - [x] collapse into inner classes 
 	 - [x] Add duel data	
  - [x] Correct saveData()
-
-
-## Contributing
-
-1. Fork it!
-
-2. Create your feature branch: `git checkout -b my-new-feature`
-
-3. Commit your changes: `git commit -m 'Add some feature'`
-
-4. Push to the branch: `git push origin my-new-feature`
-
-5. Submit a pull request
-
-
-## History
-
-Created 1/14/2017
