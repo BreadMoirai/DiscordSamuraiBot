@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
@@ -12,11 +11,13 @@
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
       <entry name="!?*.aj" />
+      <entry name="!?*.txt" />
     </wildcardResourcePatterns>
-    <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="DiscordSamuraiBot_main" target="1.8" />
+      <module name="DiscordSamuraiBot_test" target="1.8" />
+      <module name="Samurai_main" target="1.8" />
+      <module name="Samurai_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

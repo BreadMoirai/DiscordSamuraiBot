@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DiscordBot.iml" filepath="$PROJECT_DIR$/DiscordBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Samurai.iml" filepath="$PROJECT_DIR$/.idea/modules/Samurai.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Samurai_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Samurai_main.iml" group="Samurai" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Samurai_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Samurai_test.iml" group="Samurai" />
     </modules>
   </component>
 </project>
