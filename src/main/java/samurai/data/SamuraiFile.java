@@ -24,6 +24,18 @@ import java.util.Map;
 public class SamuraiFile {
 
     // read functions
+    public static char getToken(long guildId) {
+        try {
+            File file = new File(String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), guildId));
+            RandomAccessFile raf = new RandomAccessFile(file, "r");
+            raf.seek(file.length()-2);
+            return raf.readChar();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0x00;
+        }
+    }
+
     public static Map<String, List<Score>> getScores(String path) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(path, "r");
         nextInt(raf);
@@ -166,22 +178,29 @@ public class SamuraiFile {
 
     //write functions
     public static void writeGuild(Guild guild) {
+        System.out.println("Writing " + guild.getId());
         String path = SamuraiFile.class.getResource("guild").getPath();
-        System.out.println(path);
-        try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(new File(path.replace("build/resources/main", "src/main/resources") +"/" + guild.getId() + ".smrai")))) {
+        int userCount = guild.getMembers().size();
+        List<Member> members = guild.getMembers();
+        for (Member member : members) {
+            if (member.getUser().isBot()) {
+                userCount--;
+            }
+        }
+        try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(new File(String.format("%s/%s.smrai", path, guild.getId()))))) {
             // wait for jda update Guild#getIdLong
             writeLong(outputStream, Long.parseLong(guild.getId()));
-            List<Member> members = guild.getMembers();
-            writeInt(outputStream, members.size());
+
+            writeInt(outputStream, userCount);
             for (Member member : members) {
-                writeLong(outputStream, Long.parseLong(member.getUser().getId()));
+                if (!member.getUser().isBot())
+                    writeLong(outputStream, Long.parseLong(member.getUser().getId()));
             }
-            byte[] empty = new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-            for (int i = 0; i < members.size(); i++) {
+            byte[] empty = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            for (int i = 0; i < userCount; i++) {
                 outputStream.write(empty);
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            outputStream.write(0x21);
         } catch (IOException e) {
             e.printStackTrace();
         }

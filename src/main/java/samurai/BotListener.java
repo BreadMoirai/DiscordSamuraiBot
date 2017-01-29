@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
@@ -49,8 +50,6 @@ public class BotListener extends ListenerAdapter {
     private static OsuData osuData;
     private static Set<String> osuMessages;
 
-    private static SamuraiFile samuraiFile;
-
 
     BotListener() {
         shadePhrases = new ArrayList<>(); //What shade will the tree provide when you can have Samurai[samurai.Bot]
@@ -62,8 +61,6 @@ public class BotListener extends ListenerAdapter {
         osuMessages = new HashSet<>();
         osuData = new OsuData();
         osuMessages = new HashSet<>();
-
-        samuraiFile = new SamuraiFile();
 
         keys = new ArrayList<>();
         commands = new ArrayList<>();
@@ -92,10 +89,12 @@ public class BotListener extends ListenerAdapter {
         keys.add("!shutdown");
         commands.add(BotListener::startTest);
         keys.add("!test");
+        commands.add(BotListener::resetData);
+        keys.add("!reset");
     }
 
     private static void startTest(MessageReceivedEvent event) {
-
+        System.out.println(SamuraiFile.getToken(Long.parseLong(event.getGuild().getId())));
     }
 
     private static void getInvite(MessageReceivedEvent event) {
@@ -379,11 +378,19 @@ public class BotListener extends ListenerAdapter {
     }
 
     private static void exitProtocol(MessageReceivedEvent event) {
-        data.saveDataFull();
+
         event.getMessage().addReaction("\uD83D\uDC4B").queue();
         event.getJDA().shutdown();
     }
 
+    @Override
+    public void onShutdown(ShutdownEvent event) {
+        try {
+            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\guild C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\guild");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     //miscMethods
     private void loadKeywords() {
@@ -396,6 +403,12 @@ public class BotListener extends ListenerAdapter {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void resetData(MessageReceivedEvent event) {
+        for (Guild g : event.getJDA().getGuilds()) {
+            SamuraiFile.writeGuild(g);
         }
     }
 
