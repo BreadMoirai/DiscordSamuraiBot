@@ -4,9 +4,8 @@ package samurai.osu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import samurai.data.SamuraiFile;
 import samurai.osu.enums.Mod;
-import samurai.osu.parse.OsuParser;
-import samurai.osu.parse.ScoresParser;
 
 import java.awt.*;
 import java.io.IOException;
@@ -31,11 +30,10 @@ public class OsuData {
 
     public int readScoresDB(String filepath) {
 
-        ScoresParser parser;
         Map<String, List<Score>> scoreMap;
         try {
-            parser = new ScoresParser(filepath);
-            scoreMap = parser.parse().getBeatmapScores();
+
+            scoreMap = SamuraiFile.getScores(filepath);
         } catch (IOException e) {
             e.printStackTrace();
             return 0;
@@ -120,42 +118,42 @@ public class OsuData {
         return new MessageBuilder().setEmbed(embedBuilder.build()).build();
     }
 
-    public boolean readOsuDB(String filepath, boolean readAll) {
-        HashMap<String, Beatmap> beatmapTemp;
-        try {
-            beatmapTemp = new OsuParser(filepath).parse().getBeatmaps();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        if (readAll) {
-            beatmaps = beatmapTemp;
-            hashes.clear();
-            hashes.addAll(beatmaps.keySet());
-            System.out.println("Added Beatmaps (full)");
-            return true;
-        } else {
-            if (hashes.isEmpty()) {
-                return false;
-            }
-            for (String hash : beatmapTemp.keySet()) {
-                if (hashes.contains(hash)) {
-                    List<Score> beatmapScores = beatmaps.get(hash).getScores();
-                    //System.out.println(beatmapScores.get(0));
-                    beatmaps.put(hash, beatmapTemp.get(hash).setScores(beatmapScores));
-                    //System.out.println(beatmaps.get(hash).getScores().get(0));
-                }
-            }
-            System.out.println("Added Beatmaps (partial)");
-
-            for (Beatmap b : beatmaps.values()) {
-                for (Score s : b.getScores()) {
-                    System.out.println(s);
-                }
-            }
-            return true;
-        }
-    }
+//    public boolean readOsuDB(String filepath, boolean readAll) {
+//        HashMap<String, Beatmap> beatmapTemp;
+//        try {
+//            beatmapTemp = new OsuParser(filepath).parse().getBeatmaps();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//        if (readAll) {
+//            beatmaps = beatmapTemp;
+//            hashes.clear();
+//            hashes.addAll(beatmaps.keySet());
+//            System.out.println("Added Beatmaps (full)");
+//            return true;
+//        } else {
+//            if (hashes.isEmpty()) {
+//                return false;
+//            }
+//            for (String hash : beatmapTemp.keySet()) {
+//                if (hashes.contains(hash)) {
+//                    List<Score> beatmapScores = beatmaps.get(hash).getScores();
+//                    //System.out.println(beatmapScores.get(0));
+//                    beatmaps.put(hash, beatmapTemp.get(hash).setScores(beatmapScores));
+//                    //System.out.println(beatmaps.get(hash).getScores().get(0));
+//                }
+//            }
+//            System.out.println("Added Beatmaps (partial)");
+//
+//            for (Beatmap b : beatmaps.values()) {
+//                for (Score s : b.getScores()) {
+//                    System.out.println(s);
+//                }
+//            }
+//            return true;
+//        }
+//    }
 
 
     private boolean saveScores() {

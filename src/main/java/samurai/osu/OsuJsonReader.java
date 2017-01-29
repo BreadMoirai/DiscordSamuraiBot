@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class OsuJsonReader {
 
-    private static final String OSU_API = "https://samurai.osu.ppy.sh/api/";
+    private static final String OSU_API = "https://osu.ppy.sh/api/";
     private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
     private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
 
@@ -49,11 +49,11 @@ public class OsuJsonReader {
                 .setColor(Color.PINK)
                 .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
-                .addField("Rank", profile.getString("pp_rank").substring(0, 5), true)
+                .addField("Rank", profile.getString("pp_rank"), true)
                 .addField("Play Count", profile.getString("playcount"), true)
                 .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
                 .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
-                .setFooter("Osu!API", "http://w.ppy.sh/c/c9/Logo.png");
+                .setFooter(profile.getString("user_id"), "http://w.ppy.sh/c/c9/Logo.png");
         return new MessageBuilder().setEmbed(eb.build()).build();
     }
 

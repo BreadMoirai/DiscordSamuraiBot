@@ -3,7 +3,6 @@ package samurai;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import samurai.osu.parse.Parser;
 
 import java.awt.*;
 import java.io.*;
@@ -45,7 +44,6 @@ public class BotData {
             //Number of users
             byte[] shortBytes = new byte[2];
             bis.read(shortBytes);
-            System.out.println(Parser.bytesToHexString(shortBytes));
             int size = (shortBytes[0]<<8)|shortBytes[1];
             System.out.println("Number of Users: " + size);
 

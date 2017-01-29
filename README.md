@@ -61,17 +61,8 @@ What can I do?!
 
 5. Submit a pull request
 
-#### Step by step for the incompetents
-0. Highly recommend using [IntelliJ](https://www.jetbrains.com/idea/) 
-1. Register a GitHub Account
-2. Download [GitHub](https://desktop.github.com/)
-###### Using GitHub (Desktop)
-3. Click the green button up there `Clone or download ▼`
-4. Click `Open in Desktop`
-5. Select location to download repository
-###### Using Git Shell
-3. Click the green button up there `Clone or download ▼`
-6. Import into IDE
+
+Highly recommend using [IntelliJ](https://www.jetbrains.com/idea/) 
 
 
 

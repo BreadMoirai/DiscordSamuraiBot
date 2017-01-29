@@ -5,12 +5,14 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import samurai.data.SamuraiFile;
 import samurai.duel.ConnectFour;
 import samurai.duel.Game;
 import samurai.osu.OsuData;
@@ -25,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Created by TonTL on 1/14/2017.
  * Handles events
- * API: http://home.dv8tion.net:8080/job/JDA/Promoted%20Build/javadoc/
+ * API: http://home.dv8tion.net:8080/job/jda
  */
 public class BotListener extends ListenerAdapter {
 
@@ -47,9 +49,9 @@ public class BotListener extends ListenerAdapter {
     private static OsuData osuData;
     private static Set<String> osuMessages;
 
-    /**
-     * constructor
-     */
+    private static SamuraiFile samuraiFile;
+
+
     BotListener() {
         shadePhrases = new ArrayList<>(); //What shade will the tree provide when you can have Samurai[samurai.Bot]
 
@@ -61,6 +63,8 @@ public class BotListener extends ListenerAdapter {
         osuData = new OsuData();
         osuMessages = new HashSet<>();
 
+        samuraiFile = new SamuraiFile();
+
         keys = new ArrayList<>();
         commands = new ArrayList<>();
 
@@ -69,21 +73,34 @@ public class BotListener extends ListenerAdapter {
         commands.add(BotListener::getRoll);
         keys.add("!roll");
         commands.add(BotListener::startDuel);
-        keys.add("!samurai.duel");
+        keys.add("!duel");
         commands.add(BotListener::getFlame);
         keys.add("!flame");
         commands.add(BotListener::getOsuUser);
-        keys.add("!samurai.osu");
-        commands.add(BotListener::getOsuData);
-        keys.add("!build");
+        keys.add("!osu");
+//        commands.add(BotListener::getOsuData);
+//        keys.add("!build");
         commands.add(BotListener::getBeatmap);
         keys.add("!beatmap");
         commands.add(BotListener::getFile);
         keys.add("!upload");
         commands.add(BotListener::saveFull);
         keys.add("!save");
+        commands.add(BotListener::getInvite);
+        keys.add("!invite");
         commands.add(BotListener::exitProtocol);
         keys.add("!shutdown");
+        commands.add(BotListener::startTest);
+        keys.add("!test");
+    }
+
+    private static void startTest(MessageReceivedEvent event) {
+
+    }
+
+    private static void getInvite(MessageReceivedEvent event) {
+        System.out.println("Joined Guild: " + event.getGuild().getName());
+        event.getChannel().sendMessage("https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&permissions=1074003008").queue();
     }
 
 
@@ -94,14 +111,19 @@ public class BotListener extends ListenerAdapter {
         loadKeywords(); //loads phrases from keywords.txt
 
         self = event.getJDA().getSelfUser();
+        event.getJDA().getGuilds();
         samurai.duel.Game.samurai = self;
         data = new BotData(event.getJDA().getGuilds().get(0).getMembers());
     }
 
+    @Override
+    public void onGuildJoin(GuildJoinEvent event) {
+        SamuraiFile.writeGuild(event.getGuild());
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.TEXT) && event.getAuthor()!=self) {
+        if (event.isFromType(ChannelType.TEXT) && event.getAuthor() != self) {
             getCommand(event);
         }
     }
@@ -116,8 +138,8 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-        if (event.getAuthor()!=self)
-        event.getChannel().sendMessage("Ready for some nudes?!").queue();
+        if (event.getAuthor() != self)
+            event.getChannel().sendMessage("Ready for some nudes?!").queue();
     }
 
     @Override
@@ -272,15 +294,15 @@ public class BotListener extends ListenerAdapter {
 
     }
 
-    private static void getOsuData(MessageReceivedEvent event) {
-        boolean readAll;
-        readAll = !event.getMessage().getRawContent().toLowerCase().contains("partial");
-        if (osuData.readOsuDB("src\\dreadmoirais\\data\\samurai.osu!.db", readAll)) {
-            event.getMessage().addReaction(readAll ? "\u2705" : "\u2611").queue();
-        } else {
-            event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
-        }
-    }
+//    private static void getOsuData(MessageReceivedEvent event) {
+//        boolean readAll;
+//        readAll = !event.getMessage().getRawContent().toLowerCase().contains("partial");
+//        if (osuData.readOsuDB("src\\dreadmoirais\\data\\samurai.osu!.db", readAll)) {
+//            event.getMessage().addReaction(readAll ? "\u2705" : "\u2611").queue();
+//        } else {
+//            event.getMessage().addReaction(event.getGuild().getEmotesByName("hit_miss", false).get(0)).queue();
+//        }
+//    }
 
     private static void getBeatmap(MessageReceivedEvent event) {
         if (osuData == null) {
@@ -365,7 +387,7 @@ public class BotListener extends ListenerAdapter {
 
     //miscMethods
     private void loadKeywords() {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("keywords.txt"))))  {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("keywords.txt")))) {
             String line = br.readLine();
             System.out.println("Reading " + line);
             while ((line = br.readLine()) != null) {
