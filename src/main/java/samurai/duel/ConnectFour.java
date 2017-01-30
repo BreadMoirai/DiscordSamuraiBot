@@ -94,7 +94,8 @@ public class ConnectFour extends Game{
                             if (board[x + i][y] != token) {
                                 break;
                             } else if (i == 3) {
-                                setWinner(token);
+                                //todo
+                                //setWinner(token);
                                 return true;
                             }
                         }
@@ -106,7 +107,8 @@ public class ConnectFour extends Game{
                             if (board[x + i][y + i] != token) {
                                 break;
                             } else if (i == 3) {
-                                setWinner(token);
+                                // todo
+                                //setWinner(token);
                                 return true;
                             }
                         }
@@ -118,7 +120,8 @@ public class ConnectFour extends Game{
                             if (board[x][y + i] != token) {
                                 break;
                             } else if (i == 3) {
-                                setWinner(token);
+                                // todo
+                                //setWinner(token);
                                 return true;
                             }
                         }
@@ -130,7 +133,8 @@ public class ConnectFour extends Game{
                             if (board[x - i][y + i] != token) {
                                 break;
                             } else if (i == 3) {
-                                setWinner(token);
+                                // todo
+                                //setWinner(token);
                                 return true;
                             }
                         }

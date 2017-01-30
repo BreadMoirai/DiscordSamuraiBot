@@ -4,9 +4,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
-import samurai.BotData;
-
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,9 +19,6 @@ public abstract class Game {
     User A, B;
     User winner;
     User next;
-
-    private BotData.UserData userDataA;
-    private BotData.UserData userDataB;
 
     public Game(User Instigator, User Challenged) {
         A = Instigator;
@@ -62,22 +56,22 @@ public abstract class Game {
 
     public abstract boolean hasEnded();
 
-    void setWinner(char w) {
-        if (w == 'a') {
-            winner = A;
-            userDataA.incrementStat("Duels Won");
-            userDataA.incrementStat("Duels Fought");
-            userDataB.incrementStat("Duels Fought");
-        } else if (w == 'b') {
-            winner = B;
-            userDataB.incrementStat("Duels Won");
-            userDataB.incrementStat("Duels Fought");
-            userDataA.incrementStat("Duels Fought");
-        }
-    }
-
-    public void setData(HashMap<String, BotData.UserData> users) {
-        userDataA = users.get(A.getId());
-        userDataB = users.get(B.getId());
-    }
+//    void setWinner(char w) {
+//        if (w == 'a') {
+//            winner = A;
+//            SamuraiFile.incrementStat("Duels Won");
+//            userDataA.incrementStat("Duels Fought");
+//            userDataB.incrementStat("Duels Fought");
+//        } else if (w == 'b') {
+//            winner = B;
+//            userDataB.incrementStat("Duels Won");
+//            userDataB.incrementStat("Duels Fought");
+//            userDataA.incrementStat("Duels Fought");
+//        }
+//    }
+//
+//    public void setData(HashMap<String, BotData.UserData> users) {
+//        userDataA = users.get(A.getId());
+//        userDataB = users.get(B.getId());
+//    }
 }

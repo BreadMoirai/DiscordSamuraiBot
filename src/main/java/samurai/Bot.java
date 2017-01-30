@@ -19,7 +19,7 @@ public class Bot {
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             //jdaBuilder.useSharding(0, 1);
-            jdaBuilder.addListener(new BotListener()).setToken(BOT_TOKEN).buildBlocking();
+            jdaBuilder.addListener(new EventListener()).setToken(BOT_TOKEN).buildBlocking();
 
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();

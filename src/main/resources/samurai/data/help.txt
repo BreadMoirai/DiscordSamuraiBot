@@ -1,0 +1,8 @@
+status` -displays status of bot
+duel..` -starts a connectFour game
+stat..` -displays user stat. can specify multiple users. Defaults to author
+prefix` -changes the command prefix. Must be 4 characters or less
+uptime` -displays running time of bot
+help..` -displays help. Mentioning the bot will also display help
+guild.` -invite link for DreadMoirai's Samurais
+invite` -link to add Samurai to your server

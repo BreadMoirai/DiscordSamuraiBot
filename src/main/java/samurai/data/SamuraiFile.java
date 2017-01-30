@@ -5,17 +5,11 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.osu.Score;
 import samurai.osu.enums.GameMode;
 
-import javax.xml.crypto.Data;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by TonTL on 1/27/2017.
@@ -23,17 +17,62 @@ import java.util.Map;
  */
 public class SamuraiFile {
 
-    // read functions
-    public static char getToken(long guildId) {
+    //todo convert to threadsafe.
+
+    private static final byte[] empty = new byte[]{
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00};
+    private static final List<String> dataNames = Arrays.asList("duels fought", "duels won", "commands used", "scores uploaded", "osu id");
+
+    private static void incrementUserData(long guildId, long userId, int value, String... dataName) {
+
+    }
+
+    private static String getGuildFilePath(long Id) {
+        return String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), Id);
+    }
+
+    public static boolean hasFile(long guildId) {
+        File file = new File(getGuildFilePath(guildId));
+        return file.exists();
+    }
+
+    public static String getPrefix(long guildId) {
         try {
-            File file = new File(String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), guildId));
+            File file = new File(getGuildFilePath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "r");
-            raf.seek(file.length()-2);
-            return raf.readChar();
+            raf.seek(file.length() - Integer.BYTES);
+            byte[] prefix = new byte[Integer.BYTES];
+            raf.read(prefix);
+            raf.close();
+            return new String(prefix).trim();
         } catch (IOException e) {
             e.printStackTrace();
-            return 0x00;
+            return null;
         }
+    }
+
+    public static boolean setPrefix(long guildId, String prefix) {
+        if (prefix.length() > Integer.BYTES) {
+            return false;
+        }
+        try {
+            File file = new File(getGuildFilePath(guildId));
+            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            raf.seek(file.length() - Integer.BYTES);
+            raf.write(String.format("%4s", prefix).getBytes());
+            // remove debugging
+            System.out.println(guildId + " set prefix to " + getPrefix(guildId));
+            raf.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     public static Map<String, List<Score>> getScores(String path) throws IOException {
@@ -175,7 +214,6 @@ public class SamuraiFile {
         input.skipBytes(n);
     }
 
-
     //write functions
     public static void writeGuild(Guild guild) {
         System.out.println("Writing " + guild.getId());
@@ -196,11 +234,10 @@ public class SamuraiFile {
                 if (!member.getUser().isBot())
                     writeLong(outputStream, Long.parseLong(member.getUser().getId()));
             }
-            byte[] empty = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             for (int i = 0; i < userCount; i++) {
                 outputStream.write(empty);
             }
-            outputStream.write(0x21);
+            outputStream.write(new byte[]{0x21, 0x20, 0x20, 0x20});
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -228,7 +265,44 @@ public class SamuraiFile {
         });
     }
 
+    public static List<String> allDataTypes() {
+        return dataNames;
+    }
 
+    public List<Data> getUserData(long guildId, long userId) {
+        List<Data> output = new LinkedList<>();
+        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
+            raf.seek(Long.BYTES);
+            int userCount = nextInt(raf);
+            int userIndex = 0;
+            int dataStart = 12 + userCount * Long.BYTES;
+            // todo buffer this
+            while (nextLong(raf) != userId) {
+                userIndex++;
+            }
+            raf.seek(dataStart + userIndex * dataNames.size() * 4);
+            return nextUserDataBuffered(raf);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private List<Data> nextUserDataBuffered(DataInput input) throws IOException {
+        byte[] userDataBytes = new byte[dataNames.size() * Integer.BYTES];
+        input.readFully(userDataBytes);
+        List<Data> userDataList = new LinkedList<>();
+        for (int i = 0; i < userDataBytes.length; i += Integer.BYTES) {
+            int value = (userDataBytes[i]) +
+                    (userDataBytes[i + 1] << 8) +
+                    (userDataBytes[i + 2] << 16) +
+                    (userDataBytes[i + 3] << 24);
+            userDataList.add(new Data(dataNames.get(i / Integer.BYTES), value));
+        }
+        return userDataList;
+    }
+
+    // remove
     /* DEBUGGING ONLY
     public static String bytesToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
@@ -239,11 +313,31 @@ public class SamuraiFile {
     }
     */
 
-    private static String getLastModified(String path) {
-        File file = new File(path);
+    public List<String> readHelpFile() {
+        File helpFile = new File(SamuraiFile.class.getResource("help.txt").getPath());
+        List<String> helpLines = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(helpFile))) {
+            br.lines().forEach(helpLines::add);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return helpLines;
+    }
+
+    public String getLastModified(long userId) {
+        File file = new File(getGuildFilePath(userId));
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         return sdf.format(file.lastModified());
     }
 
+    public class Data {
+        public String name;
+        public int value;
+
+        Data(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
+    }
 
 }
