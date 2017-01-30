@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.data.SamuraiFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,23 +19,25 @@ import java.util.List;
 public class EventListener extends ListenerAdapter {
 
     // wait update
-    private HashMap<String, String> prefix;
+    private HashMap<Long, String> prefix;
     private SamuraiController samurai;
 
     EventListener() {
         prefix = new HashMap<>();
-        samurai = new SamuraiController();
+        samurai = new SamuraiController(this);
     }
 
     @Override
     public void onReady(ReadyEvent event) {
         for (Guild g : event.getJDA().getGuilds()) {
-            if (!SamuraiFile.hasFile(Long.parseLong(g.getId()))) {
+
+            long guildId = Long.parseLong(g.getId());
+            if (!SamuraiFile.hasFile(guildId)) {
                 SamuraiFile.writeGuild(g);
-                prefix.put(g.getId(), "!");
+                prefix.put(guildId, "!");
             } else {
                 // wait update
-                prefix.put(g.getId(), SamuraiFile.getPrefix(Long.parseLong(g.getId())));
+                prefix.put(guildId, SamuraiFile.getPrefix(guildId));
             }
         }
         System.out.println("Ready!" + prefix.toString());
@@ -44,7 +45,10 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        String token = prefix.get(event.getGuild().getId());
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+        String token = prefix.get(Long.parseLong(event.getGuild().getId()));
         String message = event.getMessage().getRawContent().trim();
         //if message begins with token ex. "!"
         if (message.indexOf(token) == 0 && message.length() > token.length() + 3) {
@@ -52,20 +56,21 @@ public class EventListener extends ListenerAdapter {
             if (!message.contains(" ")) {
                 samurai.action(message.toLowerCase(), event, null, null);
             } else {
-                List<String> args = Arrays.asList(message.substring(message.indexOf(" ") + 1).split(" "));
-                for (String argument : args) {
-                    if (argument.indexOf("<@") == 0) {
-                        args.remove(argument);
-                    }
+                List<User> mentions = event.getMessage().getMentionedUsers();
+                String[] argArray = message.substring(message.indexOf(" ") + 1).split(" ");
+                String[] args = new String[argArray.length - mentions.size()];
+                int j = 0;
+                for (String anArgArray : argArray) {
+                    if (anArgArray.indexOf("<@") != 0)
+                        args[j++] = anArgArray;
                 }
                 String key = message.substring(0, message.indexOf(" ")).toLowerCase();
-                List<User> mentions = event.getMessage().getMentionedUsers();
                 if (mentions.size() == 0)
                     samurai.action(key, event, null, args);
                 else
                     samurai.action(key, event, mentions, args);
             }
-        } else if (message.equalsIgnoreCase("<@&270044218167132170>")) {
+        } else if (message.equalsIgnoreCase("<@270044218167132170>")) {
             samurai.action("help", event, null, null);
         }
     }
@@ -78,6 +83,10 @@ public class EventListener extends ListenerAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    void updatePrefix(long guildId, String change) {
+        this.prefix.put(guildId, change);
     }
 
 

@@ -8,7 +8,6 @@ import samurai.osu.enums.GameMode;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -27,8 +26,34 @@ public class SamuraiFile {
             0x00, 0x00, 0x00, 0x00};
     private static final List<String> dataNames = Arrays.asList("duels fought", "duels won", "commands used", "scores uploaded", "osu id");
 
-    private static void incrementUserData(long guildId, long userId, int value, String... dataName) {
-
+    public static void incrementUserData(long guildId, long userId, int value, String... dataField) {
+        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "rw")) {
+            int dataFieldLength = dataField.length;
+            int[] dataPoints = new int[dataFieldLength];
+            for (int i = 0; i < dataFieldLength; i++) {
+                dataField[i] = dataField[i].replaceAll("_", " ");
+                if (!dataNames.contains(dataField[i]))
+                    throw new IllegalArgumentException("No such field exists: " + dataField[i]);
+                dataPoints[i] = dataNames.indexOf(dataField[i]);
+            }
+            Arrays.sort(dataPoints);
+            raf.seek(Long.BYTES);
+            int userCount = nextInt(raf);
+            int userIndex = 0;
+            // todo buffer this
+            while (nextLong(raf) != userId) {
+                userIndex++;
+            }
+            long userDataStart = 12 + (userCount * Long.BYTES) + (userIndex * dataNames.size() * Integer.BYTES);
+            for (int dataPoint : dataPoints) {
+                raf.seek(userDataStart + dataPoint * Integer.BYTES);
+                int before = nextInt(raf);
+                raf.seek(raf.getFilePointer() - Integer.BYTES);
+                writeInt(raf, before + value);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String getGuildFilePath(long Id) {
@@ -56,9 +81,6 @@ public class SamuraiFile {
     }
 
     public static boolean setPrefix(long guildId, String prefix) {
-        if (prefix.length() > Integer.BYTES) {
-            return false;
-        }
         try {
             File file = new File(getGuildFilePath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
@@ -168,9 +190,10 @@ public class SamuraiFile {
     private static int nextInt(DataInput input) throws IOException {
         byte[] bytes = new byte[4];
         input.readFully(bytes);
-        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
-        wrapped.order(ByteOrder.LITTLE_ENDIAN);
-        return wrapped.getInt();
+        return (bytes[0]) +
+                ((bytes[1] & 0xff) << 8) +
+                ((bytes[2] & 0xff) << 16) +
+                ((bytes[3] & 0xff) << 24);
     }
 
     private static long nextLong(DataInput input) throws IOException {
@@ -217,7 +240,8 @@ public class SamuraiFile {
     //write functions
     public static void writeGuild(Guild guild) {
         System.out.println("Writing " + guild.getId());
-        String path = SamuraiFile.class.getResource("guild").getPath();
+        // wait
+        File file = new File(getGuildFilePath(Long.parseLong(guild.getId())));
         int userCount = guild.getMembers().size();
         List<Member> members = guild.getMembers();
         for (Member member : members) {
@@ -225,13 +249,14 @@ public class SamuraiFile {
                 userCount--;
             }
         }
-        try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(new File(String.format("%s/%s.smrai", path, guild.getId()))))) {
+        try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file))) {
             // wait for jda update Guild#getIdLong
             writeLong(outputStream, Long.parseLong(guild.getId()));
 
             writeInt(outputStream, userCount);
             for (Member member : members) {
                 if (!member.getUser().isBot())
+                    // wait
                     writeLong(outputStream, Long.parseLong(member.getUser().getId()));
             }
             for (int i = 0; i < userCount; i++) {
@@ -265,12 +290,7 @@ public class SamuraiFile {
         });
     }
 
-    public static List<String> allDataTypes() {
-        return dataNames;
-    }
-
     public List<Data> getUserData(long guildId, long userId) {
-        List<Data> output = new LinkedList<>();
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
             raf.seek(Long.BYTES);
             int userCount = nextInt(raf);
@@ -293,10 +313,10 @@ public class SamuraiFile {
         input.readFully(userDataBytes);
         List<Data> userDataList = new LinkedList<>();
         for (int i = 0; i < userDataBytes.length; i += Integer.BYTES) {
-            int value = (userDataBytes[i]) +
-                    (userDataBytes[i + 1] << 8) +
-                    (userDataBytes[i + 2] << 16) +
-                    (userDataBytes[i + 3] << 24);
+            Integer value = (userDataBytes[i] & 0xff) +
+                    ((userDataBytes[i + 1] & 0xff) << 8) +
+                    ((userDataBytes[i + 2] & 0xff) << 16) +
+                    ((userDataBytes[i + 3] & 0xff) << 24);
             userDataList.add(new Data(dataNames.get(i / Integer.BYTES), value));
         }
         return userDataList;
@@ -322,12 +342,6 @@ public class SamuraiFile {
             e.printStackTrace();
         }
         return helpLines;
-    }
-
-    public String getLastModified(long userId) {
-        File file = new File(getGuildFilePath(userId));
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        return sdf.format(file.lastModified());
     }
 
     public class Data {

@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import samurai.data.SamuraiFile;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,20 +25,23 @@ class SamuraiController {
 
     private long initializationTime;
     private SamuraiFile samuraiFile;
+    private EventListener listener;
 
-    SamuraiController() {
+    SamuraiController(EventListener eventListener) {
         initializationTime = System.currentTimeMillis();
         samuraiFile = new SamuraiFile();
+        listener = eventListener;
     }
 
 
-    void action(String key, MessageReceivedEvent event, List<User> mentions, List<String> args) {
+    void action(String key, MessageReceivedEvent event, List<User> mentions, String[] args) {
+        boolean success = true;
         switch (key) {
             case "status":
                 event.getChannel().sendMessage(buildStatus(event, args)).queue();
                 break;
             case "reset":
-                if (event.getAuthor().getId().equalsIgnoreCase("232703415048732672"))
+                if (validateAdmin(event))
                     for (Guild guild : event.getJDA().getGuilds())
                         SamuraiFile.writeGuild(guild);
                 break;
@@ -50,20 +54,54 @@ class SamuraiController {
                 }
                 break;
             case "prefix":
-                if (args == null || args.size() != 1 || args.get(0).length() > 4)
+                if (args == null || args.length != 1 || args[0].length() > 4)
                     event.getMessage().addReaction("❌").queue();
+                else {
                     //wait
-                else
-                    SamuraiFile.setPrefix(Long.parseLong(event.getGuild().getId()), args.get(0));
+                    if (SamuraiFile.setPrefix(Long.parseLong(event.getGuild().getId()), args[0])) {
+                        listener.updatePrefix(Long.parseLong(event.getGuild().getId()), args[0]);
+                        event.getMessage().addReaction("✅").queue();
+                    } else {
+                        event.getMessage().addReaction("❌").queue();
+                    }
+                }
                 break;
             case "help":
                 // wait
                 event.getChannel().sendMessage(new SamuraiBuilder(SamuraiFile.getPrefix(Long.parseLong(event.getGuild().getId()))).build()).queue();
                 break;
+            case "increment":
+                if (validateAdmin(event)) {
+                    if (mentions == null || args.length < 2) {
+                        event.getMessage().addReaction("❌").queue();
+                        break;
+                    }
+                    int value;
+                    try {
+                        value = Integer.parseInt(args[0]);
+                    } catch (NumberFormatException e) {
+                        event.getMessage().addReaction("❌").queue();
+                        break;
+                    }
+                    for (User u : mentions) {
+                        SamuraiFile.incrementUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(u.getId()), value, Arrays.copyOfRange(args, 1, args.length));
+                    }
+                    event.getMessage().addReaction("✅").queue();
+                }
+                break;
             case "shutdown":
                 event.getJDA().shutdown();
                 break;
+            default:
+                success = false;
         }
+        if (success)
+            SamuraiFile.incrementUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), 1, "commands used");
+    }
+
+    private boolean validateAdmin(MessageReceivedEvent event) {
+        return event.getAuthor().getId().equalsIgnoreCase("232703415048732672");
+
     }
 
     private String getActiveTime() {
@@ -83,7 +121,7 @@ class SamuraiController {
         }
     }
 
-    private Message buildStatus(MessageReceivedEvent event, List<String> args) {
+    private Message buildStatus(MessageReceivedEvent event, String[] args) {
         SamuraiBuilder sb = new SamuraiBuilder(event.getJDA());
         return new MessageBuilder().setEmbed(sb.build()).build();
     }
@@ -94,7 +132,7 @@ class SamuraiController {
         MessageBuilder messageBuilder = new MessageBuilder();
         if (mentions != null) {
             for (User user : mentions) {
-                samuraiBuilder.setMember(event.getGuild().getMember(user));
+                samuraiBuilder = new SamuraiBuilder(event.getGuild().getMember(user));
                 userStats.add(messageBuilder.setEmbed(samuraiBuilder.build()).build());
             }
         } else {
@@ -123,21 +161,17 @@ class SamuraiController {
             addField("Guild Count", String.valueOf(jda.getGuilds().size()), true);
             addField("User Count", String.valueOf(jda.getUsers().size() - 1), true);
             addField("Time Active", getActiveTime(), true);
+            addBlankField(true);
         }
 
         SamuraiBuilder(Member member) {
-            setMember(member);
-            setFooter("SamuraiStats\u2122", AVATAR);
-
-        }
-
-        void setMember(Member member) {
             setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl());
             setColor(member.getColor());
             // wait update
             for (SamuraiFile.Data field : samuraiFile.getUserData(Long.parseLong(member.getGuild().getId()), Long.parseLong(member.getUser().getId())))
                 addField(field.name, String.valueOf(field.value), true);
-            addField("Last Updated", samuraiFile.getLastModified(Long.parseLong(member.getUser().getId())), true);
+            setFooter("SamuraiStats\u2122", AVATAR);
+
         }
     }
 
