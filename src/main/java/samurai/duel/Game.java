@@ -28,9 +28,12 @@ public abstract class Game {
 
     public abstract List<String> getReactions();
 
-
     public boolean isPlayer(User player) {
         return player == A || player == B;
+    }
+
+    public boolean isNext(User user) {
+        return user == next;
     }
 
     public abstract void perform(int move, User player);

@@ -1,16 +1,17 @@
 package samurai;
 
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.data.SamuraiFile;
+import samurai.duel.Game;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Created by TonTL on 1/28/2017.
@@ -21,16 +22,17 @@ public class EventListener extends ListenerAdapter {
     // wait update
     private HashMap<Long, String> prefix;
     private SamuraiController samurai;
+    private TreeSet<Long> gameMessageSet;
 
     EventListener() {
         prefix = new HashMap<>();
         samurai = new SamuraiController(this);
+        gameMessageSet = new TreeSet<>();
     }
 
     @Override
     public void onReady(ReadyEvent event) {
         for (Guild g : event.getJDA().getGuilds()) {
-
             long guildId = Long.parseLong(g.getId());
             if (!SamuraiFile.hasFile(guildId)) {
                 SamuraiFile.writeGuild(g);
@@ -40,6 +42,7 @@ public class EventListener extends ListenerAdapter {
                 prefix.put(guildId, SamuraiFile.getPrefix(guildId));
             }
         }
+        Game.samurai = event.getJDA().getSelfUser();
         System.out.println("Ready!" + prefix.toString());
     }
 
@@ -54,27 +57,31 @@ public class EventListener extends ListenerAdapter {
         if (message.indexOf(token) == 0 && message.length() > token.length() + 3) {
             message = message.substring(token.length());
             if (!message.contains(" ")) {
-                samurai.action(message.toLowerCase(), event, null, null);
+                samurai.action(message.toLowerCase(), event);
             } else {
-                List<User> mentions = event.getMessage().getMentionedUsers();
-                String[] argArray = message.substring(message.indexOf(" ") + 1).split(" ");
-                String[] args = new String[argArray.length - mentions.size()];
+                String[] argArray = message.substring(message.indexOf(" ") + 1).split("[ ]+");
+                String[] argReal = new String[argArray.length];
                 int j = 0;
-                for (String anArgArray : argArray) {
-                    if (anArgArray.indexOf("<@") != 0)
-                        args[j++] = anArgArray;
+                for (String argument : argArray) {
+                    if (argument.indexOf("<@") != 0 && !argument.equalsIgnoreCase("@everyone") && !argument.equalsIgnoreCase("@here") && argument.length() != 0)
+                        argReal[j++] = argument;
                 }
                 String key = message.substring(0, message.indexOf(" ")).toLowerCase();
-                if (mentions.size() == 0)
-                    samurai.action(key, event, null, args);
-                else
-                    samurai.action(key, event, mentions, args);
+
+                samurai.action(key, event, argReal);
             }
         } else if (message.equalsIgnoreCase("<@270044218167132170>")) {
-            samurai.action("help", event, null, null);
+            samurai.action("help", event);
         }
     }
 
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        long messageId = Long.parseLong(event.getMessageId());
+        if (gameMessageSet.contains(messageId)) {
+            samurai.updateGame(event, messageId);
+        }
+    }
 
     @Override
     public void onShutdown(ShutdownEvent event) {
@@ -90,5 +97,8 @@ public class EventListener extends ListenerAdapter {
     }
 
 
+    void addGame(long l) {
+        gameMessageSet.add(l);
+    }
 }
 

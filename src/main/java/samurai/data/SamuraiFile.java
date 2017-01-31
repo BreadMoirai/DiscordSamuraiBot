@@ -24,16 +24,13 @@ public class SamuraiFile {
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
-    private static final List<String> dataNames = Arrays.asList("duels fought", "duels won", "commands used", "scores uploaded", "osu id");
+    private static final List<String> dataNames = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
 
     public static void incrementUserData(long guildId, long userId, int value, String... dataField) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "rw")) {
             int dataFieldLength = dataField.length;
             int[] dataPoints = new int[dataFieldLength];
             for (int i = 0; i < dataFieldLength; i++) {
-                dataField[i] = dataField[i].replaceAll("_", " ");
-                if (!dataNames.contains(dataField[i]))
-                    throw new IllegalArgumentException("No such field exists: " + dataField[i]);
                 dataPoints[i] = dataNames.indexOf(dataField[i]);
             }
             Arrays.sort(dataPoints);
@@ -80,8 +77,9 @@ public class SamuraiFile {
         }
     }
 
-    public static boolean setPrefix(long guildId, String prefix) {
+    public static void setPrefix(long guildId, String prefix) {
         try {
+            //todo calculate from beginning of file
             File file = new File(getGuildFilePath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
             raf.seek(file.length() - Integer.BYTES);
@@ -89,10 +87,8 @@ public class SamuraiFile {
             // remove debugging
             System.out.println(guildId + " set prefix to " + getPrefix(guildId));
             raf.close();
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
     }
@@ -290,7 +286,7 @@ public class SamuraiFile {
         });
     }
 
-    public List<Data> getUserData(long guildId, long userId) {
+    public static List<Data> getUserData(long guildId, long userId) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
             raf.seek(Long.BYTES);
             int userCount = nextInt(raf);
@@ -301,11 +297,37 @@ public class SamuraiFile {
                 userIndex++;
             }
             raf.seek(dataStart + userIndex * dataNames.size() * 4);
-            return nextUserDataBuffered(raf);
+            return new SamuraiFile().nextUserDataBuffered(raf);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static List<String> getDataNames() {
+        return dataNames;
+    }
+
+    // remove
+    /* DEBUGGING ONLY
+    public static String bytesToHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+    */
+
+    public static List<String> readHelpFile() {
+        File helpFile = new File(SamuraiFile.class.getResource("help.txt").getPath());
+        List<String> helpLines = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(helpFile))) {
+            br.lines().forEach(helpLines::add);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return helpLines;
     }
 
     private List<Data> nextUserDataBuffered(DataInput input) throws IOException {
@@ -320,28 +342,6 @@ public class SamuraiFile {
             userDataList.add(new Data(dataNames.get(i / Integer.BYTES), value));
         }
         return userDataList;
-    }
-
-    // remove
-    /* DEBUGGING ONLY
-    public static String bytesToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        return sb.toString();
-    }
-    */
-
-    public List<String> readHelpFile() {
-        File helpFile = new File(SamuraiFile.class.getResource("help.txt").getPath());
-        List<String> helpLines = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(helpFile))) {
-            br.lines().forEach(helpLines::add);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return helpLines;
     }
 
     public class Data {
