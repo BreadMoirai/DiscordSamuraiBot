@@ -31,7 +31,7 @@ import java.util.List;
 class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
-    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "b742da9e2a3a48a0edebe1ba221b298de650db5e";
+    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "5b76b0eb300f5a387a3d5253b03d35262577a5c4", minorSha = "b742da9e2a3a48a0edebe1ba221b298de650db5e";
 
     OperatingSystemMXBean operatingSystemMXBean;
 
@@ -56,7 +56,7 @@ class SamuraiController {
         boolean success = true;
         switch (key) {
             case "status":
-                event.getChannel().sendMessage(buildStatus(event, args)).queue(message -> message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder(message.getEmbeds().get(0)).setTimestamp(message.getCreationTime()).build()).build()).queue());
+                event.getChannel().sendMessage(buildStatus(event)).queue(message -> message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder(message.getEmbeds().get(0)).setTimestamp(message.getCreationTime()).build()).build()).queue());
                 break;
             case "duel":
                 sendChallenge(event);
@@ -113,7 +113,8 @@ class SamuraiController {
                 break;
             case "changelog":
             case "update":
-                getCommitJson(event.getChannel());
+                getCommitJson(event.getChannel(), true);
+                getCommitJson(event.getChannel(), false);
                 break;
             case "shutdown":
                 event.getJDA().shutdown();
@@ -176,20 +177,18 @@ class SamuraiController {
         String emoji = event.getReaction().getEmote().getName();
         if (emoji.equals("⚔") && !gameMap.keySet().contains(gameId)) {
             //wait
-            event.getChannel().getMessageById(String.valueOf(gameId)).queue(message -> {
-                message.clearReactions().queue(done -> {
-                    message.editMessage("Creating " + message.getMentionedUsers().get(0).getAsMention() + "'s game...").queue();
-                    for (int i = 0, connectfour_reactionsSize = connectfour_reactions.size(); i < connectfour_reactionsSize; i++) {
-                        if (i != connectfour_reactionsSize - 1)
-                            message.addReaction(connectfour_reactions.get(i)).queue();
-                        else
-                            message.addReaction(connectfour_reactions.get(i)).queue(success -> {
-                                gameMap.put(gameId, new ConnectFour(message.getMentionedUsers().get(0), event.getUser(), random.nextBoolean()));
-                                message.editMessage(gameMap.get(gameId).buildBoard()).queue();
-                            });
-                    }
-                });
-            });
+            event.getChannel().getMessageById(String.valueOf(gameId)).queue(message -> message.clearReactions().queue(done -> {
+                message.editMessage("Creating " + message.getMentionedUsers().get(0).getAsMention() + "'s game...").queue();
+                for (int i = 0, connectfour_reactionsSize = connectfour_reactions.size(); i < connectfour_reactionsSize; i++) {
+                    if (i != connectfour_reactionsSize - 1)
+                        message.addReaction(connectfour_reactions.get(i)).queue();
+                    else
+                        message.addReaction(connectfour_reactions.get(i)).queue(success -> {
+                            gameMap.put(gameId, new ConnectFour(message.getMentionedUsers().get(0), event.getUser(), random.nextBoolean()));
+                            message.editMessage(gameMap.get(gameId).buildBoard()).queue();
+                        });
+                }
+            }));
         } else if (connectfour_reactions.contains(emoji)) {
             Game game = gameMap.get(gameId);
             if (game.isNext(event.getUser())) {
@@ -276,7 +275,7 @@ class SamuraiController {
         }
     }
 
-    private Message buildStatus(MessageReceivedEvent event, String[] args) {
+    private Message buildStatus(MessageReceivedEvent event) {
         SamuraiBuilder sb = new SamuraiBuilder(event.getJDA());
         return new MessageBuilder().setEmbed(sb.build()).build();
     }
@@ -296,8 +295,8 @@ class SamuraiController {
         return userStats;
     }
 
-    private void getCommitJson(MessageChannel channel) {
-        try (InputStream is = new URL(githubCommitApi + majorSha).openStream()) {
+    private void getCommitJson(MessageChannel channel, boolean major) {
+        try (InputStream is = new URL(githubCommitApi + (major ? majorSha : minorSha)).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             StringBuilder sb = new StringBuilder();
             int cp;
@@ -313,7 +312,6 @@ class SamuraiController {
                             .setFooter("Committed by " + json.getJSONObject("author").getString("name"), null)
                             .build())
                     .build()).queue();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
