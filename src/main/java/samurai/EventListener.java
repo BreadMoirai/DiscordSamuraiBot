@@ -1,5 +1,6 @@
 package samurai;
 
+import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
@@ -28,6 +29,11 @@ public class EventListener extends ListenerAdapter {
         prefix = new HashMap<>();
         samurai = new SamuraiController(this);
         gameMessageSet = new TreeSet<>();
+    }
+
+    EventListener(OperatingSystemMXBean operatingSystemMXBean) {
+        this();
+        samurai.operatingSystemMXBean = operatingSystemMXBean;
     }
 
     @Override
@@ -77,6 +83,8 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (event.getUser().isBot())
+            return;
         long messageId = Long.parseLong(event.getMessageId());
         if (gameMessageSet.contains(messageId)) {
             samurai.updateGame(event, messageId);
@@ -87,6 +95,7 @@ public class EventListener extends ListenerAdapter {
     public void onShutdown(ShutdownEvent event) {
         try {
             Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\guild C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\guild");
+            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\todo.txt C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\todo.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,8 +106,12 @@ public class EventListener extends ListenerAdapter {
     }
 
 
-    void addGame(long l) {
-        gameMessageSet.add(l);
+    void addGame(long gameId) {
+        gameMessageSet.add(gameId);
+    }
+
+    void removeGame(long gameId) {
+        gameMessageSet.remove(gameId);
     }
 }
 

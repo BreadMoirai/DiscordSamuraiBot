@@ -1,5 +1,6 @@
 package samurai;
 
+import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -25,6 +26,8 @@ class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
 
+    OperatingSystemMXBean operatingSystemMXBean;
+
     private long initializationTime;
     private EventListener listener;
     private Random random;
@@ -46,6 +49,7 @@ class SamuraiController {
                 break;
             case "duel":
                 sendChallenge(event);
+                break;
             case "uptime":
                 event.getChannel().sendMessage("Samurai has been online for " + getActiveTime()).queue();
                 break;
@@ -65,7 +69,7 @@ class SamuraiController {
                 break;
             case "help":
                 // wait
-                event.getChannel().sendMessage(new SamuraiBuilder(SamuraiFile.getPrefix(Long.parseLong(event.getGuild().getId()))).build()).queue();
+                event.getChannel().sendMessage(new SamuraiBuilder("help.txt", SamuraiFile.getPrefix(Long.parseLong(event.getGuild().getId()))).build()).queue();
                 break;
             case "increment":
                 if (validateAdmin(event) && validateIncrement(event.getMessage().getMentionedUsers(), args))
@@ -75,6 +79,14 @@ class SamuraiController {
                 if (validateAdmin(event))
                     for (Guild guild : event.getJDA().getGuilds())
                         SamuraiFile.writeGuild(guild);
+                break;
+            case "todo":
+                if (args.length == 0)
+                    event.getChannel().sendMessage(new SamuraiBuilder("todo.txt", null).build()).queue();
+                else {
+                    SamuraiFile.addTodo(args);
+                    event.getMessage().addReaction("✅").queue();
+                }
                 break;
             case "shutdown":
                 event.getJDA().shutdown();
@@ -104,6 +116,7 @@ class SamuraiController {
                             // wait
                             gameHashmap.put(Long.parseLong(message.getId()), new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), random.nextBoolean()));
                             listener.addGame(Long.parseLong(message.getId()));
+                            message.editMessage(gameHashmap.get(Long.parseLong(message.getId())).buildBoard()).queue();
                         });
                 }
             });
@@ -118,22 +131,40 @@ class SamuraiController {
         if (emoji.equals("⚔") && !gameHashmap.keySet().contains(gameId)) {
             //wait
             event.getChannel().getMessageById(String.valueOf(gameId)).queue(message -> {
-                message.clearReactions().queue();
-                message.editMessage("Creating game...").queue();
-                for (int i = 0, connectfour_reactionsSize = connectfour_reactions.size(); i < connectfour_reactionsSize; i++) {
-                    if (i != 7)
-                        message.addReaction(connectfour_reactions.get(i)).queue();
-                    else
-                        message.addReaction(connectfour_reactions.get(i)).queue(success -> {
-                            gameHashmap.put(gameId, new ConnectFour(message.getAuthor(), event.getUser(), random.nextBoolean()));
-                        });
-                }
-                message.editMessage(gameHashmap.get(gameId).buildBoard());
+                message.clearReactions().queue( done -> {
+                    message.editMessage("Creating " + message.getMentionedUsers().get(0).getAsMention() + "'s game...").queue();
+                    for (int i = 0, connectfour_reactionsSize = connectfour_reactions.size(); i < connectfour_reactionsSize; i++) {
+                        if (i != connectfour_reactionsSize-1)
+                            message.addReaction(connectfour_reactions.get(i)).queue();
+                        else
+                            message.addReaction(connectfour_reactions.get(i)).queue(success -> {
+                                gameHashmap.put(gameId, new ConnectFour(message.getMentionedUsers().get(0), event.getUser(), random.nextBoolean()));
+                                message.editMessage(gameHashmap.get(gameId).buildBoard()).queue();
+                            });
+                    }
+                });
             });
         } else if (connectfour_reactions.contains(emoji)) {
             Game game = gameHashmap.get(gameId);
             if (game.isNext(event.getUser())) {
+                Message message = event.getChannel().getMessageById(String.valueOf(gameId)).complete();
                 game.perform(connectfour_reactions.indexOf(emoji), event.getUser());
+                event.getReaction().removeReaction(event.getUser()).queue();
+                message.editMessage(game.buildBoard()).queue();
+
+                if (game.hasEnded()) {
+                    message.editMessage(game.buildBoard()).queue();
+                    gameHashmap.remove(gameId);
+                    listener.removeGame(gameId);
+                    User winner = game.getWinner();
+                    if (!winner.isBot()) {
+                        // wait
+                        SamuraiFile.incrementUserData(Long.parseLong(message.getGuild().getId()), Long.parseLong(winner.getId()), 1, "duels fought", "duels won");
+                        for (User loser : game.getLosers()) {
+                            SamuraiFile.incrementUserData(Long.parseLong(message.getGuild().getId()), Long.parseLong(loser.getId()), 1, "duels fought");
+                        }
+                    }
+                }
             }
 
         }
@@ -223,23 +254,29 @@ class SamuraiController {
 
     class SamuraiBuilder extends EmbedBuilder {
 
-        SamuraiBuilder(String prefix) {
-            setAuthor("Samurai - Help", null, AVATAR);
-            List<String> help = SamuraiFile.readHelpFile();
+        SamuraiBuilder(String file, String prefix) {
+            setAuthor("Samurai - " + file, null, AVATAR);
+            List<String> help = SamuraiFile.readTextFile(file);
             StringBuilder stringBuilder = new StringBuilder();
             for (String line : help) {
-                stringBuilder.append("`").append(prefix).append(line).append("\n");
+                if (prefix != null)
+                    stringBuilder.append("`").append(prefix);
+                stringBuilder.append(line).append("\n");
             }
             setDescription(stringBuilder.toString());
         }
 
         SamuraiBuilder(JDA jda) {
+            Runtime thisInstance = Runtime.getRuntime();
+            int mb = 1024 * 1024;
             setTitle("Status: " + jda.getPresence().getStatus().name());
             setColor(Color.GREEN);
             setFooter("Samurai\u2122", AVATAR);
             addField("Guild Count", String.valueOf(jda.getGuilds().size()), true);
             addField("User Count", String.valueOf(jda.getUsers().size() - 1), true);
             addField("Time Active", getActiveTime(), true);
+            addField("CpuLoad", String.format("`%.3f%%`/`%.3f%%`", operatingSystemMXBean.getProcessCpuLoad() * 100.00, operatingSystemMXBean.getSystemCpuLoad() * 100.00), true);
+            addField("Memory", String.format("**Used:**`%,dMB`\n**Total:**`%,dMB`\n**Max:**`%,dMB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
             addBlankField(true);
         }
 

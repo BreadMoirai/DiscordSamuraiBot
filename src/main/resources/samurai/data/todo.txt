@@ -1,15 +1,14 @@
- - add connect 4
- - add setOsu
- - add osuRequest
- - add score upload
- - add beatmapRequest
- - create custom beatmap binary file
+ - add charts
+ - add score tracking
+ - add get osuStat
+ - add role permissions to commands
+ - add dedicated channel
+ - add channel ignore
+ - add score aggregate
  - add score modify
  - add score write
- - add score aggregate
- - add channel ignore
- - add dedicated channel
- - add role permissions to commands
- - add get osuStat
- - add score tracking
- - create charts
+ - create custom beatmap binary file
+ - add beatmapRequest
+ - add score upload
+ - add osuRequest
+ - add setOsu

@@ -319,15 +319,27 @@ public class SamuraiFile {
     }
     */
 
-    public static List<String> readHelpFile() {
-        File helpFile = new File(SamuraiFile.class.getResource("help.txt").getPath());
-        List<String> helpLines = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(helpFile))) {
-            br.lines().forEach(helpLines::add);
+    public static List<String> readTextFile(String fileName) {
+        File textFile = new File(SamuraiFile.class.getResource(fileName).getPath());
+        LinkedList<String> textLines = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
+            br.lines().forEach(textLines::addFirst);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return helpLines;
+        return textLines;
+    }
+
+    public static void addTodo(String[] args) {
+        File todoFile = new File(SamuraiFile.class.getResource("todo.txt").getPath());
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(todoFile, true))) {
+            for (String s : args) {
+                output.write(String.format("\n - %s", s.replace("_", " ")));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private List<Data> nextUserDataBuffered(DataInput input) throws IOException {
@@ -343,6 +355,7 @@ public class SamuraiFile {
         }
         return userDataList;
     }
+
 
     public class Data {
         public String name;
