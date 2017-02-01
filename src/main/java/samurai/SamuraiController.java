@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -30,7 +31,7 @@ import java.util.List;
 class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
-    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "8210f88ab2e19350c0431c48e421d0cb3cdaff8f";
+    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "b742da9e2a3a48a0edebe1ba221b298de650db5e";
 
     OperatingSystemMXBean operatingSystemMXBean;
 
@@ -55,7 +56,7 @@ class SamuraiController {
         boolean success = true;
         switch (key) {
             case "status":
-                event.getChannel().sendMessage(buildStatus(event, args)).queue();
+                event.getChannel().sendMessage(buildStatus(event, args)).queue(message -> message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder(message.getEmbeds().get(0)).setTimestamp(message.getCreationTime()).build()).build()).queue());
                 break;
             case "duel":
                 sendChallenge(event);
@@ -111,6 +112,7 @@ class SamuraiController {
                 }
                 break;
             case "changelog":
+            case "update":
                 getCommitJson(event.getChannel());
                 break;
             case "shutdown":
@@ -322,10 +324,13 @@ class SamuraiController {
 
         SamuraiBuilder(String file, String prefix) {
             setAuthor("Samurai - " + file, null, AVATAR);
-            List<String> help = SamuraiFile.readTextFile(file);
+            List<String> textFile = SamuraiFile.readTextFile(file);
             StringBuilder stringBuilder = new StringBuilder();
-            for (String line : help) {
-                stringBuilder.append(line.replace("[prefix]", prefix)).append("\n");
+            for (String line : textFile) {
+                if (prefix != null)
+                    stringBuilder.append(line.replaceAll("[prefix]", prefix)).append("\n");
+                else
+                    stringBuilder.append(line).append("\n");
             }
             setDescription(stringBuilder.toString());
         }
@@ -339,9 +344,9 @@ class SamuraiController {
             addField("Guild Count", String.valueOf(jda.getGuilds().size()), true);
             addField("User Count", String.valueOf(jda.getUsers().size() - 1), true);
             addField("Time Active", getActiveTime(), true);
-            addField("Messages", String.format("**received:**%d**\nsent:** %d\n**calls/sec:**%.2f", callsMade, listener.messagesSent, (double) callsMade / ((System.currentTimeMillis() - initializationTime) / 1000)), true);
+            addField("Messages", String.format("**received:  **%d**\nsent:          **%d\n**cpm:          **%.2f", callsMade, listener.messagesSent, 60.0 * callsMade / ((System.currentTimeMillis() - initializationTime) / 1000)), true);
             addField("CpuLoad", String.format("`%.3f%%`/`%.3f%%`", operatingSystemMXBean.getProcessCpuLoad() * 100.00, operatingSystemMXBean.getSystemCpuLoad() * 100.00), true);
-            addField("Memory", String.format("**Used:**`%,dMB`\n**Total:**`%,dMB`\n**Max:**`%,dMB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
+            addField("Memory", String.format("**Used:  **`%d MB`\n**Total: **`%d MB`\n**Max:   **`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
         }
 
         SamuraiBuilder(Member member) {
