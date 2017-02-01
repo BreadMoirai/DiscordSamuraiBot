@@ -11,6 +11,7 @@ import samurai.data.SamuraiFile;
 import samurai.duel.Game;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TreeSet;
 
@@ -74,7 +75,7 @@ public class EventListener extends ListenerAdapter {
                 }
                 String key = message.substring(0, message.indexOf(" ")).toLowerCase();
 
-                samurai.action(key, event, argReal);
+                samurai.action(key, event, Arrays.copyOfRange(argReal, 0, j));
             }
         } else if (message.equalsIgnoreCase("<@270044218167132170>")) {
             samurai.action("help", event);
@@ -94,7 +95,7 @@ public class EventListener extends ListenerAdapter {
     @Override
     public void onShutdown(ShutdownEvent event) {
         try {
-            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\guild C:\\Users\\TonTL\\Desktop\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\guild");
+            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\guild C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\guild");
             Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\todo.txt C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\todo.txt");
         } catch (IOException e) {
             e.printStackTrace();

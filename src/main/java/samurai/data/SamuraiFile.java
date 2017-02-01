@@ -186,10 +186,11 @@ public class SamuraiFile {
     private static int nextInt(DataInput input) throws IOException {
         byte[] bytes = new byte[4];
         input.readFully(bytes);
-        return (bytes[0]) +
+        int i = bytes[0] +
                 ((bytes[1] & 0xff) << 8) +
                 ((bytes[2] & 0xff) << 16) +
                 ((bytes[3] & 0xff) << 24);
+        return i;
     }
 
     private static long nextLong(DataInput input) throws IOException {
@@ -265,12 +266,12 @@ public class SamuraiFile {
     }
 
     private static void writeInt(DataOutput output, int i) throws IOException {
-        output.write(new byte[]{
-                (byte) (0xff & i),
-                (byte) (0xff & (i >> 8)),
-                (byte) (0xff & (i >> 16)),
-                (byte) (0xff & (i >> 24))
-        });
+        byte[] b = {
+                (byte) (0x7f & i),
+                (byte) (0x7f & (i >> 7)),
+                (byte) (0x7f & (i >> 14)),
+                (byte) (0x7f & (i >> 21))};
+        output.write(b);
     }
 
     private static void writeLong(DataOutput output, long l) throws IOException {

@@ -174,8 +174,7 @@ class SamuraiController {
         List<User> mentionedUsers = event.getMessage().getMentionedUsers();
         if (mentionedUsers.size() == 0) {
             SamuraiFile.incrementUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), Integer.parseInt(args[0]), Arrays.copyOfRange(args, 1, args.length));
-        } else {
-            event.getMessage().addReaction("❌").queue();
+            return;
         }
         for (User u : mentionedUsers) {
             try {
@@ -203,7 +202,7 @@ class SamuraiController {
         }
         List<String> dataNames = SamuraiFile.getDataNames();
         for (int i = 1; i < args.length; i++) {
-            args[i] = args[i].replaceAll("_", " ");
+            args[i] = args[i].replace('_',' ');
             if (!dataNames.contains(args[i]))
                 return false;
         }
