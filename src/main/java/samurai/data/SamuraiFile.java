@@ -2,6 +2,7 @@ package samurai.data;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import org.apache.commons.lang3.CharSet;
 import samurai.osu.Score;
 import samurai.osu.enums.GameMode;
 
@@ -34,14 +35,14 @@ public class SamuraiFile {
                 dataPoints[i] = dataNames.indexOf(dataField[i]);
             }
             Arrays.sort(dataPoints);
-            raf.seek(Long.BYTES);
+            raf.seek(Integer.BYTES);
             int userCount = nextInt(raf);
             int userIndex = 0;
             // todo buffer this
             while (nextLong(raf) != userId) {
                 userIndex++;
             }
-            long userDataStart = 12 + (userCount * Long.BYTES) + (userIndex * dataNames.size() * Integer.BYTES);
+            long userDataStart = 8 + (userCount * Long.BYTES) + (userIndex * dataNames.size() * Integer.BYTES);
             for (int dataPoint : dataPoints) {
                 raf.seek(userDataStart + dataPoint * Integer.BYTES);
                 if (replace) {
@@ -70,7 +71,6 @@ public class SamuraiFile {
         try {
             File file = new File(getGuildFilePath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "r");
-            raf.seek(file.length() - Integer.BYTES);
             byte[] prefix = new byte[Integer.BYTES];
             raf.read(prefix);
             raf.close();
@@ -83,10 +83,8 @@ public class SamuraiFile {
 
     public static void setPrefix(long guildId, String prefix) {
         try {
-            //todo calculate from beginning of file
             File file = new File(getGuildFilePath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
-            raf.seek(file.length() - Integer.BYTES);
             raf.write(String.format("%4s", prefix).getBytes());
             // remove debugging
             System.out.println(guildId + " set prefix to " + getPrefix(guildId));
@@ -250,8 +248,7 @@ public class SamuraiFile {
         }
         try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file))) {
             // wait for jda update Guild#getIdLong
-            writeLong(outputStream, Long.parseLong(guild.getId()));
-
+            outputStream.write((String.format("%4s", "!").getBytes("UTF-8")));
             writeInt(outputStream, userCount);
             for (Member member : members) {
                 if (!member.getUser().isBot())
@@ -261,7 +258,6 @@ public class SamuraiFile {
             for (int i = 0; i < userCount; i++) {
                 outputStream.write(empty);
             }
-            outputStream.write(new byte[]{0x21, 0x20, 0x20, 0x20});
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -277,10 +273,10 @@ public class SamuraiFile {
 
     public static List<Data> getUserData(long guildId, long userId) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
-            raf.seek(Long.BYTES);
+            raf.seek(Integer.BYTES);
             int userCount = nextInt(raf);
             int userIndex = 0;
-            int dataStart = 12 + userCount * Long.BYTES;
+            int dataStart = 8 + userCount * Long.BYTES;
             // todo buffer this
             while (nextLong(raf) != userId) {
                 userIndex++;
