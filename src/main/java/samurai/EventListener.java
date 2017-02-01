@@ -2,6 +2,7 @@ package samurai;
 
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -21,15 +22,18 @@ import java.util.TreeSet;
  */
 public class EventListener extends ListenerAdapter {
 
+    long messagesSent;
     // wait update
     private HashMap<Long, String> prefix;
     private SamuraiController samurai;
     private TreeSet<Long> gameMessageSet;
+    private User self;
 
     EventListener() {
         prefix = new HashMap<>();
         samurai = new SamuraiController(this);
         gameMessageSet = new TreeSet<>();
+        messagesSent = 0;
     }
 
     EventListener(OperatingSystemMXBean operatingSystemMXBean) {
@@ -50,11 +54,15 @@ public class EventListener extends ListenerAdapter {
             }
         }
         Game.samurai = event.getJDA().getSelfUser();
+        self = event.getJDA().getSelfUser();
         System.out.println("Ready!" + prefix.toString());
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getAuthor() == self) {
+            messagesSent++;
+        }
         if (event.getAuthor().isBot()) {
             return;
         }

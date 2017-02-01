@@ -7,8 +7,7 @@
  - add score aggregate
  - add score modify
  - add score write
- - create custom beatmap binary file
+ - create custom beatmap binary/text file
  - add beatmapRequest
  - add score upload
- - add osuRequest
- - add setOsu
+ - add guild behavior

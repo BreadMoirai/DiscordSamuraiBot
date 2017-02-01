@@ -3,6 +3,7 @@ package samurai.osu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.json.JSONException;
 import org.json.JSONObject;
 import samurai.osu.enums.GameMode;
@@ -29,7 +30,7 @@ public class OsuJsonReader {
     OsuJsonReader() {
     }
 
-    public static Message getUserInfo(String name) {
+    public static MessageEmbed getUserInfo(String name) {
         List<JSONObject> json;
         try {
             json = readJsonFromUrl(OSU_API + GET_USER + KEY + "&type=string" + "&u=" + name);
@@ -54,7 +55,7 @@ public class OsuJsonReader {
                 .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
                 .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
                 .setFooter(profile.getString("user_id"), "http://w.ppy.sh/c/c9/Logo.png");
-        return new MessageBuilder().setEmbed(eb.build()).build();
+        return eb.build();
     }
 
     static Beatmap getBeatmapInfo(String hash) {
@@ -107,7 +108,7 @@ public class OsuJsonReader {
         String text = sb.toString();
         try {
             if (text.charAt(0) != '[' || text.equals("[]")) {
-                throw new Exception("Osu!API Error: " + text);
+                System.err.println("Osu!API Error: " + text);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -26,7 +26,7 @@ public class SamuraiFile {
             0x00, 0x00, 0x00, 0x00};
     private static final List<String> dataNames = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
 
-    public static void incrementUserData(long guildId, long userId, int value, String... dataField) {
+    public static void modifyUserData(long guildId, long userId, boolean replace, int value, String... dataField) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "rw")) {
             int dataFieldLength = dataField.length;
             int[] dataPoints = new int[dataFieldLength];
@@ -44,9 +44,13 @@ public class SamuraiFile {
             long userDataStart = 12 + (userCount * Long.BYTES) + (userIndex * dataNames.size() * Integer.BYTES);
             for (int dataPoint : dataPoints) {
                 raf.seek(userDataStart + dataPoint * Integer.BYTES);
-                int before = nextInt(raf);
-                raf.seek(raf.getFilePointer() - Integer.BYTES);
-                writeInt(raf, before + value);
+                if (replace) {
+                    writeInt(raf, value);
+                } else {
+                    int before = nextInt(raf);
+                    raf.seek(raf.getFilePointer() - Integer.BYTES);
+                    writeInt(raf, before + value);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,11 +190,9 @@ public class SamuraiFile {
     private static int nextInt(DataInput input) throws IOException {
         byte[] bytes = new byte[4];
         input.readFully(bytes);
-        int i = bytes[0] +
-                ((bytes[1] & 0xff) << 8) +
-                ((bytes[2] & 0xff) << 16) +
-                ((bytes[3] & 0xff) << 24);
-        return i;
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getInt();
     }
 
     private static long nextLong(DataInput input) throws IOException {
@@ -266,25 +268,11 @@ public class SamuraiFile {
     }
 
     private static void writeInt(DataOutput output, int i) throws IOException {
-        byte[] b = {
-                (byte) (0x7f & i),
-                (byte) (0x7f & (i >> 7)),
-                (byte) (0x7f & (i >> 14)),
-                (byte) (0x7f & (i >> 21))};
-        output.write(b);
+        output.writeInt(Integer.reverseBytes(i));
     }
 
     private static void writeLong(DataOutput output, long l) throws IOException {
-        output.write(new byte[]{
-                (byte) (0xff & l),
-                (byte) (0xff & (l >> 8)),
-                (byte) (0xff & (l >> 16)),
-                (byte) (0xff & (l >> 24)),
-                (byte) (0xff & (l >> 32)),
-                (byte) (0xff & (l >> 40)),
-                (byte) (0xff & (l >> 48)),
-                (byte) (0xff & (l >> 56)),
-        });
+        output.writeLong(Long.reverseBytes(l));
     }
 
     public static List<Data> getUserData(long guildId, long userId) {
@@ -324,7 +312,9 @@ public class SamuraiFile {
         File textFile = new File(SamuraiFile.class.getResource(fileName).getPath());
         LinkedList<String> textLines = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
-            br.lines().forEach(textLines::addFirst);
+            if (fileName.equals("todo.txt"))
+                br.lines().forEach(textLines::addFirst);
+            else br.lines().forEach(textLines::add);
         } catch (IOException e) {
             e.printStackTrace();
         }

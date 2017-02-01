@@ -1,8 +1,21 @@
-status` -displays status of bot
-duel..` -starts a connectFour game
-stat..` -displays user stat. can specify multiple users. Defaults to author
-prefix` -changes the command prefix. Must be 4 characters or less
-uptime` -displays running time of bot
-help..` -displays help. Mentioning the bot will also display help
-guild.` -invite link for DreadMoirai's Samurais
-invite` -link to add Samurai to your server
+**--- Generic ---**
+`[prefix]help..` -displays help. Mentioning the bot will also display help
+`[prefix]guild.` -invite link for DreadMoirai's Samurais.
+`[prefix]invite` -link to add Samurai to your server.
+`[prefix]duel..` -starts a connectFour game. ?`@mention`
+`[prefix]stat..` -displays users stats.  ?`@mention`
+
+**--- Osu! ---**
+`[prefix]setosu` -Links discord account to osu profile for tracking `username`
+`[prefix]getosu` -get profile information. ?`username` ?`@mention`
+
+**--- Bot ---**
+`[prefix]prefix` -changes the command prefix. `prefix`[limit=4chars]
+`[prefix]status` -displays status of bot
+`[prefix]uptime` -displays running time of bot
+`[prefix]update` -displays latest version changelog
+
+**--- Notes ---**
+Ex. `[prefix]duel @nemesis#1256` or `[prefix]duel`
+At the end of a command, a `argument` may be specifed
+**?** indicates that it is optional, otherwise required
