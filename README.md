@@ -1,7 +1,6 @@
 ﻿# DiscordSamuraiBot
 
 ## About
-SHIFTED TO GRADLE
 This bot don't do much of anything
 
 NOT TESTED for multiple guilds
@@ -9,9 +8,6 @@ Invite token
 https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&permissions=1074003008
 
 ### Overview
-All relevant code is stored in src\DreadMoirais\Samurais
-- Main class BotListener.java
-	`listens to events from discord and responds appropriately`
 
 
 #### RequiredForDevelopment
@@ -33,20 +29,14 @@ What can I do?!
 ### Responds to:
 <i> All commands are case-insensitive</i><br />
 #### Basic Commands:
- - `!stat [@mention]`*
- - `!roll [upperLimit]`*
- - `!duel [@mention]`
- - `!flame [@mention]`
- - `!shutdown` //required to save data
-#### Osu-related Commands
- - `!osu [username]`
- - `!build` recommended use `!build partial`
- - `!upload`
- - `!beatmap` 
- - `!getScores`†
-<br />
- \* <sub>argument optional</sub><br />
- † <sub>Under Construction&#13;&#10;</sub> <br />
+ - `status` -displays status of bot
+ - `duel..` -starts a connectFour game
+ - `stat..` -displays user stat. can specify multiple users. Defaults to author
+ - `prefix` -changes the command prefix. Must be 4 characters or less
+ - `uptime` -displays running time of bot
+ - `help..` -displays help. Mentioning the bot will also display help
+ - `guild.` -invite link for DreadMoirai's Samurais
+ - `invite` -link to add Samurai to your server
 
 
 ## Contributing
