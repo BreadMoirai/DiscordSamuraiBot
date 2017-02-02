@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -29,7 +30,7 @@ public class EventListener extends ListenerAdapter {
     private TreeSet<Long> gameMessageSet;
     private User self;
 
-    EventListener() {
+    private EventListener() {
         prefix = new HashMap<>();
         samurai = new SamuraiController(this);
         gameMessageSet = new TreeSet<>();
@@ -98,6 +99,11 @@ public class EventListener extends ListenerAdapter {
         if (gameMessageSet.contains(messageId)) {
             samurai.updateGame(event, messageId);
         }
+    }
+
+    @Override
+    public void onGuildJoin(GuildJoinEvent event) {
+        SamuraiFile.writeGuild(event.getGuild());
     }
 
     @Override

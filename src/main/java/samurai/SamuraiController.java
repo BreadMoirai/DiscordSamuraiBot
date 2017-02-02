@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -81,6 +80,8 @@ class SamuraiController {
                         event.getMessage().addReaction("❌").queue();
                 }
                 break;
+            case "upload":
+                event.getMessage().addReaction(addScores(event, args) ? "✅" : "❌");
             case "prefix":
                 if (validatePrefix(args)) {
                     SamuraiFile.setPrefix(Long.parseLong(event.getGuild().getId()), args[0]);
@@ -124,6 +125,19 @@ class SamuraiController {
         }
         if (success)
             SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), false, 1, "commands used");
+    }
+
+    private boolean addScores(MessageReceivedEvent event, String[] args) {
+        List<Message.Attachment> attachs = event.getMessage().getAttachments();
+        if (attachs.size() == 1 && attachs.get(0).getFileName().equals("scores.db")) {
+            String path = SamuraiFile.downloadFile(attachs.get(0));
+            if (args.length == 1 && args[0].equalsIgnoreCase("replace")) {
+                return SamuraiFile.addOsuScore(path, Long.parseLong(event.getAuthor().getId()), true);
+            } else if ((args.length == 1 && args[0].equalsIgnoreCase("append")) || args.length == 0) {
+                return SamuraiFile.addOsuScore(path, Long.parseLong(event.getAuthor().getId()), false);
+            }
+        }
+        return false;
     }
 
     private boolean setOsu(MessageReceivedEvent event, String[] args) {
@@ -341,7 +355,7 @@ class SamuraiController {
             setFooter("Samurai\u2122", AVATAR);
             addField("Guild Count", String.valueOf(jda.getGuilds().size()), true);
             addField("User Count", String.valueOf(jda.getUsers().size() - 1), true);
-            addField("Time Active", getActiveTime(), true);
+            addField("Time Active", getActiveTime(), false);
             addField("Messages", String.format("**received:  **%d**\nsent:          **%d\n**cpm:          **%.2f", callsMade, listener.messagesSent, 60.0 * callsMade / ((System.currentTimeMillis() - initializationTime) / 1000)), true);
             addField("CpuLoad", String.format("`%.3f%%`/`%.3f%%`", operatingSystemMXBean.getProcessCpuLoad() * 100.00, operatingSystemMXBean.getSystemCpuLoad() * 100.00), true);
             addField("Memory", String.format("**Used:  **`%d MB`\n**Total: **`%d MB`\n**Max:   **`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);

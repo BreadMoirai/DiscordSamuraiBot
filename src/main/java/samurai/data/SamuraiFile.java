@@ -2,13 +2,15 @@ package samurai.data;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import org.apache.commons.lang3.CharSet;
+import net.dv8tion.jda.core.entities.Message;
 import samurai.osu.Score;
 import samurai.osu.enums.GameMode;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -26,6 +28,36 @@ public class SamuraiFile {
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
     private static final List<String> dataNames = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
+
+    public static boolean addOsuScore(String path, long userId, boolean replace) {
+        if (!replace && new File(getScorePath(userId)).exists()) {
+            Map<String, List<Score>> scoreMap;
+            try {
+                scoreMap = SamuraiFile.getScores(getScorePath(userId));
+                // todo
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else if (replace) {
+            try {
+                byte[] data = Files.readAllBytes(Paths.get(path));
+                BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(getScorePath(userId)));
+                outputStream.write(data);
+                outputStream.close();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static String getScorePath(long userId) {
+        return String.format("%s/%d.db", SamuraiFile.class.getResource("user").getPath(), userId);
+    }
 
     public static void modifyUserData(long guildId, long userId, boolean replace, int value, String... dataField) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "rw")) {
@@ -62,6 +94,12 @@ public class SamuraiFile {
         return String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), Id);
     }
 
+    public static String downloadFile(Message.Attachment attachment) {
+        String path = String.format("%s/%s.db", SamuraiFile.class.getResource("temp").getPath(), attachment.getId());
+        attachment.download(new File(path));
+        return path;
+    }
+
     public static boolean hasFile(long guildId) {
         File file = new File(getGuildFilePath(guildId));
         return file.exists();
@@ -96,23 +134,23 @@ public class SamuraiFile {
     }
 
     public static Map<String, List<Score>> getScores(String path) throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(path, "r");
-        nextInt(raf);
-        int count = nextInt(raf);
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
+        System.out.println("version: " + nextInt(bis));
+        int count = nextInt(bis);
         Map<String, List<Score>> beatmapScores = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
-            String hash = nextString(raf);
-            int scoreCount = nextInt(raf);
+            String hash = nextString(bis);
+            int scoreCount = nextInt(bis);
             List<Score> scoreList = new ArrayList<>(scoreCount);
             for (int j = 0; j < scoreCount; j++) {
-                scoreList.add(nextScore(raf));
+                scoreList.add(nextScore(bis));
             }
             beatmapScores.put(hash, scoreList);
         }
         return beatmapScores;
     }
 
-    private static Score nextScore(DataInput input) {
+    private static Score nextScore(BufferedInputStream input) {
         Score score = null;
         try {
             score = new Score()
@@ -142,19 +180,21 @@ public class SamuraiFile {
     }
 
     // todo convert to bitshifting
-    private static byte nextByte(DataInput input) throws IOException {
-        return input.readByte();
+    private static byte nextByte(BufferedInputStream input) throws IOException {
+        byte[] singleByte = new byte[1];
+        input.read(singleByte);
+        return singleByte[0];
     }
 
-    private static short nextShort(DataInput input) throws IOException {
+    private static short nextShort(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[2];
-        input.readFully(bytes);
+        input.read(bytes);
         ByteBuffer wrapper = ByteBuffer.wrap(bytes);
         wrapper.order(ByteOrder.LITTLE_ENDIAN);
         return wrapper.getShort();
     }
 
-    private static int nextULEB128(DataInput input) throws IOException {
+    private static int nextULEB128(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[10];
         int i;
         for (i = 0; i < bytes.length; i++) {
@@ -172,12 +212,12 @@ public class SamuraiFile {
         return uleb;
     }
 
-    private static String nextString(DataInput input) throws IOException {
+    private static String nextString(BufferedInputStream input) throws IOException {
         if (nextByte(input) == 0x0b) {
             int stringSize = nextULEB128(input);
 
             byte[] b = new byte[stringSize];
-            input.readFully(b);
+            input.read(b);
             return new String(b, "UTF-8");
 
         } else {
@@ -185,39 +225,39 @@ public class SamuraiFile {
         }
     }
 
-    private static int nextInt(DataInput input) throws IOException {
+    private static int nextInt(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[4];
-        input.readFully(bytes);
+        input.read(bytes);
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getInt();
     }
 
-    private static long nextLong(DataInput input) throws IOException {
+    private static long nextLong(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[8];
-        input.readFully(bytes);
+        input.read(bytes);
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getLong();
     }
 
-    private static double nextDouble(DataInput input) throws IOException {
+    private static double nextDouble(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[8];
-        input.readFully(bytes);
+        input.read(bytes);
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getDouble();
     }
 
-    private static float nextSingle(DataInput input) throws IOException {
+    private static float nextSingle(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[4];
-        input.readFully(bytes);
+        input.read(bytes);
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getFloat();
     }
 
-    private static Map<Integer, Double> nextIntDoublePairs(DataInput input) throws IOException {
+    private static Map<Integer, Double> nextIntDoublePairs(BufferedInputStream input) throws IOException {
         int count = nextInt(input);
         Map<Integer, Double> pairs = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
@@ -230,8 +270,8 @@ public class SamuraiFile {
         return pairs;
     }
 
-    private static void skip(DataInput input, int n) throws IOException {
-        input.skipBytes(n);
+    private static void skip(BufferedInputStream input, int n) throws IOException {
+        input.skip(n);
     }
 
     //write functions
@@ -269,6 +309,22 @@ public class SamuraiFile {
 
     private static void writeLong(DataOutput output, long l) throws IOException {
         output.writeLong(Long.reverseBytes(l));
+    }
+
+    private static int nextInt(RandomAccessFile input) throws IOException {
+        byte[] bytes = new byte[4];
+        input.readFully(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getInt();
+    }
+
+    private static long nextLong(RandomAccessFile input) throws IOException {
+        byte[] bytes = new byte[8];
+        input.readFully(bytes);
+        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        return wrapped.getLong();
     }
 
     public static List<Data> getUserData(long guildId, long userId) {
