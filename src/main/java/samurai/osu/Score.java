@@ -5,6 +5,9 @@ import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
 import samurai.osu.enums.Mod;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -19,8 +22,11 @@ public class Score {
     private int score;
     private short maxCombo;
     private boolean perfectCombo;
+    private static final String emptyString = "";
     private int modCombo;
-    private long timestamp, onlineScoreID;
+    private long timestamp;
+    private static final int emptyInt = 0xffffffff;
+    private long onlineScoreID;
 
     float getAccuracy() {
         float maxHitPoints = (count0 + count50 + count100 + count300) * 300;
@@ -215,5 +221,43 @@ public class Score {
 
     public String toString() {
         return beatmapHash + " " + player + " " + score;
+    }
+
+    public byte[] toBytes() {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(10*Byte.BYTES + 7*Short.BYTES + 4*Integer.BYTES + 2*Long.BYTES + beatmapHash.length() + player.length() + replayHash.length());
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        byteBuffer.put((byte) mode.value());
+        byteBuffer.putInt(version);
+        byteBuffer.put((byte) 0x0b);
+        byteBuffer.put((byte) beatmapHash.length());
+        for (int i = 0; i < beatmapHash.length(); i++) {
+            byteBuffer.put((byte) beatmapHash.charAt(i));
+        }
+        byteBuffer.put((byte) 0x0b);
+        byteBuffer.put((byte) player.length());
+        for (int i = 0; i < player.length(); i++) {
+            byteBuffer.put((byte) player.charAt(i));
+        }
+        byteBuffer.put((byte) 0x0b);
+        byteBuffer.put((byte) replayHash.length());
+        for (int i = 0; i < replayHash.length(); i++) {
+            byteBuffer.put((byte) replayHash.charAt(i));
+        }
+        byteBuffer.putShort(count300);
+        byteBuffer.putShort(count100);
+        byteBuffer.putShort(count50);
+        byteBuffer.putShort(geki);
+        byteBuffer.putShort(katu);
+        byteBuffer.putShort(count0);
+        byteBuffer.putInt(score);
+        byteBuffer.putShort(maxCombo);
+        byteBuffer.put((byte) (perfectCombo ? 0x01 : 0x00));
+        byteBuffer.putInt(modCombo);
+        byteBuffer.put((byte) 0x0b);
+        byteBuffer.put((byte) 0x00);
+        byteBuffer.putLong(timestamp);
+        byteBuffer.putInt(0xffffffff);
+        byteBuffer.putLong(onlineScoreID);
+        return byteBuffer.array();
     }
 }

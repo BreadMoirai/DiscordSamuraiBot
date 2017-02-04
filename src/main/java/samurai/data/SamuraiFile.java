@@ -34,15 +34,15 @@ public class SamuraiFile {
             Map<String, List<Score>> scoreMap;
             try {
                 scoreMap = SamuraiFile.getScores(getScorePath(userId));
-                // todo
+
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
-        } else if (replace) {
+        } else {
             try {
-                byte[] data = Files.readAllBytes(Paths.get(path));
+                byte[] data = Files.readAllBytes(Paths.get(path).toAbsolutePath());
                 BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(getScorePath(userId)));
                 outputStream.write(data);
                 outputStream.close();
@@ -52,7 +52,28 @@ public class SamuraiFile {
                 return false;
             }
         }
-        return false;
+    }
+
+    public static boolean writeScoreData(String path, Map<String, List<Score>> scoreMap) {
+        try {
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
+            ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            byteBuffer.putInt(20150204);
+            byteBuffer.putInt(scoreMap.keySet().size());
+            for (String hash : scoreMap.keySet()) {
+                ByteBuffer string = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
+                string.order(ByteOrder.LITTLE_ENDIAN);
+                string.put((byte) 0x0b);
+                string.put((byte) hash.length());
+                for (int i = 0; i < hash.length(); i++) {
+                    string.put(hash.charAt(i))
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static String getScorePath(long userId) {

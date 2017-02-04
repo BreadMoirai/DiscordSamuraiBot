@@ -30,7 +30,7 @@ import java.util.List;
 class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
-    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "5b76b0eb300f5a387a3d5253b03d35262577a5c4", minorSha = "b742da9e2a3a48a0edebe1ba221b298de650db5e";
+    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "864017f2f17da8ab85ce202f52e3d8d0462f8391", minorSha = "5b76b0eb300f5a387a3d5253b03d35262577a5c4";
 
     OperatingSystemMXBean operatingSystemMXBean;
 

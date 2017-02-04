@@ -10,6 +10,3 @@
  - create custom beatmap binary file
  - add beatmapRequest
  - add score upload
- x add osuRequest
- x add setOsu
- - add guild
