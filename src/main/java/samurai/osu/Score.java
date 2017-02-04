@@ -7,7 +7,6 @@ import samurai.osu.enums.Mod;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,6 +14,8 @@ import java.util.List;
  * Score
  */
 public class Score {
+    private static final String emptyString = "";
+    private static final int emptyInt = 0xffffffff;
     private GameMode mode;
     private int version;
     private String beatmapHash, player, replayHash;
@@ -22,10 +23,8 @@ public class Score {
     private int score;
     private short maxCombo;
     private boolean perfectCombo;
-    private static final String emptyString = "";
     private int modCombo;
     private long timestamp;
-    private static final int emptyInt = 0xffffffff;
     private long onlineScoreID;
 
     float getAccuracy() {
@@ -61,10 +60,9 @@ public class Score {
         }
     }
 
-
-
-
-
+    public boolean equals(Score otherScore) {
+        return timestamp == otherScore.getTimestamp();
+    }
 
     public GameMode getMode() {
         return mode;

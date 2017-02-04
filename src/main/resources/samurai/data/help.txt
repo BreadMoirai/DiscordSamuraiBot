@@ -6,6 +6,7 @@
 `[prefix]stat..` -displays users stats.  ?`@mention`
 
 **--- Osu! ---**
+`[prefix]upload` -Must be accompanied by a uploaded `scores.db` file
 `[prefix]setosu` -Links discord account to osu profile for tracking `username`
 `[prefix]getosu` -get profile information. ?`username` ?`@mention`
 

@@ -15,7 +15,7 @@ import samurai.duel.Game;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 /**
  * Created by TonTL on 1/28/2017.
@@ -24,16 +24,16 @@ import java.util.TreeSet;
 public class EventListener extends ListenerAdapter {
 
     long messagesSent;
-    // wait update
+
     private HashMap<Long, String> prefix;
     private SamuraiController samurai;
-    private TreeSet<Long> gameMessageSet;
+    private HashSet<Long> gameMessageSet;
     private User self;
 
     private EventListener() {
         prefix = new HashMap<>();
         samurai = new SamuraiController(this);
-        gameMessageSet = new TreeSet<>();
+        gameMessageSet = new HashSet<>();
         messagesSent = 0;
     }
 
@@ -109,17 +109,17 @@ public class EventListener extends ListenerAdapter {
     @Override
     public void onShutdown(ShutdownEvent event) {
         try {
-            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\guild C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\guild");
-            Runtime.getRuntime().exec("cmd /c start xcopy /s/y/v C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\todo.txt C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\todo.txt");
+            Runtime.getRuntime().exec("cmd /c start xcopy /d/e/f/h/i/s/y/z C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data");
+            Runtime.getRuntime().exec("cmd /c start xcopy /d/e/f/h/i/s/y/z C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\todo.txt C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\todo.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     void updatePrefix(long guildId, String change) {
         this.prefix.put(guildId, change);
     }
-
 
     void addGame(long gameId) {
         gameMessageSet.add(gameId);

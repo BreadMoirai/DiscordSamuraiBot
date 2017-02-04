@@ -8,10 +8,13 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import org.json.JSONObject;
+import samurai.data.Data;
 import samurai.data.SamuraiFile;
 import samurai.duel.ConnectFour;
 import samurai.duel.Game;
+import samurai.osu.OsuGuild;
 import samurai.osu.OsuJsonReader;
+import samurai.osu.Score;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -31,6 +34,7 @@ class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
     private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "864017f2f17da8ab85ce202f52e3d8d0462f8391", minorSha = "5b76b0eb300f5a387a3d5253b03d35262577a5c4";
+    private static final String DREADMOIRAI = "232703415048732672";
 
     OperatingSystemMXBean operatingSystemMXBean;
 
@@ -38,6 +42,7 @@ class SamuraiController {
     private EventListener listener;
     private Random random;
     private HashMap<Long, Game> gameMap;
+    private HashMap<Long, OsuGuild> osuGuildMap;
 
     private long callsMade;
 
@@ -47,6 +52,7 @@ class SamuraiController {
         listener = eventListener;
         random = new Random();
         gameMap = new HashMap<>();
+        osuGuildMap = new HashMap<>();
     }
 
 
@@ -54,71 +60,58 @@ class SamuraiController {
         callsMade += 1;
         boolean success = true;
         switch (key) {
+            //basic
             case "status":
-                event.getChannel().sendMessage(buildStatus(event)).queue(message -> message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder(message.getEmbeds().get(0)).setTimestamp(message.getCreationTime()).build()).build()).queue());
+                getStatus(event);
                 break;
+            case "fight":
             case "duel":
-                sendChallenge(event);
+                getChallenge(event);
                 break;
             case "uptime":
-                event.getChannel().sendMessage("Samurai has been online for " + getActiveTime()).queue();
+                getUptime(event);
                 break;
+            case "stats":
             case "stat":
-                for (Message message : buildUserStats(event, event.getMessage().getMentionedUsers())) {
-                    event.getChannel().sendMessage(message).queue();
-                }
-                break;
-            case "setosu":
-                event.getMessage().addReaction(setOsu(event, args) ? "✅" : "❌").queue();
-                break;
-            case "getosu":
-                if (args.length == 1) {
-                    MessageEmbed osuUserInfo = OsuJsonReader.getUserInfo(args[0]);
-                    if (osuUserInfo != null)
-                        event.getChannel().sendMessage(osuUserInfo).queue();
-                    else
-                        event.getMessage().addReaction("❌").queue();
-                }
-                break;
-            case "upload":
-                event.getMessage().addReaction(addScores(event, args) ? "✅" : "❌");
-            case "prefix":
-                if (validatePrefix(args)) {
-                    SamuraiFile.setPrefix(Long.parseLong(event.getGuild().getId()), args[0]);
-                    listener.updatePrefix(Long.parseLong(event.getGuild().getId()), args[0]);
-                    event.getMessage().addReaction("✅").queue();
-                } else {
-                    event.getMessage().addReaction("❌").queue();
-                }
+                getStat(event);
                 break;
             case "help":
-                // wait
-                event.getChannel().sendMessage(new SamuraiBuilder("help.txt", SamuraiFile.getPrefix(Long.parseLong(event.getGuild().getId()))).build()).queue();
-                break;
-            case "increment":
-                if (validateAdmin(event) && validateIncrement(event.getMessage().getMentionedUsers(), args))
-                    incrementUserData(event, args);
-                break;
-            case "reset":
-                if (validateAdmin(event))
-                    for (Guild guild : event.getJDA().getGuilds())
-                        SamuraiFile.writeGuild(guild);
-                break;
-            case "todo":
-                if (args.length == 0)
-                    event.getChannel().sendMessage(new SamuraiBuilder("todo.txt", null).build()).queue();
-                else {
-                    SamuraiFile.addTodo(args);
-                    event.getMessage().addReaction("✅").queue();
-                }
+                getHelp(event);
                 break;
             case "changelog":
             case "update":
                 getCommitJson(event.getChannel(), true);
                 getCommitJson(event.getChannel(), false);
                 break;
+            case "prefix":
+                setPrefix(event, args);
+                break;
+            case "todo":
+                getTodo(event, args);
+                break;
+            //arguments passed
+            case "setosu":
+                setOsuProfile(event, args);
+                break;
+            case "getosu":
+                getOsuProfile(event, args);
+                break;
+            case "upload":
+                getFile(event, args);
+                break;
+            //admin commands
+            case "increment":
+                addUserStat(event, args);
+                break;
+            case "reset":
+                resetData(event);
+                break;
             case "shutdown":
-                event.getJDA().shutdown();
+                shutdown(event);
+                break;
+            //debugging
+            case "scorelist":
+                getScoreList(event);
                 break;
             default:
                 success = false;
@@ -127,39 +120,14 @@ class SamuraiController {
             SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), false, 1, "commands used");
     }
 
-    private boolean addScores(MessageReceivedEvent event, String[] args) {
-        List<Message.Attachment> attachs = event.getMessage().getAttachments();
-        if (attachs.size() == 1 && attachs.get(0).getFileName().equals("scores.db")) {
-            String path = SamuraiFile.downloadFile(attachs.get(0));
-            if (args.length == 1 && args[0].equalsIgnoreCase("replace")) {
-                return SamuraiFile.addOsuScore(path, Long.parseLong(event.getAuthor().getId()), true);
-            } else if ((args.length == 1 && args[0].equalsIgnoreCase("append")) || args.length == 0) {
-                return SamuraiFile.addOsuScore(path, Long.parseLong(event.getAuthor().getId()), false);
-            }
-        }
-        return false;
+
+    //basic methods
+    private void getStatus(MessageReceivedEvent event) {
+        SamuraiBuilder sb = new SamuraiBuilder(event.getJDA());
+        event.getChannel().sendMessage(new MessageBuilder().setEmbed(sb.build()).build()).queue(message -> message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder(message.getEmbeds().get(0)).setTimestamp(message.getCreationTime()).build()).build()).queue());
     }
 
-    private boolean setOsu(MessageReceivedEvent event, String[] args) {
-        if (args.length != 1) {
-            return false;
-        }
-        MessageEmbed osuUserInfo = OsuJsonReader.getUserInfo(args[0]);
-        if (osuUserInfo != null) {
-            SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), true, Integer.parseInt(osuUserInfo.getFooter().getText()), "osu id");
-            event.getChannel().sendMessage(new MessageBuilder()
-                    .append("Successfully linked ")
-                    .append(event.getAuthor().getAsMention())
-                    .append(" to osu account")
-                    .setEmbed(osuUserInfo)
-                    .build()).queue();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void sendChallenge(MessageReceivedEvent event) {
+    private void getChallenge(MessageReceivedEvent event) {
         if (event.getMessage().getMentionedUsers().size() == 0) {
             event.getChannel().sendMessage("Who is willing to engage " + event.getAuthor().getAsMention() + " in a battle of life and death?").queue(success -> {
                 // wait
@@ -183,6 +151,217 @@ class SamuraiController {
             });
         } else {
             event.getMessage().addReaction("❌").queue();
+        }
+    }
+
+    private void getUptime(MessageReceivedEvent event) {
+        event.getChannel().sendMessage("Samurai has been online for " + getActiveTime()).queue();
+    }
+
+    private void getStat(MessageReceivedEvent event) {
+        List<User> mentions = event.getMessage().getMentionedUsers();
+        if (mentions.size() > 0)
+            for (User user : mentions)
+                event.getChannel().sendMessage(new MessageBuilder().setEmbed(new SamuraiBuilder(event.getGuild().getMember(user)).build()).build()).queue();
+        else
+            event.getChannel().sendMessage(new MessageBuilder().setEmbed(new SamuraiBuilder(event.getGuild().getMember(event.getAuthor())).build()).build()).queue();
+    }
+
+    private void getHelp(MessageReceivedEvent event) {
+        event.getChannel().sendMessage(new SamuraiBuilder("help.txt", SamuraiFile.getPrefix(Long.parseLong(event.getGuild().getId()))).build()).queue();
+    }
+
+    private void getCommitJson(MessageChannel channel, boolean major) {
+        try (InputStream is = new URL(githubCommitApi + (major ? majorSha : minorSha)).openStream()) {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            StringBuilder sb = new StringBuilder();
+            int cp;
+            while ((cp = rd.read()) != -1) {
+                sb.append((char) cp);
+            }
+            JSONObject json = new JSONObject(sb.toString());
+            channel.sendMessage(new MessageBuilder()
+                    .setEmbed(new EmbedBuilder()
+                            .setTitle("Changelog: " + json.getJSONObject("author").getString("date").substring(0, 10))
+                            .setDescription(json.getString("message"))
+                            .setUrl(json.getString("html_url"))
+                            .setFooter("Committed by " + json.getJSONObject("author").getString("name"), null)
+                            .build())
+                    .build()).queue();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setPrefix(MessageReceivedEvent event, String[] args) {
+        if (args != null && args.length == 1 && args[0].length() <= 4) {
+            SamuraiFile.setPrefix(Long.parseLong(event.getGuild().getId()), args[0]);
+            listener.updatePrefix(Long.parseLong(event.getGuild().getId()), args[0]);
+            event.getMessage().addReaction("✅").queue();
+        } else {
+            event.getMessage().addReaction("❌").queue();
+        }
+    }
+
+    private void getTodo(MessageReceivedEvent event, String[] args) {
+        if (args.length == 0)
+            event.getChannel().sendMessage(new SamuraiBuilder("todo.txt", null).build()).queue();
+        else {
+            SamuraiFile.addTodo(args);
+            event.getMessage().addReaction("✅").queue();
+        }
+    }
+
+    //osu commands
+    private void setOsuProfile(MessageReceivedEvent event, String[] args) {
+        if (args.length == 1) {
+            MessageEmbed osuUserInfo = OsuJsonReader.getUserInfo(args[0]);
+            if (osuUserInfo != null) {
+                SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), true, Integer.parseInt(osuUserInfo.getFooter().getText()), "osu id");
+                event.getChannel().sendMessage(new MessageBuilder()
+                        .append("Successfully linked ")
+                        .append(event.getAuthor().getAsMention())
+                        .append(" to osu account")
+                        .setEmbed(osuUserInfo)
+                        .build()).queue();
+                event.getMessage().addReaction("✅").queue();
+                return;
+            }
+        }
+        event.getMessage().addReaction("❌").queue();
+    }
+
+    private void getOsuProfile(MessageReceivedEvent event, String[] args) {
+        if (args.length == 1) {
+            MessageEmbed osuUserInfo = OsuJsonReader.getUserInfo("&type=string" + "&u=" + args[0]);
+            if (osuUserInfo != null)
+                event.getChannel().sendMessage(osuUserInfo).queue();
+            else
+                event.getMessage().addReaction("❌").queue();
+        } else {
+            //noinspection ConstantConditions
+            int osuId = SamuraiFile.getUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), "osu id").get(0).value;
+            event.getChannel().sendMessage(OsuJsonReader.getUserInfo("&type=id" + "&u=" + osuId)).queue();
+        }
+    }
+
+    private void getFile(MessageReceivedEvent event, String[] args) {
+        boolean replace;
+        String path;
+        List<Message.Attachment> attaches = event.getMessage().getAttachments();
+        if (attaches.size() == 1 && attaches.get(0).getFileName().equals("scores.db")) {
+            path = SamuraiFile.downloadFile(attaches.get(0));
+
+            /*
+            if (args.length == 1 && args[0].equalsIgnoreCase("replace"))
+                replace = true;
+            else if ((args.length == 1 && args[0].equalsIgnoreCase("append")) || args.length == 0)
+                replace = false;
+            else
+                return;
+            */
+
+
+            // wait
+            try {
+                long guildId = Long.parseLong(event.getGuild().getId());
+                HashMap<String, LinkedList<Score>> scores = SamuraiFile.getScores(path);
+                if (!osuGuildMap.containsKey(guildId))
+                    osuGuildMap.put(guildId, new OsuGuild(scores));
+                else osuGuildMap.get(guildId).mergeScoreMap(scores);
+                int scoresAdded = 0;
+                for (LinkedList<Score> scoreList : scores.values()) scoresAdded += scoreList.size();
+                event.getChannel().sendMessage(scoresAdded + " scores added.").queue();
+            } catch (IOException e) {
+                e.printStackTrace();
+                event.getMessage().addReaction("❌").queue();
+            }
+
+        }
+    }
+
+    //admin commands
+    private void addUserStat(MessageReceivedEvent event, String[] args) {
+        List<User> mentionedUsers = event.getMessage().getMentionedUsers();
+        if (mentionedUsers.size() == 0 || args.length < 2 || !event.getAuthor().getId().equalsIgnoreCase(DREADMOIRAI)) {
+            event.getMessage().addReaction("❌").queue();
+            return;
+        }
+        try {
+            Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            event.getMessage().addReaction("❌").queue();
+            return;
+        }
+        List<String> dataNames = SamuraiFile.getDataNames();
+        for (int i = 1; i < args.length; i++) {
+            args[i] = args[i].replace('_', ' ');
+            if (!dataNames.contains(args[i])) {
+                event.getMessage().addReaction("❌").queue();
+                return;
+            }
+        }
+        // end argument validation
+        for (User u : mentionedUsers) {
+            SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(u.getId()), false, Integer.parseInt(args[0]), Arrays.copyOfRange(args, 1, args.length));
+        }
+        event.getMessage().addReaction("✅").queue();
+    }
+
+    private void resetData(MessageReceivedEvent event) {
+        if (event.getAuthor().getId().equalsIgnoreCase(DREADMOIRAI)) {
+            for (Guild guild : event.getJDA().getGuilds())
+                SamuraiFile.writeGuild(guild);
+            event.getMessage().addReaction("✅").queue();
+        }
+    }
+
+    private void shutdown(MessageReceivedEvent event) {
+        if (event.getAuthor().getId().equalsIgnoreCase(DREADMOIRAI))
+            event.getMessage().addReaction("\uD83D\uDC4B");
+        event.getJDA().shutdown();
+    }
+
+
+    //debugging
+    private void getScoreList(MessageReceivedEvent event) {
+        long guildId = Long.parseLong(event.getGuild().getId());
+        if (SamuraiFile.hasScores(guildId)) {
+            if (!osuGuildMap.containsKey(guildId)) {
+                try {
+                    osuGuildMap.put(guildId, new OsuGuild(SamuraiFile.getScores(guildId)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            MessageBuilder messageBuilder = new MessageBuilder().append("```\n");
+            for (LinkedList<Score> scoreList : osuGuildMap.get(guildId).getScoreMap().values()) {
+                for (Score score : scoreList)
+                    messageBuilder.append(score).append("\n");
+                if (messageBuilder.length() > 1900)
+                    break;
+            }
+            event.getChannel().sendMessage(messageBuilder.append("```").build()).queue();
+        } else {
+            event.getChannel().sendMessage("No Scores Found").queue();
+        }
+    }
+
+
+    private String getActiveTime() {
+        long timeDifference = System.currentTimeMillis() - initializationTime;
+        int seconds = (int) ((timeDifference / 1000) % 60);
+        int minutes = (int) ((timeDifference / 60000) % 60);
+        int hours = (int) ((timeDifference / 3600000) % 24);
+        int days = (int) (timeDifference / 86400000);
+        if (days > 0) {
+            return String.format("%d days, %d hours, %d minutes, %d seconds.", days, hours, minutes, seconds);
+        } else if (hours > 0) {
+            return String.format("%d hours, %d minutes, %d seconds.", hours, minutes, seconds);
+        } else if (minutes > 0) {
+            return String.format("%d minutes, %d seconds.", minutes, seconds);
+        } else {
+            return String.format("%d seconds.", seconds);
         }
     }
 
@@ -229,118 +408,16 @@ class SamuraiController {
         }
     }
 
-    private void incrementUserData(MessageReceivedEvent event, String[] args) {
-        List<User> mentionedUsers = event.getMessage().getMentionedUsers();
-        if (mentionedUsers.size() == 0) {
-            SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(event.getAuthor().getId()), false, Integer.parseInt(args[0]), Arrays.copyOfRange(args, 1, args.length));
-            return;
-        }
-        for (User u : mentionedUsers) {
-            try {
-                SamuraiFile.modifyUserData(Long.parseLong(event.getGuild().getId()), Long.parseLong(u.getId()), false, Integer.parseInt(args[0]), Arrays.copyOfRange(args, 1, args.length));
-            } catch (IllegalArgumentException e) {
-                event.getMessage().addReaction("❌").queue();
-                break;
-            }
-        }
-        event.getMessage().addReaction("✅").queue();
-    }
-
-
-    private boolean validateAdmin(MessageReceivedEvent event) {
-        return event.getAuthor().getId().equalsIgnoreCase("232703415048732672");
-    }
-
-    private boolean validateIncrement(List<User> mentions, String[] args) {
-        if (mentions == null || args.length < 2)
-            return false;
-        try {
-            Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        List<String> dataNames = SamuraiFile.getDataNames();
-        for (int i = 1; i < args.length; i++) {
-            args[i] = args[i].replace('_', ' ');
-            if (!dataNames.contains(args[i]))
-                return false;
-        }
-        return true;
-    }
-
-    private boolean validatePrefix(String[] args) {
-        return args != null && args.length == 1 && args[0].length() <= 4;
-    }
-
-    private String getActiveTime() {
-        long timeDifference = System.currentTimeMillis() - initializationTime;
-        int seconds = (int) ((timeDifference / 1000) % 60);
-        int minutes = (int) ((timeDifference / 60000) % 60);
-        int hours = (int) ((timeDifference / 3600000) % 24);
-        int days = (int) (timeDifference / 86400000);
-        if (days > 0) {
-            return String.format("%d days, %d hours, %d minutes, and %d seconds.", days, hours, minutes, seconds);
-        } else if (hours > 0) {
-            return String.format("%d hours, %d minutes, and %d seconds.", hours, minutes, seconds);
-        } else if (minutes > 0) {
-            return String.format("%d minutes, and %d seconds.", minutes, seconds);
-        } else {
-            return String.format("%d seconds.", seconds);
-        }
-    }
-
-    private Message buildStatus(MessageReceivedEvent event) {
-        SamuraiBuilder sb = new SamuraiBuilder(event.getJDA());
-        return new MessageBuilder().setEmbed(sb.build()).build();
-    }
-
-    private List<Message> buildUserStats(MessageReceivedEvent event, List<User> mentions) {
-        List<Message> userStats = new LinkedList<>();
-        SamuraiBuilder samuraiBuilder = new SamuraiBuilder(event.getMember());
-        MessageBuilder messageBuilder = new MessageBuilder();
-        if (mentions.size() > 0) {
-            for (User user : mentions) {
-                samuraiBuilder = new SamuraiBuilder(event.getGuild().getMember(user));
-                userStats.add(messageBuilder.setEmbed(samuraiBuilder.build()).build());
-            }
-        } else {
-            userStats.add(messageBuilder.setEmbed(samuraiBuilder.build()).build());
-        }
-        return userStats;
-    }
-
-    private void getCommitJson(MessageChannel channel, boolean major) {
-        try (InputStream is = new URL(githubCommitApi + (major ? majorSha : minorSha)).openStream()) {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            StringBuilder sb = new StringBuilder();
-            int cp;
-            while ((cp = rd.read()) != -1) {
-                sb.append((char) cp);
-            }
-            JSONObject json = new JSONObject(sb.toString());
-            channel.sendMessage(new MessageBuilder()
-                    .setEmbed(new EmbedBuilder()
-                            .setTitle("Changelog: " + json.getJSONObject("author").getString("date").substring(0, 10))
-                            .setDescription(json.getString("message"))
-                            .setUrl(json.getString("html_url"))
-                            .setFooter("Committed by " + json.getJSONObject("author").getString("name"), null)
-                            .build())
-                    .build()).queue();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     class SamuraiBuilder extends EmbedBuilder {
 
-        SamuraiBuilder(String file, String prefix) {
+        SamuraiBuilder(String file, String token) {
             setAuthor("Samurai - " + file, null, AVATAR);
             List<String> textFile = SamuraiFile.readTextFile(file);
             StringBuilder stringBuilder = new StringBuilder();
             for (String line : textFile) {
-                if (prefix != null)
-                    stringBuilder.append(line.replaceAll("[prefix]", prefix)).append("\n");
+                if (token != null)
+                    stringBuilder.append(line.replace("[prefix]", token)).append("\n");
                 else
                     stringBuilder.append(line).append("\n");
             }
@@ -357,18 +434,19 @@ class SamuraiController {
             addField("User Count", String.valueOf(jda.getUsers().size() - 1), true);
             addField("Time Active", getActiveTime(), false);
             addField("Messages", String.format("**received:  **%d**\nsent:          **%d\n**cpm:          **%.2f", callsMade, listener.messagesSent, 60.0 * callsMade / ((System.currentTimeMillis() - initializationTime) / 1000)), true);
+            addField("Osu!API", String.format("**calls made:**  `%d`\n**calls/min:    **`%d", OsuJsonReader.count, OsuJsonReader.count / ((System.currentTimeMillis() - initializationTime) / 6000)), true);
             addField("CpuLoad", String.format("`%.3f%%`/`%.3f%%`", operatingSystemMXBean.getProcessCpuLoad() * 100.00, operatingSystemMXBean.getSystemCpuLoad() * 100.00), true);
-            addField("Memory", String.format("**Used:  **`%d MB`\n**Total: **`%d MB`\n**Max:   **`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
+            addField("Memory", String.format("**used:  **`%d MB`\n**total: **`%d MB`\n**max:   **`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
         }
 
         SamuraiBuilder(Member member) {
             setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl());
             setColor(member.getColor());
             // wait update
-            final List<SamuraiFile.Data> userData = SamuraiFile.getUserData(Long.parseLong(member.getGuild().getId()), Long.parseLong(member.getUser().getId()));
+            final List<Data> userData = SamuraiFile.getUserData(Long.parseLong(member.getGuild().getId()), Long.parseLong(member.getUser().getId()));
             assert userData != null;
             StringBuilder stringBuilder = new StringBuilder();
-            for (SamuraiFile.Data field : userData)
+            for (Data field : userData)
                 stringBuilder.append("**").append(field.name).append("**    `").append(String.valueOf(field.value)).append("`\n");
             setDescription(stringBuilder.toString());
             setFooter("SamuraiStats\u2122", AVATAR);

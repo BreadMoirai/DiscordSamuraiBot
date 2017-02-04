@@ -21,20 +21,20 @@ public class SamuraiFile {
 
     //todo convert to threadsafe.
 
-    private static final byte[] empty = new byte[]{
+    private static final byte[] EMPTY = new byte[]{
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00};
-    private static final List<String> dataNames = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
+    private static final List<String> DATA_NAMES = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
+    private static final int VERSION = 20170103;
 
     public static boolean addOsuScore(String path, long userId, boolean replace) {
         if (!replace && new File(getScorePath(userId)).exists()) {
-            Map<String, List<Score>> scoreMap;
+            Map<String, LinkedList<Score>> scoreMap;
             try {
                 scoreMap = SamuraiFile.getScores(getScorePath(userId));
-
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -57,26 +57,34 @@ public class SamuraiFile {
     public static boolean writeScoreData(String path, Map<String, List<Score>> scoreMap) {
         try {
             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
-            ByteBuffer byteBuffer = ByteBuffer.allocate(8);
-            byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-            byteBuffer.putInt(20150204);
-            byteBuffer.putInt(scoreMap.keySet().size());
+            ByteBuffer scoreDatabase = ByteBuffer.allocate(8);
+            scoreDatabase.order(ByteOrder.LITTLE_ENDIAN);
+            scoreDatabase.putInt(VERSION);
+            scoreDatabase.putInt(scoreMap.keySet().size());
             for (String hash : scoreMap.keySet()) {
-                ByteBuffer string = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
-                string.order(ByteOrder.LITTLE_ENDIAN);
-                string.put((byte) 0x0b);
-                string.put((byte) hash.length());
+                ByteBuffer beatmap = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
+                beatmap.order(ByteOrder.LITTLE_ENDIAN);
+                beatmap.put((byte) 0x0b);
+                beatmap.put((byte) hash.length());
                 for (int i = 0; i < hash.length(); i++) {
-                    string.put(hash.charAt(i))
+                    beatmap.put((byte) hash.charAt(i));
+                }
+                List<Score> scoreList = scoreMap.get(hash);
+                beatmap.putInt(scoreList.size());
+                scoreDatabase.put(beatmap);
+                for (Score score : scoreList) {
+                    scoreDatabase.put(score.toBytes());
                 }
             }
-        } catch (FileNotFoundException e) {
+            outputStream.write(scoreDatabase.array());
+            return true;
+        } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-
     }
 
-    public static String getScorePath(long userId) {
+    private static String getScorePath(long userId) {
         return String.format("%s/%d.db", SamuraiFile.class.getResource("user").getPath(), userId);
     }
 
@@ -85,7 +93,7 @@ public class SamuraiFile {
             int dataFieldLength = dataField.length;
             int[] dataPoints = new int[dataFieldLength];
             for (int i = 0; i < dataFieldLength; i++) {
-                dataPoints[i] = dataNames.indexOf(dataField[i]);
+                dataPoints[i] = DATA_NAMES.indexOf(dataField[i]);
             }
             Arrays.sort(dataPoints);
             raf.seek(Integer.BYTES);
@@ -95,7 +103,7 @@ public class SamuraiFile {
             while (nextLong(raf) != userId) {
                 userIndex++;
             }
-            long userDataStart = 8 + (userCount * Long.BYTES) + (userIndex * dataNames.size() * Integer.BYTES);
+            long userDataStart = 8 + (userCount * Long.BYTES) + (userIndex * DATA_NAMES.size() * Integer.BYTES);
             for (int dataPoint : dataPoints) {
                 raf.seek(userDataStart + dataPoint * Integer.BYTES);
                 if (replace) {
@@ -154,21 +162,30 @@ public class SamuraiFile {
 
     }
 
-    public static Map<String, List<Score>> getScores(String path) throws IOException {
+    public static HashMap<String, LinkedList<Score>> getScores(String path) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
         System.out.println("version: " + nextInt(bis));
         int count = nextInt(bis);
-        Map<String, List<Score>> beatmapScores = new HashMap<>(count);
+        HashMap<String, LinkedList<Score>> beatmapScores = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
             String hash = nextString(bis);
             int scoreCount = nextInt(bis);
-            List<Score> scoreList = new ArrayList<>(scoreCount);
+            LinkedList<Score> scoreList = new LinkedList<>();
             for (int j = 0; j < scoreCount; j++) {
                 scoreList.add(nextScore(bis));
             }
             beatmapScores.put(hash, scoreList);
         }
         return beatmapScores;
+    }
+
+    public static HashMap<String, LinkedList<Score>> getScores(long guildId) throws IOException {
+        String path = String.format("%s/%d.db", SamuraiFile.class.getResource("osu").getPath(), guildId);
+        return getScores(path);
+    }
+
+    public static boolean hasScores(long guildId) {
+        return new File(String.format("%s/%d.db", SamuraiFile.class.getResource("osu").getPath(), guildId)).exists();
     }
 
     private static Score nextScore(BufferedInputStream input) {
@@ -200,7 +217,6 @@ public class SamuraiFile {
         return score;
     }
 
-    // todo convert to bitshifting
     private static byte nextByte(BufferedInputStream input) throws IOException {
         byte[] singleByte = new byte[1];
         input.read(singleByte);
@@ -317,7 +333,7 @@ public class SamuraiFile {
                     writeLong(outputStream, Long.parseLong(member.getUser().getId()));
             }
             for (int i = 0; i < userCount; i++) {
-                outputStream.write(empty);
+                outputStream.write(EMPTY);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -348,7 +364,7 @@ public class SamuraiFile {
         return wrapped.getLong();
     }
 
-    public static List<Data> getUserData(long guildId, long userId) {
+    public static List<Data> getUserData(long guildId, long userId, String... dataNames) {
         try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
             raf.seek(Integer.BYTES);
             int userCount = nextInt(raf);
@@ -358,8 +374,18 @@ public class SamuraiFile {
             while (nextLong(raf) != userId) {
                 userIndex++;
             }
-            raf.seek(dataStart + userIndex * dataNames.size() * 4);
-            return new SamuraiFile().nextUserDataBuffered(raf);
+            if (dataNames.length == 0) {
+                raf.seek(dataStart + userIndex * DATA_NAMES.size() * 4);
+                return new SamuraiFile().nextUserDataBuffered(raf);
+            } else {
+                List<Data> dataList = new ArrayList<>();
+                for (String name : dataNames) {
+                    int dataIndex = DATA_NAMES.indexOf(dataNames[0]);
+                    raf.seek(dataStart + userIndex * DATA_NAMES.size() * 4 + dataIndex * 4);
+                    dataList.add(new Data(name, nextInt(raf)));
+                }
+                return dataList;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -367,19 +393,8 @@ public class SamuraiFile {
     }
 
     public static List<String> getDataNames() {
-        return dataNames;
+        return DATA_NAMES;
     }
-
-    // remove
-    /* DEBUGGING ONLY
-    public static String bytesToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        return sb.toString();
-    }
-    */
 
     public static List<String> readTextFile(String fileName) {
         File textFile = new File(SamuraiFile.class.getResource(fileName).getPath());
@@ -407,7 +422,7 @@ public class SamuraiFile {
     }
 
     private List<Data> nextUserDataBuffered(DataInput input) throws IOException {
-        byte[] userDataBytes = new byte[dataNames.size() * Integer.BYTES];
+        byte[] userDataBytes = new byte[DATA_NAMES.size() * Integer.BYTES];
         input.readFully(userDataBytes);
         List<Data> userDataList = new LinkedList<>();
         for (int i = 0; i < userDataBytes.length; i += Integer.BYTES) {
@@ -415,20 +430,10 @@ public class SamuraiFile {
                     ((userDataBytes[i + 1] & 0xff) << 8) +
                     ((userDataBytes[i + 2] & 0xff) << 16) +
                     ((userDataBytes[i + 3] & 0xff) << 24);
-            userDataList.add(new Data(dataNames.get(i / Integer.BYTES), value));
+            userDataList.add(new Data(DATA_NAMES.get(i / Integer.BYTES), value));
         }
         return userDataList;
     }
 
-
-    public class Data {
-        public String name;
-        public int value;
-
-        Data(String name, int value) {
-            this.name = name;
-            this.value = value;
-        }
-    }
 
 }

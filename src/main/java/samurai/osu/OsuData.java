@@ -29,8 +29,7 @@ public class OsuData {
 
 
     public int readScoresDB(String filepath) {
-
-        Map<String, List<Score>> scoreMap;
+        HashMap<String, LinkedList<Score>> scoreMap;
         try {
 
             scoreMap = SamuraiFile.getScores(filepath);
