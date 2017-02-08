@@ -18,29 +18,44 @@ public class OsuGuild {
         active = true;
     }
 
+    public OsuGuild() {
+        this(new HashMap<>());
+    }
+
     public HashMap<String, LinkedList<Score>> getScoreMap() {
         return scoreMap;
     }
 
 
-    public void mergeScoreMap(HashMap<String, LinkedList<Score>> source) {
+    public int mergeScoreMap(HashMap<String, LinkedList<Score>> source) {
+        int scoresMerged = 0;
         for (String hash : source.keySet()) {
             if (scoreMap.containsKey(hash)) {
                 List<Score> destinationScores = scoreMap.get(hash);
-                for (Score sourceScore : source.get(hash)) {
-                    destinationScores.add(sourceScore);
-                }
+                for (Score sourceScore : source.get(hash))
+                    if (!destinationScores.contains(sourceScore)) {
+                        destinationScores.add(sourceScore);
+                        scoresMerged++;
+                    }
             } else {
-                scoreMap.put(hash, (LinkedList<Score>) source.get(hash));
+                scoreMap.put(hash, source.get(hash));
+                scoresMerged += source.get(hash).size();
             }
         }
+        return scoresMerged;
     }
 
     public boolean isActive() {
         return active;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setInactive() {
+        this.active = false;
+    }
+
+    public int getScoreCount() {
+        int scoreCount = 0;
+        for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
+        return scoreCount;
     }
 }

@@ -47,7 +47,7 @@ public class EventListener extends ListenerAdapter {
         for (Guild g : event.getJDA().getGuilds()) {
             long guildId = Long.parseLong(g.getId());
             if (!SamuraiFile.hasFile(guildId)) {
-                SamuraiFile.writeGuild(g);
+                SamuraiFile.writeGuildData(g);
                 prefix.put(guildId, "!");
             } else {
                 // wait update
@@ -103,14 +103,23 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        SamuraiFile.writeGuild(event.getGuild());
+        SamuraiFile.writeGuildData(event.getGuild());
     }
+
+    //wait for jda update MemberGameUpdateEvent
+    @Deprecated
+    /*
+    public void onUserGameUpdate(UserGameUpdateEvent event) {
+        System.out.println(event.getGuild().getName() + "was playing " + (event.getPreviousGame()!= null ? event.getPreviousGame().getName() : "No Game"));
+
+    }
+    */
+
 
     @Override
     public void onShutdown(ShutdownEvent event) {
         try {
-            Runtime.getRuntime().exec("cmd /c start xcopy /d/e/f/h/i/s/y/z C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data");
-            Runtime.getRuntime().exec("cmd /c start xcopy /d/e/f/h/i/s/y/z C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data\\todo.txt C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\todo.txt");
+            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }

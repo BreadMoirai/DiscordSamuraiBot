@@ -4,9 +4,9 @@
  - add role permissions to commands
  - add dedicated channel
  - add channel ignore
- - add score aggregate
+ - add score get
  - add score modify
  - add score write
  - create custom beatmap binary file
  - add beatmapRequest
- - add score upload
+ - link username to id

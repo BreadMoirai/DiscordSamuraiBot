@@ -60,8 +60,18 @@ public class Score {
         }
     }
 
-    public boolean equals(Score otherScore) {
-        return timestamp == otherScore.getTimestamp();
+    @Override
+    public boolean equals(Object score) {
+        return score instanceof Score && getReplayHash().equals(((Score) score).getReplayHash());
+    }
+
+    public String toString() {
+        return getReplayHash() + " " + player + " " + score;
+    }
+
+    @Override
+    public int hashCode() {
+        return beatmapHash.hashCode();
     }
 
     public GameMode getMode() {
@@ -215,10 +225,6 @@ public class Score {
     public Score setCount0(short count0) {
         this.count0 = count0;
         return this;
-    }
-
-    public String toString() {
-        return beatmapHash + " " + player + " " + score;
     }
 
     public byte[] toBytes() {

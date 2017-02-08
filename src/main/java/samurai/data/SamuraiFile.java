@@ -10,7 +10,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -30,37 +32,17 @@ public class SamuraiFile {
     private static final List<String> DATA_NAMES = Arrays.asList("duels won", "duels fought", "commands used", "scores uploaded", "osu id");
     private static final int VERSION = 20170103;
 
-    public static boolean addOsuScore(String path, long userId, boolean replace) {
-        if (!replace && new File(getScorePath(userId)).exists()) {
-            Map<String, LinkedList<Score>> scoreMap;
-            try {
-                scoreMap = SamuraiFile.getScores(getScorePath(userId));
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            try {
-                byte[] data = Files.readAllBytes(Paths.get(path).toAbsolutePath());
-                BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(getScorePath(userId)));
-                outputStream.write(data);
-                outputStream.close();
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-    }
-
-    public static boolean writeScoreData(String path, Map<String, List<Score>> scoreMap) {
+    public static boolean writeScoreData(long guildId, HashMap<String, LinkedList<Score>> scoreMap) {
         try {
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
+            // BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(path));
+            Path path = Paths.get(String.format("%s/%d.db", SamuraiFile.class.getResource("score").getPath(), guildId).substring(3));
             ByteBuffer scoreDatabase = ByteBuffer.allocate(8);
             scoreDatabase.order(ByteOrder.LITTLE_ENDIAN);
             scoreDatabase.putInt(VERSION);
             scoreDatabase.putInt(scoreMap.keySet().size());
+            //outputStream.write(scoreDatabase.array());
+            Files.write(path, scoreDatabase.array());
+            int scoreCount = 0;
             for (String hash : scoreMap.keySet()) {
                 ByteBuffer beatmap = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
                 beatmap.order(ByteOrder.LITTLE_ENDIAN);
@@ -71,12 +53,13 @@ public class SamuraiFile {
                 }
                 List<Score> scoreList = scoreMap.get(hash);
                 beatmap.putInt(scoreList.size());
-                scoreDatabase.put(beatmap);
+                Files.write(path, beatmap.array(), StandardOpenOption.APPEND);
                 for (Score score : scoreList) {
-                    scoreDatabase.put(score.toBytes());
+                    Files.write(path, score.toBytes(), StandardOpenOption.APPEND);
+                    scoreCount++;
                 }
             }
-            outputStream.write(scoreDatabase.array());
+            System.out.printf("%d scores written to %s%n", scoreCount, path);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,12 +67,8 @@ public class SamuraiFile {
         }
     }
 
-    private static String getScorePath(long userId) {
-        return String.format("%s/%d.db", SamuraiFile.class.getResource("user").getPath(), userId);
-    }
-
     public static void modifyUserData(long guildId, long userId, boolean replace, int value, String... dataField) {
-        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "rw")) {
+        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildDataPath(guildId)), "rw")) {
             int dataFieldLength = dataField.length;
             int[] dataPoints = new int[dataFieldLength];
             for (int i = 0; i < dataFieldLength; i++) {
@@ -119,7 +98,7 @@ public class SamuraiFile {
         }
     }
 
-    private static String getGuildFilePath(long Id) {
+    private static String getGuildDataPath(long Id) {
         return String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), Id);
     }
 
@@ -130,13 +109,13 @@ public class SamuraiFile {
     }
 
     public static boolean hasFile(long guildId) {
-        File file = new File(getGuildFilePath(guildId));
+        File file = new File(getGuildDataPath(guildId));
         return file.exists();
     }
 
     public static String getPrefix(long guildId) {
         try {
-            File file = new File(getGuildFilePath(guildId));
+            File file = new File(getGuildDataPath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             byte[] prefix = new byte[Integer.BYTES];
             raf.read(prefix);
@@ -150,7 +129,7 @@ public class SamuraiFile {
 
     public static void setPrefix(long guildId, String prefix) {
         try {
-            File file = new File(getGuildFilePath(guildId));
+            File file = new File(getGuildDataPath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
             raf.write(String.format("%4s", prefix).getBytes());
             // remove debugging
@@ -164,7 +143,11 @@ public class SamuraiFile {
 
     public static HashMap<String, LinkedList<Score>> getScores(String path) throws IOException {
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
-        System.out.println("version: " + nextInt(bis));
+        int version = nextInt(bis);
+        System.out.println("version: " + version);
+        if (version > VERSION) {
+            System.out.println("NEW SCORE VERSION FOUND\n" + version + "\n");
+        }
         int count = nextInt(bis);
         HashMap<String, LinkedList<Score>> beatmapScores = new HashMap<>(count);
         for (int i = 0; i < count; i++) {
@@ -180,12 +163,12 @@ public class SamuraiFile {
     }
 
     public static HashMap<String, LinkedList<Score>> getScores(long guildId) throws IOException {
-        String path = String.format("%s/%d.db", SamuraiFile.class.getResource("osu").getPath(), guildId);
+        String path = String.format("%s/%d.db", SamuraiFile.class.getResource("score").getPath(), guildId);
         return getScores(path);
     }
 
     public static boolean hasScores(long guildId) {
-        return new File(String.format("%s/%d.db", SamuraiFile.class.getResource("osu").getPath(), guildId)).exists();
+        return new File(String.format("%s/%d.db", SamuraiFile.class.getResource("score").getPath(), guildId)).exists();
     }
 
     private static Score nextScore(BufferedInputStream input) {
@@ -312,10 +295,10 @@ public class SamuraiFile {
     }
 
     //write functions
-    public static void writeGuild(Guild guild) {
+    public static void writeGuildData(Guild guild) {
         System.out.println("Writing " + guild.getId());
         // wait
-        File file = new File(getGuildFilePath(Long.parseLong(guild.getId())));
+        File file = new File(getGuildDataPath(Long.parseLong(guild.getId())));
         int userCount = guild.getMembers().size();
         List<Member> members = guild.getMembers();
         for (Member member : members) {
@@ -365,7 +348,7 @@ public class SamuraiFile {
     }
 
     public static List<Data> getUserData(long guildId, long userId, String... dataNames) {
-        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildFilePath(guildId)), "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(new File(getGuildDataPath(guildId)), "r")) {
             raf.seek(Integer.BYTES);
             int userCount = nextInt(raf);
             int userIndex = 0;

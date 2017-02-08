@@ -1,0 +1,3 @@
+\temp
+blank
+help.txt

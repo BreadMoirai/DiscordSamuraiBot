@@ -45,8 +45,7 @@ public class OsuJsonReader {
         }
         JSONObject profile = json.get(0);
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(profile.getString("username"))
-                .setUrl("https://samurai.osu.ppy.sh/u/" + profile.getString("username"))
+                .setTitle(profile.getString("username"), "https://samurai.osu.ppy.sh/u/" + profile.getString("username"))
                 .setColor(Color.PINK)
                 .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
