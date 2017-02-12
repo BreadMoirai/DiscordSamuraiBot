@@ -21,23 +21,23 @@ import java.util.HashSet;
  * Created by TonTL on 1/28/2017.
  * Listens to events
  */
-public class EventListener extends ListenerAdapter {
+public class EventListenerOLD extends ListenerAdapter {
 
     long messagesSent;
 
     private HashMap<Long, String> prefix;
-    private SamuraiController samurai;
+    private SamuraiControllerOLD samurai;
     private HashSet<Long> gameMessageSet;
     private User self;
 
-    private EventListener() {
+    private EventListenerOLD() {
         prefix = new HashMap<>();
-        samurai = new SamuraiController(this);
+        samurai = new SamuraiControllerOLD(this);
         gameMessageSet = new HashSet<>();
         messagesSent = 0;
     }
 
-    EventListener(OperatingSystemMXBean operatingSystemMXBean) {
+    EventListenerOLD(OperatingSystemMXBean operatingSystemMXBean) {
         this();
         samurai.operatingSystemMXBean = operatingSystemMXBean;
     }

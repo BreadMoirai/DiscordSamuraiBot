@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by TonTL on 1/28/2017.
  * does work
  */
-class SamuraiController {
+class SamuraiControllerOLD {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
     private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "c6bab666ef7a803025c670aecfa91d68e10c2bd7", minorSha = "f000d959882dec996ac073960509ef24610ce29f";
@@ -43,7 +43,7 @@ class SamuraiController {
     OperatingSystemMXBean operatingSystemMXBean;
 
     private long initializationTime;
-    private EventListener listener;
+    private EventListenerOLD listener;
     private Random random;
     private HashMap<Long, Game> gameMap; //message id
     private HashMap<Long, OsuGuild> osuGuildMap; //guild id
@@ -52,10 +52,10 @@ class SamuraiController {
     private long callsMade;
     private ScheduledExecutorService guildMapCollecter;
 
-    SamuraiController(EventListener eventListener) {
+    SamuraiControllerOLD(EventListenerOLD eventListenerOLD) {
         callsMade = 0;
         initializationTime = System.currentTimeMillis() - 5000;
-        listener = eventListener;
+        listener = eventListenerOLD;
         random = new Random();
         gameMap = new HashMap<>();
         osuGuildMap = new HashMap<>();

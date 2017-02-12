@@ -24,7 +24,7 @@ public class Bot {
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             //jdaBuilder.useSharding(0, 1);
-            jdaBuilder.addListener(new EventListener(operatingSystemMXBean)).setToken(BOT_TOKEN).buildBlocking();
+            jdaBuilder.addListener(new EventListenerOLD(operatingSystemMXBean)).setToken(BOT_TOKEN).buildBlocking();
 
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();
