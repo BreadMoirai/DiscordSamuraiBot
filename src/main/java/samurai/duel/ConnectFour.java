@@ -12,12 +12,12 @@ import java.util.List;
  * Created by TonTL on 1/23/2017.
  * Connct Four
  */
-public class ConnectFour extends Game{
+public class ConnectFour extends Game {
 
 
-    private static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3"}, 8);
+    public static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"}, 7);
 
-    private static final int X_BOUND = 8, Y_BOUND = 6;
+    private static final int X_BOUND = 7, Y_BOUND = 6;
 
     private char[][] board;
 
@@ -27,13 +27,17 @@ public class ConnectFour extends Game{
             next = A;
         else
             next = B;
-
         board = new char[X_BOUND][Y_BOUND];
     }
 
     @Override
     public List<String> getReactions() {
         return CONNECTFOUR_REACTIONS;
+    }
+
+    @Override
+    public boolean isNext(User user) {
+        return user == next;
     }
 
     @Override
@@ -57,7 +61,9 @@ public class ConnectFour extends Game{
     @Override
     public Message buildBoard() {
         StringBuilder sb = new StringBuilder();
-        sb.append("1\u20e32\u20e33\u20e34\u20e35\u20e36\u20e37\u20e38\u20e3\n");
+        for (String emojiNum : CONNECTFOUR_REACTIONS)
+            sb.append(emojiNum);
+        sb.append("\n");
         for (int y = 5; y >= 0; y--) {
             for (int x = 0; x < X_BOUND; x++) {
                 if (board[x][y] == 'a') {

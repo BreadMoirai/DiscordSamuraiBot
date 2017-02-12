@@ -1,10 +1,12 @@
 package samurai;
 
+import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 import javax.security.auth.login.LoginException;
+import java.lang.management.ManagementFactory;
 
 /**
  * Main Class
@@ -16,10 +18,13 @@ public class Bot {
 
     public static void main(String[] args) {
 
+        OperatingSystemMXBean operatingSystemMXBean =
+                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             //jdaBuilder.useSharding(0, 1);
-            jdaBuilder.addListener(new BotListener()).setToken(BOT_TOKEN).buildBlocking();
+            jdaBuilder.addListener(new EventListener(operatingSystemMXBean)).setToken(BOT_TOKEN).buildBlocking();
 
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();

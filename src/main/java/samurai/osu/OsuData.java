@@ -29,8 +29,7 @@ public class OsuData {
 
 
     public int readScoresDB(String filepath) {
-
-        Map<String, List<Score>> scoreMap;
+        HashMap<String, LinkedList<Score>> scoreMap;
         try {
 
             scoreMap = SamuraiFile.getScores(filepath);
@@ -80,7 +79,7 @@ public class OsuData {
         assert beatmap != null;
         //System.out.println(beatmap);
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle(String.format("%s by %s", beatmap.getSong(), beatmap.getArtist()))
+                .setTitle(String.format("%s by %s", beatmap.getSong(), beatmap.getArtist()), null)
                 .setColor(Color.PINK)
                 .setAuthor("Osu!BeatmapInfo", String.format("https://samurai.osu.ppy.sh/b/%s&m=%d", beatmap.getMapID(), beatmap.getGameMode().value()), "http://w.ppy.sh/c/c9/Logo.png")
                 .setFooter(beatmap.getHash(), "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg");

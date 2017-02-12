@@ -17,9 +17,13 @@ class Hangman extends Game {
 
     private String word;
 
-    Hangman(User Instigator, User Challenged) {
-        super(Instigator, Challenged);
-        next = Challenged;
+    Hangman(User Instigator) {
+        super(Instigator, null);
+    }
+
+    @Override
+    public boolean isNext(User user) {
+        return user != A;
     }
 
     @Override

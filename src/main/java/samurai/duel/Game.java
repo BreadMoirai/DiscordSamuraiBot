@@ -3,10 +3,9 @@ package samurai.duel;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import samurai.data.SamuraiFile;
 
-import samurai.BotData;
-
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,14 +16,9 @@ public abstract class Game {
 
     public static User samurai;
 
-    public Message message;
-
     User A, B;
     User winner;
     User next;
-
-    private BotData.UserData userDataA;
-    private BotData.UserData userDataB;
 
     public Game(User Instigator, User Challenged) {
         A = Instigator;
@@ -34,10 +28,11 @@ public abstract class Game {
 
     public abstract List<String> getReactions();
 
-
     public boolean isPlayer(User player) {
         return player == A || player == B;
     }
+
+    public abstract boolean isNext(User user);
 
     public abstract void perform(int move, User player);
 
@@ -65,19 +60,26 @@ public abstract class Game {
     void setWinner(char w) {
         if (w == 'a') {
             winner = A;
-            userDataA.incrementStat("Duels Won");
-            userDataA.incrementStat("Duels Fought");
-            userDataB.incrementStat("Duels Fought");
         } else if (w == 'b') {
             winner = B;
-            userDataB.incrementStat("Duels Won");
-            userDataB.incrementStat("Duels Fought");
-            userDataA.incrementStat("Duels Fought");
         }
     }
 
-    public void setData(HashMap<String, BotData.UserData> users) {
-        userDataA = users.get(A.getId());
-        userDataB = users.get(B.getId());
+    public User getWinner() {
+        return winner;
     }
+
+    public List<User> getLosers() {
+        ArrayList<User> losers = new ArrayList<>();
+        if (winner == samurai) {
+            losers.add(A);
+            losers.add(B);
+        } else if (winner == A) {
+            losers.add(B);
+        } else {
+            losers.add(A);
+        }
+        return losers;
+    }
+
 }

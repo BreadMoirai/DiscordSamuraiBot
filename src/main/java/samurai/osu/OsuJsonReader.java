@@ -1,8 +1,7 @@
 package samurai.osu;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.json.JSONException;
 import org.json.JSONObject;
 import samurai.osu.enums.GameMode;
@@ -25,14 +24,16 @@ public class OsuJsonReader {
     private static final String OSU_API = "https://osu.ppy.sh/api/";
     private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
     private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
+    public static int count;
 
     OsuJsonReader() {
+        count = 0;
     }
 
-    public static Message getUserInfo(String name) {
+    public static MessageEmbed getUserInfo(String request) {
         List<JSONObject> json;
         try {
-            json = readJsonFromUrl(OSU_API + GET_USER + KEY + "&type=string" + "&u=" + name);
+            json = readJsonFromUrl(OSU_API + GET_USER + KEY + request);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -44,8 +45,7 @@ public class OsuJsonReader {
         }
         JSONObject profile = json.get(0);
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(profile.getString("username"))
-                .setUrl("https://samurai.osu.ppy.sh/u/" + profile.getString("username"))
+                .setTitle(profile.getString("username"), "https://samurai.osu.ppy.sh/u/" + profile.getString("username"))
                 .setColor(Color.PINK)
                 .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)
@@ -54,7 +54,7 @@ public class OsuJsonReader {
                 .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
                 .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
                 .setFooter(profile.getString("user_id"), "http://w.ppy.sh/c/c9/Logo.png");
-        return new MessageBuilder().setEmbed(eb.build()).build();
+        return eb.build();
     }
 
     static Beatmap getBeatmapInfo(String hash) {
@@ -107,7 +107,7 @@ public class OsuJsonReader {
         String text = sb.toString();
         try {
             if (text.charAt(0) != '[' || text.equals("[]")) {
-                throw new Exception("Osu!API Error: " + text);
+                System.err.println("Osu!API Error: " + text);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,9 +136,11 @@ public class OsuJsonReader {
     }
 
     private static List<JSONObject> readJsonFromUrl(String url) throws IOException, JSONException {
+        count++;
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             List<JSONObject> json = new ArrayList<>();
+            //noinspection ConstantConditions
             for (String jsonText : readAll(rd)) {
                 json.add(new JSONObject(jsonText));
             }
