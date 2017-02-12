@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class SamuraiController {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
-    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "f000d959882dec996ac073960509ef24610ce29f", minorSha = "5b76b0eb300f5a387a3d5253b03d35262577a5c4";
+    private static final String githubCommitApi = "https://api.github.com/repos/DreadMoirai/DiscordSamuraiBot/git/commits/", majorSha = "c6bab666ef7a803025c670aecfa91d68e10c2bd7", minorSha = "f000d959882dec996ac073960509ef24610ce29f";
     private static final String DREADMOIRAI = "232703415048732672";
 
     OperatingSystemMXBean operatingSystemMXBean;

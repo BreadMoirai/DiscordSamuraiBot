@@ -70,7 +70,7 @@ public class EventListener extends ListenerAdapter {
         String token = prefix.get(Long.parseLong(event.getGuild().getId()));
         String message = event.getMessage().getRawContent().trim();
         //if message begins with token ex. "!"
-        if (message.indexOf(token) == 0 && message.length() > token.length() + 3) {
+        if (message.startsWith(token) && message.length() > token.length() + 3) {
             message = message.substring(token.length());
             if (!message.contains(" ")) {
                 samurai.action(message.toLowerCase(), event);
@@ -79,7 +79,7 @@ public class EventListener extends ListenerAdapter {
                 String[] argReal = new String[argArray.length];
                 int j = 0;
                 for (String argument : argArray) {
-                    if (argument.indexOf("<@") != 0 && !argument.equalsIgnoreCase("@everyone") && !argument.equalsIgnoreCase("@here") && argument.length() != 0)
+                    if (argument.startsWith("<@") && !argument.equalsIgnoreCase("@everyone") && !argument.equalsIgnoreCase("@here") && argument.length() != 0)
                         argReal[j++] = argument;
                 }
                 String key = message.substring(0, message.indexOf(" ")).toLowerCase();
