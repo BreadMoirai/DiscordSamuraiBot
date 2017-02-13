@@ -21,6 +21,7 @@ import java.util.HashSet;
  * Created by TonTL on 1/28/2017.
  * Listens to events
  */
+@SuppressWarnings("ALL")
 public class EventListenerOLD extends ListenerAdapter {
 
     long messagesSent;

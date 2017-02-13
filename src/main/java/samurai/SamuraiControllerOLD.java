@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by TonTL on 1/28/2017.
  * does work
  */
+@SuppressWarnings("ALL")
 class SamuraiControllerOLD {
 
     private static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
@@ -51,6 +52,7 @@ class SamuraiControllerOLD {
 
     private long callsMade;
     private ScheduledExecutorService guildMapCollecter;
+
 
     SamuraiControllerOLD(EventListenerOLD eventListenerOLD) {
         callsMade = 0;

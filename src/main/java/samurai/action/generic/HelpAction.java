@@ -2,20 +2,22 @@ package samurai.action.generic;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
 import samurai.data.SamuraiFile;
+import samurai.message.SamuraiMessage;
 
 import java.util.List;
 
 /**
- * Gets a help embed created from help.txt
- * Created by TonTL on 2/12/2017.
+ * The type Help action.
  */
 public class HelpAction extends Action {
 
+    /**
+     * @return A Message with an Embed created using resources/help.txt
+     */
     @Override
-    public Message call() {
+    public SamuraiMessage call() {
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor("Samurai - help.txt", null, AVATER_URL);
@@ -29,7 +31,8 @@ public class HelpAction extends Action {
                 stringBuilder.append(line).append("\n");
         }
         embedBuilder.setDescription(stringBuilder.toString());
-        return messageBuilder.setEmbed(embedBuilder.build()).build();
+        channel.sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
+        return null;
     }
 
 }
