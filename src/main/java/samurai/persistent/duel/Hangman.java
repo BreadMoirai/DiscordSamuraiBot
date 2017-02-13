@@ -1,4 +1,4 @@
-package samurai.duel;
+package samurai.persistent.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.entities.Message;

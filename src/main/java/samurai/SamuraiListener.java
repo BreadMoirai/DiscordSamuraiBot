@@ -5,23 +5,23 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
+import samurai.action.Reaction;
 import samurai.action.generic.HelpAction;
 import samurai.data.SamuraiFile;
-import samurai.duel.Game;
-import samurai.message.SamuraiMessage;
+import samurai.persistent.duel.Game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Listener for SamuraiBot
- * This class sends events to ↓
+ * This class listens to events from discord, takes the required information by building the appropriate action and passing it to SamuraiController#execute
  *
  * @author TonTL
  * @version 4.0
@@ -30,49 +30,17 @@ import java.util.concurrent.*;
  */
 @SuppressWarnings("Duplicates")
 class SamuraiListener extends ListenerAdapter {
-    static int messagesSent;
+    private static final AtomicInteger messagesSent = new AtomicInteger(0);
     private final HashMap<Long, String> prefix;
-    private final SamuraiController samurai;
     private final OperatingSystemMXBean operatingSystemMXBean;
-    private final ExecutorService commandPool;
-    private final ConcurrentLinkedQueue<Future<SamuraiMessage>> commandQueue;
-    private final ConcurrentHashMap<Long, SamuraiMessage> messageMap;
+    private SamuraiController samurai;
     private User self;
-    private boolean running;
+
 
     SamuraiListener(OperatingSystemMXBean operatingSystemMXBean) {
         this.operatingSystemMXBean = operatingSystemMXBean;
         prefix = new HashMap<>();
-        samurai = new SamuraiController();
-        messagesSent = 0;
-        commandPool = Executors.newCachedThreadPool();
-        commandQueue = new ConcurrentLinkedQueue<>();
-        messageMap = new ConcurrentHashMap<>();
-        running = true;
-        Executors.newSingleThreadExecutor().execute(() -> {
-            while (running) {
-                clearQueue();
-            }
-        });
-    }
 
-    private void clearQueue() {
-        if (commandQueue.isEmpty()) {
-            try {
-                commandQueue.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } else {
-            while (!commandQueue.isEmpty()) {
-                try {
-                    SamuraiMessage msg = commandQueue.poll().get();
-                    if (msg != null) messageMap.put(msg.getMessageId(), msg);
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     @Override
@@ -86,9 +54,14 @@ class SamuraiListener extends ListenerAdapter {
                 // wait update
                 prefix.put(guildId, SamuraiFile.getPrefix(guildId));
             }
+
+            if (guildId == 233097800722808832L) {
+                SamuraiController.setOfficialChannel(g.getTextChannelById(String.valueOf(274732231124320257L)));
+            }
         }
         Game.samurai = event.getJDA().getSelfUser();
         self = event.getJDA().getSelfUser();
+        samurai = new SamuraiController(operatingSystemMXBean);
         System.out.println("Ready!" + prefix.toString());
 
     }
@@ -96,7 +69,7 @@ class SamuraiListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor() == self) {
-            messagesSent++;
+            messagesSent.incrementAndGet();
             return;
         }
         if (event.getAuthor().isBot()) return;
@@ -105,9 +78,11 @@ class SamuraiListener extends ListenerAdapter {
         String content = event.getMessage().getRawContent().toLowerCase().trim();
 
         //if content begins with token ex. "!"
-        if (!content.startsWith(token) || content.length() <= token.length() + 3) return;
-        else if (content.equalsIgnoreCase("<@270044218167132170>"))
-            new HelpAction().setChannel(event.getChannel()).call();
+        if (!content.startsWith(token) || content.length() <= token.length() + 3) {
+            if (content.equals("<@270044218167132170>"))
+                new HelpAction().setChannel(event.getChannel()).call();
+            return;
+        }
 
         content = content.substring(token.length());
         String key;
@@ -143,12 +118,14 @@ class SamuraiListener extends ListenerAdapter {
         action.setGuildId(Long.valueOf(event.getGuild().getId()));
         action.setChannel(event.getChannel());
 
-        commandQueue.add(commandPool.submit(action));
+        samurai.execute(action);
     }
 
     @Override
-    public void onShutdown(ShutdownEvent event) {
-        running = false;
-
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        samurai.execute(new Reaction()
+                .setMessageId(Long.valueOf(event.getMessageId()))
+                .setUser(event.getUser())
+                .setEmoji(event.getReaction().getEmote().getName()));
     }
 }

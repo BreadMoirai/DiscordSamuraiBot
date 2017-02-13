@@ -10,11 +10,11 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import org.json.JSONObject;
 import samurai.data.Data;
 import samurai.data.SamuraiFile;
-import samurai.duel.ConnectFour;
-import samurai.duel.Game;
 import samurai.osu.OsuGuild;
 import samurai.osu.OsuJsonReader;
 import samurai.osu.Score;
+import samurai.persistent.duel.ConnectFour;
+import samurai.persistent.duel.Game;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -46,7 +46,7 @@ class SamuraiControllerOLD {
     private long initializationTime;
     private EventListenerOLD listener;
     private Random random;
-    private HashMap<Long, Game> gameMap; //message id
+    private HashMap<Long, Game> gameMap; //persistent id
     private HashMap<Long, OsuGuild> osuGuildMap; //guild id
     private HashMap<Long, Integer> trackedUsers; // user id
 
@@ -209,7 +209,7 @@ class SamuraiControllerOLD {
             channel.sendMessage(new MessageBuilder()
                     .setEmbed(new EmbedBuilder()
                             .setTitle("Changelog: " + json.getJSONObject("author").getString("date").substring(0, 10), json.getString("html_url"))
-                            .setDescription(json.getString("message"))
+                            .setDescription(json.getString("persistent"))
                             .setFooter("Committed by " + json.getJSONObject("author").getString("name"), null)
                             .build())
                     .build()).queue();

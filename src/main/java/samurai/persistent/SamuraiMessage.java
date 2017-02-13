@@ -1,4 +1,6 @@
-package samurai.message;
+package samurai.persistent;
+
+import samurai.action.Reaction;
 
 /**
  * @author TonTL
@@ -6,6 +8,8 @@ package samurai.message;
  */
 public abstract class SamuraiMessage {
     protected long messageId;
+
+    abstract void execute(Reaction action);
 
 
     public long getMessageId() {

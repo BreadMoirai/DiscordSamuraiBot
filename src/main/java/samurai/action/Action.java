@@ -4,8 +4,11 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import samurai.action.generic.DuelAction;
+import samurai.action.generic.GuildAction;
 import samurai.action.generic.HelpAction;
-import samurai.message.SamuraiMessage;
+import samurai.action.generic.InviteAction;
+import samurai.persistent.SamuraiMessage;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,12 +30,18 @@ public abstract class Action implements Callable<SamuraiMessage> {
 
     /**
      * @param key a string corresponding to the action. ex. "help" or "setprefix"
-     * @return An Action if key is valid, null otherwise.
+     * @return A Action if key is valid, null otherwise.
      */
     public static Action getAction(String key) {
         switch (key) {
             case "help":
                 return new HelpAction();
+            case "guild":
+                return new GuildAction();
+            case "invite":
+                return new InviteAction();
+            case "duel":
+                return new DuelAction();
             default:
                 return null;
         }
@@ -42,7 +51,6 @@ public abstract class Action implements Callable<SamuraiMessage> {
     public abstract SamuraiMessage call();
 
     /**
-     *
      * @return a list of Discord Permissions that this action requires
      * @see Permission
      */

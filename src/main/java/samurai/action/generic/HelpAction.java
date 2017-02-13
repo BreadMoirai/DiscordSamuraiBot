@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
 import samurai.data.SamuraiFile;
-import samurai.message.SamuraiMessage;
+import samurai.persistent.SamuraiMessage;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package samurai.duel;
+package samurai.persistent.duel;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import samurai.data.SamuraiFile;
+import samurai.persistent.SamuraiMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  * Created by TonTL on 1/20/2017.
  * Games
  */
-public abstract class Game {
+public abstract class Game extends SamuraiMessage {
 
     public static User samurai;
 
@@ -57,16 +57,16 @@ public abstract class Game {
 
     public abstract boolean hasEnded();
 
+    public User getWinner() {
+        return winner;
+    }
+
     void setWinner(char w) {
         if (w == 'a') {
             winner = A;
         } else if (w == 'b') {
             winner = B;
         }
-    }
-
-    public User getWinner() {
-        return winner;
     }
 
     public List<User> getLosers() {
