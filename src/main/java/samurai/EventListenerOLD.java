@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.data.SamuraiFile;
 import samurai.persistent.duel.Game;
@@ -92,7 +91,7 @@ public class EventListenerOLD extends ListenerAdapter {
         }
     }
 
-    @Override
+    /*@Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot())
             return;
@@ -100,7 +99,7 @@ public class EventListenerOLD extends ListenerAdapter {
         if (gameMessageSet.contains(messageId)) {
             samurai.updateGame(event, messageId);
         }
-    }
+    }*/
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {

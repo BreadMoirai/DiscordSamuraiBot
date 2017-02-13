@@ -26,6 +26,7 @@ public abstract class Action implements Callable<SamuraiMessage> {
     protected List<User> mentions;
     protected List<String> args;
     protected Long guildId;
+    protected Long messageId;
     protected MessageChannel channel;
 
     /**
@@ -71,6 +72,11 @@ public abstract class Action implements Callable<SamuraiMessage> {
 
     public Action setArgs(List<String> args) {
         this.args = args;
+        return this;
+    }
+
+    public Action setMessageId(Long messageId) {
+        this.messageId = messageId;
         return this;
     }
 

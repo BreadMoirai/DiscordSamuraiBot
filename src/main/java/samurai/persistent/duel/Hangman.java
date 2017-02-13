@@ -3,6 +3,7 @@ package samurai.persistent.duel;
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import samurai.action.Reaction;
 
 import java.util.List;
 
@@ -18,24 +19,7 @@ class Hangman extends Game {
     private String word;
 
     Hangman(User Instigator) {
-        super(Instigator, null);
-    }
-
-    @Override
-    public boolean isNext(User user) {
-        return user != A;
-    }
-
-    @Override
-    public List<String> getReactions() {
-        return HANGMAN_REACTIONS;
-    }
-
-    @Override
-    public void perform(int move, User player) {
-        if (player==next) {
-
-        }
+        super(Instigator);
     }
 
     @Override
@@ -53,5 +37,9 @@ class Hangman extends Game {
         return false;
     }
 
+    @Override
+    public void execute(Reaction reaction) {
+
+    }
 }
 

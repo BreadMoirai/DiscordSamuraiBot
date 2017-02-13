@@ -29,18 +29,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2/12/2017.
  */
 @SuppressWarnings("Duplicates")
-class SamuraiListener extends ListenerAdapter {
+public class SamuraiListener extends ListenerAdapter {
     private static final AtomicInteger messagesSent = new AtomicInteger(0);
+    private static User self;
     private final HashMap<Long, String> prefix;
     private final OperatingSystemMXBean operatingSystemMXBean;
     private SamuraiController samurai;
-    private User self;
 
 
     SamuraiListener(OperatingSystemMXBean operatingSystemMXBean) {
         this.operatingSystemMXBean = operatingSystemMXBean;
         prefix = new HashMap<>();
 
+    }
+
+    public static User getSelf() {
+        return self;
+    }
+
+    static void setSelf(User self) {
+        SamuraiListener.self = self;
     }
 
     @Override
@@ -60,7 +68,6 @@ class SamuraiListener extends ListenerAdapter {
             }
         }
         Game.samurai = event.getJDA().getSelfUser();
-        self = event.getJDA().getSelfUser();
         samurai = new SamuraiController(operatingSystemMXBean);
         System.out.println("Ready!" + prefix.toString());
 
@@ -107,7 +114,6 @@ class SamuraiListener extends ListenerAdapter {
                 action.setArgs(args);
         }
 
-        action.setAuthor(event.getMember());
         {
             Message message = event.getMessage();
             List<User> mentionedUsers = message.getMentionedUsers();
@@ -115,17 +121,22 @@ class SamuraiListener extends ListenerAdapter {
                 action.setMentions(mentionedUsers);
             }
         }
-        action.setGuildId(Long.valueOf(event.getGuild().getId()));
-        action.setChannel(event.getChannel());
+        action.setAuthor(event.getMember())
+                .setGuildId(Long.valueOf(event.getGuild().getId()))
+                .setChannel(event.getChannel())
+                .setMessageId(Long.valueOf(event.getMessage().getId()));
 
         samurai.execute(action);
     }
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        samurai.execute(new Reaction()
-                .setMessageId(Long.valueOf(event.getMessageId()))
-                .setUser(event.getUser())
-                .setEmoji(event.getReaction().getEmote().getName()));
+        if (event.getUser() != self)
+            samurai.execute(new Reaction()
+                    .setChannel(event.getChannel())
+                    .setMessageId(Long.valueOf(event.getMessageId()))
+                    .setUser(event.getUser())
+                    .setEmoji(event.getReaction().getEmote().getName())
+                    .setTime(System.currentTimeMillis()));
     }
 }

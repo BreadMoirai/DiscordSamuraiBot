@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import org.json.JSONObject;
 import samurai.data.Data;
 import samurai.data.SamuraiFile;
@@ -426,6 +425,7 @@ class SamuraiControllerOLD {
         }
     }
 
+    /*
     void updateGame(MessageReactionAddEvent event, Long gameId) {
         List<String> connectfour_reactions = ConnectFour.CONNECTFOUR_REACTIONS;
         String emoji = event.getReaction().getEmote().getName();
@@ -468,6 +468,7 @@ class SamuraiControllerOLD {
 
         }
     }
+    */
 
 
     class SamuraiBuilder extends EmbedBuilder {

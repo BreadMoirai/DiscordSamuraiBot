@@ -31,6 +31,7 @@ public class SamuraiController {
                 takeCommand();
             }
         });
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::checkMessages, 10, 5, TimeUnit.MINUTES);
     }
 
     public static Channel getOfficialChannel() {
@@ -45,9 +46,15 @@ public class SamuraiController {
         actionQueue.offer(commandPool.submit(action));
     }
 
-    void execute(Reaction action) {
-        if (messageMap.containsKey(action.getMessageId())) {
-            messageMap.get(action.getMessageId()).execute(action);
+    void execute(Reaction reaction) {
+        if (messageMap.containsKey(reaction.getMessageId())) {
+            SamuraiMessage samuraiMessage = messageMap.get(reaction.getMessageId());
+            if (samuraiMessage.valid(reaction)) {
+                samuraiMessage.execute(reaction);
+                if (samuraiMessage.isExpired()) {
+                    messageMap.remove(samuraiMessage.getMessageId());
+                }
+            }
         }
     }
 
@@ -62,4 +69,14 @@ public class SamuraiController {
         }
         if (samuraiMessage != null) messageMap.put(samuraiMessage.getMessageId(), samuraiMessage);
     }
+
+    private void checkMessages() {
+        messageMap.forEachValue(100L, value -> {
+            if (value.isExpired()) {
+                messageMap.remove(value.getMessageId());
+            }
+        });
+    }
+
+
 }

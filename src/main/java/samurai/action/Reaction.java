@@ -1,5 +1,6 @@
 package samurai.action;
 
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -9,7 +10,9 @@ import net.dv8tion.jda.core.entities.User;
 public class Reaction {
     private User user;
     private Long messageId;
+    private MessageChannel channel;
     private String emoji;
+    private long time;
 
     public User getUser() {
         return user;
@@ -29,12 +32,30 @@ public class Reaction {
         return this;
     }
 
+    public MessageChannel getChannel() {
+        return channel;
+    }
+
+    public Reaction setChannel(MessageChannel channel) {
+        this.channel = channel;
+        return this;
+    }
+
     public String getEmoji() {
         return emoji;
     }
 
     public Reaction setEmoji(String emoji) {
         this.emoji = emoji;
+        return this;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public Reaction setTime(long time) {
+        this.time = time;
         return this;
     }
 }

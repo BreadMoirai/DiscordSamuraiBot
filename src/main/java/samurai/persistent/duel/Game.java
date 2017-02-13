@@ -3,10 +3,13 @@ package samurai.persistent.duel;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import samurai.SamuraiListener;
+import samurai.action.Reaction;
 import samurai.persistent.SamuraiMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by TonTL on 1/20/2017.
@@ -14,29 +17,31 @@ import java.util.List;
  */
 public abstract class Game extends SamuraiMessage {
 
+    public static final Random random;
     public static User samurai;
+
+    static {
+        random = new Random();
+    }
 
     User A, B;
     User winner;
     User next;
 
-    public Game(User Instigator, User Challenged) {
+    Game(User Instigator, User... Challenged) {
         A = Instigator;
-        B = Challenged;
+        if (Challenged.length > 0)
+            B = Challenged[0];
+        else B = null;
         winner = null;
     }
 
-    public abstract List<String> getReactions();
-
-    public boolean isPlayer(User player) {
-        return player == A || player == B;
+    @Override
+    public boolean valid(Reaction reaction) {
+        return false;
     }
 
-    public abstract boolean isNext(User user);
-
-    public abstract void perform(int move, User player);
-
-    public MessageBuilder buildTitle() {
+    MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (next == A) {
             mb.append("***")
@@ -57,15 +62,17 @@ public abstract class Game extends SamuraiMessage {
 
     public abstract boolean hasEnded();
 
-    public User getWinner() {
-        return winner;
-    }
-
     void setWinner(char w) {
-        if (w == 'a') {
-            winner = A;
-        } else if (w == 'b') {
-            winner = B;
+        switch (w) {
+            case 'a':
+                winner = A;
+                break;
+            case 'b':
+                winner = B;
+                break;
+            default:
+                winner = SamuraiListener.getSelf();
+                break;
         }
     }
 

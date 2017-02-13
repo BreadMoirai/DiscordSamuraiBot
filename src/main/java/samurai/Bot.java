@@ -2,6 +2,7 @@ package samurai;
 
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
@@ -23,8 +24,11 @@ public class Bot {
 
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
-            jdaBuilder.addListener(new SamuraiListener(operatingSystemMXBean)).setToken(BOT_TOKEN).buildBlocking();
-
+            JDA jda = jdaBuilder
+                    .addListener(new SamuraiListener(operatingSystemMXBean))
+                    .setToken(BOT_TOKEN)
+                    .buildBlocking();
+            SamuraiListener.setSelf(jda.getSelfUser());
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();
         }
