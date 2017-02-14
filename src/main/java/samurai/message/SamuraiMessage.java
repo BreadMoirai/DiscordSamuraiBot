@@ -11,7 +11,6 @@ public abstract class SamuraiMessage {
 
     private long channelId;
 
-
     public abstract Message getMessage();
 
     public long getChannelId() {
@@ -22,6 +21,5 @@ public abstract class SamuraiMessage {
         this.channelId = channelId;
         return this;
     }
-
 
 }

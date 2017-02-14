@@ -3,8 +3,6 @@ package samurai;
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -106,22 +104,18 @@ public class SamuraiListener extends ListenerAdapter {
         }
 
         {
-            Message message = event.getMessage();
-            List<User> mentionedUsers = message.getMentionedUsers();
-            if (!mentionedUsers.isEmpty()) {
-                action.setMentions(mentionedUsers);
-            }
         }
         action.setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
                 .setChannelId(Long.valueOf(event.getChannel().getId()))
-                .setMessageId(Long.valueOf(event.getMessage().getId()));
+                .setMessageId(Long.valueOf(event.getMessage().getId()))
+                .setMentions(event.getMessage().getMentionedUsers());
         samurai.execute(action);
     }
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (!event.getUser().isBot())
+        if (!event.getUser().isBot() && samurai.isWatching(Long.parseLong(event.getMessageId())))
             samurai.execute(new Reaction()
                     .setChannelId(Long.valueOf(event.getChannel().getId()))
                     .setMessageId(Long.valueOf(event.getMessageId()))

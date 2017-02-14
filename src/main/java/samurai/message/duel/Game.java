@@ -36,7 +36,7 @@ public abstract class Game extends DynamicMessage {
     }
 
     @Override
-    public boolean valid(Reaction reaction) {
+    public boolean valid(Reaction messageAction) {
         return false;
     }
 

@@ -1,7 +1,9 @@
 package samurai.action.generic;
 
+import net.dv8tion.jda.core.MessageBuilder;
 import samurai.SamuraiController;
 import samurai.action.Action;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 
 import java.util.concurrent.TimeUnit;
@@ -14,7 +16,16 @@ public class GuildAction extends Action {
 
     @Override
     public SamuraiMessage call() {
-        SamuraiController.getOfficialChannel().createInvite().setMaxAge(15L, TimeUnit.MINUTES).queue(invite -> channel.sendMessage("https://discord.gg/" + invite.getCode()).queue());
-        return null;
+        return new FixedMessage()
+                .setMessage(new MessageBuilder()
+                        .append("https://discord.gg/")
+                        .append(SamuraiController
+                                .getOfficialChannel()
+                                .createInvite()
+                                .setMaxAge(15L, TimeUnit.MINUTES)
+                                .complete()
+                                .getCode())
+                        .build())
+                .setChannelId(channelId);
     }
 }

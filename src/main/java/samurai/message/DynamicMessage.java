@@ -1,6 +1,10 @@
 package samurai.message;
 
+import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Reaction;
+
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 /**
  * These messages can change base on user interaction through reactions
@@ -8,27 +12,27 @@ import samurai.action.Reaction;
  * @author TonTL
  * @since 4.0
  */
-public abstract class DynamicMessage extends SamuraiMessage implements Runnable {
+public abstract class DynamicMessage extends SamuraiMessage implements Callable<MessageEdit> {
 
     private static final int timeout = 15 * 60 * 1000;
 
     private long messageId;
     private boolean expired;
     private long lastActive;
+    private Reaction action;
 
-    public abstract boolean valid(Reaction reaction);
+    public abstract boolean valid(Reaction messageAction);
 
-    public void execute(Reaction reaction) {
-        this.lastActive = reaction.getTime();
+    public Consumer<Message> getConsumer() {
+        return message -> this.messageId = Long.parseLong(message.getId());
+    }
+
+    public void execute(Reaction messageAction) {
+        this.lastActive = messageAction.getTime();
     }
 
     public long getMessageId() {
         return messageId;
-    }
-
-    public SamuraiMessage setMessageId(long messageId) {
-        this.messageId = messageId;
-        return this;
     }
 
     public SamuraiMessage setMessageId(String id) {
@@ -44,8 +48,15 @@ public abstract class DynamicMessage extends SamuraiMessage implements Runnable 
         expired = true;
     }
 
-    protected SamuraiMessage setLastActive(long lastActive) {
-        this.lastActive = lastActive;
-        return this;
+    public boolean setAction(Reaction action) {
+        if (valid(action)) {
+            this.action = action;
+            return true;
+        }
+        return false;
+    }
+
+    protected Reaction getAction() {
+        return action;
     }
 }

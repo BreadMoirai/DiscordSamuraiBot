@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import samurai.action.Action;
 import samurai.action.Reaction;
 import samurai.message.DynamicMessage;
+import samurai.message.MessageEdit;
 import samurai.message.SamuraiMessage;
 
 import java.util.concurrent.*;
@@ -20,21 +21,19 @@ public class SamuraiController {
     private static Channel officialChannel;
     private final ExecutorService commandPool;
     private final BlockingQueue<Future<SamuraiMessage>> actionQueue;
+    private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
-    private JDA jda;
+    private JDA client;
     private boolean running;
 
     SamuraiController(OperatingSystemMXBean operatingSystemMXBean) {
         commandPool = Executors.newCachedThreadPool();
         actionQueue = new LinkedBlockingQueue<>();
+        reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
         running = true;
-//        Executors.newSingleThreadExecutor().execute(() -> {
-//            while (running) {
-//                takeCommand();
-//            }
-//        });
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeCommand, 1000, 0, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::clearInactive, 10, 5, TimeUnit.MINUTES);
     }
 
@@ -51,30 +50,34 @@ public class SamuraiController {
     }
 
     void execute(Reaction reaction) {
-        if (messageMap.containsKey(reaction.getMessageId())) {
-            DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
-            if (samuraiMessage.valid(reaction)) {
-                samuraiMessage.execute(reaction);
-                if (samuraiMessage.isExpired()) {
-                    messageMap.remove(samuraiMessage.getMessageId());
-                }
-            }
+        DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
+        if (samuraiMessage.setAction(reaction)) {
+            reactionQueue.offer(commandPool.submit(samuraiMessage));
         }
     }
 
-    private void takeCommand() {
+    private void takeReaction() {
         try {
-            final SamuraiMessage samuraiMessage = actionQueue.take().get();
-            jda.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(message -> {
-                if (samuraiMessage instanceof DynamicMessage) {
-                    ((DynamicMessage) samuraiMessage).setMessageId(message.getId());
-                    messageMap.put(((DynamicMessage) samuraiMessage).getMessageId(), (DynamicMessage) samuraiMessage);
-                }
-            });
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            final MessageEdit edit = reactionQueue.take().get();
+            client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
 
+    private void takeAction() {
+        try {
+            final SamuraiMessage samuraiMessage = actionQueue.take().get();
+            if (samuraiMessage instanceof DynamicMessage) {
+                DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
+                client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).queue(dynamicMessage.getConsumer());
+                messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
+            } else {
+                client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private void clearInactive() {
@@ -85,8 +88,11 @@ public class SamuraiController {
         });
     }
 
+    boolean isWatching(long messageId) {
+        return messageMap.containsKey(messageId);
+    }
 
     void setJDA(JDA jda) {
-        this.jda = jda;
+        this.client = jda;
     }
 }
