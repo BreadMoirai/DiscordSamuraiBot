@@ -3,8 +3,8 @@ package samurai.action.generic;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
 import samurai.action.Reaction;
-import samurai.persistent.SamuraiMessage;
-import samurai.persistent.duel.ConnectFour;
+import samurai.message.SamuraiMessage;
+import samurai.message.duel.ConnectFour;
 
 /**
  * @author TonTL

@@ -1,7 +1,7 @@
 package samurai.action.generic;
 
 import samurai.action.Action;
-import samurai.persistent.SamuraiMessage;
+import samurai.message.SamuraiMessage;
 
 /**
  * @author TonTL

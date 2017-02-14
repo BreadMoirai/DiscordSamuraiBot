@@ -2,7 +2,7 @@ package samurai.action.generic;
 
 import samurai.SamuraiController;
 import samurai.action.Action;
-import samurai.persistent.SamuraiMessage;
+import samurai.message.SamuraiMessage;
 
 import java.util.concurrent.TimeUnit;
 

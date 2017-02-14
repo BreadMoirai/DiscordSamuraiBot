@@ -4,7 +4,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
 import samurai.data.SamuraiFile;
-import samurai.persistent.SamuraiMessage;
+import samurai.message.FixedMessage;
+import samurai.message.SamuraiMessage;
 
 import java.util.List;
 
@@ -14,10 +15,11 @@ import java.util.List;
 public class HelpAction extends Action {
 
     /**
-     * @return A Message with an Embed created using resources/help.txt
+     null     * @return A Message with an Embed created using resources/help.txt
      */
     @Override
     public SamuraiMessage call() {
+
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor("Samurai - help.txt", null, AVATER_URL);
@@ -31,8 +33,9 @@ public class HelpAction extends Action {
                 stringBuilder.append(line).append("\n");
         }
         embedBuilder.setDescription(stringBuilder.toString());
-        channel.sendMessage(messageBuilder.setEmbed(embedBuilder.build()).build()).queue();
-        return null;
+        return new FixedMessage()
+                .setMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
+                .setChannelId(channelId);
     }
 
 }

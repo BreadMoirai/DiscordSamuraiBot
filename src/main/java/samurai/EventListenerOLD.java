@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.data.SamuraiFile;
-import samurai.persistent.duel.Game;
+import samurai.message.duel.Game;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class EventListenerOLD extends ListenerAdapter {
                 SamuraiFile.writeGuildData(g);
                 prefix.put(guildId, "!");
             } else {
-                // wait update
+                // wait execute
                 prefix.put(guildId, SamuraiFile.getPrefix(guildId));
             }
         }
@@ -69,7 +69,7 @@ public class EventListenerOLD extends ListenerAdapter {
         }
         String token = prefix.get(Long.parseLong(event.getGuild().getId()));
         String message = event.getMessage().getRawContent().trim();
-        //if persistent begins with token ex. "!"
+        //if message begins with token ex. "!"
         if (message.startsWith(token) && message.length() > token.length() + 3) {
             message = message.substring(token.length());
             if (!message.contains(" ")) {
@@ -106,7 +106,7 @@ public class EventListenerOLD extends ListenerAdapter {
         SamuraiFile.writeGuildData(event.getGuild());
     }
 
-    //wait for jda update MemberGameUpdateEvent
+    //wait for jda execute MemberGameUpdateEvent
     @Deprecated
     /*
     public void onUserGameUpdate(UserGameUpdateEvent event) {

@@ -1,11 +1,10 @@
-package samurai.persistent.duel;
+package samurai.message.duel;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import samurai.SamuraiListener;
+import samurai.Bot;
 import samurai.action.Reaction;
-import samurai.persistent.SamuraiMessage;
+import samurai.message.DynamicMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +14,9 @@ import java.util.Random;
  * Created by TonTL on 1/20/2017.
  * Games
  */
-public abstract class Game extends SamuraiMessage {
+public abstract class Game extends DynamicMessage {
 
-    public static final Random random;
+    static final Random random;
     public static User samurai;
 
     static {
@@ -58,8 +57,6 @@ public abstract class Game extends SamuraiMessage {
         return mb;
     }
 
-    public abstract Message buildBoard();
-
     public abstract boolean hasEnded();
 
     void setWinner(char w) {
@@ -71,7 +68,7 @@ public abstract class Game extends SamuraiMessage {
                 winner = B;
                 break;
             default:
-                winner = SamuraiListener.getSelf();
+                winner = Bot.self;
                 break;
         }
     }

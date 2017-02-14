@@ -1,12 +1,14 @@
-package samurai.persistent;
+package samurai.message;
 
 import samurai.action.Reaction;
 
 /**
+ * These messages can change base on user interaction through reactions
+ *
  * @author TonTL
  * @since 4.0
  */
-public abstract class SamuraiMessage {
+public abstract class DynamicMessage extends SamuraiMessage implements Runnable {
 
     private static final int timeout = 15 * 60 * 1000;
 

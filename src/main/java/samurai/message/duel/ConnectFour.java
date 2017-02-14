@@ -1,4 +1,4 @@
-package samurai.persistent.duel;
+package samurai.message.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -70,7 +70,7 @@ public class ConnectFour extends Game {
             else
                 message.addReaction(CONNECTFOUR_REACTIONS.get(i)).complete();
         }
-        message.editMessage(buildBoard()).queue();
+        message.editMessage(getMessage()).queue();
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ConnectFour extends Game {
             }
         }
         Message message = reaction.getChannel().getMessageById(String.valueOf(reaction.getMessageId())).complete();
-        message.editMessage(buildBoard()).queue();
+        message.editMessage(getMessage()).queue();
         List<MessageReaction> messageReactions = message.getReactions();
         for (MessageReaction mr : messageReactions) {
             if (mr.getEmote().getName().equals(reaction.getEmoji())) {
@@ -112,12 +112,12 @@ public class ConnectFour extends Game {
         }
         if (hasEnded()) {
             setExpired();
-            message.editMessage(buildBoard()).queue();
+            message.editMessage(getMessage()).queue();
         }
     }
 
     @Override
-    public Message buildBoard() {
+    public Message getMessage() {
         StringBuilder sb = new StringBuilder();
         for (String emojiNum : CONNECTFOUR_REACTIONS)
             sb.append(emojiNum);

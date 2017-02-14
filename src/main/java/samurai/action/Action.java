@@ -2,13 +2,12 @@ package samurai.action;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import samurai.action.generic.DuelAction;
 import samurai.action.generic.GuildAction;
 import samurai.action.generic.HelpAction;
 import samurai.action.generic.InviteAction;
-import samurai.persistent.SamuraiMessage;
+import samurai.message.SamuraiMessage;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +25,8 @@ public abstract class Action implements Callable<SamuraiMessage> {
     protected List<User> mentions;
     protected List<String> args;
     protected Long guildId;
+    protected Long channelId;
     protected Long messageId;
-    protected MessageChannel channel;
 
     /**
      * @param key a string corresponding to the action. ex. "help" or "setprefix"
@@ -85,8 +84,12 @@ public abstract class Action implements Callable<SamuraiMessage> {
         return this;
     }
 
-    public Action setChannel(MessageChannel channel) {
-        this.channel = channel;
+    public Long getChannelId() {
+        return channelId;
+    }
+
+    public Action setChannelId(Long channelId) {
+        this.channelId = channelId;
         return this;
     }
 }
