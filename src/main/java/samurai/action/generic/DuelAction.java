@@ -29,6 +29,6 @@ public class DuelAction extends Action {
             channel.getMessageById(String.valueOf(messageId)).queue(msg -> msg.addReaction("❌").queue());
             return null;
         }
-        return samuraiMessage;
+        return samuraiMessage.setChannelId(channelId);
     }
 }
