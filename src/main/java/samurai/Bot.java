@@ -14,7 +14,8 @@ import javax.security.auth.login.LoginException;
  */
 public class Bot {
 
-    private static final String BOT_TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
+    public static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
+    private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
     public static User self;
 
     public static void main(String[] args) {
@@ -24,7 +25,7 @@ public class Bot {
             SamuraiListener listener = new SamuraiListener();
             JDA jda = jdaBuilder
                     .addListener(listener)
-                    .setToken(BOT_TOKEN)
+                    .setToken(TOKEN)
                     .buildBlocking();
             listener.setJDA(jda);
             self = jda.getSelfUser();

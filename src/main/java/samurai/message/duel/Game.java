@@ -27,6 +27,7 @@ public abstract class Game extends DynamicMessage {
     User next;
 
     Game(User Instigator, User... Challenged) {
+        super();
         A = Instigator;
         if (Challenged.length > 0)
             B = Challenged[0];

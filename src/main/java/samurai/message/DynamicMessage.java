@@ -20,6 +20,12 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     private boolean expired;
     private long lastActive;
     private Reaction action;
+    private int stage;
+
+    protected DynamicMessage() {
+        expired = false;
+        stage = 0;
+    }
 
     public abstract boolean valid(Reaction messageAction);
 
@@ -58,5 +64,14 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     protected Reaction getReaction() {
         return action;
+    }
+
+    public int getStage() {
+        return stage;
+    }
+
+    public DynamicMessage setStage(int stage) {
+        this.stage = stage;
+        return this;
     }
 }
