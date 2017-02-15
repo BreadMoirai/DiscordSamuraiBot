@@ -96,8 +96,6 @@ public class SamuraiListener extends ListenerAdapter {
             action.setArgs(args);
         }
 
-        {
-        }
         action.setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
                 .setChannelId(Long.valueOf(event.getChannel().getId()))
