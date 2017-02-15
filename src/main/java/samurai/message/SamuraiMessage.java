@@ -17,9 +17,8 @@ public abstract class SamuraiMessage {
         return channelId;
     }
 
-    public SamuraiMessage setChannelId(long channelId) {
+    public void setChannelId(long channelId) {
         this.channelId = channelId;
-        return this;
     }
 
 }

@@ -18,7 +18,7 @@ public class HelpAction extends Action {
      null     * @return A Message with an Embed created using resources/help.txt
      */
     @Override
-    public SamuraiMessage call() {
+    public SamuraiMessage buildMessage() {
 
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -34,8 +34,7 @@ public class HelpAction extends Action {
         }
         embedBuilder.setDescription(stringBuilder.toString());
         return new FixedMessage()
-                .setMessage(messageBuilder.setEmbed(embedBuilder.build()).build())
-                .setChannelId(channelId);
+                .setMessage(messageBuilder.setEmbed(embedBuilder.build()).build());
     }
 
 }

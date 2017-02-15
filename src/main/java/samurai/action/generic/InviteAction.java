@@ -11,11 +11,12 @@ import samurai.message.SamuraiMessage;
  */
 public class InviteAction extends Action {
 
+    private static String INVITE_URL = "https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&permissions=60480";
 
     @Override
-    public SamuraiMessage call() {
-        return new FixedMessage()
-                .setMessage(new MessageBuilder().append("https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot").build())
-                .setChannelId(getChannelId());
+    public SamuraiMessage buildMessage() {
+        FixedMessage fixedMessage = new FixedMessage();
+        fixedMessage.setMessage(new MessageBuilder().append(INVITE_URL).build());
+        return fixedMessage;
     }
 }

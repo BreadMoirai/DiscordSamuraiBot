@@ -20,9 +20,4 @@ public class FixedMessage extends SamuraiMessage {
         return this;
     }
 
-    @Override
-    public FixedMessage setChannelId(long channelId) {
-        super.setChannelId(channelId);
-        return this;
-    }
 }

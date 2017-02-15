@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class GuildAction extends Action {
 
     @Override
-    public SamuraiMessage call() {
+    public SamuraiMessage buildMessage() {
         return new FixedMessage()
                 .setMessage(new MessageBuilder()
                         .append("https://discord.gg/")
@@ -25,7 +25,6 @@ public class GuildAction extends Action {
                                 .setMaxAge(15L, TimeUnit.MINUTES)
                                 .complete()
                                 .getCode())
-                        .build())
-                .setChannelId(channelId);
+                        .build());
     }
 }

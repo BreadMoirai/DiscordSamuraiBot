@@ -4,13 +4,12 @@ import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
 import samurai.action.Reaction;
-import samurai.message.MessageEdit;
 
 import java.awt.*;
-import java.lang.annotation.Inherited;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,7 +22,8 @@ import java.util.function.Consumer;
 public class ConnectFour extends Game {
 
 
-    public static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"}, 7);
+    private static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"}, 7);
+    private static final String DUEL_REACTION = "⚔";
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
 
@@ -32,87 +32,88 @@ public class ConnectFour extends Game {
     public ConnectFour(User Seeker) {
         super(Seeker);
         board = new char[X_BOUND][Y_BOUND];
+        setStage(0);
     }
 
     public ConnectFour(User Instigator, User Challenged) {
         super(Instigator, Challenged);
         next = Game.random.nextBoolean() ? A : B;
         board = new char[X_BOUND][Y_BOUND];
+        setStage(1);
     }
 
     @Override
     public boolean valid(Reaction reaction) {
         switch (getStage()) {
             case 0:
-                return reaction.getEmoji().equals("⚔");
+                return reaction.getName().equals("⚔") && reaction.getUser() != A;
             case 2:
-                return CONNECTFOUR_REACTIONS.contains(reaction.getEmoji());
+                return CONNECTFOUR_REACTIONS.contains(reaction.getName()) && reaction.getUser() == next;
             default:
                 return false;
         }
     }
 
-    /**
-     * precondition valid(reaction) is true
-     * updates the board based on the reaction
-     *
-     * @param reaction the emote the next player has made
-     */
-    @Inherited
-    @Override
-    public void execute(Reaction reaction) {
-        /*super.execute(reaction);
-        switch (getStage()) {
-            case 0:
-        }
-        if (!begun && reaction.getEmoji().equals("⚔")) {
-            begin(reaction);
-            return;
-        }
-        if (reaction.getUser() == next) {
-            int move = CONNECTFOUR_REACTIONS.indexOf(reaction.getEmoji());
-            if (move < 0) return;
-            for (int y = 0; y < Y_BOUND; y++) {
-                if (board[move][y] == '\u0000') {
-                    if (reaction.getUser() == A) {
-                        board[move][y] = 'a';
-                        next = B;
-                        break;
-                    } else {
-                        board[move][y] = 'b';
-                        next = A;
-                        break;
-                    }
-                }
-            }
-        }
-        if (hasEnded()) {
-            setExpired();
-        }
-*/
-    }
 
     @Override
-    public MessageEdit call() {
-        return null;
+    protected void execute() {
+        switch (getStage()) {
+            case 0:
+                B = getReaction().getUser();
+                next = Game.random.nextBoolean() ? A : B;
+                setStage(1);
+                break;
+            case 2:
+                int move = CONNECTFOUR_REACTIONS.indexOf(getReaction().getName());
+                for (int y = 0; y < Y_BOUND; y++) {
+                    if (board[move][y] == '\u0000') {
+                        if (getReaction().getUser() == A) {
+                            board[move][y] = 'a';
+                            next = B;
+                            break;
+                        } else {
+                            board[move][y] = 'b';
+                            next = A;
+                            break;
+                        }
+                    }
+                }
+                if (hasEnded()) {
+                    setStage(3);
+                }
+                break;
+            default:
+                new IllegalAccessException(String.format("[%d]Game is accessed when no action should take place.", this.getMessageId())).printStackTrace();
+        }
     }
 
     @Override
     public Message getMessage() {
         switch (getStage()) {
             case 0:
-                return new MessageBuilder().append(String.format("Who is willing to accept %s's challenge to a perilous game of **Connect Four**", A.getAsMention())).build();
+                return new MessageBuilder()
+                        .append(String.format("Who is willing to accept %s's challenge to a perilous game of **Connect Four**", A.getAsMention()))
+                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
+                        .build();
             case 1:
-                return new MessageBuilder().append(String.format("Building %s's game against %s.", A.getAsMention(), B.getAsMention())).build();
+                return new MessageBuilder()
+                        .append(String.format("Building %s's game against %s.", A.getAsMention(), B.getAsMention()))
+                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
+                        .build();
             case 2:
                 return buildTitle()
                         .setEmbed(buildBoard()
-                                .build()).build();
+                                .build())
+                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
+                        .build();
             case 3:
-                return buildTitle().setEmbed(buildBoard()
-                        .addField("The Winner is:", winner.getName(), false)
-                        .setImage(winner.getAvatarUrl())
-                        .build()).build();
+                return buildTitle()
+                        .setEmbed(buildBoard()
+                                .addField("The Winner is:", winner.getName(), false)
+                                .setImage(winner.getAvatarUrl())
+                                .build())
+                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
+                        .build();
             default:
                 return null;
         }
@@ -135,13 +136,34 @@ public class ConnectFour extends Game {
             }
             sb.append("\n");
         }
-        EmbedBuilder eb = new EmbedBuilder()
+        return new EmbedBuilder()
                 .addField("Connect 4", sb.toString(), true)
                 .setColor(Color.BLACK)
                 .setFooter("SamuraiGames\u2122", Bot.AVATAR);
-        return eb;
     }
 
+    @Override
+    public Consumer<Message> getConsumer() {
+        switch (getStage()) {
+            case 0:
+                return message -> message.addReaction(DUEL_REACTION).queue();
+            case 1:
+                return initReactionMenu();
+            case 2:
+                return getEditConsumer();
+            case 3:
+                return message -> {
+                    for (MessageReaction mr : message.getReactions()) {
+                        if (CONNECTFOUR_REACTIONS.contains(mr.getEmote().getName()) || mr.getEmote().getName().equals(DUEL_REACTION)) {
+                            mr.removeReaction().queue();
+                        }
+                    }
+                };
+            default:
+                return null;
+
+        }
+    }
 
     private Consumer<Message> initReactionMenu() {
         return message -> {
@@ -150,19 +172,16 @@ public class ConnectFour extends Game {
                 if (!s.equals(CONNECTFOUR_REACTIONS.get(CONNECTFOUR_REACTIONS.size() - 1)))
                     message.addReaction(s).queue();
                 else
-                    message.addReaction(s).queue(success -> message.editMessage(getMessage()).queue());
+                    message.addReaction(s).queue(success -> message.editMessage(getMessage()).queue(success2 -> setStage(2)));
             }
         };
     }
 
+
     @Override
-    public Consumer<Message> getConsumer() {
-        return null;
+    protected int getLastStage() {
+        return 3;
     }
-
-
-
-
 
     @Override
     public boolean hasEnded() {

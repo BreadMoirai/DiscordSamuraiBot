@@ -10,7 +10,7 @@ public class Reaction {
     private User user;
     private Long messageId;
     private Long channelId;
-    private String emoji;
+    private String name;
     private long time;
 
     public User getUser() {
@@ -40,12 +40,12 @@ public class Reaction {
         return this;
     }
 
-    public String getEmoji() {
-        return emoji;
+    public String getName() {
+        return name;
     }
 
-    public Reaction setEmoji(String emoji) {
-        this.emoji = emoji;
+    public Reaction setName(String name) {
+        this.name = name;
         return this;
     }
 

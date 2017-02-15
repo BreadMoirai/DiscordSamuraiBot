@@ -1,6 +1,7 @@
 package samurai.message;
 
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import samurai.action.Reaction;
 
 import java.util.concurrent.Callable;
@@ -17,26 +18,32 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     private static final int timeout = 15 * 60 * 1000;
 
     private long messageId;
-    private boolean expired;
     private long lastActive;
     private Reaction action;
     private int stage;
 
     protected DynamicMessage() {
-        expired = false;
         stage = 0;
     }
 
+    @Override
+    public abstract Message getMessage();
+
     public abstract boolean valid(Reaction messageAction);
 
+    protected abstract void execute();
+
+    public abstract Consumer<Message> getConsumer();
+
     /**
-     * what is called to create the initial message
+     * Used with DynamicMessage#isExpired
+     * ex. Connect Four has 4 possible forms so this method would return 3.
      *
-     * @param messageAction the command the user sent
+     * @return the index of the last possible form of this object
      */
-    public void execute(Reaction messageAction) {
-        this.lastActive = messageAction.getTime();
-    }
+    protected abstract int getLastStage();
+
+    //everything above should be overridden
 
     /**
      * Defines Behavior for when User interacts with an emoji.
@@ -44,31 +51,31 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      * @return A MessageEdit object that modifies the message
      */
     @Override
-    public abstract MessageEdit call();
-
-    public Consumer<Message> getConsumer() {
-        return message -> this.messageId = Long.parseLong(message.getId());
+    public MessageEdit call() {
+        this.lastActive = getReaction().getTime();
+        execute();
+        return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(getConsumer());
     }
 
+    protected Consumer<Message> getEditConsumer() {
+        return message -> {
+            for (MessageReaction mr : message.getReactions())
+                if (mr.getEmote().getName().equals(getReaction().getName()))
+                    mr.removeReaction(getReaction().getUser()).queue();
+        };
+    }
 
-    //everything above should be overridden
-
-    //setters and getters
     public long getMessageId() {
         return messageId;
     }
 
-    public SamuraiMessage setMessageId(String id) {
-        this.messageId = Long.parseLong(id);
-        return this;
+    //setters and getters
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
     public boolean isExpired() {
-        return expired || System.currentTimeMillis() - lastActive > timeout;
-    }
-
-    protected void setExpired() {
-        expired = true;
+        return getStage() == getLastStage() || System.currentTimeMillis() - lastActive > timeout;
     }
 
     public boolean setValidReaction(Reaction action) {
@@ -83,11 +90,11 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return action;
     }
 
-    public int getStage() {
+    protected int getStage() {
         return stage;
     }
 
-    public DynamicMessage setStage(int stage) {
+    protected DynamicMessage setStage(int stage) {
         this.stage = stage;
         return this;
     }

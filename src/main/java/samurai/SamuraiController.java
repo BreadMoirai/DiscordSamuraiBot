@@ -2,6 +2,7 @@ package samurai;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
 import samurai.action.Reaction;
 import samurai.message.DynamicMessage;
@@ -45,13 +46,17 @@ public class SamuraiController {
     }
 
     void execute(Action action) {
-        actionQueue.offer(commandPool.submit(action));
+        if (!actionQueue.offer(commandPool.submit(action)))
+            new RejectedExecutionException("Could not add Action to Queue").printStackTrace();
     }
 
     void execute(Reaction reaction) {
+        System.out.println("Reaction Found: " + reaction.getName());
         DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
         if (samuraiMessage.setValidReaction(reaction)) {
-            reactionQueue.offer(commandPool.submit(samuraiMessage));
+            System.out.println("Executing...");
+            if (!reactionQueue.offer(commandPool.submit(samuraiMessage)))
+                new RejectedExecutionException("Could not add Action to Queue").printStackTrace();
         }
     }
 
@@ -69,7 +74,10 @@ public class SamuraiController {
             final SamuraiMessage samuraiMessage = actionQueue.take().get();
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
-                client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).queue(dynamicMessage.getConsumer());
+                //I might make another message sent queue with .submit();
+                Message message = client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).complete();
+                dynamicMessage.setMessageId(Long.parseLong(message.getId()));
+                dynamicMessage.getConsumer().accept(message);
                 messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
             } else {
                 client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();

@@ -9,6 +9,7 @@ import samurai.osu.enums.GameMode;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +44,8 @@ public class SamuraiFile {
             //outputStream.write(scoreDatabase.array());
             Files.write(path, scoreDatabase.array());
             int scoreCount = 0;
-            for (String hash : scoreMap.keySet()) {
+            for (Map.Entry<String, LinkedList<Score>> entry : scoreMap.entrySet()) {
+                String hash = entry.getKey();
                 ByteBuffer beatmap = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
                 beatmap.order(ByteOrder.LITTLE_ENDIAN);
                 beatmap.put((byte) 0x0b);
@@ -51,7 +53,7 @@ public class SamuraiFile {
                 for (int i = 0; i < hash.length(); i++) {
                     beatmap.put((byte) hash.charAt(i));
                 }
-                List<Score> scoreList = scoreMap.get(hash);
+                List<Score> scoreList = entry.getValue();
                 beatmap.putInt(scoreList.size());
                 Files.write(path, beatmap.array(), StandardOpenOption.APPEND);
                 for (Score score : scoreList) {
@@ -118,9 +120,9 @@ public class SamuraiFile {
             File file = new File(getGuildDataPath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             byte[] prefix = new byte[Integer.BYTES];
-            raf.read(prefix);
+            if (raf.read(prefix) == -1) throw new EOFException("Unexpected End of File");
             raf.close();
-            return new String(prefix).trim();
+            return new String(prefix, StandardCharsets.UTF_8).trim();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -131,7 +133,7 @@ public class SamuraiFile {
         try {
             File file = new File(getGuildDataPath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "rw");
-            raf.write(String.format("%4s", prefix).getBytes());
+            raf.write(String.format("%4s", prefix).getBytes(StandardCharsets.UTF_8));
             // remove debugging
             System.out.println(guildId + " set prefix to " + getPrefix(guildId));
             raf.close();
@@ -202,13 +204,13 @@ public class SamuraiFile {
 
     private static byte nextByte(BufferedInputStream input) throws IOException {
         byte[] singleByte = new byte[1];
-        input.read(singleByte);
+        if (input.read(singleByte) == -1) throw new EOFException("Unexpected End of File");
         return singleByte[0];
     }
 
     private static short nextShort(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[2];
-        input.read(bytes);
+        if (input.read(bytes) == -1) throw new EOFException("Unexpected End of File");
         ByteBuffer wrapper = ByteBuffer.wrap(bytes);
         wrapper.order(ByteOrder.LITTLE_ENDIAN);
         return wrapper.getShort();
@@ -237,7 +239,7 @@ public class SamuraiFile {
             int stringSize = nextULEB128(input);
 
             byte[] b = new byte[stringSize];
-            input.read(b);
+            if (input.read(b) == -1) throw new EOFException("Unexpected End of File");
             return new String(b, "UTF-8");
 
         } else {
@@ -247,7 +249,7 @@ public class SamuraiFile {
 
     private static int nextInt(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[4];
-        input.read(bytes);
+        if (input.read(bytes) == -1) throw new EOFException("Unexpected End of File");
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getInt();
@@ -255,7 +257,7 @@ public class SamuraiFile {
 
     private static long nextLong(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[8];
-        input.read(bytes);
+        if (input.read(bytes) == -1) throw new EOFException("Unexpected End of File");
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getLong();
@@ -263,7 +265,7 @@ public class SamuraiFile {
 
     private static double nextDouble(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[8];
-        input.read(bytes);
+        if (input.read(bytes) == -1) throw new EOFException("Unexpected End of File");
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getDouble();
@@ -271,7 +273,7 @@ public class SamuraiFile {
 
     private static float nextSingle(BufferedInputStream input) throws IOException {
         byte[] bytes = new byte[4];
-        input.read(bytes);
+        if (input.read(bytes) == -1) throw new EOFException("Unexpected End of File");
         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
         wrapped.order(ByteOrder.LITTLE_ENDIAN);
         return wrapped.getFloat();
@@ -291,7 +293,7 @@ public class SamuraiFile {
     }
 
     private static void skip(BufferedInputStream input, int n) throws IOException {
-        input.skip(n);
+        if (input.skip(n) != n) throw new EOFException("Unexpected End of File");
     }
 
     //write functions
@@ -382,7 +384,7 @@ public class SamuraiFile {
     public static List<String> readTextFile(String fileName) {
         File textFile = new File(SamuraiFile.class.getResource(fileName).getPath());
         LinkedList<String> textLines = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(textFile))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), StandardCharsets.UTF_8))) {
             if (fileName.equals("todo.txt"))
                 br.lines().forEach(textLines::addFirst);
             else br.lines().forEach(textLines::add);
@@ -394,9 +396,9 @@ public class SamuraiFile {
 
     public static void addTodo(String[] args) {
         File todoFile = new File(SamuraiFile.class.getResource("todo.txt").getPath());
-        try (BufferedWriter output = new BufferedWriter(new FileWriter(todoFile, true))) {
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(todoFile, true), StandardCharsets.UTF_8))) {
             for (String s : args) {
-                output.write(String.format("\n - %s", s.replace("_", " ")));
+                output.write(String.format("%n - %s", s.replace("_", " ")));
             }
         } catch (IOException e) {
             e.printStackTrace();

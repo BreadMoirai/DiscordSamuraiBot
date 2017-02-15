@@ -99,7 +99,7 @@ public class SamuraiListener extends ListenerAdapter {
         action.setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
                 .setChannelId(Long.valueOf(event.getChannel().getId()))
-                .setMessageId(Long.valueOf(event.getMessage().getId()))
+                //.setMessageId(Long.valueOf(event.getMessage().getId()))
                 .setMentions(event.getMessage().getMentionedUsers());
         samurai.execute(action);
     }
@@ -111,7 +111,7 @@ public class SamuraiListener extends ListenerAdapter {
                     .setChannelId(Long.valueOf(event.getChannel().getId()))
                     .setMessageId(Long.valueOf(event.getMessageId()))
                     .setUser(event.getUser())
-                    .setEmoji(event.getReaction().getEmote().getName())
+                    .setName(event.getReaction().getEmote().getName())
                     .setTime(System.currentTimeMillis()));
     }
 

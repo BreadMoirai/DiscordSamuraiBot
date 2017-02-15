@@ -24,11 +24,7 @@ public class OsuJsonReader {
     private static final String OSU_API = "https://osu.ppy.sh/api/";
     private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
     private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
-    public static int count;
-
-    OsuJsonReader() {
-        count = 0;
-    }
+    static int count = 0;
 
     public static MessageEmbed getUserInfo(String request) {
         List<JSONObject> json;
@@ -73,8 +69,10 @@ public class OsuJsonReader {
         switch (info.getInt("approved")) {
             case (1):
                 beatmap.setRankedStatus(RankedStatus.RANKED);
+                break;
             case (2):
                 beatmap.setRankedStatus(RankedStatus.APPROVED);
+                break;
             default:
                 beatmap.setRankedStatus(RankedStatus.UNKNOWN);
         }

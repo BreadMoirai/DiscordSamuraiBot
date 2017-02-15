@@ -26,7 +26,6 @@ public abstract class Action implements Callable<SamuraiMessage> {
     protected List<String> args;
     protected Long guildId;
     protected Long channelId;
-    protected Long messageId;
 
     /**
      * @param key a string corresponding to the action. ex. "help" or "setprefix"
@@ -48,7 +47,14 @@ public abstract class Action implements Callable<SamuraiMessage> {
     }
 
     @Override
-    public abstract SamuraiMessage call();
+    public SamuraiMessage call() {
+        SamuraiMessage message = buildMessage();
+        message.setChannelId(channelId);
+        return message;
+
+    }
+
+    protected abstract SamuraiMessage buildMessage();
 
     /**
      * @return a list of Discord Permissions that this action requires
@@ -71,11 +77,6 @@ public abstract class Action implements Callable<SamuraiMessage> {
 
     public Action setArgs(List<String> args) {
         this.args = args;
-        return this;
-    }
-
-    public Action setMessageId(Long messageId) {
-        this.messageId = messageId;
         return this;
     }
 
