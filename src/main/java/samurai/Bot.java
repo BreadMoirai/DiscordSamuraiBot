@@ -1,6 +1,5 @@
 package samurai;
 
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -8,7 +7,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 import javax.security.auth.login.LoginException;
-import java.lang.management.ManagementFactory;
 
 /**
  * Main Class
@@ -21,12 +19,9 @@ public class Bot {
 
     public static void main(String[] args) {
 
-        OperatingSystemMXBean operatingSystemMXBean =
-                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
-            SamuraiListener listener = new SamuraiListener(operatingSystemMXBean);
+            SamuraiListener listener = new SamuraiListener();
             JDA jda = jdaBuilder
                     .addListener(listener)
                     .setToken(BOT_TOKEN)

@@ -17,7 +17,6 @@ import java.util.Random;
 public abstract class Game extends DynamicMessage {
 
     static final Random random;
-    public static User samurai;
 
     static {
         random = new Random();
@@ -75,7 +74,7 @@ public abstract class Game extends DynamicMessage {
 
     public List<User> getLosers() {
         ArrayList<User> losers = new ArrayList<>();
-        if (winner == samurai) {
+        if (winner == Bot.self) {
             losers.add(A);
             losers.add(B);
         } else if (winner == A) {

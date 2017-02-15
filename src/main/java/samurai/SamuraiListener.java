@@ -1,6 +1,5 @@
 package samurai;
 
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -11,7 +10,6 @@ import samurai.action.Action;
 import samurai.action.Reaction;
 import samurai.action.generic.HelpAction;
 import samurai.data.SamuraiFile;
-import samurai.message.duel.Game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,14 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SamuraiListener extends ListenerAdapter {
     private static final AtomicInteger messagesSent = new AtomicInteger(0);
     private final HashMap<Long, String> prefix;
-    private final OperatingSystemMXBean operatingSystemMXBean;
     private SamuraiController samurai;
 
 
-    SamuraiListener(OperatingSystemMXBean operatingSystemMXBean) {
-        this.operatingSystemMXBean = operatingSystemMXBean;
+    SamuraiListener() {
         prefix = new HashMap<>();
-
     }
 
     @Override
@@ -57,8 +52,7 @@ public class SamuraiListener extends ListenerAdapter {
                 SamuraiController.setOfficialChannel(g.getTextChannelById(String.valueOf(274732231124320257L)));
             }
         }
-        Game.samurai = event.getJDA().getSelfUser();
-        samurai = new SamuraiController(operatingSystemMXBean);
+        samurai = new SamuraiController();
         System.out.println("Ready!" + prefix.toString());
     }
 
@@ -99,8 +93,7 @@ public class SamuraiListener extends ListenerAdapter {
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
                     args.add(argument);
             }
-            if (!args.isEmpty())
-                action.setArgs(args);
+            action.setArgs(args);
         }
 
         {

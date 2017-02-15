@@ -1,6 +1,5 @@
 package samurai;
 
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
 import samurai.action.Action;
@@ -26,7 +25,7 @@ public class SamuraiController {
     private JDA client;
     private boolean running;
 
-    SamuraiController(OperatingSystemMXBean operatingSystemMXBean) {
+    SamuraiController() {
         commandPool = Executors.newCachedThreadPool();
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
@@ -51,7 +50,7 @@ public class SamuraiController {
 
     void execute(Reaction reaction) {
         DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
-        if (samuraiMessage.setAction(reaction)) {
+        if (samuraiMessage.setReaction(reaction)) {
             reactionQueue.offer(commandPool.submit(samuraiMessage));
         }
     }

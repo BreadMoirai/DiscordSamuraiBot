@@ -48,7 +48,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         expired = true;
     }
 
-    public boolean setAction(Reaction action) {
+    public boolean setReaction(Reaction action) {
         if (valid(action)) {
             this.action = action;
             return true;
@@ -56,7 +56,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return false;
     }
 
-    protected Reaction getAction() {
+    protected Reaction getReaction() {
         return action;
     }
 }

@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
+import samurai.Bot;
 import samurai.action.Reaction;
 import samurai.message.MessageEdit;
 
@@ -74,11 +75,11 @@ public class ConnectFour extends Game {
 
     @Override
     public MessageEdit call() throws Exception {
-        execute(getAction());
+        execute(getReaction());
         return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(!initialized ? initReactionMenu() : message -> {
             for (MessageReaction reaction : message.getReactions()) {
-                if (reaction.getEmote().getName().equals(getAction().getEmoji())) {
-                    reaction.removeReaction(getAction().getUser());
+                if (reaction.getEmote().getName().equals(getReaction().getEmoji())) {
+                    reaction.removeReaction(getReaction().getUser());
                     return;
                 }
             }
@@ -237,7 +238,7 @@ public class ConnectFour extends Game {
             if (board[x][Y_BOUND - 1] == '\u0000') {
                 break;
             } else if (x == 6) {
-                winner = samurai;
+                winner = Bot.self;
                 return true;
             }
         }
