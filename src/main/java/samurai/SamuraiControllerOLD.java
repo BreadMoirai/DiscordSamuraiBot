@@ -9,11 +9,11 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 import samurai.data.Data;
 import samurai.data.SamuraiFile;
+import samurai.message.duel.ConnectFour;
+import samurai.message.duel.Game;
 import samurai.osu.OsuGuild;
 import samurai.osu.OsuJsonReader;
 import samurai.osu.Score;
-import samurai.persistent.duel.ConnectFour;
-import samurai.persistent.duel.Game;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -45,7 +45,7 @@ class SamuraiControllerOLD {
     private long initializationTime;
     private EventListenerOLD listener;
     private Random random;
-    private HashMap<Long, Game> gameMap; //persistent id
+    private HashMap<Long, Game> gameMap; //message id
     private HashMap<Long, OsuGuild> osuGuildMap; //guild id
     private HashMap<Long, Integer> trackedUsers; // user id
 
@@ -107,7 +107,7 @@ class SamuraiControllerOLD {
                 getHelp(event);
                 break;
             case "changelog":
-            case "update":
+            case "execute":
                 getCommitJson(event.getChannel(), true);
                 getCommitJson(event.getChannel(), false);
                 break;
@@ -170,7 +170,7 @@ class SamuraiControllerOLD {
                             // wait
                             gameMap.put(Long.parseLong(message.getId()), new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), random.nextBoolean()));
                             listener.addGame(Long.parseLong(message.getId()));
-                            message.editMessage(gameMap.get(Long.parseLong(message.getId())).buildBoard()).queue();
+                            message.editMessage(gameMap.get(Long.parseLong(message.getId())).getMessage()).queue();
                         });
                 }
             });
@@ -208,7 +208,7 @@ class SamuraiControllerOLD {
             channel.sendMessage(new MessageBuilder()
                     .setEmbed(new EmbedBuilder()
                             .setTitle("Changelog: " + json.getJSONObject("author").getString("date").substring(0, 10), json.getString("html_url"))
-                            .setDescription(json.getString("persistent"))
+                            .setDescription(json.getString("message"))
                             .setFooter("Committed by " + json.getJSONObject("author").getString("name"), null)
                             .build())
                     .build()).queue();
@@ -439,7 +439,7 @@ class SamuraiControllerOLD {
                     else
                         message.addReaction(connectfour_reactions.get(i)).queue(success -> {
                             gameMap.put(gameId, new ConnectFour(message.getMentionedUsers().get(0), event.getUser(), random.nextBoolean()));
-                            message.editMessage(gameMap.get(gameId).buildBoard()).queue();
+                            message.editMessage(gameMap.get(gameId).getMessage()).queue();
                         });
                 }
             }));
@@ -449,10 +449,10 @@ class SamuraiControllerOLD {
                 Message message = event.getChannel().getMessageById(String.valueOf(gameId)).complete();
                 game.perform(connectfour_reactions.indexOf(emoji), event.getUser());
                 event.getReaction().removeReaction(event.getUser()).queue();
-                message.editMessage(game.buildBoard()).queue();
+                message.editMessage(game.getMessage()).queue();
 
                 if (game.hasEnded()) {
-                    message.editMessage(game.buildBoard()).queue();
+                    message.editMessage(game.getMessage()).queue();
                     gameMap.remove(gameId);
                     listener.removeGame(gameId);
                     User winner = game.getWinner();
@@ -506,7 +506,7 @@ class SamuraiControllerOLD {
         SamuraiBuilder(Member member) {
             setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl());
             setColor(member.getColor());
-            // wait update
+            // wait execute
             final List<Data> userData = SamuraiFile.getUserData(Long.parseLong(member.getGuild().getId()), Long.parseLong(member.getUser().getId()));
             assert userData != null;
             StringBuilder stringBuilder = new StringBuilder();

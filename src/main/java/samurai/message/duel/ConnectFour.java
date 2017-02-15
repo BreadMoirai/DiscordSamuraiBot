@@ -1,18 +1,22 @@
-package samurai.persistent.duel;
+package samurai.message.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.action.Reaction;
+import samurai.message.MessageEdit;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 /**
  * ConnectFour game
+ *
  * @since 4.0
  */
 public class ConnectFour extends Game {
@@ -21,7 +25,7 @@ public class ConnectFour extends Game {
     public static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"}, 7);
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
-    private boolean begun;
+    private boolean begun, initialized;
 
     private char[][] board;
 
@@ -34,6 +38,7 @@ public class ConnectFour extends Game {
         super(Seeker);
         begun = false;
         board = new char[X_BOUND][Y_BOUND];
+        initialized = false;
     }
 
     /**
@@ -46,11 +51,9 @@ public class ConnectFour extends Game {
     public ConnectFour(User Instigator, User Challenged, boolean first) {
         super(Instigator, Challenged);
         begun = true;
-        if (first)
-            next = A;
-        else
-            next = B;
+        next = first ? A : B;
         board = new char[X_BOUND][Y_BOUND];
+        initialized = false;
     }
 
     /**
@@ -62,15 +65,6 @@ public class ConnectFour extends Game {
         B = reaction.getUser();
         begun = true;
         next = random.nextBoolean() ? A : B;
-        Message message = reaction.getChannel().getMessageById(String.valueOf(reaction.getMessageId())).complete();
-        message.editMessage(String.format("Creating %s's game", message.getMentionedUsers().get(0).getAsMention())).queue();
-        for (int i = 0, connectfour_reactionsSize = CONNECTFOUR_REACTIONS.size(); i < connectfour_reactionsSize; i++) {
-            if (i != connectfour_reactionsSize - 1)
-                message.addReaction(CONNECTFOUR_REACTIONS.get(i)).queue();
-            else
-                message.addReaction(CONNECTFOUR_REACTIONS.get(i)).complete();
-        }
-        message.editMessage(buildBoard()).queue();
     }
 
     @Override
@@ -79,12 +73,26 @@ public class ConnectFour extends Game {
     }
 
     @Override
+    public MessageEdit call() throws Exception {
+        execute(getAction());
+        return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(!initialized ? initReactionMenu() : message -> {
+            for (MessageReaction reaction : message.getReactions()) {
+                if (reaction.getEmote().getName().equals(getAction().getEmoji())) {
+                    reaction.removeReaction(getAction().getUser());
+                    return;
+                }
+            }
+        });
+    }
+
+    @Override
     public void execute(Reaction reaction) {
         super.execute(reaction);
         if (!begun && reaction.getEmoji().equals("⚔")) {
             begin(reaction);
             return;
-        } else if (reaction.getUser() == next) {
+        }
+        if (reaction.getUser() == next) {
             int move = CONNECTFOUR_REACTIONS.indexOf(reaction.getEmoji());
             if (move < 0) return;
             for (int y = 0; y < Y_BOUND; y++) {
@@ -101,23 +109,44 @@ public class ConnectFour extends Game {
                 }
             }
         }
-        Message message = reaction.getChannel().getMessageById(String.valueOf(reaction.getMessageId())).complete();
-        message.editMessage(buildBoard()).queue();
-        List<MessageReaction> messageReactions = message.getReactions();
-        for (MessageReaction mr : messageReactions) {
-            if (mr.getEmote().getName().equals(reaction.getEmoji())) {
-                mr.removeReaction(reaction.getUser()).queue();
-                break;
-            }
-        }
         if (hasEnded()) {
             setExpired();
-            message.editMessage(buildBoard()).queue();
         }
+
     }
 
     @Override
-    public Message buildBoard() {
+    public Consumer<Message> getConsumer() {
+        if (begun)
+            return message -> {
+                super.getConsumer().accept(message);
+                initReactionMenu().accept(message);
+            };
+        else
+            return message -> {
+                super.getConsumer().accept(message);
+                message.addReaction("⚔").queue();
+            };
+    }
+
+    private Consumer<Message> initReactionMenu() {
+        System.out.println("Initializing a ConnectFourGame");
+        initialized = true;
+        return message -> {
+            message.editMessage(String.format("Building %s's game against %s", A.getAsMention(), B.getAsMention()));
+            for (String s : CONNECTFOUR_REACTIONS) {
+                if (!s.equals(CONNECTFOUR_REACTIONS.get(CONNECTFOUR_REACTIONS.size() - 1)))
+                    message.addReaction(s).queue();
+                else
+                    message.addReaction(s).queue(success -> message.editMessage(getMessage()).queue());
+            }
+        };
+    }
+
+    @Override
+    public Message getMessage() {
+        if (!begun)
+            return new MessageBuilder().append(String.format("Who is willing to accept %s's challenge to a perilous game of **Connect Four**", A.getAsMention())).build();
         StringBuilder sb = new StringBuilder();
         for (String emojiNum : CONNECTFOUR_REACTIONS)
             sb.append(emojiNum);

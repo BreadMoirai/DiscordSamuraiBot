@@ -1,9 +1,10 @@
-package samurai.persistent.duel;
+package samurai.message.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import samurai.action.Reaction;
+import samurai.message.MessageEdit;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ class Hangman extends Game {
     }
 
     @Override
-    public Message buildBoard() {
+    public Message getMessage() {
         return null;
     }
 
@@ -38,8 +39,13 @@ class Hangman extends Game {
     }
 
     @Override
-    public void execute(Reaction reaction) {
+    public void execute(Reaction messageAction) {
 
+    }
+
+    @Override
+    public MessageEdit call() throws Exception {
+        return null;
     }
 }
 

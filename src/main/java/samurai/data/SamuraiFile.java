@@ -359,7 +359,7 @@ public class SamuraiFile {
             }
             if (dataNames.length == 0) {
                 raf.seek(dataStart + userIndex * DATA_NAMES.size() * 4);
-                return new SamuraiFile().nextUserDataBuffered(raf);
+                return SamuraiFile.nextUserDataBuffered(raf);
             } else {
                 List<Data> dataList = new ArrayList<>();
                 for (String name : dataNames) {
@@ -404,7 +404,7 @@ public class SamuraiFile {
 
     }
 
-    private List<Data> nextUserDataBuffered(DataInput input) throws IOException {
+    private static List<Data> nextUserDataBuffered(DataInput input) throws IOException {
         byte[] userDataBytes = new byte[DATA_NAMES.size() * Integer.BYTES];
         input.readFully(userDataBytes);
         List<Data> userDataList = new LinkedList<>();
