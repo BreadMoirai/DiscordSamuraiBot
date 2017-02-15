@@ -29,14 +29,31 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     public abstract boolean valid(Reaction messageAction);
 
-    public Consumer<Message> getConsumer() {
-        return message -> this.messageId = Long.parseLong(message.getId());
-    }
-
+    /**
+     * what is called to create the initial message
+     *
+     * @param messageAction the command the user sent
+     */
     public void execute(Reaction messageAction) {
         this.lastActive = messageAction.getTime();
     }
 
+    /**
+     * Defines Behavior for when User interacts with an emoji.
+     *
+     * @return A MessageEdit object that modifies the message
+     */
+    @Override
+    public abstract MessageEdit call();
+
+    public Consumer<Message> getConsumer() {
+        return message -> this.messageId = Long.parseLong(message.getId());
+    }
+
+
+    //everything above should be overridden
+
+    //setters and getters
     public long getMessageId() {
         return messageId;
     }
@@ -54,7 +71,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         expired = true;
     }
 
-    public boolean setReaction(Reaction action) {
+    public boolean setValidReaction(Reaction action) {
         if (valid(action)) {
             this.action = action;
             return true;

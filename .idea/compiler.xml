@@ -13,6 +13,13 @@
       <entry name="!?*.aj" />
       <entry name="!?*.txt" />
     </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true">
+        <processorPath>
+          <entry name="$PROJECT_DIR$/src/main/java/samurai/MustOverrideProcessor.java" />
+        </processorPath>
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="DiscordSamuraiBot_main" target="1.8" />
       <module name="DiscordSamuraiBot_test" target="1.8" />

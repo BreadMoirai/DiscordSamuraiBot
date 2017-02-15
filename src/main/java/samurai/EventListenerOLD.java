@@ -1,3 +1,4 @@
+/*
 package samurai;
 
 import com.sun.management.OperatingSystemMXBean;
@@ -16,10 +17,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+*/
 /**
  * Created by TonTL on 1/28/2017.
  * Listens to events
- */
+ *//*
+
 @SuppressWarnings("ALL")
 public class EventListenerOLD extends ListenerAdapter {
 
@@ -91,7 +94,8 @@ public class EventListenerOLD extends ListenerAdapter {
         }
     }
 
-    /*@Override
+    */
+/*@Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot())
             return;
@@ -99,7 +103,8 @@ public class EventListenerOLD extends ListenerAdapter {
         if (gameMessageSet.contains(messageId)) {
             samurai.updateGame(event, messageId);
         }
-    }*/
+    }*//*
+
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
@@ -108,12 +113,14 @@ public class EventListenerOLD extends ListenerAdapter {
 
     //wait for jda execute MemberGameUpdateEvent
     @Deprecated
-    /*
+    */
+/*
     public void onUserGameUpdate(UserGameUpdateEvent event) {
         System.out.println(event.getGuild().getName() + "was playing " + (event.getPreviousGame()!= null ? event.getPreviousGame().getName() : "No Game"));
 
     }
-    */
+    *//*
+
 
 
     @Override
@@ -139,3 +146,4 @@ public class EventListenerOLD extends ListenerAdapter {
     }
 }
 
+*/

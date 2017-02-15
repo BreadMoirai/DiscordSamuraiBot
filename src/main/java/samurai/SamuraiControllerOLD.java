@@ -1,3 +1,4 @@
+/*
 package samurai;
 
 import com.sun.management.OperatingSystemMXBean;
@@ -29,10 +30,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+*/
 /**
  * Created by TonTL on 1/28/2017.
  * does work
- */
+ *//*
+
 @SuppressWarnings("ALL")
 class SamuraiControllerOLD {
 
@@ -168,7 +171,7 @@ class SamuraiControllerOLD {
                     else
                         message.addReaction(connectfour_reactions.get(i)).queue(success -> {
                             // wait
-                            gameMap.put(Long.parseLong(message.getId()), new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0), random.nextBoolean()));
+                            gameMap.put(Long.parseLong(message.getId()), new ConnectFour(event.getAuthor(), event.getMessage().getMentionedUsers().get(0)));
                             listener.addGame(Long.parseLong(message.getId()));
                             message.editMessage(gameMap.get(Long.parseLong(message.getId())).getMessage()).queue();
                         });
@@ -312,14 +315,16 @@ class SamuraiControllerOLD {
         if (attaches.size() == 1 && attaches.get(0).getFileName().equals("scores.db")) {
             path = SamuraiFile.downloadFile(attaches.get(0));
 
-            /*
+            */
+/*
             if (args.length == 1 && args[0].equalsIgnoreCase("replace"))
                 replace = true;
             else if ((args.length == 1 && args[0].equalsIgnoreCase("append")) || args.length == 0)
                 replace = false;
             else
                 return;
-            */
+            *//*
+
 
 
             // wait
@@ -425,7 +430,8 @@ class SamuraiControllerOLD {
         }
     }
 
-    /*
+    */
+/*
     void updateGame(MessageReactionAddEvent event, Long gameId) {
         List<String> connectfour_reactions = ConnectFour.CONNECTFOUR_REACTIONS;
         String emoji = event.getReaction().getEmote().getName();
@@ -468,7 +474,8 @@ class SamuraiControllerOLD {
 
         }
     }
-    */
+    *//*
+
 
 
     class SamuraiBuilder extends EmbedBuilder {
@@ -519,3 +526,4 @@ class SamuraiControllerOLD {
 
 
 }
+*/

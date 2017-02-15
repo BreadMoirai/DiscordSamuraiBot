@@ -50,7 +50,7 @@ public class SamuraiController {
 
     void execute(Reaction reaction) {
         DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
-        if (samuraiMessage.setReaction(reaction)) {
+        if (samuraiMessage.setValidReaction(reaction)) {
             reactionQueue.offer(commandPool.submit(samuraiMessage));
         }
     }

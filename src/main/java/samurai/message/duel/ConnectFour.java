@@ -4,13 +4,13 @@ import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
 import samurai.action.Reaction;
 import samurai.message.MessageEdit;
 
 import java.awt.*;
+import java.lang.annotation.Inherited;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -28,7 +28,6 @@ public class ConnectFour extends Game {
     private static final int X_BOUND = 7, Y_BOUND = 6;
 
     private char[][] board;
-
 
     public ConnectFour(User Seeker) {
         super(Seeker);
@@ -51,6 +50,51 @@ public class ConnectFour extends Game {
             default:
                 return false;
         }
+    }
+
+    /**
+     * precondition valid(reaction) is true
+     * updates the board based on the reaction
+     *
+     * @param reaction the emote the next player has made
+     */
+    @Inherited
+    @Override
+    public void execute(Reaction reaction) {
+        /*super.execute(reaction);
+        switch (getStage()) {
+            case 0:
+        }
+        if (!begun && reaction.getEmoji().equals("⚔")) {
+            begin(reaction);
+            return;
+        }
+        if (reaction.getUser() == next) {
+            int move = CONNECTFOUR_REACTIONS.indexOf(reaction.getEmoji());
+            if (move < 0) return;
+            for (int y = 0; y < Y_BOUND; y++) {
+                if (board[move][y] == '\u0000') {
+                    if (reaction.getUser() == A) {
+                        board[move][y] = 'a';
+                        next = B;
+                        break;
+                    } else {
+                        board[move][y] = 'b';
+                        next = A;
+                        break;
+                    }
+                }
+            }
+        }
+        if (hasEnded()) {
+            setExpired();
+        }
+*/
+    }
+
+    @Override
+    public MessageEdit call() {
+        return null;
     }
 
     @Override
@@ -113,70 +157,11 @@ public class ConnectFour extends Game {
 
     @Override
     public Consumer<Message> getConsumer() {
-        if (begun)
-            return message -> {
-                super.getConsumer().accept(message);
-                initReactionMenu().accept(message);
-            };
-        else
-            return message -> {
-                super.getConsumer().accept(message);
-                message.addReaction("⚔").queue();
-            };
+        return null;
     }
 
-    @Override
-    public MessageEdit call() throws Exception {
-        execute(getReaction());
-        Consumer<Message> success;
-        switch (getStage()) {
-            case 0:
-        }
-        return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(!initialized ? initReactionMenu() : message -> {
-            for (MessageReaction reaction : message.getReactions()) {
-                if (reaction.getEmote().getName().equals(getReaction().getEmoji())) {
-                    reaction.removeReaction(getReaction().getUser());
-                    return;
-                }
-            }
-        });
-    }
 
-    /**
-     * precondition valid(reaction) is true
-     * updates the board based on the reaction
-     *
-     * @param reaction the emote the next player has made
-     */
-    @Override
-    public void execute(Reaction reaction) {
-        super.execute(reaction);
-        if (!begun && reaction.getEmoji().equals("⚔")) {
-            begin(reaction);
-            return;
-        }
-        if (reaction.getUser() == next) {
-            int move = CONNECTFOUR_REACTIONS.indexOf(reaction.getEmoji());
-            if (move < 0) return;
-            for (int y = 0; y < Y_BOUND; y++) {
-                if (board[move][y] == '\u0000') {
-                    if (reaction.getUser() == A) {
-                        board[move][y] = 'a';
-                        next = B;
-                        break;
-                    } else {
-                        board[move][y] = 'b';
-                        next = A;
-                        break;
-                    }
-                }
-            }
-        }
-        if (hasEnded()) {
-            setExpired();
-        }
 
-    }
 
 
     @Override

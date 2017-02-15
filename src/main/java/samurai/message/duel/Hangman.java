@@ -1,3 +1,4 @@
+/*
 package samurai.message.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
@@ -8,10 +9,12 @@ import samurai.message.MessageEdit;
 
 import java.util.List;
 
+*/
 /**
  * Created by TonTL on 1/23/2017.
  * Hangman
- */
+ *//*
+
 class Hangman extends Game {
 
     private static final List<String> HANGMAN_REACTIONS = new UnmodifiableArrayList<>(new String[] {""}, 0);
@@ -49,3 +52,4 @@ class Hangman extends Game {
     }
 }
 
+*/
