@@ -3,7 +3,7 @@ package samurai.action.generic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
-import samurai.action.Key;
+import samurai.annotations.Key;
 import samurai.data.SamuraiFile;
 import samurai.message.SamuraiMessage;
 import samurai.message.fixed.FixedMessage;
@@ -18,7 +18,7 @@ import java.util.List;
 public class HelpAction extends Action {
 
     /**
-     null     * @return A Message with an Embed created using resources/help.txt
+     * @return A Message with an Embed created using resources/help.txt
      */
     @Override
     public SamuraiMessage buildMessage() {

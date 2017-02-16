@@ -1,4 +1,6 @@
-package samurai.osu;
+package samurai.data;
+
+import samurai.osu.Score;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,18 +10,24 @@ import java.util.List;
  * manages guild specific osu data!
  * Created by TonTL on 2/3/2017.
  */
-public class OsuGuild {
+public class SamuraiGuild {
 
     private HashMap<String, LinkedList<Score>> scoreMap;
+    private LinkedList<SamuraiUser> userList;
     private boolean active;
 
-    public OsuGuild(HashMap<String, LinkedList<Score>> scoreMap) {
+    public SamuraiGuild(HashMap<String, LinkedList<Score>> scoreMap) {
+        userList = new LinkedList<>();
         this.scoreMap = scoreMap;
-        active = true;
+        active = false;
     }
 
-    public OsuGuild() {
+    public SamuraiGuild() {
         this(new HashMap<>());
+    }
+
+    public int getUserCount() {
+        return userList.size();
     }
 
     public HashMap<String, LinkedList<Score>> getScoreMap() {

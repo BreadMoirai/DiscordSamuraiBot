@@ -14,6 +14,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -24,7 +25,7 @@ public class OsuJsonReader {
     private static final String OSU_API = "https://osu.ppy.sh/api/";
     private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
     private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
-    static int count = 0;
+    public static AtomicInteger count = new AtomicInteger(0);
 
     public static MessageEmbed getUserInfo(String request) {
         List<JSONObject> json;
@@ -134,7 +135,7 @@ public class OsuJsonReader {
     }
 
     private static List<JSONObject> readJsonFromUrl(String url) throws IOException, JSONException {
-        count++;
+        count.incrementAndGet();
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             List<JSONObject> json = new ArrayList<>();

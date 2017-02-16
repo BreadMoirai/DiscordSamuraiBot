@@ -2,7 +2,7 @@ package samurai.action.generic;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
-import samurai.action.Key;
+import samurai.annotations.Key;
 import samurai.message.SamuraiMessage;
 import samurai.message.fixed.FixedMessage;
 

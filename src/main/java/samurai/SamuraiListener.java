@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("Duplicates")
 public class SamuraiListener extends ListenerAdapter {
-    private static final AtomicInteger messagesSent = new AtomicInteger(0);
+    public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private final HashMap<Long, String> prefix;
     private SamuraiController samurai;
 
@@ -85,21 +85,20 @@ public class SamuraiListener extends ListenerAdapter {
         }
         Action action = samurai.getAction(key);
         if (action == null) return;
-
+        List<String> args = new ArrayList<>();
         if (content != null) {
             String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
-            List<String> args = new ArrayList<>();
+
             for (String argument : argArray) {
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
                     args.add(argument);
             }
-            action.setArgs(args);
         }
 
-        action.setAuthor(event.getMember())
+        action.setArgs(args)
+                .setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
                 .setChannelId(Long.valueOf(event.getChannel().getId()))
-                //.setMessageId(Long.valueOf(event.getMessage().getId()))
                 .setMentions(event.getMessage().getMentionedUsers());
         samurai.execute(action);
     }
