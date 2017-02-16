@@ -1,6 +1,7 @@
-package samurai.message;
+package samurai.message.fixed;
 
 import net.dv8tion.jda.core.entities.Message;
+import samurai.message.SamuraiMessage;
 
 /**
  * A message object that has no further options

@@ -1,4 +1,4 @@
-package samurai.message;
+package samurai.message.modifier;
 
 import net.dv8tion.jda.core.entities.Message;
 

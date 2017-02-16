@@ -7,9 +7,9 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
-import samurai.action.Reaction;
 import samurai.action.generic.HelpAction;
 import samurai.data.SamuraiFile;
+import samurai.message.modifier.Reaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class SamuraiListener extends ListenerAdapter {
             key = content.substring(0, content.indexOf(" "));
             content = content.substring(key.length() + 1);
         }
-        Action action = Action.getAction(key);
+        Action action = samurai.getAction(key);
         if (action == null) return;
 
         if (content != null) {

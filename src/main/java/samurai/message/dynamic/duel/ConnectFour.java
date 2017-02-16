@@ -1,4 +1,4 @@
-package samurai.message.duel;
+package samurai.message.dynamic.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
-import samurai.action.Reaction;
+import samurai.message.modifier.Reaction;
 
 import java.awt.*;
 import java.util.List;

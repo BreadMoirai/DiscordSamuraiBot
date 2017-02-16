@@ -1,8 +1,10 @@
-package samurai.message;
+package samurai.message.dynamic;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
-import samurai.action.Reaction;
+import samurai.message.SamuraiMessage;
+import samurai.message.modifier.MessageEdit;
+import samurai.message.modifier.Reaction;
 
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;

@@ -1,10 +1,10 @@
-package samurai.message.duel;
+package samurai.message.dynamic.duel;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
-import samurai.action.Reaction;
-import samurai.message.DynamicMessage;
+import samurai.message.dynamic.DynamicMessage;
+import samurai.message.modifier.Reaction;
 
 import java.util.ArrayList;
 import java.util.List;

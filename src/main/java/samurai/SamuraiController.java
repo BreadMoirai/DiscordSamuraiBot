@@ -3,12 +3,16 @@ package samurai;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
+import org.reflections.Reflections;
 import samurai.action.Action;
-import samurai.action.Reaction;
-import samurai.message.DynamicMessage;
-import samurai.message.MessageEdit;
 import samurai.message.SamuraiMessage;
+import samurai.message.dynamic.DynamicMessage;
+import samurai.message.modifier.MessageEdit;
+import samurai.message.modifier.Reaction;
 
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -23,6 +27,7 @@ public class SamuraiController {
     private final BlockingQueue<Future<SamuraiMessage>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
+    private final HashMap<String, Class<? extends Action>> actionMap;
     private JDA client;
     private boolean running;
 
@@ -31,7 +36,9 @@ public class SamuraiController {
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
+        actionMap = new HashMap<>();
         running = true;
+        initActions();
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::clearInactive, 10, 5, TimeUnit.MINUTES);
@@ -103,5 +110,27 @@ public class SamuraiController {
         this.client = jda;
     }
 
+    Action getAction(String key) {
+        if (actionMap.containsKey(key))
+            try {
+                return actionMap.get(key).newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                e.printStackTrace();
+            }
+        return null;
+    }
 
+    private void initActions() {
+        Reflections reflections = new Reflections("samurai.action");
+        Set<Class<? extends Action>> classes = reflections.getSubTypesOf(Action.class);
+        for (Class<? extends Action> action : classes) {
+            Key actionKey = action.getAnnotation(Key.class);
+            if (actionKey == null || Objects.equals(actionKey.value(), "")) {
+                System.err.printf("No key found for %s%n", action.getName());
+                continue;
+            }
+            actionMap.put(actionKey.value(), action);
+            System.out.printf("\"%s\" mapped to %s%n", actionKey.value(), action.getName());
+        }
+    }
 }

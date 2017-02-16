@@ -2,16 +2,18 @@ package samurai.action.generic;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import samurai.Key;
 import samurai.action.Action;
 import samurai.data.SamuraiFile;
-import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.fixed.FixedMessage;
 
 import java.util.List;
 
 /**
  * The type Help action.
  */
+@Key("help")
 public class HelpAction extends Action {
 
     /**

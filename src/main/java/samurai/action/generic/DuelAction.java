@@ -2,7 +2,7 @@ package samurai.action.generic;
 
 import samurai.action.Action;
 import samurai.message.SamuraiMessage;
-import samurai.message.duel.ConnectFour;
+import samurai.message.dynamic.duel.ConnectFour;
 
 /**
  * @author TonTL

@@ -2,8 +2,8 @@ package samurai.action.generic;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
-import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.fixed.FixedMessage;
 
 /**
  * @author TonTL
