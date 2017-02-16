@@ -41,7 +41,7 @@ public class SamuraiController {
     private final HashMap<String, Class<? extends Action>> actionMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> osuGuildMap;
     private JDA client;
-    private boolean running;
+    //private boolean running;
 
 
     SamuraiController() {
@@ -51,7 +51,7 @@ public class SamuraiController {
         messageMap = new ConcurrentHashMap<>();
         actionMap = new HashMap<>();
         osuGuildMap = new ConcurrentHashMap<>();
-        running = true;
+        //running = true;
         initActions();
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);

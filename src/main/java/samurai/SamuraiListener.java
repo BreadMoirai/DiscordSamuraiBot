@@ -91,7 +91,7 @@ public class SamuraiListener extends ListenerAdapter {
 
             for (String argument : argArray) {
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument);
+                    args.add(argument.toLowerCase());
             }
         }
 

@@ -43,12 +43,12 @@ public class ConnectFour extends Game {
     }
 
     @Override
-    public boolean valid(Reaction reaction) {
+    public boolean valid(Reaction messageReaction) {
         switch (getStage()) {
             case 0:
-                return reaction.getName().equals("⚔") && reaction.getUser() != A;
+                return messageReaction.getName().equals("⚔") && messageReaction.getUser() != A;
             case 2:
-                return CONNECTFOUR_REACTIONS.contains(reaction.getName()) && reaction.getUser() == next;
+                return CONNECTFOUR_REACTIONS.contains(messageReaction.getName()) && messageReaction.getUser() == next;
             default:
                 return false;
         }
@@ -93,18 +93,15 @@ public class ConnectFour extends Game {
             case 0:
                 return new MessageBuilder()
                         .append(String.format("Who is willing to accept %s's challenge to a perilous game of **Connect Four**", A.getAsMention()))
-                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
                         .build();
             case 1:
                 return new MessageBuilder()
                         .append(String.format("Building %s's game against %s.", A.getAsMention(), B.getAsMention()))
-                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
                         .build();
             case 2:
                 return buildTitle()
                         .setEmbed(buildBoard()
                                 .build())
-                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
                         .build();
             case 3:
                 return buildTitle()
@@ -112,7 +109,6 @@ public class ConnectFour extends Game {
                                 .addField("The Winner is:", winner.getName(), false)
                                 .setImage(winner.getAvatarUrl())
                                 .build())
-                        .append(String.format("%nSTAGE: **%d/%d**", getStage(), getLastStage()))
                         .build();
             default:
                 return null;
@@ -148,7 +144,10 @@ public class ConnectFour extends Game {
             case 0:
                 return message -> message.addReaction(DUEL_REACTION).queue();
             case 1:
-                return initReactionMenu();
+                return message -> {
+                    message.editMessage(String.format("Building %s's game against %s", A.getAsMention(), B.getAsMention())).queue();
+                    getInitialConsumer(CONNECTFOUR_REACTIONS).accept(message);
+                };
             case 2:
                 return getEditConsumer();
             case 3:
@@ -163,18 +162,6 @@ public class ConnectFour extends Game {
                 return null;
 
         }
-    }
-
-    private Consumer<Message> initReactionMenu() {
-        return message -> {
-            message.editMessage(String.format("Building %s's game against %s", A.getAsMention(), B.getAsMention()));
-            for (String s : CONNECTFOUR_REACTIONS) {
-                if (!s.equals(CONNECTFOUR_REACTIONS.get(CONNECTFOUR_REACTIONS.size() - 1)))
-                    message.addReaction(s).queue();
-                else
-                    message.addReaction(s).queue(success -> message.editMessage(getMessage()).queue(success2 -> setStage(2)));
-            }
-        };
     }
 
 
