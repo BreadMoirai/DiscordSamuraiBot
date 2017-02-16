@@ -1,13 +1,15 @@
 package samurai.action.generic;
 
 import samurai.action.Action;
+import samurai.action.Key;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.duel.ConnectFour;
 
 /**
  * @author TonTL
- * @since 4.0
+ * @version 4.2
  */
+@Key("duel")
 public class DuelAction extends Action {
 
     @Override

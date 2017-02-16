@@ -1,4 +1,4 @@
-package samurai;
+package samurai.action;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author TonTL
- * @version 4.0
+ * @version 4.2
  * @since 2/15/2017
  */
 @Retention(RetentionPolicy.RUNTIME)

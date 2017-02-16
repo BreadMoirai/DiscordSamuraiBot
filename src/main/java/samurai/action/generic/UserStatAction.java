@@ -1,7 +1,8 @@
 package samurai.action.generic;
 
 /**
- * Created by TonTL on 2/13/2017.
+ * @author TonTL
+ * @version 4.2
  */
 public class UserStatAction {
 }

@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
+import samurai.action.Key;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.DynamicMessage;
 import samurai.message.modifier.MessageEdit;

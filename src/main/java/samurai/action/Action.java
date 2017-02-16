@@ -3,10 +3,6 @@ package samurai.action;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import samurai.action.generic.DuelAction;
-import samurai.action.generic.GuildAction;
-import samurai.action.generic.HelpAction;
-import samurai.action.generic.InviteAction;
 import samurai.message.SamuraiMessage;
 
 import java.util.Collections;
@@ -14,8 +10,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Abstract superclass of all actions
- * Created by TonTL on 2/12/2017.
+ * Superclass of all actions
+ * @author TonTL
+ * @version 4.0
  */
 public abstract class Action implements Callable<SamuraiMessage> {
 
@@ -27,31 +24,11 @@ public abstract class Action implements Callable<SamuraiMessage> {
     protected Long guildId;
     protected Long channelId;
 
-    /**
-     * @param key a string corresponding to the action. ex. "help" or "setprefix"
-     * @return A Action if key is valid, null otherwise.
-     */
-    public static Action getAction(String key) {
-        switch (key) {
-            case "help":
-                return new HelpAction();
-            case "guild":
-                return new GuildAction();
-            case "invite":
-                return new InviteAction();
-            case "duel":
-                return new DuelAction();
-            default:
-                return null;
-        }
-    }
-
     @Override
     public SamuraiMessage call() {
         SamuraiMessage message = buildMessage();
         message.setChannelId(channelId);
         return message;
-
     }
 
     protected abstract SamuraiMessage buildMessage();
