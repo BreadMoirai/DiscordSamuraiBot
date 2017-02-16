@@ -102,4 +102,6 @@ public class SamuraiController {
     void setJDA(JDA jda) {
         this.client = jda;
     }
+
+
 }
