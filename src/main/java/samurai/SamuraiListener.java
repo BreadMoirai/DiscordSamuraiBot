@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
-import samurai.action.generic.HelpAction;
+import samurai.action.general.Help;
 import samurai.data.SamuraiFile;
 import samurai.message.modifier.Reaction;
 
@@ -70,7 +70,7 @@ public class SamuraiListener extends ListenerAdapter {
         //if content begins with token ex. "!"
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
             if (content.equals("<@270044218167132170>"))
-                samurai.execute(new HelpAction().setChannelId(Long.valueOf(event.getChannel().getId())));
+                samurai.execute(new Help().setChannelId(Long.valueOf(event.getChannel().getId())));
             return;
         }
 

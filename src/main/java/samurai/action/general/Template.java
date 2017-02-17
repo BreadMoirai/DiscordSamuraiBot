@@ -1,4 +1,4 @@
-package samurai.action.generic;
+package samurai.action.general;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
@@ -16,13 +16,13 @@ import samurai.message.fixed.FixedMessage;
  * @since 2/16/2017
  */
 @Key("template") //this denotes what command the user should type in ex. "!template"
-public class TemplateAction extends Action {
+public class Template extends Action {
 
     /**
      * build your message here. This is the only method that this class requires.
      *
      * @return a SamuraiMessage that will be passed to the controller to be sent to the originating channel
-     * @see InviteAction A Simple Example
+     * @see Invite A Simple Example
      */
     @Override
     protected SamuraiMessage buildMessage() {
@@ -68,7 +68,7 @@ public class TemplateAction extends Action {
      * @see samurai.message.dynamic.DynamicTemplate
      */
     private DynamicMessage buildDynamicMessage() {
-        //these are more complicated so you should create another class ? extends DynamicMessage in package message.dynamic.generic
+        //these are more complicated so you should create another class ? extends DynamicMessage in package message.dynamic.general
         //Here is the example class
         //If your dynamic action requires any parameters, you should pass through the constructor.
         return new DynamicTemplate();

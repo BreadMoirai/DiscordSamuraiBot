@@ -1,4 +1,4 @@
-package samurai.action.generic;
+package samurai.action.general;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -15,7 +15,7 @@ import java.util.List;
  * @version 4.2
  */
 @Key("help")
-public class HelpAction extends Action {
+public class Help extends Action {
 
     /**
      * @return A Message with an Embed created using resources/help.txt

@@ -1,4 +1,4 @@
-package samurai.action.generic;
+package samurai.action.manage;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.Bot;
@@ -13,7 +13,7 @@ import samurai.message.fixed.FixedMessage;
  * @since 2/15/2017
  */
 @Key("uptime")
-public class UptimeAction extends Action {
+public class Uptime extends Action {
     @Override
     protected SamuraiMessage buildMessage() {
         long timeDifference = System.currentTimeMillis() - Bot.initializationTime;

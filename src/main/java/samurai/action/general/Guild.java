@@ -1,4 +1,4 @@
-package samurai.action.generic;
+package samurai.action.general;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.SamuraiController;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @version 4.2
  */
 @Key("guild")
-public class GuildAction extends Action {
+public class Guild extends Action {
 
     @Override
     public SamuraiMessage buildMessage() {
