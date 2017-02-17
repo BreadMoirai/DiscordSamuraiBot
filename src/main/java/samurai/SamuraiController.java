@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
 import samurai.annotations.*;
-import samurai.data.SamuraiFile;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.DynamicMessage;
@@ -14,7 +13,6 @@ import samurai.message.fixed.FixedMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -87,17 +85,7 @@ public class SamuraiController {
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
         if (action.getClass().isAnnotationPresent(Guild.class)) {
             Long guildId = action.getGuildId();
-            if (!osuGuildMap.containsKey(guildId)) {
-                if (SamuraiFile.hasScores(guildId)) {
-                    try {
-                        osuGuildMap.putIfAbsent(guildId, new SamuraiGuild(SamuraiFile.getScores(guildId)));
-                    } catch (IOException e) {
-                        Bot.log(e);
-                    }
-                } else {
-                    osuGuildMap.putIfAbsent(guildId, new SamuraiGuild());
-                }
-            }
+            osuGuildMap.putIfAbsent(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
             action.setGuild(osuGuildMap.get(guildId));
         }
     }

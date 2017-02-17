@@ -39,7 +39,6 @@ public class SamuraiListener extends ListenerAdapter {
         for (Guild g : event.getJDA().getGuilds()) {
             long guildId = Long.parseLong(g.getId());
             if (!SamuraiFile.hasFile(guildId)) {
-                SamuraiFile.writeGuildData(g);
                 prefixMap.put(guildId, "!");
             } else {
                 prefixMap.put(guildId, SamuraiFile.getPrefix(guildId));
@@ -138,5 +137,9 @@ public class SamuraiListener extends ListenerAdapter {
 
     public void addPrefix(Long guildId, String prefix) {
         prefixMap.put(guildId, prefix);
+    }
+
+    String getPrefix(long guildId) {
+        return prefixMap.get(guildId);
     }
 }

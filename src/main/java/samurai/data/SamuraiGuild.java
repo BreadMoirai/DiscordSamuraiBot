@@ -1,5 +1,7 @@
 package samurai.data;
 
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import samurai.osu.Score;
 
 import java.util.HashMap;
@@ -13,22 +15,29 @@ import java.util.Map;
  */
 public class SamuraiGuild {
 
+    private String prefix;
     private HashMap<String, LinkedList<Score>> scoreMap;
-    private LinkedList<SamuraiUser> userList;
+    private HashMap<Long, SamuraiUser> userMap;
+    private long guildId;
     private boolean active;
 
-    public SamuraiGuild(HashMap<String, LinkedList<Score>> scoreMap) {
-        userList = new LinkedList<>();
-        this.scoreMap = scoreMap;
-        active = false;
-    }
-
-    public SamuraiGuild() {
-        this(new HashMap<>());
+    public SamuraiGuild(String prefix, Guild guild) {
+        this.prefix = prefix;
+        this.guildId = Long.parseLong(guild.getId());
+        if (SamuraiFile.hasFile(guildId)) {
+            SamuraiFile.readGuildDataInto(this);
+        } else {
+            userMap = new HashMap<>();
+            scoreMap = new HashMap<>();
+            List<Member> memberList = guild.getMembers();
+            for (Member m : memberList) {
+                userMap.put(Long.parseLong(m.getUser().getId()), new SamuraiUser(Long.parseLong(m.getUser().getId()), 0, null));
+            }
+        }
     }
 
     public int getUserCount() {
-        return userList.size();
+        return userMap.size();
     }
 
     public HashMap<String, LinkedList<Score>> getScoreMap() {
@@ -54,6 +63,12 @@ public class SamuraiGuild {
         return scoresMerged;
     }
 
+    public int getScoreCount() {
+        int scoreCount = 0;
+        for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
+        return scoreCount;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -62,9 +77,15 @@ public class SamuraiGuild {
         this.active = false;
     }
 
-    public int getScoreCount() {
-        int scoreCount = 0;
-        for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
-        return scoreCount;
+    public LinkedList<SamuraiUser> getUserMap() {
+        return userMap;
+    }
+
+    public long getGuildId() {
+        return guildId;
+    }
+
+    public String getPrefix() {
+        return prefix;
     }
 }
