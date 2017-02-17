@@ -19,4 +19,4 @@
 **--- Notes ---**
 Ex. `[prefix]duel @nemesis#1256` or `[prefix]duel`
 At the end of a command, a `argument` may be specifed
-**?** indicates that it is optional, otherwise required
+`?` indicates that it is optional, otherwise required

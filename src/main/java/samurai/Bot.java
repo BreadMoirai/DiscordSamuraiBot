@@ -1,12 +1,14 @@
 package samurai;
 
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.security.auth.login.LoginException;
-import java.lang.management.ManagementFactory;
 
 /**
  * Main Class
@@ -14,21 +16,39 @@ import java.lang.management.ManagementFactory;
  */
 public class Bot {
 
-    private static final String BOT_TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
+    public static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
+    public static final long initializationTime = System.currentTimeMillis();
+    public static final User self;
+    private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
+    private static JDA client;
 
-    public static void main(String[] args) {
-
-        OperatingSystemMXBean operatingSystemMXBean =
-                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-
+    static {
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
-            //jdaBuilder.useSharding(0, 1);
-            jdaBuilder.addListener(new EventListener(operatingSystemMXBean)).setToken(BOT_TOKEN).buildBlocking();
-
+            SamuraiListener listener = new SamuraiListener();
+            client = jdaBuilder
+                    .addListener(listener)
+                    .setToken(TOKEN)
+                    .buildBlocking();
+            listener.setJDA(client);
         } catch (LoginException | RateLimitedException | InterruptedException e) {
-            e.printStackTrace();
+            log(e);
+            System.exit(0);
         }
+        self = client.getSelfUser();
+    }
 
+
+    public static void main(String[] args) {
+        new Bot();
+    }
+
+    public static void log(Exception e) {
+        client.getTextChannelById("281911114265001985").sendMessage(new MessageBuilder()
+                .append("```\n")
+                .append(ExceptionUtils.getStackTrace(e))
+                .append("\n```")
+                .build()).queue();
+        e.printStackTrace();
     }
 }

@@ -1,15 +1,20 @@
-package samurai.duel;
+/*
+package samurai.message.duel;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import samurai.action.Reaction;
+import samurai.message.MessageEdit;
 
 import java.util.List;
 
+*/
 /**
  * Created by TonTL on 1/23/2017.
  * Hangman
- */
+ *//*
+
 class Hangman extends Game {
 
     private static final List<String> HANGMAN_REACTIONS = new UnmodifiableArrayList<>(new String[] {""}, 0);
@@ -18,28 +23,11 @@ class Hangman extends Game {
     private String word;
 
     Hangman(User Instigator) {
-        super(Instigator, null);
+        super(Instigator);
     }
 
     @Override
-    public boolean isNext(User user) {
-        return user != A;
-    }
-
-    @Override
-    public List<String> getReactions() {
-        return HANGMAN_REACTIONS;
-    }
-
-    @Override
-    public void perform(int move, User player) {
-        if (player==next) {
-
-        }
-    }
-
-    @Override
-    public Message buildBoard() {
+    public Message getMessage() {
         return null;
     }
 
@@ -53,5 +41,15 @@ class Hangman extends Game {
         return false;
     }
 
+    @Override
+    public void execute(Reaction messageAction) {
+
+    }
+
+    @Override
+    public MessageEdit call() throws Exception {
+        return null;
+    }
 }
 
+*/

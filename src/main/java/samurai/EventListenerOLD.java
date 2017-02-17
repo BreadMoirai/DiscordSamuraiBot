@@ -1,3 +1,4 @@
+/*
 package samurai;
 
 import com.sun.management.OperatingSystemMXBean;
@@ -7,37 +8,39 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.data.SamuraiFile;
-import samurai.duel.Game;
+import samurai.message.duel.Game;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
+*/
 /**
  * Created by TonTL on 1/28/2017.
  * Listens to events
- */
-public class EventListener extends ListenerAdapter {
+ *//*
+
+@SuppressWarnings("ALL")
+public class EventListenerOLD extends ListenerAdapter {
 
     long messagesSent;
 
     private HashMap<Long, String> prefix;
-    private SamuraiController samurai;
+    private SamuraiControllerOLD samurai;
     private HashSet<Long> gameMessageSet;
     private User self;
 
-    private EventListener() {
+    private EventListenerOLD() {
         prefix = new HashMap<>();
-        samurai = new SamuraiController(this);
+        samurai = new SamuraiControllerOLD(this);
         gameMessageSet = new HashSet<>();
         messagesSent = 0;
     }
 
-    EventListener(OperatingSystemMXBean operatingSystemMXBean) {
+    EventListenerOLD(OperatingSystemMXBean operatingSystemMXBean) {
         this();
         samurai.operatingSystemMXBean = operatingSystemMXBean;
     }
@@ -50,7 +53,7 @@ public class EventListener extends ListenerAdapter {
                 SamuraiFile.writeGuildData(g);
                 prefix.put(guildId, "!");
             } else {
-                // wait update
+                // wait execute
                 prefix.put(guildId, SamuraiFile.getPrefix(guildId));
             }
         }
@@ -91,7 +94,8 @@ public class EventListener extends ListenerAdapter {
         }
     }
 
-    @Override
+    */
+/*@Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot())
             return;
@@ -99,21 +103,24 @@ public class EventListener extends ListenerAdapter {
         if (gameMessageSet.contains(messageId)) {
             samurai.updateGame(event, messageId);
         }
-    }
+    }*//*
+
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         SamuraiFile.writeGuildData(event.getGuild());
     }
 
-    //wait for jda update MemberGameUpdateEvent
+    //wait for jda execute MemberGameUpdateEvent
     @Deprecated
-    /*
+    */
+/*
     public void onUserGameUpdate(UserGameUpdateEvent event) {
         System.out.println(event.getGuild().getName() + "was playing " + (event.getPreviousGame()!= null ? event.getPreviousGame().getName() : "No Game"));
 
     }
-    */
+    *//*
+
 
 
     @Override
@@ -139,3 +146,4 @@ public class EventListener extends ListenerAdapter {
     }
 }
 
+*/

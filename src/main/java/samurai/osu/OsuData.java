@@ -37,13 +37,13 @@ public class OsuData {
             e.printStackTrace();
             return 0;
         }
-        for (String hash : scoreMap.keySet()) {
-            if (scoreMap.get(hash).size() > 0) {
-                if (beatmaps.containsKey(hash)) {
-                    beatmaps.get(hash).appendScores(scoreMap.get(hash));
+        for (Map.Entry<String, LinkedList<Score>> mapEntry : scoreMap.entrySet()) {
+            if (mapEntry.getValue().size() > 0) {
+                if (beatmaps.containsKey(mapEntry.getKey())) {
+                    beatmaps.get(mapEntry.getKey()).appendScores(mapEntry.getValue());
                 } else {
-                    beatmaps.put(hash, new Beatmap().setEmpty(true).setScores(scoreMap.get(hash)));
-                    hashes.add(hash);
+                    beatmaps.put(mapEntry.getKey(), new Beatmap().setEmpty(true).setScores(mapEntry.getValue()));
+                    hashes.add(mapEntry.getKey());
                 }
             } else {
                 System.out.println("Empty!");
@@ -76,7 +76,6 @@ public class OsuData {
             beatmap = OsuJsonReader.getBeatmapInfo(hash);
             beatmap.setScores(mapScores);
         }
-        assert beatmap != null;
         //System.out.println(beatmap);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle(String.format("%s by %s", beatmap.getSong(), beatmap.getArtist()), null)
@@ -84,33 +83,34 @@ public class OsuData {
                 .setAuthor("Osu!BeatmapInfo", String.format("https://samurai.osu.ppy.sh/b/%s&m=%d", beatmap.getMapID(), beatmap.getGameMode().value()), "http://w.ppy.sh/c/c9/Logo.png")
                 .setFooter(beatmap.getHash(), "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg");
         double stars = beatmap.getDifficultyRating();
-        String diff = beatmap.getRankedStatus().getEmote();
-        diff += String.format("[**%s**] ", beatmap.getDifficulty());
+        StringBuilder diff = new StringBuilder().append(beatmap.getRankedStatus().getEmote());
+        diff.append(String.format("[**%s**] ", beatmap.getDifficulty()));
         for (int i = 0; i < (int) stars; i++) {
-            diff += "⭐";
+            diff.append("⭐");
         }
         if (fullMap) {
-            diff += String.format(" (%.4f) mapped by %s", stars, beatmap.getMapper());
+            diff.append(String.format(" (%.4f) mapped by %s", stars, beatmap.getMapper()));
             embedBuilder.addField("Details", String.format("**AR**: %.2f    **CS**: %.2f    **HP**: %.2f    **OD**: %.2f", beatmap.getAr(), beatmap.getCs(), beatmap.getHp(), beatmap.getOd()), false);
             embedBuilder.addField("Length", String.format("%d:%02d (%d:%02d)", beatmap.getTotalTime() / 60000, beatmap.getTotalTime() / 1000 % 60, beatmap.getDrainTime() / 60, beatmap.getDrainTime() % 60), true);
         }
-        embedBuilder.setDescription(diff);
-        String scoreField = "";
+        embedBuilder.setDescription(diff.toString());
+        StringBuilder scoreField = new StringBuilder();
         System.out.println("Scores Found: " + beatmap.getScores().size());
         for (Score score : beatmap.getScores()) {
             //System.out.println(score);
-            scoreField += String.format("**%15s**  %s  %d   (%.2f%%)\n", score.getPlayer(), score.getGrade().getEmote(), score.getScore(), score.getAccuracy()*100);
+            scoreField.append(String.format("**%15s**  %s  %d   (%.2f%%)%n", score.getPlayer(), score.getGrade().getEmote(), score.getScore(), score.getAccuracy() * 100));
             if (fullScore) {
-                scoreField += String.format("<:hit_300:273365730047557632>`%d`      <:hit_100:273365765275779072>`%d`      <:hit_50:273365803452334080>`%d`      <:hit_miss:273365818211827714>`%d`\n", score.getCount300(), score.getCount100(), score.getCount50(), score.getCount0());
-                scoreField += String.format("Max Combo (%dx)%s **Mods:**", score.getMaxCombo(), (score.isPerfectCombo() ? "\u2705" : ""));
+                scoreField
+                        .append(String.format("<:hit_300:273365730047557632>`%d`      <:hit_100:273365765275779072>`%d`      <:hit_50:273365803452334080>`%d`      <:hit_miss:273365818211827714>`%d`%n", score.getCount300(), score.getCount100(), score.getCount50(), score.getCount0()))
+                        .append(String.format("Max Combo (%dx)%s **Mods:**", score.getMaxCombo(), (score.isPerfectCombo() ? "\u2705" : "")));
                 for (Mod m : Mod.getMods(score.getModCombo())) {
-                    scoreField += m.toString() + " ";
+                    scoreField.append(m.toString()).append(" ");
                 }
             }
-            scoreField = scoreField.substring(0, scoreField.length()) + "\n";
+            scoreField.append(scoreField.substring(0, scoreField.length())).append("%n");
         }
         //System.out.println(scoreField);
-        embedBuilder.addField("Scores", scoreField, false);
+        embedBuilder.addField("Scores", scoreField.toString(), false);
         //StringBuilder beatmapData = new StringBuilder().append("\u2b50");
 
 

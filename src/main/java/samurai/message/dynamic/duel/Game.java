@@ -1,42 +1,46 @@
-package samurai.duel;
+package samurai.message.dynamic.duel;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import samurai.data.SamuraiFile;
+import samurai.Bot;
+import samurai.message.dynamic.DynamicMessage;
+import samurai.message.modifier.Reaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by TonTL on 1/20/2017.
  * Games
  */
-public abstract class Game {
+public abstract class Game extends DynamicMessage {
 
-    public static User samurai;
+    static final Random random;
+
+    static {
+        random = new Random();
+    }
 
     User A, B;
     User winner;
     User next;
 
-    public Game(User Instigator, User Challenged) {
+    Game(User Instigator, User... Challenged) {
+        super();
         A = Instigator;
-        B = Challenged;
+        if (Challenged.length > 0)
+            B = Challenged[0];
+        else B = null;
         winner = null;
     }
 
-    public abstract List<String> getReactions();
-
-    public boolean isPlayer(User player) {
-        return player == A || player == B;
+    @Override
+    public boolean valid(Reaction messageReaction) {
+        return false;
     }
 
-    public abstract boolean isNext(User user);
-
-    public abstract void perform(int move, User player);
-
-    public MessageBuilder buildTitle() {
+    MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (next == A) {
             mb.append("***")
@@ -53,25 +57,25 @@ public abstract class Game {
         return mb;
     }
 
-    public abstract Message buildBoard();
-
     public abstract boolean hasEnded();
 
     void setWinner(char w) {
-        if (w == 'a') {
-            winner = A;
-        } else if (w == 'b') {
-            winner = B;
+        switch (w) {
+            case 'a':
+                winner = A;
+                break;
+            case 'b':
+                winner = B;
+                break;
+            default:
+                winner = Bot.self;
+                break;
         }
-    }
-
-    public User getWinner() {
-        return winner;
     }
 
     public List<User> getLosers() {
         ArrayList<User> losers = new ArrayList<>();
-        if (winner == samurai) {
+        if (winner == Bot.self) {
             losers.add(A);
             losers.add(B);
         } else if (winner == A) {
