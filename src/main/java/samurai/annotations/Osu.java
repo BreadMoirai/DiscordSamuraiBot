@@ -1,4 +1,4 @@
-package samurai;
+package samurai.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,9 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * @author TonTL
- * @since 4.0
+ * @version 4.0
+ * @since 2/15/2017
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.SOURCE)
-public @interface MustOverride {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Osu {
 }

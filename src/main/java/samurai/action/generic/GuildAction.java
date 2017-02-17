@@ -3,15 +3,17 @@ package samurai.action.generic;
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.SamuraiController;
 import samurai.action.Action;
-import samurai.message.FixedMessage;
+import samurai.annotations.Key;
 import samurai.message.SamuraiMessage;
+import samurai.message.fixed.FixedMessage;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
- * @since 4.0
+ * @version 4.2
  */
+@Key("guild")
 public class GuildAction extends Action {
 
     @Override

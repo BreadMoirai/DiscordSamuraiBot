@@ -1,11 +1,9 @@
 ﻿# DiscordSamuraiBot
 
+OUTDATED
+
 ## About
 This bot don't do much of anything
-
-NOT TESTED for multiple guilds
-Invite token
-https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&permissions=1074003008
 
 ### Overview
 
@@ -14,8 +12,6 @@ https://discordapp.com/oauth2/authorize?client_id=270044218167132170&scope=bot&p
 uses JDA
 
 https://github.com/DV8FromTheWorld/JDA/
-
-~~Download the latest Beta version with dependencies~~
 
 Uses Gradle
 
@@ -31,7 +27,6 @@ What can I do?!
 #### Basic Commands:
  - `status` -displays status of bot
  - `duel..` -starts a connectFour game
- - `stat..` -displays user stat. can specify multiple users. Defaults to author
  - `prefix` -changes the command prefix. Must be 4 characters or less
  - `uptime` -displays running time of bot
  - `help..` -displays help. Mentioning the bot will also display help
@@ -51,7 +46,7 @@ What can I do?!
 
 5. Submit a pull request
 
-
+!!!
 Highly recommend using [IntelliJ](https://www.jetbrains.com/idea/) 
 
 

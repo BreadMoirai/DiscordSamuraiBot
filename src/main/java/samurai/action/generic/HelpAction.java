@@ -3,23 +3,25 @@ package samurai.action.generic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
+import samurai.annotations.Key;
 import samurai.data.SamuraiFile;
-import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.fixed.FixedMessage;
 
 import java.util.List;
 
 /**
- * The type Help action.
+ * @author TonTL
+ * @version 4.2
  */
+@Key("help")
 public class HelpAction extends Action {
 
     /**
-     null     * @return A Message with an Embed created using resources/help.txt
+     * @return A Message with an Embed created using resources/help.txt
      */
     @Override
     public SamuraiMessage buildMessage() {
-
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor("Samurai - help.txt", null, AVATER_URL);

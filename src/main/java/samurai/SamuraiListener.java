@@ -7,9 +7,9 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
-import samurai.action.Reaction;
 import samurai.action.generic.HelpAction;
 import samurai.data.SamuraiFile;
+import samurai.message.modifier.Reaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("Duplicates")
 public class SamuraiListener extends ListenerAdapter {
-    private static final AtomicInteger messagesSent = new AtomicInteger(0);
+    public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private final HashMap<Long, String> prefix;
     private SamuraiController samurai;
 
@@ -83,23 +83,43 @@ public class SamuraiListener extends ListenerAdapter {
             key = content.substring(0, content.indexOf(" "));
             content = content.substring(key.length() + 1);
         }
-        Action action = Action.getAction(key);
+        Action action = samurai.getAction(key);
         if (action == null) return;
-
+        List<String> args = new ArrayList<>();
         if (content != null) {
             String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
-            List<String> args = new ArrayList<>();
+
             for (String argument : argArray) {
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument);
+                    args.add(argument.toLowerCase());
             }
-            action.setArgs(args);
         }
-
-        action.setAuthor(event.getMember())
+        CombineStrings:
+        {
+            int i = 0;
+            while (i < args.size()) {
+                String s = args.get(i);
+                if (s.startsWith("\"")) {
+                    int j = i + 1;
+                    try {
+                        while (!args.get(j).endsWith("\""))
+                            j++;
+                    } catch (IndexOutOfBoundsException e) {
+                        break CombineStrings;
+                    }
+                    StringBuilder p = new StringBuilder();
+                    for (int k = i; k <= j; k++) {
+                        p.append(args.remove(k));
+                    }
+                    args.add(p.toString().replace('\"', ' ').trim());
+                    i = j + 1;
+                }
+            }
+        }
+        action.setArgs(args)
+                .setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
                 .setChannelId(Long.valueOf(event.getChannel().getId()))
-                //.setMessageId(Long.valueOf(event.getMessage().getId()))
                 .setMentions(event.getMessage().getMentionedUsers());
         samurai.execute(action);
     }

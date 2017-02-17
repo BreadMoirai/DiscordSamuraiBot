@@ -1,9 +1,12 @@
-package samurai.message;
+package samurai.message.dynamic;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
-import samurai.action.Reaction;
+import samurai.message.SamuraiMessage;
+import samurai.message.modifier.MessageEdit;
+import samurai.message.modifier.Reaction;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -29,7 +32,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     @Override
     public abstract Message getMessage();
 
-    public abstract boolean valid(Reaction messageAction);
+    public abstract boolean valid(Reaction messageReaction);
 
     protected abstract void execute();
 
@@ -62,6 +65,14 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
             for (MessageReaction mr : message.getReactions())
                 if (mr.getEmote().getName().equals(getReaction().getName()))
                     mr.removeReaction(getReaction().getUser()).queue();
+        };
+    }
+
+    protected Consumer<Message> getInitialConsumer(List<String> emoji) {
+        return message -> {
+            emoji.forEach(reaction -> message.addReaction(reaction).complete());
+            setStage(1);
+            message.editMessage(this.getMessage()).queue();
         };
     }
 

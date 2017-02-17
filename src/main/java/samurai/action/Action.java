@@ -1,12 +1,10 @@
 package samurai.action;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import samurai.action.generic.DuelAction;
-import samurai.action.generic.GuildAction;
-import samurai.action.generic.HelpAction;
-import samurai.action.generic.InviteAction;
+import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 
 import java.util.Collections;
@@ -14,44 +12,30 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * Abstract superclass of all actions
- * Created by TonTL on 2/12/2017.
+ * Superclass of all actions
+ * @author TonTL
+ * @version 4.0
  */
 public abstract class Action implements Callable<SamuraiMessage> {
 
     protected static final String AVATER_URL = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
 
+    //TheseMembers are neverNull
     protected Member author;
     protected List<User> mentions;
     protected List<String> args;
     protected Long guildId;
     protected Long channelId;
 
-    /**
-     * @param key a string corresponding to the action. ex. "help" or "setprefix"
-     * @return A Action if key is valid, null otherwise.
-     */
-    public static Action getAction(String key) {
-        switch (key) {
-            case "help":
-                return new HelpAction();
-            case "guild":
-                return new GuildAction();
-            case "invite":
-                return new InviteAction();
-            case "duel":
-                return new DuelAction();
-            default:
-                return null;
-        }
-    }
+    //optional members
+    protected JDA client;
+    protected SamuraiGuild guild;
 
     @Override
     public SamuraiMessage call() {
         SamuraiMessage message = buildMessage();
         message.setChannelId(channelId);
         return message;
-
     }
 
     protected abstract SamuraiMessage buildMessage();
@@ -64,6 +48,9 @@ public abstract class Action implements Callable<SamuraiMessage> {
         return Collections.singletonList(Permission.MESSAGE_WRITE);
     }
 
+    public Member getAuthor() {
+        return author;
+    }
 
     public Action setAuthor(Member author) {
         this.author = author;
@@ -80,6 +67,10 @@ public abstract class Action implements Callable<SamuraiMessage> {
         return this;
     }
 
+    public Long getGuildId() {
+        return guildId;
+    }
+
     public Action setGuildId(Long guildId) {
         this.guildId = guildId;
         return this;
@@ -92,5 +83,13 @@ public abstract class Action implements Callable<SamuraiMessage> {
     public Action setChannelId(Long channelId) {
         this.channelId = channelId;
         return this;
+    }
+
+    public void setClient(JDA client) {
+        this.client = client;
+    }
+
+    public void setGuild(SamuraiGuild guild) {
+        this.guild = guild;
     }
 }
