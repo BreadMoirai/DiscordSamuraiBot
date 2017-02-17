@@ -18,11 +18,11 @@ public class Bot {
 
     public static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
     public static final long initializationTime = System.currentTimeMillis();
+    public static final User self;
     private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
-    public static User self;
     private static JDA client;
 
-    private Bot() {
+    static {
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             SamuraiListener listener = new SamuraiListener();
@@ -31,11 +31,13 @@ public class Bot {
                     .setToken(TOKEN)
                     .buildBlocking();
             listener.setJDA(client);
-            self = client.getSelfUser();
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             log(e);
+            System.exit(0);
         }
+        self = client.getSelfUser();
     }
+
 
     public static void main(String[] args) {
         new Bot();

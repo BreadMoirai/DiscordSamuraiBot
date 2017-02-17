@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version 4.2
  */
 public class SamuraiController {
-    public static AtomicInteger callsMade = new AtomicInteger(0);
+    public static final AtomicInteger callsMade = new AtomicInteger(0);
 
     private static Channel officialChannel;
     private final ExecutorService commandPool;
@@ -88,12 +88,12 @@ public class SamuraiController {
             if (!osuGuildMap.containsKey(guildId)) {
                 if (SamuraiFile.hasScores(guildId)) {
                     try {
-                        osuGuildMap.put(guildId, new SamuraiGuild(SamuraiFile.getScores(guildId)));
+                        osuGuildMap.putIfAbsent(guildId, new SamuraiGuild(SamuraiFile.getScores(guildId)));
                     } catch (IOException e) {
                         Bot.log(e);
                     }
                 } else {
-                    osuGuildMap.put(guildId, new SamuraiGuild());
+                    osuGuildMap.putIfAbsent(guildId, new SamuraiGuild());
                 }
             }
             action.setGuild(osuGuildMap.get(guildId));
