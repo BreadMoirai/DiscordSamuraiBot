@@ -4,11 +4,13 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import samurai.SamuraiListener;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -16,7 +18,7 @@ import java.util.concurrent.Callable;
  * @author TonTL
  * @version 4.0
  */
-public abstract class Action implements Callable<SamuraiMessage> {
+public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
     protected static final String AVATER_URL = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
 
@@ -30,12 +32,14 @@ public abstract class Action implements Callable<SamuraiMessage> {
     //optional members
     protected JDA client;
     protected SamuraiGuild guild;
+    protected SamuraiListener listener;
 
     @Override
-    public SamuraiMessage call() {
-        SamuraiMessage message = buildMessage();
-        message.setChannelId(channelId);
-        return message;
+    public Optional<SamuraiMessage> call() {
+
+        Optional<SamuraiMessage> messageOptional = Optional.ofNullable(buildMessage());
+        messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannelId(channelId));
+        return messageOptional;
     }
 
     protected abstract SamuraiMessage buildMessage();
@@ -91,5 +95,9 @@ public abstract class Action implements Callable<SamuraiMessage> {
 
     public void setGuild(SamuraiGuild guild) {
         this.guild = guild;
+    }
+
+    public void setListener(SamuraiListener listener) {
+        this.listener = listener;
     }
 }

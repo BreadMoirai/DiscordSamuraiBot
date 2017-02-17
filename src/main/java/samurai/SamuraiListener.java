@@ -21,19 +21,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This class listens to events from discord, takes the required information by building the appropriate action and passing it to SamuraiController#execute
  *
  * @author TonTL
- * @version 4.0
+ * @version 4.0 - 2/16/2017
  * @see SamuraiController
- * @since 2/12/2017.
  */
-@SuppressWarnings("Duplicates")
 public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
-    private final HashMap<Long, String> prefix;
+    private final HashMap<Long, String> prefixMap;
     private SamuraiController samurai;
 
 
     SamuraiListener() {
-        prefix = new HashMap<>();
+        prefixMap = new HashMap<>();
     }
 
     @Override
@@ -42,18 +40,17 @@ public class SamuraiListener extends ListenerAdapter {
             long guildId = Long.parseLong(g.getId());
             if (!SamuraiFile.hasFile(guildId)) {
                 SamuraiFile.writeGuildData(g);
-                prefix.put(guildId, "!");
+                prefixMap.put(guildId, "!");
             } else {
-                // wait execute
-                prefix.put(guildId, SamuraiFile.getPrefix(guildId));
+                prefixMap.put(guildId, SamuraiFile.getPrefix(guildId));
             }
 
             if (guildId == 233097800722808832L) {
                 SamuraiController.setOfficialChannel(g.getTextChannelById(String.valueOf(274732231124320257L)));
             }
         }
-        samurai = new SamuraiController();
-        System.out.println("Ready!" + prefix.toString());
+        samurai = new SamuraiController(this);
+        System.out.println("Ready!" + prefixMap.toString());
     }
 
     @Override
@@ -64,7 +61,7 @@ public class SamuraiListener extends ListenerAdapter {
         }
         if (event.getAuthor().isBot()) return;
 
-        String token = prefix.get(Long.parseLong(event.getGuild().getId()));
+        String token = prefixMap.get(Long.parseLong(event.getGuild().getId()));
         String content = event.getMessage().getRawContent().toLowerCase().trim();
 
         //if content begins with token ex. "!"
@@ -137,5 +134,9 @@ public class SamuraiListener extends ListenerAdapter {
 
     void setJDA(JDA jda) {
         samurai.setJDA(jda);
+    }
+
+    public void addPrefix(Long guildId, String prefix) {
+        prefixMap.put(guildId, prefix);
     }
 }

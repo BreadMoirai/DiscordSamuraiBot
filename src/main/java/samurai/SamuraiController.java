@@ -5,10 +5,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
-import samurai.annotations.Admin;
-import samurai.annotations.Client;
-import samurai.annotations.Guild;
-import samurai.annotations.Key;
+import samurai.annotations.*;
 import samurai.data.SamuraiFile;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
@@ -20,6 +17,7 @@ import samurai.message.modifier.Reaction;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,16 +34,18 @@ public class SamuraiController {
 
     private static Channel officialChannel;
     private final ExecutorService commandPool;
-    private final BlockingQueue<Future<SamuraiMessage>> actionQueue;
+    private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
     private final HashMap<String, Class<? extends Action>> actionMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> osuGuildMap;
     private JDA client;
+    private SamuraiListener listener;
     //private boolean running;
 
 
-    SamuraiController() {
+    SamuraiController(SamuraiListener listener) {
+        this.listener = listener;
         commandPool = Executors.newCachedThreadPool();
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
@@ -80,10 +80,12 @@ public class SamuraiController {
     }
 
     private void checkAnts(Action action) throws IllegalAccessException {
-        if (action.getClass().getAnnotation(Admin.class) != null && !action.getAuthor().getUser().getId().equals("232703415048732672"))
+        if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().getUser().getId().equals("232703415048732672"))
             Bot.log(new IllegalAccessException(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value())));
-        if (action.getClass().getAnnotation(Client.class) != null) action.setClient(client);
-        if (action.getClass().getAnnotation(Guild.class) != null) {
+        if (action.getClass().isAnnotationPresent(Listener.class))
+            action.setListener(listener);
+        if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
+        if (action.getClass().isAnnotationPresent(Guild.class)) {
             Long guildId = action.getGuildId();
             if (!osuGuildMap.containsKey(guildId)) {
                 if (SamuraiFile.hasScores(guildId)) {
@@ -121,8 +123,9 @@ public class SamuraiController {
 
     private void takeAction() {
         try {
-            final SamuraiMessage samuraiMessage = actionQueue.take().get();
-            if (samuraiMessage == null) return;
+            Optional<SamuraiMessage> smOption = actionQueue.take().get();
+            if (!smOption.isPresent()) return;
+            SamuraiMessage samuraiMessage = smOption.get();
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
                 //I might make another message sent queue with .submit();

@@ -5,10 +5,12 @@ plugins {
     id'idea'
 }
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 
 version="4.3"
 
+//noinspection GroovyUnusedAssignment
 mainClassName = "samurai.Bot"
 
 repositories {
