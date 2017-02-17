@@ -22,7 +22,6 @@ public class HelpAction extends Action {
      */
     @Override
     public SamuraiMessage buildMessage() {
-
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor("Samurai - help.txt", null, AVATER_URL);

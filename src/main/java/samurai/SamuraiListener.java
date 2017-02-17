@@ -94,7 +94,28 @@ public class SamuraiListener extends ListenerAdapter {
                     args.add(argument.toLowerCase());
             }
         }
-
+        CombineStrings:
+        {
+            int i = 0;
+            while (i < args.size()) {
+                String s = args.get(i);
+                if (s.startsWith("\"")) {
+                    int j = i + 1;
+                    try {
+                        while (!args.get(j).endsWith("\""))
+                            j++;
+                    } catch (IndexOutOfBoundsException e) {
+                        break CombineStrings;
+                    }
+                    StringBuilder p = new StringBuilder();
+                    for (int k = i; k <= j; k++) {
+                        p.append(args.remove(k));
+                    }
+                    args.add(p.toString().replace('\"', ' ').trim());
+                    i = j + 1;
+                }
+            }
+        }
         action.setArgs(args)
                 .setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))

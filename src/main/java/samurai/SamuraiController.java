@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
 /**
  * Controller for the SamuraiBot.
  *
@@ -71,16 +72,16 @@ public class SamuraiController {
         try {
             checkAnts(action);
         } catch (IllegalAccessException e) {
-            client.getTextChannelById(String.valueOf(action.getChannelId())).sendMessage(e.getMessage()).queue();
+            Bot.log(e);
             return;
         }
         if (!actionQueue.offer(commandPool.submit(action)))
-            new RejectedExecutionException("Could not add Action to Queue").printStackTrace();
+            Bot.log(new RejectedExecutionException("Could not add Action to Queue"));
     }
 
     private void checkAnts(Action action) throws IllegalAccessException {
         if (action.getClass().getAnnotation(Admin.class) != null && !action.getAuthor().getUser().getId().equals("232703415048732672"))
-            throw new IllegalAccessException(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
+            Bot.log(new IllegalAccessException(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value())));
         if (action.getClass().getAnnotation(Client.class) != null) action.setClient(client);
         if (action.getClass().getAnnotation(Guild.class) != null) {
             Long guildId = action.getGuildId();
@@ -89,7 +90,7 @@ public class SamuraiController {
                     try {
                         osuGuildMap.put(guildId, new SamuraiGuild(SamuraiFile.getScores(guildId)));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Bot.log(e);
                     }
                 } else {
                     osuGuildMap.put(guildId, new SamuraiGuild());
@@ -114,13 +115,14 @@ public class SamuraiController {
             final MessageEdit edit = reactionQueue.take().get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            Bot.log(e);
         }
     }
 
     private void takeAction() {
         try {
             final SamuraiMessage samuraiMessage = actionQueue.take().get();
+            if (samuraiMessage == null) return;
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
                 //I might make another message sent queue with .submit();
@@ -135,7 +137,7 @@ public class SamuraiController {
                     client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
             }
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            Bot.log(e);
         }
     }
 
@@ -160,7 +162,7 @@ public class SamuraiController {
             try {
                 return actionMap.get(key).newInstance();
             } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                Bot.log(e);
             }
         return null;
     }
