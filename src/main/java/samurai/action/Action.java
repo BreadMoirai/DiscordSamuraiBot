@@ -11,6 +11,7 @@ import samurai.message.SamuraiMessage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 /**
@@ -30,9 +31,10 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     protected Long channelId;
 
     //optional members
-    protected JDA client;
-    protected SamuraiGuild guild;
-    protected SamuraiListener listener;
+    protected JDA client; //@Client
+    protected SamuraiGuild guild; //@Guild
+    protected SamuraiListener listener; //@Listener
+    protected Set<String> actionKeySet;
 
     @Override
     public Optional<SamuraiMessage> call() {
@@ -98,5 +100,9 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
     public void setListener(SamuraiListener listener) {
         this.listener = listener;
+    }
+
+    public void setKeySet(Set<String> actionKeySet) {
+        this.actionKeySet = actionKeySet;
     }
 }

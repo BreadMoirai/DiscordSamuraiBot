@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * Controller for the SamuraiBot.
+ * ActionKeySet for the SamuraiBot.
  *
  * @author TonTL
  * @version 4.2
@@ -91,6 +91,9 @@ public class SamuraiController {
             if (!osuGuildMap.containsKey(guildId))
                 osuGuildMap.put(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
             action.setGuild(osuGuildMap.get(guildId));
+        }
+        if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
+            action.setKeySet(actionMap.keySet());
         }
         return true;
     }
@@ -176,4 +179,6 @@ public class SamuraiController {
             System.out.printf("%-10s mapped to %s%n", String.format("\"%s\"", actionKey.value()), action.getName());
         }
     }
+
+
 }

@@ -71,7 +71,8 @@ public class SamuraiListener extends ListenerAdapter {
             if (content.equals("<@270044218167132170>"))
                 samurai.execute(new Help()
                         .setChannelId(Long.valueOf(event.getChannel().getId()))
-                        .setGuildId(Long.valueOf(event.getGuild().getId())));
+                        .setGuildId(Long.valueOf(event.getGuild().getId()))
+                        .setArgs(new ArrayList<>()));
             return;
         }
 

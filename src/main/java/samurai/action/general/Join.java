@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
  * @author TonTL
  * @version 4.2
  */
-@Key("guild")
-public class Guild extends Action {
+@Key("join")
+public class Join extends Action {
 
     @Override
     public SamuraiMessage buildMessage() {

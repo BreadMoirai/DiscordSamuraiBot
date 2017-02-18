@@ -31,6 +31,19 @@ public class SamuraiFile extends DbReader {
 
     private static final int VERSION = 20170103;
 
+    public static String getHelp(String help) {
+        StringBuilder sb = new StringBuilder();
+        if (SamuraiFile.class.getResource(String.format("./help/%s.txt", help)) == null)
+            return String.format("`[prefix]%s` should be pretty self-explanatory... use `[prefix]join` if you need more help", help);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(SamuraiFile.class.getResourceAsStream(String.format("./help/%s.txt", help))))) {
+            br.lines().forEach(line -> sb.append(line).append("\n"));
+        } catch (IOException e) {
+            Bot.logError(e);
+        }
+        return sb.toString();
+    }
+
+
     /**
      * current FileDataStructure
      * <ul>
