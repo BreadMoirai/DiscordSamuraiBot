@@ -44,20 +44,21 @@ public class SamuraiFile extends DbReader {
      * <li>EmptyByte - 20 bytes</li>
      * </ul>
      * </li>
-     * <li>Charts<ul>
-     * <li>Chart Id - 4 bytes</li>
-     * <li>Chart Name - 25 bytes</li>
-     * <li>Chart Size - 1 bytes</li>
-     * <li>Map Ids - ChartSize * ↓
+     * <li>ChartCount - 1 byte<ul>
+     * <li>ChartId - 4 bytes</li>
+     * <li>ChartNameLen - 1 byte</li>
+     * <li>ChartName - NameLen bytes</li>
+     * <li>ChartSize - 1 bytes [-1 for global]</li>
+     * <li>MapIds - Size * ↓
      * <ul>
-     * <li>Id - 4 byte</li>
+     * <li>id - 4 bytes [Negative is set, Positive is map]</li>
      * </ul>
      * </li>
      * </ul></ul>
      *
      * @param guild the object to be written
      */
-    public static void writeGuildData(SamuraiGuild guild) {
+    public static void writeGuildDataFrom(SamuraiGuild guild) {
         System.out.println("Writing " + guild);
         File file = new File(getGuildDataPath(guild.getGuildId()));
         Integer userCount = guild.getUserCount();
@@ -65,9 +66,9 @@ public class SamuraiFile extends DbReader {
         buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.put(StandardCharsets.UTF_8.encode(String.format("%-8s", guild.getPrefix())));
         buffer.putInt(userCount);
-        for (SamuraiUser user : guild.getUserMap())
-            buffer.putLong(user.getDiscordId());
-        for (SamuraiUser user : guild.getUserMap()) {
+        for (Long discordId : guild.getUserMap().keySet())
+            buffer.putLong(discordId);
+        for (SamuraiUser user : guild.getUserMap().values()) {
             buffer.putInt(user.getOsuId());
             buffer.put(StandardCharsets.UTF_8.encode(String.format("%-16s", user.getOsuName())));
             buffer.put(EMPTY_BYTES);
@@ -75,7 +76,7 @@ public class SamuraiFile extends DbReader {
         try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(file))) {
             outputStream.write(buffer.array());
         } catch (IOException e) {
-            Bot.log(e);
+            Bot.logError(e);
         }
     }
 
@@ -94,20 +95,31 @@ public class SamuraiFile extends DbReader {
      * </li>
      * <li>Charts<ul>
      * <li>Chart Id - 4 bytes</li>
-     * <li>Chart Name - 25 bytes</li>
+     * <li>Chart NameLen - 1 byte</li>
+     * <li>Chart Name - NameLen bytes</li>
      * <li>Chart Size - 1 bytes</li>
-     * <li>Map Ids - ChartSize * ↓
+     * <li>Map Ids - Size * ↓
      * <ul>
-     * <li>Id - 4 byte</li>
+     * <li>id - 4 bytes [Negative is set, Positive is map]</li>
      * </ul>
      * </li>
      * </ul></ul>
+     * Pre-condition is that hasGuildData is called and file exists
      *
      * @param guild Data is written into this.
      */
     public static void readGuildDataInto(SamuraiGuild guild) {
-
-
+        Bot.log("Reading data into " + guild.getGuildId());
+        try (DataInputStream input =
+                     new DataInputStream(
+                             new BufferedInputStream(
+                                     new FileInputStream(
+                                             new File(getGuildDataPath(guild.getGuildId())))))) {
+            byte[] bPrefix = new byte[8];
+            input.readFully(bPrefix);
+        } catch (IOException e) {
+            Bot.logError(e);
+        }
     }
 
     public static boolean writeScoreData(long guildId, HashMap<String, LinkedList<Score>> scoreMap) {
@@ -197,7 +209,7 @@ public class SamuraiFile extends DbReader {
             File file = new File(getGuildDataPath(guildId));
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             byte[] prefix = new byte[8];
-            if (raf.read(prefix) == -1) Bot.log(new EOFException("Unexpected End of File"));
+            if (raf.read(prefix) == -1) Bot.logError(new EOFException("Unexpected End of File"));
             raf.close();
             return new String(prefix, StandardCharsets.UTF_8).trim();
         } catch (IOException e) {
