@@ -94,7 +94,7 @@ public class DynamicTemplate extends DynamicMessage {
      */
     @Override
     protected void execute() {
-        //this method runs everytime a new Reaction is detected and validated through valid(Reaction)
+        //this method runs every time a new Reaction is detected and validated through valid(Reaction)
         //get the current Reaction
         Reaction action = getReaction();
         switch (action.getName()) {
@@ -107,7 +107,7 @@ public class DynamicTemplate extends DynamicMessage {
             case "\uD83D\uDC4E":
                 if (getStage() > 1) setStage(getStage() - 1);
                 break;
-            //a doublepersionsilhoutee will double the stage id stage < 5
+            //a busts in silhouette will double the stage id stage < 5
             case "👥":
                 if (getStage() <= 5) setStage(getStage() * 2);
                 break;
