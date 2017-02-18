@@ -1,6 +1,5 @@
 package samurai.action.manage;
 
-import net.dv8tion.jda.core.MessageBuilder;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Key;
@@ -26,7 +25,7 @@ public class Uptime extends Action {
         if (hours > 0) sb.append(String.format("%d hours, ", hours));
         if (minutes > 0) sb.append(String.format("%d minutes, ", minutes));
         sb.append(String.format("%d seconds.", seconds));
-        return new FixedMessage().setMessage(new MessageBuilder().append(sb).build());
+        return FixedMessage.createSimple(sb.toString());
     }
 }
 

@@ -15,6 +15,7 @@ import java.util.List;
  * @version 4.2
  */
 @Key("help")
+@samurai.annotations.Guild
 public class Help extends Action {
 
     /**
@@ -25,7 +26,7 @@ public class Help extends Action {
         MessageBuilder messageBuilder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor("Samurai - help.txt", null, AVATER_URL);
-        String token = guildId == null ? "!" : SamuraiFile.getPrefix(guildId);
+        String token = guild.getPrefix();
         List<String> textFile = SamuraiFile.readTextFile("help.txt");
         StringBuilder stringBuilder = new StringBuilder();
         for (String line : textFile) {

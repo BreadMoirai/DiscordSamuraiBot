@@ -2,8 +2,8 @@ package samurai.action.admin;
 
 import samurai.Bot;
 import samurai.action.Action;
-import samurai.annotations.Admin;
 import samurai.annotations.Key;
+import samurai.annotations.Source;
 import samurai.message.SamuraiMessage;
 
 /**
@@ -12,12 +12,12 @@ import samurai.message.SamuraiMessage;
  * @since 2/16/2017
  */
 @Key("throw")
-@Admin
+@Source
 public class Throw extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        Bot.log(new Exception("TEST ERROR"));
+        Bot.logError(new Exception("TEST ERROR"));
         return null;
         //new FixedMessage().setMessage(new MessageBuilder().append("Thrown.").build());
     }

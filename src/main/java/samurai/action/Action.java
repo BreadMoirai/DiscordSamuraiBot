@@ -36,7 +36,6 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
     @Override
     public Optional<SamuraiMessage> call() {
-
         Optional<SamuraiMessage> messageOptional = Optional.ofNullable(buildMessage());
         messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannelId(channelId));
         return messageOptional;
