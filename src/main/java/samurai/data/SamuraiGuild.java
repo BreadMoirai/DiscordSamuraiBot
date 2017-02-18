@@ -2,12 +2,10 @@ package samurai.data;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import samurai.Bot;
 import samurai.osu.Score;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * manages guild specific osu data!
@@ -16,9 +14,10 @@ import java.util.Map;
 public class SamuraiGuild {
 
     private String prefix;
+    private long guildId;
     private HashMap<String, LinkedList<Score>> scoreMap;
     private HashMap<Long, SamuraiUser> userMap;
-    private long guildId;
+    private ArrayList<Chart> charts;
     private boolean active;
 
     public SamuraiGuild(String prefix, Guild guild) {
@@ -27,14 +26,17 @@ public class SamuraiGuild {
         if (SamuraiFile.hasFile(guildId)) {
             SamuraiFile.readGuildDataInto(this);
         } else {
+            Bot.log(String.format("Creating new Guild Object for %s[%d].", guild.getName(), guildId));
             userMap = new HashMap<>();
             scoreMap = new HashMap<>();
+            charts = new ArrayList<>();
             List<Member> memberList = guild.getMembers();
             for (Member m : memberList) {
                 userMap.put(Long.parseLong(m.getUser().getId()), new SamuraiUser(Long.parseLong(m.getUser().getId()), 0, null));
             }
         }
     }
+
 
     public int getUserCount() {
         return userMap.size();
@@ -77,7 +79,7 @@ public class SamuraiGuild {
         this.active = false;
     }
 
-    public LinkedList<SamuraiUser> getUserMap() {
+    public HashMap<Long, SamuraiUser> getUserMap() {
         return userMap;
     }
 
@@ -87,5 +89,24 @@ public class SamuraiGuild {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SamuraiGuild that = (SamuraiGuild) o;
+
+        return guildId == that.guildId;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (guildId ^ (guildId >>> 32));
     }
 }

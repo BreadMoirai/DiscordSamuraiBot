@@ -1,5 +1,6 @@
 package samurai.message.fixed;
 
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.message.SamuraiMessage;
 
@@ -14,6 +15,10 @@ public class FixedMessage extends SamuraiMessage {
 
     private Message message;
     private Consumer<Message> consumer;
+
+    public static FixedMessage createSimple(String s) {
+        return new FixedMessage().setMessage(new MessageBuilder().append(s).build());
+    }
 
     @Override
     public Message getMessage() {

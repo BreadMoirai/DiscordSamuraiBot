@@ -22,10 +22,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class OsuJsonReader {
 
-    public static final AtomicInteger count = new AtomicInteger(0);
-    private static final String OSU_API = "https://osu.ppy.sh/api/";
-    private static final String GET_USER = "get_user?", GET_BEATMAPS = "get_beatmaps?", GET_SCORES = "get_scores";
-    private static final String KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
+    public static final AtomicInteger count;
+    private static final String OSU_API;
+    private static final String KEY;
+    private static final String GET_USER;
+    private static final String GET_BEATMAPS;
+    private static final String GET_SCORES;
+
+    static {
+        count = new AtomicInteger(0);
+        OSU_API = "https://osu.ppy.sh/api/";
+        KEY = "k=59258eb34b84d912c79cf1ecb7fc285b79e16194";
+        GET_USER = "get_user?";
+        GET_BEATMAPS = "get_beatmaps?";
+        GET_SCORES = "get_scores?";
+    }
 
     public static MessageEmbed getUserInfo(String request) {
         List<JSONObject> json;
