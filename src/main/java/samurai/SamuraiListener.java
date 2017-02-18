@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 /**
  * Listener for SamuraiBot
@@ -26,9 +27,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
+    private static Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private final HashMap<Long, String> prefixMap;
     private SamuraiController samurai;
-
 
     SamuraiListener() {
         prefixMap = new HashMap<>();
@@ -54,7 +55,7 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor() == Bot.self) {
+        if (event.getAuthor().getId().equals(Bot.BOT_ID)) {
             messagesSent.incrementAndGet();
             return;
         }
@@ -66,7 +67,9 @@ public class SamuraiListener extends ListenerAdapter {
         //if content begins with token ex. "!"
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
             if (content.equals("<@270044218167132170>"))
-                samurai.execute(new Help().setChannelId(Long.valueOf(event.getChannel().getId())));
+                samurai.execute(new Help()
+                        .setChannelId(Long.valueOf(event.getChannel().getId()))
+                        .setGuildId(Long.valueOf(event.getGuild().getId())));
             return;
         }
 
@@ -75,43 +78,26 @@ public class SamuraiListener extends ListenerAdapter {
         if (!content.contains(" ")) {
             key = content;
             content = null;
+            if (key.length() > 10) return;
         } else {
             key = content.substring(0, content.indexOf(" "));
-            content = content.substring(key.length() + 1);
+            content = content.substring(content.indexOf(" ")).trim();
         }
         Action action = samurai.getAction(key);
         if (action == null) return;
         List<String> args = new ArrayList<>();
-        if (content != null) {
-            String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
 
-            for (String argument : argArray) {
+        if (content != null && !content.equals(""))
+            /*if ((content.startsWith("```") && content.endsWith("```")) || (content.startsWith("`") && content.endsWith("`"))) {
+                args.add(content.replace('`', ' ').trim());
+            }*/ {
+            String[] argArray = argPattern.split(content.replace('`', '\"'));
+            //String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
+            for (String argument : argArray)
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument.toLowerCase());
-            }
+                    args.add(argument.toLowerCase().replace("\"", "").trim());
         }
-        CombineStrings:
-        {
-            int i = 0;
-            while (i < args.size()) {
-                String s = args.get(i);
-                if (s.startsWith("\"")) {
-                    int j = i + 1;
-                    try {
-                        while (!args.get(j).endsWith("\""))
-                            j++;
-                    } catch (IndexOutOfBoundsException e) {
-                        break CombineStrings;
-                    }
-                    StringBuilder p = new StringBuilder();
-                    for (int k = i; k <= j; k++) {
-                        p.append(args.remove(k));
-                    }
-                    args.add(p.toString().replace('\"', ' ').trim());
-                    i = j + 1;
-                }
-            }
-        }
+
         action.setArgs(args)
                 .setAuthor(event.getMember())
                 .setGuildId(Long.valueOf(event.getGuild().getId()))
