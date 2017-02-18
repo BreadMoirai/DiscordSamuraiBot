@@ -20,9 +20,8 @@ public class Prefix extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        if (args.size() != 1 || args.get(0).length() > 8) {
+        if (args.size() != 1 || args.get(0).length() > 8)
             return FixedMessage.createSimple("Invalid Argument. The prefix must be between 1-8 characters in length. Spaces are not allowed.");
-        }
         listener.addPrefix(guildId, args.get(0));
         guild.setPrefix(args.get(0));
         return FixedMessage.createSimple(String.format("Prefix successfully set to `%s`", args.get(0)));
