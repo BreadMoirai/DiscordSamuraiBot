@@ -5,11 +5,7 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
-import samurai.annotations.Admin;
-import samurai.annotations.Client;
-import samurai.annotations.Guild;
-import samurai.annotations.Key;
-import samurai.data.SamuraiFile;
+import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.DynamicMessage;
@@ -17,35 +13,37 @@ import samurai.message.fixed.FixedMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * Controller for the SamuraiBot.
+ * ActionKeySet for the SamuraiBot.
  *
  * @author TonTL
  * @version 4.2
  */
 public class SamuraiController {
-    public static AtomicInteger callsMade = new AtomicInteger(0);
+    public static final AtomicInteger callsMade = new AtomicInteger(0);
 
     private static Channel officialChannel;
     private final ExecutorService commandPool;
-    private final BlockingQueue<Future<SamuraiMessage>> actionQueue;
+    private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
     private final HashMap<String, Class<? extends Action>> actionMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> osuGuildMap;
     private JDA client;
+    private SamuraiListener listener;
     //private boolean running;
 
 
-    SamuraiController() {
+    SamuraiController(SamuraiListener listener) {
+        this.listener = listener;
         commandPool = Executors.newCachedThreadPool();
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
@@ -54,9 +52,10 @@ public class SamuraiController {
         osuGuildMap = new ConcurrentHashMap<>();
         //running = true;
         initActions();
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::clearInactive, 10, 5, TimeUnit.MINUTES);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
+        executorService.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
+        executorService.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
     }
 
     public static Channel getOfficialChannel() {
@@ -69,35 +68,34 @@ public class SamuraiController {
 
     void execute(Action action) {
         callsMade.incrementAndGet();
-        try {
-            checkAnts(action);
-        } catch (IllegalAccessException e) {
-            Bot.log(e);
+        if (!checkAnts(action)) {
             return;
         }
         if (!actionQueue.offer(commandPool.submit(action)))
-            Bot.log(new RejectedExecutionException("Could not add Action to Queue"));
+            Bot.logError(new RejectedExecutionException("Could not add Action to Queue"));
     }
 
-    private void checkAnts(Action action) throws IllegalAccessException {
-        if (action.getClass().getAnnotation(Admin.class) != null && !action.getAuthor().getUser().getId().equals("232703415048732672"))
-            Bot.log(new IllegalAccessException(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value())));
-        if (action.getClass().getAnnotation(Client.class) != null) action.setClient(client);
-        if (action.getClass().getAnnotation(Guild.class) != null) {
+    private boolean checkAnts(Action action) {
+        if (action.getClass().isAnnotationPresent(Source.class) && action.getGuildId() != Long.parseLong(Bot.SOURCE_GUILD)) {
+            return false;
+        }
+        if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().canInteract(client.getGuildById(String.valueOf(action.getGuildId())).getSelfMember())) {
+            Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
+            return false;
+        }
+        if (action.getClass().isAnnotationPresent(Listener.class))
+            action.setListener(listener);
+        if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
+        if (action.getClass().isAnnotationPresent(Guild.class)) {
             Long guildId = action.getGuildId();
-            if (!osuGuildMap.containsKey(guildId)) {
-                if (SamuraiFile.hasScores(guildId)) {
-                    try {
-                        osuGuildMap.put(guildId, new SamuraiGuild(SamuraiFile.getScores(guildId)));
-                    } catch (IOException e) {
-                        Bot.log(e);
-                    }
-                } else {
-                    osuGuildMap.put(guildId, new SamuraiGuild());
-                }
-            }
+            if (!osuGuildMap.containsKey(guildId))
+                osuGuildMap.put(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
             action.setGuild(osuGuildMap.get(guildId));
         }
+        if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
+            action.setKeySet(actionMap.keySet());
+        }
+        return true;
     }
 
     void execute(Reaction reaction) {
@@ -112,17 +110,18 @@ public class SamuraiController {
 
     private void takeReaction() {
         try {
-            final MessageEdit edit = reactionQueue.take().get();
+            final MessageEdit edit = reactionQueue.poll(5, TimeUnit.MILLISECONDS).get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
         } catch (InterruptedException | ExecutionException e) {
-            Bot.log(e);
+            Bot.logError(e);
         }
     }
 
     private void takeAction() {
         try {
-            final SamuraiMessage samuraiMessage = actionQueue.take().get();
-            if (samuraiMessage == null) return;
+            Future<Optional<SamuraiMessage>> smOption = actionQueue.poll(10, TimeUnit.MILLISECONDS);
+            if (smOption == null || !smOption.get().isPresent()) return;
+            SamuraiMessage samuraiMessage = smOption.get().get();
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
                 //I might make another message sent queue with .submit();
@@ -137,7 +136,7 @@ public class SamuraiController {
                     client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
             }
         } catch (InterruptedException | ExecutionException e) {
-            Bot.log(e);
+            Bot.logError(e);
         }
     }
 
@@ -162,7 +161,7 @@ public class SamuraiController {
             try {
                 return actionMap.get(key).newInstance();
             } catch (IllegalAccessException | InstantiationException e) {
-                Bot.log(e);
+                Bot.logError(e);
             }
         return null;
     }
@@ -180,4 +179,6 @@ public class SamuraiController {
             System.out.printf("%-10s mapped to %s%n", String.format("\"%s\"", actionKey.value()), action.getName());
         }
     }
+
+
 }

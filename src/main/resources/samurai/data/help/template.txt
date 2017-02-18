@@ -1,0 +1,12 @@
+```cs
+Purpose: An example command
+Restrictions: SourceGuild
+Arguments:  '[anything]' will take anything
+            'simple' a simple message without info
+            'dynamic' a message that changes
+--------------------------------------------------------
+Usage:      '[prefix]template ?[args...]'
+--------------------------------------------------------
+Example:    '[prefix]template simple'
+            '[prefix]template arg1 anything `code poop` "string what" @Samurai'
+```

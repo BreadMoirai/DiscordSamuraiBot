@@ -37,13 +37,13 @@ public class OsuData {
             e.printStackTrace();
             return 0;
         }
-        for (String hash : scoreMap.keySet()) {
-            if (scoreMap.get(hash).size() > 0) {
-                if (beatmaps.containsKey(hash)) {
-                    beatmaps.get(hash).appendScores(scoreMap.get(hash));
+        for (Map.Entry<String, LinkedList<Score>> mapEntry : scoreMap.entrySet()) {
+            if (mapEntry.getValue().size() > 0) {
+                if (beatmaps.containsKey(mapEntry.getKey())) {
+                    beatmaps.get(mapEntry.getKey()).appendScores(mapEntry.getValue());
                 } else {
-                    beatmaps.put(hash, new Beatmap().setEmpty(true).setScores(scoreMap.get(hash)));
-                    hashes.add(hash);
+                    beatmaps.put(mapEntry.getKey(), new Beatmap().setEmpty(true).setScores(mapEntry.getValue()));
+                    hashes.add(mapEntry.getKey());
                 }
             } else {
                 System.out.println("Empty!");

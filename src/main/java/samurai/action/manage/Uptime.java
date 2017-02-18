@@ -1,6 +1,5 @@
-package samurai.action.generic;
+package samurai.action.manage;
 
-import net.dv8tion.jda.core.MessageBuilder;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Key;
@@ -13,7 +12,7 @@ import samurai.message.fixed.FixedMessage;
  * @since 2/15/2017
  */
 @Key("uptime")
-public class UptimeAction extends Action {
+public class Uptime extends Action {
     @Override
     protected SamuraiMessage buildMessage() {
         long timeDifference = System.currentTimeMillis() - Bot.initializationTime;
@@ -26,7 +25,7 @@ public class UptimeAction extends Action {
         if (hours > 0) sb.append(String.format("%d hours, ", hours));
         if (minutes > 0) sb.append(String.format("%d minutes, ", minutes));
         sb.append(String.format("%d seconds.", seconds));
-        return new FixedMessage().setMessage(new MessageBuilder().append(sb).build());
+        return FixedMessage.createSimple(sb.toString());
     }
 }
 

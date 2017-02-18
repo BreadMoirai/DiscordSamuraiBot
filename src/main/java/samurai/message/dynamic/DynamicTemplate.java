@@ -2,6 +2,8 @@ package samurai.message.dynamic;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import samurai.Bot;
+import samurai.action.general.Template;
 import samurai.message.modifier.Reaction;
 
 import java.security.AccessControlException;
@@ -15,7 +17,7 @@ import java.util.function.Consumer;
  *
  * @author TonTL
  * @version 4.0
- * @see samurai.action.generic.TemplateAction
+ * @see Template
  * @since 2/16/2017
  */
 public class DynamicTemplate extends DynamicMessage {
@@ -109,6 +111,8 @@ public class DynamicTemplate extends DynamicMessage {
             case "👥":
                 if (getStage() <= 5) setStage(getStage() * 2);
                 break;
+            default:
+                Bot.logError(new AccessControlException(String.format("Invalid reaction allowed access to execute%n%s from %s", action.getName(), action.getUser().getName())));
         }
     }
 

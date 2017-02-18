@@ -1,4 +1,4 @@
-package samurai.action.generic;
+package samurai.action.general;
 
 import samurai.action.Action;
 import samurai.annotations.Key;
@@ -10,7 +10,7 @@ import samurai.message.dynamic.duel.ConnectFour;
  * @version 4.2
  */
 @Key("duel")
-public class DuelAction extends Action {
+public class Duel extends Action {
 
     @Override
     public SamuraiMessage buildMessage() {

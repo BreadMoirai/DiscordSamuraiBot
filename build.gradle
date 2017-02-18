@@ -5,10 +5,12 @@ plugins {
     id'idea'
 }
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 
-version="4.0 Alpha1"
+version="4.3"
 
+//noinspection GroovyUnusedAssignment
 mainClassName = "samurai.Bot"
 
 repositories {
@@ -17,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.dv8tion:JDA:3.0.BETA2_128'
+    compile 'net.dv8tion:JDA:3.0.BETA2_130'
     compile 'org.reflections:reflections:0.9.10'
 }
 

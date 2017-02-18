@@ -1,0 +1,13 @@
+```cs
+Purpose: Change the guild prefix
+Restrictions: Admin - If you can kick me, you can change my prefix
+Arguments:  '{prefix}' - changes the command prefix to the specified string
+                       - must be 1-8 characters in length.
+                       - unsupported characters
+--------------------------------------------------------
+Usage:      '[prefix]prefix {prefix}'
+--------------------------------------------------------
+Example:    '[prefix]prefix &'
+            '[prefix]prefix poop'
+            '[prefix]prefix ⛈'
+```
