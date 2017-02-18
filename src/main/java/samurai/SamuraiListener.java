@@ -3,6 +3,7 @@ package samurai;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -11,6 +12,7 @@ import samurai.action.general.Help;
 import samurai.data.SamuraiFile;
 import samurai.message.modifier.Reaction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,5 +129,14 @@ public class SamuraiListener extends ListenerAdapter {
 
     String getPrefix(long guildId) {
         return prefixMap.get(guildId);
+    }
+
+    @Override
+    public void onShutdown(ShutdownEvent event) {
+        try {
+            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
