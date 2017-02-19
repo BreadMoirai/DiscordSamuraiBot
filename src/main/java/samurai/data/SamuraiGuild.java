@@ -109,4 +109,5 @@ public class SamuraiGuild {
     public int hashCode() {
         return (int) (guildId ^ (guildId >>> 32));
     }
+
 }

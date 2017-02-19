@@ -17,6 +17,7 @@ import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
+import java.time.OffsetDateTime;
 
 import static samurai.Bot.AVATAR;
 
@@ -44,7 +45,8 @@ public class Status extends Action {
                 .addField("Time Active", new Uptime().buildMessage().getMessage().getContent(), false)
                 .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", SamuraiController.callsMade.get(), "sent:", SamuraiListener.messagesSent.get(), "cmds/hr:", 360.0 * SamuraiController.callsMade.get() / ((System.currentTimeMillis() - Bot.initializationTime) / 1000.0)), true)
                 .addField("Osu!API", String.format("**%-16s**`%d`%n**%-17s**`%d`", "calls made:", OsuJsonReader.count.get(), "calls/min:", OsuJsonReader.count.get() / ((System.currentTimeMillis() - Bot.initializationTime) / 6000)), true)
-                .addField("Memory", String.format("**used:\t**`%d MB`%n**total:\t**`%d MB`%n**max: \t**`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true);
+                .addField("Memory", String.format("**used:\t**`%d MB`%n**total:\t**`%d MB`%n**max: \t**`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true)
+                .setTimestamp(OffsetDateTime.now());
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         int waiting = 0;
         int running = 0;
@@ -53,7 +55,6 @@ public class Status extends Action {
             else if (threadInfo.getThreadState() == Thread.State.RUNNABLE) running++;
         }
         embed.addField("Threads", String.format("**%-14s**`%d`%n**%-13s**`%d`%n**%-13s**`%d`%n**%-15s**`%d`%n**%-16s**`%d`", "current:", threadMXBean.getThreadCount(), "running:", running, "waiting:", waiting, "peak:", threadMXBean.getPeakThreadCount(), "total:", threadMXBean.getTotalStartedThreadCount()), true);
-        return new FixedMessage()
-                .setMessage(new MessageBuilder().append("Statusing....").build()).setConsumer(message -> message.editMessage(new MessageBuilder().setEmbed(embed.setTimestamp(message.getCreationTime()).build()).build()).queue());
+        return new FixedMessage().setMessage(new MessageBuilder().setEmbed(embed.build()).build());
     }
 }

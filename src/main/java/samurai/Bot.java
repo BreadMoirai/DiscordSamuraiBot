@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import samurai.action.admin.Groovy;
 
 import javax.security.auth.login.LoginException;
 
@@ -39,6 +40,7 @@ public class Bot {
             System.exit(0);
         }
         self = client.getSelfUser();
+        Groovy.addBinding("client", client);
     }
 
 

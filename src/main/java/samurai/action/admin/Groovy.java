@@ -2,9 +2,12 @@ package samurai.action.admin;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.MissingPropertyException;
+import samurai.Bot;
 import samurai.action.Action;
+import samurai.annotations.Admin;
+import samurai.annotations.Client;
 import samurai.annotations.Key;
-import samurai.annotations.Source;
 import samurai.message.SamuraiMessage;
 import samurai.message.fixed.FixedMessage;
 
@@ -15,11 +18,12 @@ import samurai.message.fixed.FixedMessage;
  * @since 2/18/2017
  */
 @Key("groovy")
-@Source
+@Client
+@Admin
 public class Groovy extends Action {
 
     private static final Binding binding;
-    private static final GroovyShell gs;
+    private static GroovyShell gs;
 
     static {
         binding = new Binding();
@@ -28,8 +32,23 @@ public class Groovy extends Action {
         gs = new GroovyShell(binding);
     }
 
+    public static void addBinding(String name, Object value) {
+        binding.setVariable(name, value);
+    }
+
     @Override
     protected SamuraiMessage buildMessage() {
-        return FixedMessage.createSimple(gs.evaluate(args.get(0)).toString());
+        binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
+        binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
+        try {
+            Object result = gs.evaluate(args.get(0));
+            if (result != null) {
+                return FixedMessage.createSimple(result.toString());
+            }
+        } catch (MissingPropertyException e) {
+            Bot.log(e.getMessageWithoutLocationText());
+        }
+        return null;
     }
+
 }

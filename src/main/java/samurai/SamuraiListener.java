@@ -64,7 +64,7 @@ public class SamuraiListener extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
 
         String token = prefixMap.get(Long.parseLong(event.getGuild().getId()));
-        String content = event.getMessage().getRawContent().toLowerCase().trim();
+        String content = event.getMessage().getRawContent().trim();
 
         //if content begins with token ex. "!"
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
@@ -98,7 +98,7 @@ public class SamuraiListener extends ListenerAdapter {
             //String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
             for (String argument : argArray)
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument.toLowerCase().replace("\"", "").trim());
+                    args.add(argument.replace("\"", "").trim());
         }
 
         action.setArgs(args)
