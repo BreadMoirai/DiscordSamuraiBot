@@ -29,6 +29,7 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     protected List<String> args;
     protected Long guildId;
     protected Long channelId;
+    protected Long messageId;
 
     //optional members
     protected JDA client; //@Client
@@ -87,6 +88,15 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
     public Action setChannelId(Long channelId) {
         this.channelId = channelId;
+        return this;
+    }
+
+    public Long getMessageId() {
+        return messageId;
+    }
+
+    public Action setMessageId(Long messageId) {
+        this.messageId = messageId;
         return this;
     }
 

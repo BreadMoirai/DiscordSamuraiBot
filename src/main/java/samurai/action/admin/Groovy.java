@@ -38,6 +38,7 @@ public class Groovy extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
+        client.getTextChannelById(String.valueOf(channelId)).deleteMessageById(String.valueOf(messageId)).queue();
         binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
         binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
         try {
