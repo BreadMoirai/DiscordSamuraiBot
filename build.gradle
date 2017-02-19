@@ -3,6 +3,7 @@ plugins {
     id'application'
     id'com.github.johnrengelman.shadow' version '1.2.4'
     id'idea'
+    id'groovy'
 }
 
 //noinspection GroovyUnusedAssignment
@@ -20,6 +21,7 @@ repositories {
 
 dependencies {
     compile 'net.dv8tion:JDA:3.0.BETA2_130'
+    compile 'org.codehaus.groovy:groovy:2.4.8'
     compile 'org.reflections:reflections:0.9.10'
 }
 
