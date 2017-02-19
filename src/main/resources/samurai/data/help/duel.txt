@@ -1,0 +1,11 @@
+```cs
+Purpose: Create a connect4 game
+Restrictions: None
+Arguments:  '' create an open duel
+            '{@mention}' your enemy
+--------------------------------------------------------
+Usage:      '[prefix]duel ?{@mention}'
+--------------------------------------------------------
+Example:    '[prefix]duel'
+            '[prefix]duel @Nemesis'
+```

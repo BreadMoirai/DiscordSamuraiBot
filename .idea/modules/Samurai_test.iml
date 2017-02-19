@@ -10,7 +10,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Samurai_main" />
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.0.BETA2_128" level="project" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.0.BETA2_130" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.10" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.5" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-collections4:4.1" level="project" />
