@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * ActionKeySet for the SamuraiBot.
+ * Controller for the SamuraiBot.
  *
  * @author TonTL
  * @version 4.2
@@ -110,7 +110,10 @@ public class SamuraiController {
 
     private void takeReaction() {
         try {
-            final MessageEdit edit = reactionQueue.poll(5, TimeUnit.MILLISECONDS).get();
+            final Future<MessageEdit> editFuture = reactionQueue.poll(5, TimeUnit.MILLISECONDS);
+            if (editFuture == null)
+                return;
+            final MessageEdit edit = editFuture.get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
         } catch (InterruptedException | ExecutionException e) {
             Bot.logError(e);
