@@ -179,7 +179,7 @@ public class SamuraiController {
                 continue;
             }
             actionMap.put(actionKey.value(), action);
-            System.out.printf("%-10s mapped to %s%n", String.format("\"%s\"", actionKey.value()), action.getName());
+            System.out.printf("%-10s mapped to %s%n", String.format("\"%s\"", actionKey.value()), action.getName().substring(15));
         }
     }
 
