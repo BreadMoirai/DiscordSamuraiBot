@@ -5,20 +5,30 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.Bot;
 import samurai.osu.Score;
 
+import java.io.*;
 import java.util.*;
 
 /**
  * manages guild specific osu data!
  * Created by TonTL on 2/3/2017.
  */
-public class SamuraiGuild {
+public class SamuraiGuild implements Externalizable {
 
     private String prefix;
     private long guildId;
-    private HashMap<String, LinkedList<Score>> scoreMap;
+    private transient HashMap<String, LinkedList<Score>> scoreMap;
     private HashMap<Long, SamuraiUser> userMap;
-    private ArrayList<Chart> charts;
+    private ArrayList<SamuraiChart> charts;
     private boolean active;
+
+    public SamuraiGuild(long guildId) {
+        prefix = "!";
+        this.guildId = guildId;
+        scoreMap = new HashMap<>();
+        userMap = new HashMap<>();
+        charts = new ArrayList<>();
+        active = false;
+    }
 
     public SamuraiGuild(String prefix, Guild guild) {
         this.prefix = prefix;
@@ -110,4 +120,57 @@ public class SamuraiGuild {
         return (int) (guildId ^ (guildId >>> 32));
     }
 
+
+    private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {
+        prefix = o.readUTF();
+        guildId = o.readLong();
+
+
+    }
+
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(prefix);
+        out.writeLong(guildId);
+        out.writeShort(userMap.size());
+        for (SamuraiUser u : userMap.values()) {
+            out.writeLong(u.getDiscordId());
+            out.writeInt(u.getOsuId());
+            out.writeUTF(u.getOsuName());
+            out.writeInt(u.getG_rank());
+            out.writeInt(u.getC_rank());
+            out.writeShort(u.getL_rank());
+        }
+        out.writeShort(charts.size());
+        for (SamuraiChart c : charts) {
+            out.writeInt(c.getChartId());
+            out.writeUTF(c.getChartName());
+            out.writeByte(c.getBeatmapIds().size());
+            for (int i : c.getBeatmapIds())
+                out.writeInt(i);
+        }
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        prefix = in.readUTF();
+        guildId = in.readLong();
+        userMap = new HashMap<>();
+        for (int i = 0, size = in.readShort(); i < size; i++) {
+            long id = in.readLong();
+            userMap.put(id, new SamuraiUser(id, in.readInt(), in.readUTF(), in.readInt(), in.readInt(), in.readShort()));
+        }
+        charts = new ArrayList<>();
+        for (int i = 0, size = in.readShort(); i < size; i++) {
+            int id = in.readInt();
+            String name = in.readUTF();
+            int chartSize = in.readByte();
+            ArrayList<Integer> chart = new ArrayList<>(chartSize);
+            for (int j = 0; j < chartSize; j++) {
+                chart.add(in.readInt());
+            }
+            charts.add(new SamuraiChart(id, name, chart));
+        }
+    }
 }

@@ -43,6 +43,23 @@ public class SamuraiFile extends DbReader {
         return sb.toString();
     }
 
+    public static void writeGuild(SamuraiGuild g) {
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(getGuildDataPath(g.getGuildId())))) {
+            outputStream.writeObject(g);
+        } catch (IOException e) {
+            Bot.logError(e);
+        }
+    }
+
+    public static SamuraiGuild readGuild(long guildId) {
+        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
+            return (SamuraiGuild) input.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     /**
      * current FileDataStructure
@@ -107,10 +124,10 @@ public class SamuraiFile extends DbReader {
      * </ul>
      * </li>
      * <li>Charts<ul>
-     * <li>Chart Id - 4 bytes</li>
-     * <li>Chart NameLen - 1 byte</li>
-     * <li>Chart Name - NameLen bytes</li>
-     * <li>Chart Size - 1 bytes</li>
+     * <li>SamuraiChart Id - 4 bytes</li>
+     * <li>SamuraiChart NameLen - 1 byte</li>
+     * <li>SamuraiChart Name - NameLen bytes</li>
+     * <li>SamuraiChart Size - 1 bytes</li>
      * <li>Map Ids - Size * ↓
      * <ul>
      * <li>id - 4 bytes [Negative is set, Positive is map]</li>
@@ -203,7 +220,7 @@ public class SamuraiFile extends DbReader {
 //    }
 
     private static String getGuildDataPath(long Id) {
-        return String.format("%s/%d.smrai", SamuraiFile.class.getResource("guild").getPath(), Id);
+        return String.format("%s/%d.ser", SamuraiFile.class.getResource("guild").getPath(), Id);
     }
 
     public static String downloadFile(Message.Attachment attachment) {
