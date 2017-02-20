@@ -1,7 +1,6 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -9,12 +8,10 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
 import samurai.action.general.Help;
-import samurai.data.SamuraiFile;
 import samurai.message.modifier.Reaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -30,29 +27,14 @@ import java.util.regex.Pattern;
 public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private static Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-    private final HashMap<Long, String> prefixMap;
     private SamuraiController samurai;
 
-    SamuraiListener() {
-        prefixMap = new HashMap<>();
-    }
 
     @Override
     public void onReady(ReadyEvent event) {
-        for (Guild g : event.getJDA().getGuilds()) {
-            long guildId = Long.parseLong(g.getId());
-            if (!SamuraiFile.hasFile(guildId)) {
-                prefixMap.put(guildId, "!");
-            } else {
-                prefixMap.put(guildId, SamuraiFile.getPrefix(guildId));
-            }
-
-            if (guildId == 233097800722808832L) {
-                SamuraiController.setOfficialChannel(g.getTextChannelById(String.valueOf(274732231124320257L)));
-            }
-        }
+        SamuraiController.setOfficialChannel(event.getJDA().getTextChannelById(String.valueOf(274732231124320257L)));
         samurai = new SamuraiController(this);
-        System.out.println("Ready!" + prefixMap.toString());
+        System.out.println("Ready!");
     }
 
     @Override
@@ -63,7 +45,7 @@ public class SamuraiListener extends ListenerAdapter {
         }
         if (event.getAuthor().isBot()) return;
 
-        String token = prefixMap.get(Long.parseLong(event.getGuild().getId()));
+        String token = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
         String content = event.getMessage().getRawContent().trim();
 
         //if content begins with token ex. "!"
@@ -123,14 +105,6 @@ public class SamuraiListener extends ListenerAdapter {
 
     void setJDA(JDA jda) {
         samurai.setJDA(jda);
-    }
-
-    public void addPrefix(Long guildId, String prefix) {
-        prefixMap.put(guildId, prefix);
-    }
-
-    String getPrefix(long guildId) {
-        return prefixMap.get(guildId);
     }
 
     @Override
