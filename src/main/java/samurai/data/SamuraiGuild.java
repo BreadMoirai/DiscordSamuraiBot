@@ -1,11 +1,11 @@
 package samurai.data;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import samurai.Bot;
 import samurai.osu.Score;
 
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.*;
 
 /**
@@ -21,6 +21,9 @@ public class SamuraiGuild implements Externalizable {
     private ArrayList<SamuraiChart> charts;
     private boolean active;
 
+    public SamuraiGuild() {
+    }
+
     public SamuraiGuild(long guildId) {
         prefix = "!";
         this.guildId = guildId;
@@ -30,24 +33,6 @@ public class SamuraiGuild implements Externalizable {
         active = false;
     }
 
-    public SamuraiGuild(String prefix, Guild guild) {
-        this.prefix = prefix;
-        this.guildId = Long.parseLong(guild.getId());
-        if (SamuraiFile.hasFile(guildId)) {
-            SamuraiFile.readGuildDataInto(this);
-        } else {
-            Bot.log(String.format("Creating new Guild Object for %s[%d].", guild.getName(), guildId));
-            userMap = new HashMap<>();
-            scoreMap = new HashMap<>();
-            charts = new ArrayList<>();
-            List<Member> memberList = guild.getMembers();
-            for (Member m : memberList) {
-                userMap.put(Long.parseLong(m.getUser().getId()), new SamuraiUser(Long.parseLong(m.getUser().getId()), 0, null));
-            }
-        }
-    }
-
-
     public int getUserCount() {
         return userMap.size();
     }
@@ -55,7 +40,6 @@ public class SamuraiGuild implements Externalizable {
     public HashMap<String, LinkedList<Score>> getScoreMap() {
         return scoreMap;
     }
-
 
     public int mergeScoreMap(HashMap<String, LinkedList<Score>> source) {
         int scoresMerged = 0;
@@ -121,14 +105,6 @@ public class SamuraiGuild implements Externalizable {
     }
 
 
-    private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {
-        prefix = o.readUTF();
-        guildId = o.readLong();
-
-
-    }
-
-
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(prefix);
@@ -150,6 +126,7 @@ public class SamuraiGuild implements Externalizable {
             for (int i : c.getBeatmapIds())
                 out.writeInt(i);
         }
+        System.out.println(this);
     }
 
     @Override
@@ -172,5 +149,19 @@ public class SamuraiGuild implements Externalizable {
             }
             charts.add(new SamuraiChart(id, name, chart));
         }
+        scoreMap = new HashMap<>();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SamuraiGuild{");
+        sb.append("\n\tprefix='").append(prefix).append('\'');
+        sb.append("\n\tguildId=").append(guildId);
+        sb.append("\n\tscoreCount=").append(getScoreCount());
+        sb.append("\n\tuserMap=").append(userMap);
+        sb.append("\n\tcharts=").append(charts);
+        sb.append("\n\tactive=").append(active);
+        sb.append("\n}");
+        return sb.toString();
     }
 }

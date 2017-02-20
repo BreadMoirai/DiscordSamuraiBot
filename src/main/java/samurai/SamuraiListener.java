@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
+import samurai.action.admin.Groovy;
 import samurai.action.general.Help;
 import samurai.message.modifier.Reaction;
 
@@ -35,7 +36,9 @@ public class SamuraiListener extends ListenerAdapter {
         SamuraiController.setOfficialChannel(event.getJDA().getTextChannelById(String.valueOf(274732231124320257L)));
         samurai = new SamuraiController(this);
         System.out.println("Ready!");
+        Groovy.addBinding("samurai", samurai);
     }
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -109,6 +112,9 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onShutdown(ShutdownEvent event) {
+        samurai.shutdown();
+
+
         try {
             Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
         } catch (IOException e) {
