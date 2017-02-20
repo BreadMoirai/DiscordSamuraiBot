@@ -10,6 +10,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import samurai.action.admin.Groovy;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * Main Class
@@ -24,7 +29,6 @@ public class Bot {
     public static final String BOT_ID = "270044218167132170";
     private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
     private static final String LOG_CHANNEL = "281911114265001985";
-    private static final String Self_TOKEN = "MjMyNzAzNDE1MDQ4NzMyNjcy.CtYg0w.NPKlpmpwXy0I8P_kz7fTS3aIB-s";
     private static JDA client;
 
     static {
@@ -38,16 +42,26 @@ public class Bot {
             listener.setJDA(client);
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             logError(e);
-            System.exit(0);
+            System.exit(1);
         }
         self = client.getSelfUser();
         Groovy.addBinding("client", client);
     }
 
+    private String SELF_TOKEN;
+
     private Bot() {
         try {
+            if (new File(Bot.class.getResource("config.txt").toURI()).exists()) {
+                SELF_TOKEN = Files.readAllLines(new File(Bot.class.getResource("config.txt").toURI()).toPath(), StandardCharsets.UTF_8).get(0);
+            }
+        } catch (URISyntaxException | IOException e) {
+            System.err.println("Could not find config.txt file in resource.samurai");
+            System.exit(1);
+        }
+        try {
             new JDABuilder(AccountType.CLIENT)
-                    .setToken(Self_TOKEN)
+                    .setToken(SELF_TOKEN)
                     .addListener(new SelfListener())
                     .buildAsync();
         } catch (LoginException | IllegalArgumentException | RateLimitedException e) {
