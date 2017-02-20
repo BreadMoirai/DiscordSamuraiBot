@@ -24,6 +24,7 @@ public class Bot {
     public static final String BOT_ID = "270044218167132170";
     private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
     private static final String LOG_CHANNEL = "281911114265001985";
+    private static final String Self_TOKEN = "MjMyNzAzNDE1MDQ4NzMyNjcy.CtYg0w.NPKlpmpwXy0I8P_kz7fTS3aIB-s";
     private static JDA client;
 
     static {
@@ -43,6 +44,17 @@ public class Bot {
         Groovy.addBinding("client", client);
     }
 
+    private Bot() {
+        try {
+            new JDABuilder(AccountType.CLIENT)
+                    .setToken(Self_TOKEN)
+                    .addListener(new SelfListener())
+                    .buildAsync();
+        } catch (LoginException | IllegalArgumentException | RateLimitedException e) {
+            log("Failed");
+            System.exit(0);
+        }
+    }
 
     public static void main(String[] args) {
         new Bot();
