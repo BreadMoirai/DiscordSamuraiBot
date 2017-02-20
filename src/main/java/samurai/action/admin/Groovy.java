@@ -41,9 +41,6 @@ public class Groovy extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-
-        client.getTextChannelById(String.valueOf(channelId)).deleteMessageById(String.valueOf(messageId)).queue();
-
         if (args.size() != 1) return FixedMessage.createSimple("Invalid Argument Length: " + args.size());
         binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
         binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
