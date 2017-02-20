@@ -55,7 +55,7 @@ public class SamuraiFile extends DbReader {
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
             return (SamuraiGuild) input.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            Bot.logError(e);
             return null;
         }
     }

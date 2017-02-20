@@ -36,7 +36,7 @@ public class SamuraiController {
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
     private final HashMap<String, Class<? extends Action>> actionMap;
-    private final ConcurrentHashMap<Long, SamuraiGuild> osuGuildMap;
+    private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
     private JDA client;
     private SamuraiListener listener;
     //private boolean running;
@@ -49,7 +49,7 @@ public class SamuraiController {
         reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
         actionMap = new HashMap<>();
-        osuGuildMap = new ConcurrentHashMap<>();
+        guildMap = new ConcurrentHashMap<>();
         //running = true;
         initActions();
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -88,9 +88,9 @@ public class SamuraiController {
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
         if (action.getClass().isAnnotationPresent(Guild.class)) {
             Long guildId = action.getGuildId();
-            if (!osuGuildMap.containsKey(guildId))
-                osuGuildMap.put(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
-            action.setGuild(osuGuildMap.get(guildId));
+            if (!guildMap.containsKey(guildId))
+                guildMap.put(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
+            action.setGuild(guildMap.get(guildId));
         }
         if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
             action.setKeySet(actionMap.keySet());
@@ -184,4 +184,7 @@ public class SamuraiController {
     }
 
 
+    public String getPrefix(long id) {
+        return guildMap.get(id).getPrefix();
+    }
 }
