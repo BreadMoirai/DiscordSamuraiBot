@@ -7,6 +7,7 @@ import org.reflections.Reflections;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
+import samurai.data.SamuraiStore;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.DynamicMessage;
 import samurai.message.fixed.FixedMessage;
@@ -32,6 +33,7 @@ public class SamuraiController {
 
     private static Channel officialChannel;
     private final ExecutorService commandPool;
+    private final ScheduledExecutorService executorPool;
     private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
@@ -52,10 +54,10 @@ public class SamuraiController {
         guildMap = new ConcurrentHashMap<>();
         //running = true;
         initActions();
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
-        executorService.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
-        executorService.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
+        executorPool = Executors.newScheduledThreadPool(1);
+        executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
+        executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
+        executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
     }
 
     public static Channel getOfficialChannel() {
@@ -87,10 +89,7 @@ public class SamuraiController {
             action.setListener(listener);
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
         if (action.getClass().isAnnotationPresent(Guild.class)) {
-            Long guildId = action.getGuildId();
-            if (!guildMap.containsKey(guildId))
-                guildMap.put(guildId, new SamuraiGuild(listener.getPrefix(guildId), client.getGuildById(String.valueOf(guildId))));
-            action.setGuild(guildMap.get(guildId));
+            action.setGuild(guildMap.get(action.getGuildId()));
         }
         if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
             action.setKeySet(actionMap.keySet());
@@ -144,9 +143,17 @@ public class SamuraiController {
     }
 
     private void clearInactive() {
-        messageMap.forEachValue(1000L, value -> {
-            if (value.isExpired()) {
-                messageMap.remove(value.getMessageId());
+        messageMap.forEachValue(1000L, message -> {
+            if (message.isExpired()) {
+                messageMap.remove(message.getMessageId());
+            }
+        });
+        guildMap.forEachValue(100L, guild -> {
+            if (guild.isActive()) guild.setInactive();
+            else {
+                SamuraiStore.writeGuild(guild);
+                if (!guildMap.remove(guild.getGuildId(), guild))
+                    Bot.log("Failed to remove " + guild.getGuildId());
             }
         });
     }
@@ -179,12 +186,40 @@ public class SamuraiController {
                 continue;
             }
             actionMap.put(actionKey.value(), action);
-            System.out.printf("%-10s mapped to %s%n", String.format("\"%s\"", actionKey.value()), action.getName().substring(15));
+            String[] name = action.getName().substring(15).split("\\.");
+            System.out.printf("%-10s mapped to %-7s.%s%n", String.format("\"%s\"", actionKey.value()), name[0], name[1]);
         }
     }
 
+    String getPrefix(long id) {
+        if (guildMap.containsKey(id))
+            return guildMap.get(id).getPrefix();
+        else {
+            if (SamuraiStore.containsGuild(id)) {
+                SamuraiGuild guild = SamuraiStore.readGuild(id);
+                if (guild == null) {
+                    Bot.log(String.format("Could not read data for Guild %d", id));
+                    return "!";
+                }
+                guildMap.put(id, guild);
+                return guild.getPrefix();
+            } else {
+                guildMap.put(id, new SamuraiGuild(id));
+                return "!";
+            }
+        }
+    }
 
-    public String getPrefix(long id) {
-        return guildMap.get(id).getPrefix();
+    void shutdown() {
+        try {
+            commandPool.shutdown();
+            executorPool.shutdown();
+            while (!commandPool.isShutdown() || !executorPool.isShutdown())
+                wait(500);
+            for (SamuraiGuild g : guildMap.values())
+                SamuraiStore.writeGuild(g);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
