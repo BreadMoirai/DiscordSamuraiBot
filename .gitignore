@@ -85,3 +85,8 @@ crashlytics.properties
 crashlytics-build.properties
 
 fabric.properties
+
+
+/src/main/resources/samurai/config.txt
+src/main/groovy/
+src/test/
