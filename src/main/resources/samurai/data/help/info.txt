@@ -1,5 +1,5 @@
 ```cs
-Purpose: Find out what Samurai knows about you
+Purpose: What does Samurai knows about you?
 Restrictions: user has linked their osu profile
 Arguments:  '' your info
             '{@mention}' @mention's info
