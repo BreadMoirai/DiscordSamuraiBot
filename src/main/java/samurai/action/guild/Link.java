@@ -25,29 +25,42 @@ public class Link extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-
         if (args.size() == 0 || args.get(0).length() > 16) {
             return FixedMessage.build("Invalid Username");
         }
-        JSONObject userJSON = OsuJsonReader.getUserJSON(arg);
+        JSONObject userJSON = OsuJsonReader.getUserJSON(args.get(0));
         if (userJSON == null) {
             return FixedMessage.build("Failed to link account.");
         }
-        guild.addUser(Long.parseLong(author.getUser().getId()), userJSON);
-        Message profileMessage = new Profile()
-                .setAuthor(author)
-                .setMentions(Collections.emptyList())
-                .setArgs(Collections.emptyList())
-                .setGuild(guild)
-                .setChannelId(channelId)
-                .call().orElse(FixedMessage.build("Error"))
-                .getMessage();
+        Message profileMessage;
+        if (mentions.size() == 0) {
+            guild.addUser(Long.parseLong(author.getUser().getId()), userJSON);
+            profileMessage = new Profile()
+                    .setAuthor(author)
+                    .setMentions(Collections.emptyList())
+                    .setArgs(Collections.emptyList())
+                    .setGuild(guild)
+                    .setChannelId(channelId)
+                    .call().orElse(FixedMessage.build("Error"))
+                    .getMessage();
+        } else if (mentions.size() == 1) {
+            guild.addUser(Long.parseLong(mentions.get(0).getId()), userJSON);
+            profileMessage = new Profile()
+                    .setMentions(mentions)
+                    .setArgs(Collections.emptyList())
+                    .setGuild(guild)
+                    .setChannelId(channelId)
+                    .call().orElse(FixedMessage.build("Error"))
+                    .getMessage();
+        } else {
+            return FixedMessage.build("Failed to link account.");
+        }
         if (profileMessage.getEmbeds().size() != 1) {
             return FixedMessage.build(profileMessage.getContent().replaceAll("<@.*>", profileMessage.getMentionedUsers().get(0).getAsMention()));
         }
         return new FixedMessage().setMessage(new MessageBuilder()
                 .append("Successfully linked **")
-                .append(author.getEffectiveName())
+                .append(profileMessage.getEmbeds().get(0).getTitle())
                 .append("** to osu account")
                 .setEmbed(profileMessage.getEmbeds().get(0))
                 .build());
