@@ -1,0 +1,9 @@
+```cs
+Purpose: Find out what Samurai knows about you
+Restrictions: user has linked their osu profile
+Arguments:  '' your info
+            '{@mention}' @mention's info
+--------------------------------------------------------
+Example:    '[prefix]info'
+            '[prefix]info @someone'
+```
