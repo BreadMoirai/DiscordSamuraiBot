@@ -64,13 +64,13 @@ public class SamuraiStore {
         } catch (IOException e) {
             Bot.logError(e);
         }
-        Bot.log("Success: GuildWrite - " + g.getGuildId());
+        Bot.log("✅ GuildWrite - " + g.getGuildId());
     }
 
     public static SamuraiGuild readGuild(long guildId) {
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
             SamuraiGuild g = (SamuraiGuild) input.readObject();
-            if (g != null) Bot.log("Success: GuildRead - " + g.getGuildId());
+            if (g != null) Bot.log("✅ GuildRead - " + g.getGuildId());
             return g;
         } catch (IOException | ClassNotFoundException e) {
             Bot.logError(e);
