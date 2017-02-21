@@ -36,7 +36,7 @@ public class Info extends Action {
                     .setAuthor(userD.getName(), null, userD.getAvatarUrl())
                     .setColor(color)
                     .setTimestamp(OffsetDateTime.now())
-                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**OsuName: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d%n", userS.getDiscordId(), userS.getOsuId(), userS.getOsuName(), userS.getG_rank(), userS.getC_rank(), userS.getL_rank()))
+                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**OsuName: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n", userS.getDiscordId(), userS.getOsuId(), userS.getOsuName(), userS.getG_rank(), userS.getC_rank(), userS.getL_rank(), guild.getUserCount()))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         }

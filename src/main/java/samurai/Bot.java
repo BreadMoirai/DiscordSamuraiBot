@@ -39,7 +39,7 @@ public class Bot {
             Groovy.addBinding("client", client);
             logChannel = client.getTextChannelById("281911114265001985");
         } catch (LoginException | RateLimitedException | InterruptedException e) {
-            logError(e);
+            e.printStackTrace();
             System.exit(1);
         }
     }
