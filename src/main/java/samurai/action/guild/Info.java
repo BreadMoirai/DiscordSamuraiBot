@@ -28,10 +28,10 @@ public class Info extends Action {
         if (mentions.size() == 0)
             userD = author.getUser();
         else userD = mentions.get(0);
-        if (!guild.getUserMap().containsKey(Long.parseLong(userD.getId()))) {
+        if (!guild.hasUser(Long.parseLong(userD.getId()))) {
             return FixedMessage.build(String.format("No info found for **%s**.", userD.getName()));
         } else {
-            SamuraiUser userS = guild.getUserMap().get(Long.parseLong(userD.getId()));
+            SamuraiUser userS = guild.getUser(Long.parseLong(userD.getId()));
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor(userD.getName(), null, userD.getAvatarUrl())
                     .setColor(color)

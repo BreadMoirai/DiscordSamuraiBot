@@ -52,7 +52,7 @@ public class Bot {
     public static void logError(Throwable e) {
         logChannel.sendMessage(new MessageBuilder()
                 .append("```\n")
-                .append(ExceptionUtils.getStackTrace(e))
+                .append(ExceptionUtils.getMessage(e))
                 .append("\n```")
                 .build()).queue();
         e.printStackTrace();

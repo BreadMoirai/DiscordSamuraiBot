@@ -1,19 +1,18 @@
 package samurai.osu;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import samurai.Bot;
 import samurai.osu.enums.GameMode;
-import samurai.osu.enums.Grade;
 import samurai.osu.enums.RankedStatus;
 
-import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -38,45 +37,20 @@ public class OsuJsonReader {
         GET_SCORES = "get_scores?";
     }
 
-    public static MessageEmbed getUserInfo(String request) {
-        List<JSONObject> json;
-        try {
-            json = readJsonFromUrl(OSU_API + GET_USER + KEY + request);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (Exception e) {
+    public static JSONObject getUserJSON(String identity) {
+        JSONArray json = readJsonFromUrl(String.format("%s%s%s&u=%s", OSU_API, GET_USER, KEY, identity));
+        if (json == null || json.length() != 1) {
             return null;
         }
-        if (json.isEmpty()) {
-            return null;
-        }
-        JSONObject profile = json.get(0);
-        EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(profile.getString("username"), "https://samurai.osu.ppy.sh/u/" + profile.getString("username"))
-                .setColor(Color.PINK)
-                .setImage("http://s.ppy.sh/a/" + profile.get("user_id"))
-                .addField("Level", profile.getString("level"), true)
-                .addField("Rank", profile.getString("pp_rank"), true)
-                .addField("Play Count", profile.getString("playcount"), true)
-                .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
-                .addField("Grades", String.format("%s%s                %s%s                %s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
-                .setFooter(profile.getString("user_id"), "http://w.ppy.sh/c/c9/Logo.png");
-        return eb.build();
+        return json.getJSONObject(0);
     }
 
     static Beatmap getBeatmapInfo(String hash) {
-        List<JSONObject> json;
-        try {
-            json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
-        } catch (IOException e) {
-            e.printStackTrace();
+        JSONArray json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
+        if (json == null || json.length() == 0) {
             return null;
         }
-        if (json.isEmpty()) {
-            return null;
-        }
-        JSONObject info = json.get(0);
+        JSONObject info = json.getJSONObject(0);
         Beatmap beatmap = new Beatmap();
         switch (info.getInt("approved")) {
             case (1):
@@ -108,55 +82,23 @@ public class OsuJsonReader {
         return beatmap;
     }
 
-    private static List<String> readAll(Reader rd) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int cp;
-        while ((cp = rd.read()) != -1) {
-            sb.append((char) cp);
-        }
-        String text = sb.toString();
-        try {
-            if (text.charAt(0) != '[' || text.equals("[]")) {
-                System.err.println("Osu!API Error: " + text);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-        text = text.substring(1, text.length() - 1);
-        List<String> jsonStrings = new ArrayList<>();
-        int splitter = 0;
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c == '{') {
-                splitter++;
-            } else if (c == '}') {
-                splitter--;
-                if (splitter == 0) {
-                    jsonStrings.add(text.substring(0, i + 1));
-                    if (i + 2 < text.length()) {
-                        text = text.substring(i + 2);
-                        i = 0;
-                    }
-                }
-            }
-        }
-        System.out.println(jsonStrings);
-        return jsonStrings;
-    }
-
-    private static List<JSONObject> readJsonFromUrl(String url) throws IOException, JSONException {
+    private static JSONArray readJsonFromUrl(String url) {
         count.incrementAndGet();
         try (InputStream is = new URL(url).openStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-            List<JSONObject> json = new ArrayList<>();
-            //noinspection ConstantConditions
-            for (String jsonText : readAll(rd)) {
-                json.add(new JSONObject(jsonText));
+            StringBuilder sb = new StringBuilder();
+            int cp;
+            while ((cp = rd.read()) != -1) {
+                sb.append((char) cp);
             }
-            return json;
+            return new JSONArray(sb.toString());
+        } catch (IOException e) {
+            Bot.log("Error at " + url);
+            return null;
+        } catch (JSONException e) {
+            Bot.log(e.getMessage());
+            return null;
         }
-
     }
 }
 

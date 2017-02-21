@@ -21,7 +21,7 @@ import samurai.message.fixed.FixedMessage;
 @Client
 @Admin
 @Creator
-@Osu
+@Guild
 public class Groovy extends Action {
 
     private static final Binding binding;
@@ -44,6 +44,7 @@ public class Groovy extends Action {
         if (args.size() != 1) return FixedMessage.build("Invalid Argument Length: " + args.size());
         binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
         binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
+        binding.setVariable("sg", guild);
         try {
             Object result = gs.evaluate(args.get(0));
             if (result != null) {

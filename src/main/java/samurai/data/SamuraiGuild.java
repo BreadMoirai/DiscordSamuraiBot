@@ -1,5 +1,6 @@
 package samurai.data;
 
+import org.json.JSONObject;
 import samurai.osu.Score;
 
 import java.io.Externalizable;
@@ -17,7 +18,7 @@ public class SamuraiGuild implements Externalizable {
     private String prefix;
     private long guildId;
     private transient HashMap<String, LinkedList<Score>> scoreMap;
-    private HashMap<Long, SamuraiUser> userMap;
+    private ArrayList<SamuraiUser> users;
     private ArrayList<SamuraiChart> charts;
     private boolean active;
 
@@ -28,13 +29,38 @@ public class SamuraiGuild implements Externalizable {
         prefix = "!";
         this.guildId = guildId;
         scoreMap = new HashMap<>();
-        userMap = new HashMap<>();
+        users = new ArrayList<>();
         charts = new ArrayList<>();
         active = false;
     }
 
+    public void addUser(long id, JSONObject userJSON) {
+        users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank")));
+        updateLocalRanks();
+    }
+
+    public SamuraiUser getUser(long discordId) {
+        for (SamuraiUser user : users)
+            if (user.getDiscordId() == discordId) return user;
+        return null;
+    }
+
+    public void updateLocalRanks() {
+        users.sort(Comparator.comparingInt(SamuraiUser::getG_rank));
+        for (int i = 1; i <= users.size(); i++) {
+            users.get(i - 1).setL_rank((short) i);
+        }
+    }
+
+    public boolean hasUser(long id) {
+        for (SamuraiUser s : users)
+            if (s.getDiscordId() == id)
+                return true;
+        return false;
+    }
+
     public int getUserCount() {
-        return userMap.size();
+        return users.size();
     }
 
     public HashMap<String, LinkedList<Score>> getScoreMap() {
@@ -73,8 +99,8 @@ public class SamuraiGuild implements Externalizable {
         this.active = false;
     }
 
-    public HashMap<Long, SamuraiUser> getUserMap() {
-        return userMap;
+    public ArrayList<SamuraiUser> getUsers() {
+        return users;
     }
 
     public long getGuildId() {
@@ -109,8 +135,8 @@ public class SamuraiGuild implements Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(prefix);
         out.writeLong(guildId);
-        out.writeShort(userMap.size());
-        for (SamuraiUser u : userMap.values()) {
+        out.writeShort(users.size());
+        for (SamuraiUser u : users) {
             out.writeLong(u.getDiscordId());
             out.writeInt(u.getOsuId());
             out.writeUTF(u.getOsuName());
@@ -132,10 +158,10 @@ public class SamuraiGuild implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         prefix = in.readUTF();
         guildId = in.readLong();
-        userMap = new HashMap<>();
+        users = new ArrayList<>();
         for (int i = 0, size = in.readShort(); i < size; i++) {
             long id = in.readLong();
-            userMap.put(id, new SamuraiUser(id, in.readInt(), in.readUTF(), in.readInt(), in.readInt(), in.readShort()));
+            users.add(new SamuraiUser(id, in.readInt(), in.readUTF(), in.readInt(), in.readInt(), in.readShort()));
         }
         charts = new ArrayList<>();
         for (int i = 0, size = in.readShort(); i < size; i++) {
@@ -157,10 +183,11 @@ public class SamuraiGuild implements Externalizable {
         sb.append("\n\tprefix='").append(prefix).append('\'');
         sb.append("\n\tguildId=").append(guildId);
         sb.append("\n\tscoreCount=").append(getScoreCount());
-        sb.append("\n\tuserMap=").append(userMap);
+        sb.append("\n\tusers=").append(users);
         sb.append("\n\tcharts=").append(charts);
         sb.append("\n\tactive=").append(active);
         sb.append("\n}");
         return sb.toString();
     }
+
 }

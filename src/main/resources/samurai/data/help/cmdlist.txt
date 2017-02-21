@@ -1,20 +1,19 @@
 **--- General ---**
-`[prefix]help..` -displays help. Mentioning the bot will also display help
-`[prefix]join.` -invite link for DreadMoirai's Samurais.
-`[prefix]invite` -link to add Samurai to your server.
-`[prefix]duel..` -starts a connectFour game. ?`@mention`
-`[prefix]perm..` -shows list of permissions. Red = missing permission
+`[prefix]help...` -displays help. Mentioning the bot will also display help
+`[prefix]join...` -invite link for DreadMoirai's Samurais.
+`[prefix]invite.` -link to add Samurai to your server.
+`[prefix]duel...` -starts a connectFour game. ?`@mention`
+`[prefix]perm...` -shows list of permissions. Red = missing permission
 
 **--- Osu! ---**
-`[prefix]info..` -displays Samurai's info for user.  ?`@mention`
-`[prefix]upload` -Must be accompanied by a uploaded `scores.db` file
-`[prefix]setosu` -Links discord account to osu profile for tracking `username`
-`[prefix]getosu` -get profile information. ?`username` ?`@mention`
+`[prefix]link...` -Links discord account to osu profile for tracking `username`
+`[prefix]profile` -displays Samurai's info for user.  ?`osu!username` ?`@mention`
+`[prefix]upload.` -Must be accompanied by a uploaded `scores.db` file
 
 **--- Bot ---**
-`[prefix]prefix` -changes the command prefix. `prefix`[limit=4chars]
-`[prefix]status` -displays status of bot
-`[prefix]uptime` -displays running time of bot
+`[prefix]prefix.` -changes the command prefix. `prefix`[limit=4chars]
+`[prefix]status.` -displays status of bot
+`[prefix]uptime.` -displays running time of bot
 
 **--- Notes ---**
 Ex. `[prefix]duel @nemesis#1256` or `[prefix]duel`

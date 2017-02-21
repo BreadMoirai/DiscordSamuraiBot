@@ -14,13 +14,15 @@ public class SamuraiUser {
     private short l_rank;
 
 
-    public SamuraiUser(long discordId, int osuId, String osuName) {
+    public SamuraiUser(long discordId, int osuId, String osuName, int g, int c) {
         this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
+        this.g_rank = g;
+        this.c_rank = c;
     }
 
-    public SamuraiUser(long discordId, int osuId, String osuName, int g, int c, short l) {
+    SamuraiUser(long discordId, int osuId, String osuName, int g, int c, short l) {
         this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
@@ -51,5 +53,14 @@ public class SamuraiUser {
 
     public short getL_rank() {
         return l_rank;
+    }
+
+    public void setL_rank(short l_rank) {
+        this.l_rank = l_rank;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SamuraiUser{\n\tdiscordId=%d\n\tosuId=%d\n\tosuName='%s'\n\tg_rank=%d\n\tc_rank=%d\n\tl_rank=%s\n}", discordId, osuId, osuName, g_rank, c_rank, l_rank);
     }
 }

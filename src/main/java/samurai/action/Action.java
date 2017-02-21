@@ -1,15 +1,14 @@
 package samurai.action;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import samurai.SamuraiController;
 import samurai.SamuraiListener;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +27,7 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     protected Member author;
     protected List<User> mentions;
     protected List<String> args;
+    protected List<Message.Attachment> attaches;
     protected Long guildId;
     protected Long channelId;
     protected Long messageId;
@@ -47,14 +47,6 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     }
 
     protected abstract SamuraiMessage buildMessage();
-
-    /**
-     * @return a list of Discord Permissions that this action requires
-     * @see Permission
-     */
-    public List<Permission> getPermissions() {
-        return Collections.singletonList(Permission.MESSAGE_WRITE);
-    }
 
     public Member getAuthor() {
         return author;
@@ -84,17 +76,9 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
         return this;
     }
 
-    public Long getChannelId() {
-        return channelId;
-    }
-
     public Action setChannelId(Long channelId) {
         this.channelId = channelId;
         return this;
-    }
-
-    public Long getMessageId() {
-        return messageId;
     }
 
     public Action setMessageId(Long messageId) {
@@ -102,12 +86,18 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
         return this;
     }
 
+    public Action setAttaches(List<Message.Attachment> attaches) {
+        this.attaches = attaches;
+        return this;
+    }
+
     public void setClient(JDA client) {
         this.client = client;
     }
 
-    public void setGuild(SamuraiGuild guild) {
+    public Action setGuild(SamuraiGuild guild) {
         this.guild = guild;
+        return this;
     }
 
     public void setListener(SamuraiListener listener) {
