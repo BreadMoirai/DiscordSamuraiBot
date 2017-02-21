@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import org.json.JSONObject;
 import samurai.action.Action;
 import samurai.action.osu.Profile;
+import samurai.annotations.Client;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
 import samurai.message.SamuraiMessage;
@@ -20,6 +21,7 @@ import java.util.Collections;
  */
 @Key("link")
 @Guild
+@Client
 public class Link extends Action {
 
 
@@ -44,6 +46,9 @@ public class Link extends Action {
                     .call().orElse(FixedMessage.build("Error"))
                     .getMessage();
         } else if (mentions.size() == 1) {
+            if (!author.canInteract(client.getGuildById(String.valueOf(guildId)).getMember(mentions.get(0)))) {
+                return FixedMessage.build("You do not have sufficient access to manage " + mentions.get(0).getAsMention());
+            }
             guild.addUser(Long.parseLong(mentions.get(0).getId()), userJSON);
             profileMessage = new Profile()
                     .setMentions(mentions)
