@@ -41,20 +41,18 @@ public class SamuraiController {
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
     private JDA client;
     private SamuraiListener listener;
-    //private boolean running;
 
 
     SamuraiController(SamuraiListener listener) {
         this.listener = listener;
-        commandPool = Executors.newCachedThreadPool();
+        commandPool = Executors.newFixedThreadPool(1);
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
         actionMap = new HashMap<>();
         guildMap = new ConcurrentHashMap<>();
-        //running = true;
         initActions();
-        executorPool = Executors.newScheduledThreadPool(1);
+        executorPool = Executors.newScheduledThreadPool(3);
         executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
@@ -113,7 +111,7 @@ public class SamuraiController {
 
     private void takeReaction() {
         try {
-            final Future<MessageEdit> editFuture = reactionQueue.poll(5, TimeUnit.MILLISECONDS);
+            final Future<MessageEdit> editFuture = reactionQueue.take();
             if (editFuture == null)
                 return;
             final MessageEdit edit = editFuture.get();
@@ -125,7 +123,7 @@ public class SamuraiController {
 
     private void takeAction() {
         try {
-            Future<Optional<SamuraiMessage>> smOption = actionQueue.poll(10, TimeUnit.MILLISECONDS);
+            Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
             if (smOption == null || !smOption.get().isPresent()) return;
             SamuraiMessage samuraiMessage = smOption.get().get();
             if (samuraiMessage instanceof DynamicMessage) {

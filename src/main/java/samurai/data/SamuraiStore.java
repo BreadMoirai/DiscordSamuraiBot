@@ -20,7 +20,6 @@ import java.util.Map;
  * @author TonTL
  * @version 4.5 - 2/20/2017
  */
-@SuppressWarnings("Duplicates")
 public class SamuraiStore {
     private static final int VERSION = 20170103;
 
