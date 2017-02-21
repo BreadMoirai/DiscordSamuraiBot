@@ -25,7 +25,7 @@ public class Uptime extends Action {
         if (hours > 0) sb.append(String.format("%d hours, ", hours));
         if (minutes > 0) sb.append(String.format("%d minutes, ", minutes));
         sb.append(String.format("%d seconds.", seconds));
-        return FixedMessage.createSimple(sb.toString());
+        return FixedMessage.build(sb.toString());
     }
 }
 

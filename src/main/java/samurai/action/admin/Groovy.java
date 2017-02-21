@@ -41,16 +41,16 @@ public class Groovy extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        if (args.size() != 1) return FixedMessage.createSimple("Invalid Argument Length: " + args.size());
+        if (args.size() != 1) return FixedMessage.build("Invalid Argument Length: " + args.size());
         binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
         binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
         try {
             Object result = gs.evaluate(args.get(0));
             if (result != null) {
-                return FixedMessage.createSimple(String.format("```\n%s\n```", result.toString()));
-            } else return FixedMessage.createSimple("Success.");
+                return FixedMessage.build(String.format("```\n%s\n```", result.toString()));
+            } else return FixedMessage.build("Success.");
         } catch (CompilationFailedException | MissingPropertyException e) {
-            return FixedMessage.createSimple("Failure.");
+            return FixedMessage.build("Failure.");
         }
     }
 

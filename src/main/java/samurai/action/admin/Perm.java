@@ -42,6 +42,6 @@ public class Perm extends Action {
         for (Permission p : permsFound)
             if (!required.contains(p))
                 sb.append("~ ").append(p).append("\n");
-        return FixedMessage.createSimple(sb.append("```").toString());
+        return FixedMessage.build(sb.append("```").toString());
     }
 }

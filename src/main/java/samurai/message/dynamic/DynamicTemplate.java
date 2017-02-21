@@ -3,7 +3,7 @@ package samurai.message.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
-import samurai.action.general.Template;
+import samurai.action.admin.Template;
 import samurai.message.modifier.Reaction;
 
 import java.security.AccessControlException;

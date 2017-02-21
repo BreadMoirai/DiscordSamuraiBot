@@ -1,7 +1,6 @@
 package samurai.action.manage;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
 import samurai.Bot;
 import samurai.SamuraiController;
 import samurai.SamuraiListener;
@@ -55,6 +54,6 @@ public class Status extends Action {
             else if (threadInfo.getThreadState() == Thread.State.RUNNABLE) running++;
         }
         embed.addField("Threads", String.format("**%-14s**`%d`%n**%-13s**`%d`%n**%-13s**`%d`%n**%-15s**`%d`%n**%-16s**`%d`", "current:", threadMXBean.getThreadCount(), "running:", running, "waiting:", waiting, "peak:", threadMXBean.getPeakThreadCount(), "total:", threadMXBean.getTotalStartedThreadCount()), true);
-        return new FixedMessage().setMessage(new MessageBuilder().setEmbed(embed.build()).build());
+        return FixedMessage.build(embed.build());
     }
 }
