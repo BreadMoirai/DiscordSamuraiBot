@@ -13,6 +13,7 @@ import samurai.message.modifier.Reaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -29,12 +30,14 @@ public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private static Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private SamuraiController samurai;
+    private HashMap<String, String> prefixMap;
 
 
     @Override
     public void onReady(ReadyEvent event) {
         SamuraiController.setOfficialChannel(event.getJDA().getTextChannelById(String.valueOf(274732231124320257L)));
         samurai = new SamuraiController(this);
+        prefixMap = new HashMap<>();
         System.out.println("Ready!");
         Groovy.addBinding("samurai", samurai);
     }
@@ -47,8 +50,13 @@ public class SamuraiListener extends ListenerAdapter {
             return;
         }
         if (event.getAuthor().isBot()) return;
-
-        String token = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
+        String token;
+        if (prefixMap.containsKey(event.getGuild().getId()))
+            token = prefixMap.get(event.getGuild().getId());
+        else {
+            token = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
+            prefixMap.put(event.getGuild().getId(), token);
+        }
         String content = event.getMessage().getRawContent().trim();
 
         //if content begins with token ex. "!"
@@ -105,20 +113,23 @@ public class SamuraiListener extends ListenerAdapter {
                     .setName(event.getReaction().getEmote().getName())
                     .setTime(System.currentTimeMillis()));
     }
-
     void setJDA(JDA jda) {
         samurai.setJDA(jda);
     }
 
     @Override
     public void onShutdown(ShutdownEvent event) {
-        samurai.shutdown();
-
-
+        System.out.println("Shutting Down");
         try {
             Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void setPrefix(long guildId, String prefix) {
+        prefixMap.put(String.valueOf(guildId), prefix);
+    }
+
+
 }

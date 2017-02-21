@@ -126,7 +126,6 @@ public class SamuraiGuild implements Externalizable {
             for (int i : c.getBeatmapIds())
                 out.writeInt(i);
         }
-        System.out.println(this);
     }
 
     @Override

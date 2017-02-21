@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import samurai.SamuraiController;
 import samurai.SamuraiListener;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
@@ -36,6 +37,7 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     protected SamuraiGuild guild; //@Guild
     protected SamuraiListener listener; //@Listener
     protected Set<String> actionKeySet;
+    protected SamuraiController controller;
 
     @Override
     public Optional<SamuraiMessage> call() {
@@ -114,5 +116,9 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
     public void setKeySet(Set<String> actionKeySet) {
         this.actionKeySet = actionKeySet;
+    }
+
+    public void setController(SamuraiController controller) {
+        this.controller = controller;
     }
 }

@@ -111,7 +111,7 @@ public class SamuraiStore {
             System.out.printf("%d scores written to %s%n", scoreCount, getScoreDataPath(guildId).substring(20));
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Bot.logError(e);
             return false;
         }
     }

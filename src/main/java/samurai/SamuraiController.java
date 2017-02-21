@@ -81,6 +81,10 @@ public class SamuraiController {
         if (action.getClass().isAnnotationPresent(Source.class) && action.getGuildId() != Long.parseLong(Bot.SOURCE_GUILD)) {
             return false;
         }
+        if (action.getClass().isAnnotationPresent(Creator.class) && !action.getAuthor().isOwner())
+            return false;
+        if (action.getClass().isAnnotationPresent(Controller.class))
+            action.setController(this);
         if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().canInteract(client.getGuildById(String.valueOf(action.getGuildId())).getSelfMember())) {
             Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
             return false;
@@ -210,16 +214,12 @@ public class SamuraiController {
         }
     }
 
-    void shutdown() {
-        try {
-            commandPool.shutdown();
-            executorPool.shutdown();
-            while (!commandPool.isShutdown() || !executorPool.isShutdown())
-                wait(500);
-            for (SamuraiGuild g : guildMap.values())
-                SamuraiStore.writeGuild(g);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void shutdown() {
+        Bot.log("Shutting Down");
+        executorPool.shutdown();
+        commandPool.shutdown();
+        for (SamuraiGuild g : guildMap.values())
+            SamuraiStore.writeGuild(g);
+        client.shutdown();
     }
 }
