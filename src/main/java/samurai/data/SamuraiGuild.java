@@ -15,12 +15,14 @@ import java.util.*;
  */
 public class SamuraiGuild implements Externalizable {
 
+    private transient static final long serialVersionUID = 756680962858925830L;
+
     private String prefix;
     private long guildId;
     private transient HashMap<String, LinkedList<Score>> scoreMap;
     private ArrayList<SamuraiUser> users;
     private ArrayList<SamuraiChart> charts;
-    private boolean active;
+    private transient boolean active;
 
     public SamuraiGuild() {
     }
