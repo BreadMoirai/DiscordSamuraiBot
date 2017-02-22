@@ -8,8 +8,8 @@ import samurai.action.osu.Profile;
 import samurai.annotations.Client;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 import samurai.osu.OsuJsonReader;
 
 import java.util.Collections;

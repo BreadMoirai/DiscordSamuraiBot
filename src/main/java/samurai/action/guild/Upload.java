@@ -3,8 +3,8 @@ package samurai.action.guild;
 import samurai.action.Action;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * @author TonTL

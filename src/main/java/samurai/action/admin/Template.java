@@ -6,10 +6,10 @@ import samurai.action.Action;
 import samurai.action.general.Invite;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
+import samurai.message.DynamicMessage;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.dynamic.DynamicMessage;
 import samurai.message.dynamic.DynamicTemplate;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * This class defines guidelines to creating a new action

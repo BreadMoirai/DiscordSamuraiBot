@@ -6,8 +6,8 @@ import samurai.action.Action;
 import samurai.annotations.Admin;
 import samurai.annotations.Client;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 import java.util.Arrays;
 import java.util.LinkedList;

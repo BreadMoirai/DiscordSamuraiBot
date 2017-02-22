@@ -1,8 +1,7 @@
-package samurai.message.dynamic;
+package samurai.message;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
-import samurai.message.SamuraiMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
@@ -29,13 +28,39 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         stage = 0;
     }
 
+    /**
+     * This is the method that retrieves the message to be sent/updated to.
+     * What is returned should be determined by what stage the dynamic message is in.
+     *
+     * @return A Message that will replace the current content
+     */
     @Override
     public abstract Message getMessage();
 
-    public abstract boolean valid(Reaction messageReaction);
+    /**
+     * This is method determines who gets to interact with the message.
+     *
+     * @param action This is the messageAction associated with this message. Consists of a reaction.
+     * @return true if the Reaction is accepted. false otherwise
+     */
+    public abstract boolean valid(Reaction action);
 
-    protected abstract void execute();
+    /**
+     * When this method is called, valid() has also been called prior
+     * This method executes the Reaction action
+     * which should cause some change in the message
+     * either indicated by a change in member fields or stage.
+     *
+     * @param action this is the reaction added by the user
+     */
+    protected abstract void execute(Reaction action);
 
+    /**
+     * This is used to edit the message that has been sent
+     * Usually used to modify the reactions attached to the message
+     *
+     * @return a consumer for when the message has been sent
+     */
     public abstract Consumer<Message> getConsumer();
 
     /**
@@ -46,20 +71,24 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      */
     protected abstract int getLastStage();
 
-    //everything above should be overridden
+
 
     /**
      * Defines Behavior for when User interacts with an emoji.
-     *
+     * for default consumers, see getInitalConsumer() and getEditConsumer()
      * @return A MessageEdit object that modifies the message
      */
     @Override
     public MessageEdit call() {
         this.lastActive = getReaction().getTime();
-        execute();
+        execute(getReaction());
         return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(getConsumer());
     }
 
+    /**
+     * will delete the most recent valid reaction added by a user
+     * @return the consumer, use with getConsumer()
+     */
     protected Consumer<Message> getEditConsumer() {
         return message -> {
             for (MessageReaction mr : message.getReactions())
@@ -68,10 +97,15 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         };
     }
 
+    /**
+     * adds the emojis and increments the stage
+     * @param emoji unicode emojis
+     * @return the consumer, use with getConsumer()
+     */
     protected Consumer<Message> getInitialConsumer(List<String> emoji) {
         return message -> {
             emoji.forEach(reaction -> message.addReaction(reaction).complete());
-            setStage(1);
+            setStage(getStage()+1);
             message.editMessage(this.getMessage()).queue();
         };
     }

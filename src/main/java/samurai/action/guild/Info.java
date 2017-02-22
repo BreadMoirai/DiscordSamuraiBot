@@ -7,8 +7,8 @@ import samurai.action.Action;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
 import samurai.data.SamuraiUser;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 import java.awt.*;
 import java.time.OffsetDateTime;

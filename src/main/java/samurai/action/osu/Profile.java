@@ -5,8 +5,8 @@ import org.json.JSONObject;
 import samurai.action.Action;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 import samurai.osu.OsuJsonReader;
 import samurai.osu.enums.Grade;
 

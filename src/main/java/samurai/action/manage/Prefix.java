@@ -5,8 +5,8 @@ import samurai.annotations.Admin;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
 import samurai.annotations.Listener;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * @author TonTL

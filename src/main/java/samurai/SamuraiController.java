@@ -2,15 +2,16 @@ package samurai;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
+import samurai.message.DynamicMessage;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.dynamic.DynamicMessage;
-import samurai.message.fixed.FixedMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
@@ -116,8 +117,10 @@ public class SamuraiController {
                 return;
             final MessageEdit edit = editFuture.get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             Bot.logError(e);
+        } catch (InterruptedException e) {
+            Bot.log("Reaction Thread Shutdown");
         }
     }
 
@@ -139,8 +142,10 @@ public class SamuraiController {
                 else
                     client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             Bot.logError(e);
+        } catch (InterruptedException e) {
+            Bot.log("Command Thread Shutdown");
         }
     }
 
@@ -197,6 +202,7 @@ public class SamuraiController {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
+            client.getPresence().setGame(Game.of("@Samurai"));
             if (SamuraiStore.containsGuild(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {
@@ -214,8 +220,8 @@ public class SamuraiController {
 
     public void shutdown() {
         Bot.log("Shutting Down");
-        executorPool.shutdown();
-        commandPool.shutdown();
+        executorPool.shutdownNow();
+        commandPool.shutdownNow();
         for (SamuraiGuild g : guildMap.values())
             SamuraiStore.writeGuild(g);
         client.shutdown();

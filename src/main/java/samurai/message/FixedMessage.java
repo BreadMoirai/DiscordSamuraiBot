@@ -1,9 +1,8 @@
-package samurai.message.fixed;
+package samurai.message;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import samurai.message.SamuraiMessage;
 
 import java.util.Optional;
 import java.util.function.Consumer;

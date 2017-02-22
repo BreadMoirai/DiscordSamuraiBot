@@ -8,8 +8,8 @@ import samurai.annotations.ActionKeySet;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
 import samurai.data.SamuraiStore;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 import java.net.URISyntaxException;
 
