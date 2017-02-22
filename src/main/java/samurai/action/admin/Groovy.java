@@ -8,8 +8,8 @@ import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiStore;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 
 /**
