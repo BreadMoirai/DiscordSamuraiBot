@@ -1,14 +1,15 @@
-package samurai.action.general;
+package samurai.action.admin;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import samurai.action.Action;
+import samurai.action.general.Invite;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
+import samurai.message.DynamicMessage;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.dynamic.DynamicMessage;
 import samurai.message.dynamic.DynamicTemplate;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * This class defines guidelines to creating a new action
@@ -35,8 +36,8 @@ public class Template extends Action {
     protected SamuraiMessage buildMessage() {
         if (args.contains("simple"))
             //returns a simple text message
-            //use FixedMessage.createSimple("message"); if you just want to acknowledge the user.
-            return FixedMessage.createSimple("This is an example message");
+            //use FixedMessage.build("message"); if you just want to acknowledge the user.
+            return FixedMessage.build("This is an example message");
         else if (args.contains("dynamic"))
             //returns a dynamic message
             //see Dynamic Template

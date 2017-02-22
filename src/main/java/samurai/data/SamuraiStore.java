@@ -20,7 +20,6 @@ import java.util.Map;
  * @author TonTL
  * @version 4.5 - 2/20/2017
  */
-@SuppressWarnings("Duplicates")
 public class SamuraiStore {
     private static final int VERSION = 20170103;
 
@@ -64,13 +63,13 @@ public class SamuraiStore {
         } catch (IOException e) {
             Bot.logError(e);
         }
-        Bot.log("Success: GuildWrite - " + g.getGuildId());
+        Bot.log("✅ GuildWrite - " + g.getGuildId());
     }
 
     public static SamuraiGuild readGuild(long guildId) {
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
             SamuraiGuild g = (SamuraiGuild) input.readObject();
-            if (g != null) Bot.log("Success: GuildRead - " + g.getGuildId());
+            if (g != null) Bot.log("✅ GuildRead - " + g.getGuildId());
             return g;
         } catch (IOException | ClassNotFoundException e) {
             Bot.logError(e);
@@ -111,7 +110,7 @@ public class SamuraiStore {
             System.out.printf("%d scores written to %s%n", scoreCount, getScoreDataPath(guildId).substring(20));
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Bot.logError(e);
             return false;
         }
     }

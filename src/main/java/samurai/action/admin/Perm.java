@@ -6,8 +6,8 @@ import samurai.action.Action;
 import samurai.annotations.Admin;
 import samurai.annotations.Client;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -22,7 +22,7 @@ import java.util.List;
 @Client
 public class Perm extends Action {
 
-    private static final List<Permission> required = Arrays.asList(Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
+    private static final List<Permission> required = Arrays.asList(Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
 
     @Override
     protected SamuraiMessage buildMessage() {
@@ -42,6 +42,6 @@ public class Perm extends Action {
         for (Permission p : permsFound)
             if (!required.contains(p))
                 sb.append("~ ").append(p).append("\n");
-        return FixedMessage.createSimple(sb.append("```").toString());
+        return FixedMessage.build(sb.append("```").toString());
     }
 }

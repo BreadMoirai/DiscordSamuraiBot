@@ -4,8 +4,6 @@ Restrictions: None
 Arguments:  '' create an open duel
             '{@mention}' your enemy
 --------------------------------------------------------
-Usage:      '[prefix]duel ?{@mention}'
---------------------------------------------------------
 Example:    '[prefix]duel'
             '[prefix]duel @Nemesis'
 ```

@@ -3,7 +3,7 @@ package samurai.message.dynamic.duel;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
-import samurai.message.dynamic.DynamicMessage;
+import samurai.message.DynamicMessage;
 import samurai.message.modifier.Reaction;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public abstract class Game extends DynamicMessage {
     }
 
     @Override
-    public boolean valid(Reaction messageReaction) {
+    public boolean valid(Reaction action) {
         return false;
     }
 

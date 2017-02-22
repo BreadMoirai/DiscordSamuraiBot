@@ -3,7 +3,8 @@ package samurai.message.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
-import samurai.action.general.Template;
+import samurai.action.admin.Template;
+import samurai.message.DynamicMessage;
 import samurai.message.modifier.Reaction;
 
 import java.security.AccessControlException;
@@ -78,25 +79,24 @@ public class DynamicTemplate extends DynamicMessage {
     /**
      * This is method determines who gets to interact with the message.
      *
-     * @param messageReaction This is the messageAction associated with this message. Consists of a reaction.
+     * @param action This is the messageAction associated with this message. Consists of a reaction.
      * @return true if the Reaction is accepted. false otherwise
      */
     @Override
-    public boolean valid(Reaction messageReaction) {
+    public boolean valid(Reaction action) {
         //Rejects the Reaction if it is not within ACCEPTED_REACTIONS
         // You should always have an initialization stage where no input is accepted.
         // here the initialization stage is 0 check DynamicTemplate#GetConsumer
-        return getStage() != 0 && getStage() != getLastStage() && ACCEPTED_REACTIONS.contains(messageReaction.getName());
+        return getStage() != 0 && getStage() != getLastStage() && ACCEPTED_REACTIONS.contains(action.getName());
     }
 
     /**
      * This method changes the message based on the current Reaction
      */
     @Override
-    protected void execute() {
+    protected void execute(Reaction action) {
         //this method runs every time a new Reaction is detected and validated through valid(Reaction)
         //get the current Reaction
-        Reaction action = getReaction();
         switch (action.getName()) {
             //these two reactions will increment the stage by 1
             case "☑":

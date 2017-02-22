@@ -97,9 +97,9 @@
 //        buffer.order(ByteOrder.LITTLE_ENDIAN);
 //        buffer.put(StandardCharsets.UTF_8.encode(String.format("%-8s", guild.getPrefix())));
 //        buffer.putInt(userCount);
-//        for (Long discordId : guild.getUserMap().keySet())
+//        for (Long discordId : guild.getUsers().keySet())
 //            buffer.putLong(discordId);
-//        for (SamuraiUser user : guild.getUserMap().values()) {
+//        for (SamuraiUser user : guild.getUsers().values()) {
 //            buffer.putInt(user.getOsuId());
 //            buffer.put(StandardCharsets.UTF_8.encode(String.format("%-16s", user.getOsuName())));
 //            buffer.put(EMPTY_BYTES);

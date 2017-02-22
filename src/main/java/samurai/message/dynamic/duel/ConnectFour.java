@@ -43,12 +43,12 @@ public class ConnectFour extends Game {
     }
 
     @Override
-    public boolean valid(Reaction messageReaction) {
+    public boolean valid(Reaction action) {
         switch (getStage()) {
             case 0:
-                return messageReaction.getName().equals("⚔") && messageReaction.getUser() != A;
+                return action.getName().equals("⚔") && action.getUser() != A;
             case 2:
-                return CONNECTFOUR_REACTIONS.contains(messageReaction.getName()) && messageReaction.getUser() == next;
+                return CONNECTFOUR_REACTIONS.contains(action.getName()) && action.getUser() == next;
             default:
                 return false;
         }
@@ -56,18 +56,18 @@ public class ConnectFour extends Game {
 
 
     @Override
-    protected void execute() {
+    protected void execute(Reaction action) {
         switch (getStage()) {
             case 0:
-                B = getReaction().getUser();
+                B = action.getUser();
                 next = Game.random.nextBoolean() ? A : B;
                 setStage(1);
                 break;
             case 2:
-                int move = CONNECTFOUR_REACTIONS.indexOf(getReaction().getName());
+                int move = CONNECTFOUR_REACTIONS.indexOf(action.getName());
                 for (int y = 0; y < Y_BOUND; y++) {
                     if (board[move][y] == '\u0000') {
-                        if (getReaction().getUser() == A) {
+                        if (action.getUser() == A) {
                             board[move][y] = 'a';
                             next = B;
                             break;

@@ -2,15 +2,16 @@ package samurai;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
+import samurai.message.DynamicMessage;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.dynamic.DynamicMessage;
-import samurai.message.fixed.FixedMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
@@ -41,20 +42,18 @@ public class SamuraiController {
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
     private JDA client;
     private SamuraiListener listener;
-    //private boolean running;
 
 
     SamuraiController(SamuraiListener listener) {
         this.listener = listener;
-        commandPool = Executors.newCachedThreadPool();
+        commandPool = Executors.newFixedThreadPool(1);
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
         actionMap = new HashMap<>();
         guildMap = new ConcurrentHashMap<>();
-        //running = true;
         initActions();
-        executorPool = Executors.newScheduledThreadPool(1);
+        executorPool = Executors.newScheduledThreadPool(3);
         executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
@@ -81,6 +80,10 @@ public class SamuraiController {
         if (action.getClass().isAnnotationPresent(Source.class) && action.getGuildId() != Long.parseLong(Bot.SOURCE_GUILD)) {
             return false;
         }
+        if (action.getClass().isAnnotationPresent(Creator.class) && !action.getAuthor().isOwner())
+            return false;
+        if (action.getClass().isAnnotationPresent(Controller.class))
+            action.setController(this);
         if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().canInteract(client.getGuildById(String.valueOf(action.getGuildId())).getSelfMember())) {
             Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
             return false;
@@ -109,19 +112,21 @@ public class SamuraiController {
 
     private void takeReaction() {
         try {
-            final Future<MessageEdit> editFuture = reactionQueue.poll(5, TimeUnit.MILLISECONDS);
+            final Future<MessageEdit> editFuture = reactionQueue.take();
             if (editFuture == null)
                 return;
             final MessageEdit edit = editFuture.get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             Bot.logError(e);
+        } catch (InterruptedException e) {
+            Bot.log("Reaction Thread Shutdown");
         }
     }
 
     private void takeAction() {
         try {
-            Future<Optional<SamuraiMessage>> smOption = actionQueue.poll(10, TimeUnit.MILLISECONDS);
+            Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
             if (smOption == null || !smOption.get().isPresent()) return;
             SamuraiMessage samuraiMessage = smOption.get().get();
             if (samuraiMessage instanceof DynamicMessage) {
@@ -137,8 +142,10 @@ public class SamuraiController {
                 else
                     client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             Bot.logError(e);
+        } catch (InterruptedException e) {
+            Bot.log("Command Thread Shutdown");
         }
     }
 
@@ -195,6 +202,7 @@ public class SamuraiController {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
+            client.getPresence().setGame(Game.of("@Samurai"));
             if (SamuraiStore.containsGuild(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {
@@ -210,16 +218,12 @@ public class SamuraiController {
         }
     }
 
-    void shutdown() {
-        try {
-            commandPool.shutdown();
-            executorPool.shutdown();
-            while (!commandPool.isShutdown() || !executorPool.isShutdown())
-                wait(500);
-            for (SamuraiGuild g : guildMap.values())
-                SamuraiStore.writeGuild(g);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void shutdown() {
+        Bot.log("Shutting Down");
+        executorPool.shutdownNow();
+        commandPool.shutdownNow();
+        for (SamuraiGuild g : guildMap.values())
+            SamuraiStore.writeGuild(g);
+        client.shutdown();
     }
 }

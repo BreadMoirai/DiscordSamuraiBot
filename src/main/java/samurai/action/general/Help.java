@@ -8,8 +8,8 @@ import samurai.annotations.ActionKeySet;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
 import samurai.data.SamuraiStore;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 import java.net.URISyntaxException;
 
@@ -41,11 +41,11 @@ public class Help extends Action {
                     .setMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build());
         } else if (actionKeySet.contains(args.get(0)))
             try {
-                return FixedMessage.createSimple(SamuraiStore.getHelp(args.get(0)).replace("[prefix]", guild.getPrefix()));
+                return FixedMessage.build(SamuraiStore.getHelp(args.get(0)).replace("[prefix]", guild.getPrefix()));
             } catch (URISyntaxException e) {
                 Bot.logError(e);
                 return null;
             }
-        else return FixedMessage.createSimple("Yeah I don't think that's a real command.");
+        else return FixedMessage.build("Yeah I don't think that's a real command.");
     }
 }

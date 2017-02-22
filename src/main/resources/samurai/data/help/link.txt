@@ -1,0 +1,11 @@
+```cs
+Purpose: Link your discord account to an osu account
+         This will not affect your osu account
+Restrictions: None
+Arguments:  '[osu!username]' link yourself
+            '{@mention} [osu!username]' links @mention
+                ⬆ Can only be used higher ranked members
+--------------------------------------------------------
+Example:    '[prefix]link peppy'
+            '[prefix]info @someone someosu'
+```

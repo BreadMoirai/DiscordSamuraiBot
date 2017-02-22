@@ -2,8 +2,8 @@ package samurai.action.general;
 
 import samurai.action.Action;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * @author TonTL
@@ -16,6 +16,6 @@ public class Invite extends Action {
 
     @Override
     public SamuraiMessage buildMessage() {
-        return FixedMessage.createSimple(INVITE_URL);
+        return FixedMessage.build(INVITE_URL);
     }
 }

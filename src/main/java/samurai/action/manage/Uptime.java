@@ -3,8 +3,8 @@ package samurai.action.manage;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Key;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.fixed.FixedMessage;
 
 /**
  * @author TonTL
@@ -25,7 +25,7 @@ public class Uptime extends Action {
         if (hours > 0) sb.append(String.format("%d hours, ", hours));
         if (minutes > 0) sb.append(String.format("%d minutes, ", minutes));
         sb.append(String.format("%d seconds.", seconds));
-        return FixedMessage.createSimple(sb.toString());
+        return FixedMessage.build(sb.toString());
     }
 }
 
