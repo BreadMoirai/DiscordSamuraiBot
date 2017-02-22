@@ -26,8 +26,14 @@ public class Rank extends Action {
         if (size == -1) return FixedMessage.build("No users found.");
         else if (size == 0) return FixedMessage.build("Invalid Arguments");
         long id;
-        if (mentions.size() == 0) id = Long.parseLong(author.getUser().getId());
-        else if (mentions.size() == 1) id = Long.parseLong(mentions.get(0).getId());
+        if (mentions.size() == 0) {
+            id = Long.parseLong(author.getUser().getId());
+            if (!guild.hasUser(id)) return FixedMessage.build("You have not linked an osu account to yourself yet.");
+        } else if (mentions.size() == 1) {
+            id = Long.parseLong(mentions.get(0).getId());
+            if (!guild.hasUser(id))
+                return FixedMessage.build(String.format("**%s** does not have an osu account linked.", mentions.get(0).getName()));
+        }
         else {
             return FixedMessage.build("Too many mentions");
         }
