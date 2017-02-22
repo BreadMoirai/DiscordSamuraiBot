@@ -43,16 +43,15 @@ public abstract class Game extends DynamicMessage {
     MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (next == A) {
-            mb.append("***")
-                    .append(A.getAsMention())
-                    .append("*** \uD83C\uDD9A ")
-                    .append(B.getAsMention())
+            mb.append(A.getAsMention())
+                    .append(" \uD83C\uDD9A ")
+                    .append(B.getName())
                     .append("\n");
         } else {
-            mb.append(A.getAsMention())
-                    .append(" \uD83C\uDD9A ***")
+            mb.append(A.getName())
+                    .append(" \uD83C\uDD9A ")
                     .append(B.getAsMention())
-                    .append("***\n");
+                    .append("\n");
         }
         return mb;
     }

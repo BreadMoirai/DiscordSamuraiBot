@@ -50,7 +50,7 @@ public class Profile extends Action {
             return FixedMessage.build("Please provide a valid argument.");
         }
         EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(profile.getString("username"), String.format("https://samurai.osu.ppy.sh/u/%s", profile.getString("username")))
+                .setTitle(profile.getString("username"), String.format("https://osu.ppy.sh/u/%s", profile.getString("username")))
                 .setColor(Color.PINK)
                 .setThumbnail("http://s.ppy.sh/a/" + profile.get("user_id"))
                 .addField("Level", profile.getString("level"), true)

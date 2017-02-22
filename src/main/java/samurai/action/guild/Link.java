@@ -65,7 +65,7 @@ public class Link extends Action {
         }
         return new FixedMessage().setMessage(new MessageBuilder()
                 .append("Successfully linked **")
-                .append(profileMessage.getEmbeds().get(0).getTitle())
+                .append(mentions.size() == 1 ? mentions.get(0).getAsMention() : author.getAsMention())
                 .append("** to osu account")
                 .setEmbed(profileMessage.getEmbeds().get(0))
                 .build());
