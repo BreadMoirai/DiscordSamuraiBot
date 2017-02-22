@@ -4,8 +4,8 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
-import org.reflections.Reflections;
 import samurai.action.Action;
+import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
@@ -16,10 +16,7 @@ import samurai.message.SamuraiMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
-import java.util.HashMap;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,10 +36,10 @@ public class SamuraiController {
     private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
-    private final HashMap<String, Class<? extends Action>> actionMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
+    private final SamuraiListener listener;
     private JDA client;
-    private SamuraiListener listener;
+
 
 
     SamuraiController(SamuraiListener listener) {
@@ -51,9 +48,7 @@ public class SamuraiController {
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
         messageMap = new ConcurrentHashMap<>();
-        actionMap = new HashMap<>();
         guildMap = new ConcurrentHashMap<>();
-        initActions();
         executorPool = Executors.newScheduledThreadPool(3);
         executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
@@ -98,7 +93,7 @@ public class SamuraiController {
             action.setGuild(guildMap.get(action.getGuildId()));
         }
         if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
-            action.setKeySet(actionMap.keySet());
+            action.setKeySet(ActionFactory.getKeys());
         }
         return true;
     }
@@ -174,31 +169,6 @@ public class SamuraiController {
 
     void setJDA(JDA jda) {
         this.client = jda;
-    }
-
-    Action getAction(String key) {
-        if (actionMap.containsKey(key))
-            try {
-                return actionMap.get(key).newInstance();
-            } catch (IllegalAccessException | InstantiationException e) {
-                Bot.logError(e);
-            }
-        return null;
-    }
-
-    private void initActions() {
-        Reflections reflections = new Reflections("samurai.action");
-        Set<Class<? extends Action>> classes = reflections.getSubTypesOf(Action.class);
-        for (Class<? extends Action> action : classes) {
-            Key actionKey = action.getAnnotation(Key.class);
-            if (actionKey == null || Objects.equals(actionKey.value(), "")) {
-                System.err.printf("No key found for %s%n", action.getName());
-                continue;
-            }
-            actionMap.put(actionKey.value(), action);
-            String[] name = action.getName().substring(15).split("\\.");
-            System.out.printf("%-10s mapped to %-7s.%s%n", String.format("\"%s\"", actionKey.value()), name[0], name[1]);
-        }
     }
 
     String getPrefix(long id) {

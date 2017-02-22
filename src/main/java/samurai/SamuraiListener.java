@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
+import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
 import samurai.action.general.Help;
 import samurai.message.modifier.Reaction;
@@ -28,12 +29,12 @@ import java.util.regex.Pattern;
  */
 public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
-    private static Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-    private SamuraiController samurai;
-    private HashMap<String, String> prefixMap;
+    private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    private final SamuraiController samurai;
+    private final HashMap<String, String> prefixMap;
 
 
-    public SamuraiListener() {
+    SamuraiListener() {
         samurai = new SamuraiController(this);
         prefixMap = new HashMap<>();
         Groovy.addBinding("samurai", samurai);
@@ -82,7 +83,7 @@ public class SamuraiListener extends ListenerAdapter {
             key = content.substring(0, content.indexOf(' '));
             content = content.substring(content.indexOf(' ')).trim();
         }
-        Action action = samurai.getAction(key);
+        Action action = ActionFactory.newAction(key);
         if (action == null) return;
         List<String> args = new ArrayList<>();
 
