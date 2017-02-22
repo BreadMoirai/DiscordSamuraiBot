@@ -26,7 +26,7 @@ import samurai.message.dynamic.RankList;
 public class Groovy extends Action {
 
     private static final Binding binding;
-    private static GroovyShell gs;
+    private static final GroovyShell gs;
 
     static {
         binding = new Binding();

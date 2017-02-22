@@ -45,7 +45,7 @@ public class SamuraiStore {
         return path;
     }
 
-    public static String getHelp(String fileName) throws URISyntaxException {
+    public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
         if (SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)) == null)
             return String.format("`[prefix]%s` should be pretty self-explanatory... use `[prefix]join` if you need more help", fileName);

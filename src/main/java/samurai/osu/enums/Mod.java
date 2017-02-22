@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Osu!Mods from Osu!API
  * Created by TonTL on 1/23/2017.
  */
 public enum Mod {
@@ -23,14 +24,10 @@ public enum Mod {
     AutoPilot (8192),
     Perfect (16384);
 
-    private int value;
+    private final int value;
 
     Mod(int value) {
         this.value = value;
-    }
-
-    public int value() {
-        return value;
     }
 
     public static List<Mod> getMods(int modCombo) {
@@ -45,6 +42,10 @@ public enum Mod {
             }
         }
         return mods;
+    }
+
+    public int value() {
+        return value;
     }
 
     @Override

@@ -4,7 +4,9 @@ import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
 import samurai.osu.enums.RankedStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -24,7 +26,7 @@ public class Beatmap {
     private double difficultyRating;
     private boolean isEmpty;
 
-    public Beatmap() {
+    Beatmap() {
         isEmpty = false;
         scores = new ArrayList<>();
     }
@@ -36,7 +38,7 @@ public class Beatmap {
         return song;
     }
 
-    public Beatmap setSong(String song) {
+    Beatmap setSong(String song) {
         this.song = song;
         return this;
     }
@@ -47,7 +49,7 @@ public class Beatmap {
         } return artist;
     }
 
-    public Beatmap setArtist(String artist) {
+    Beatmap setArtist(String artist) {
         this.artist = artist;
         return this;
     }
@@ -58,7 +60,7 @@ public class Beatmap {
         } return mapper;
     }
 
-    public Beatmap setMapper(String mapper) {
+    Beatmap setMapper(String mapper) {
         this.mapper = mapper;
         return this;
     }
@@ -69,7 +71,7 @@ public class Beatmap {
         } return difficulty;
     }
 
-    public Beatmap setDifficulty(String difficulty) {
+    Beatmap setDifficulty(String difficulty) {
         this.difficulty = difficulty;
         return this;
     }
@@ -80,7 +82,7 @@ public class Beatmap {
         } return hash;
     }
 
-    public Beatmap setHash(String hash) {
+    Beatmap setHash(String hash) {
         this.hash = hash;
         return this;
     }
@@ -113,7 +115,7 @@ public class Beatmap {
         } return source;
     }
 
-    public Beatmap setSource(String source) {
+    Beatmap setSource(String source) {
         this.source = source;
         return this;
     }
@@ -124,7 +126,7 @@ public class Beatmap {
         } return tags;
     }
 
-    public Beatmap setTags(String tags) {
+    Beatmap setTags(String tags) {
         this.tags = tags;
         return this;
     }
@@ -144,7 +146,7 @@ public class Beatmap {
         return ar;
     }
 
-    public Beatmap setAr(float ar) {
+    Beatmap setAr(float ar) {
         this.ar = ar;
         return this;
     }
@@ -162,7 +164,7 @@ public class Beatmap {
         return hp;
     }
 
-    public Beatmap setHp(float hp) {
+    Beatmap setHp(float hp) {
         this.hp = hp;
         return this;
     }
@@ -171,7 +173,7 @@ public class Beatmap {
         return od;
     }
 
-    public Beatmap setOd(float od) {
+    Beatmap setOd(float od) {
         this.od = od;
         return this;
     }
@@ -180,7 +182,7 @@ public class Beatmap {
         return mapID;
     }
 
-    public Beatmap setMapID(int mapID) {
+    Beatmap setMapID(int mapID) {
         this.mapID = mapID;
         return this;
     }
@@ -198,7 +200,7 @@ public class Beatmap {
         return totalTime;
     }
 
-    public Beatmap setTotalTime(int totalTime) {
+    Beatmap setTotalTime(int totalTime) {
         this.totalTime = totalTime;
         return this;
     }
@@ -207,7 +209,7 @@ public class Beatmap {
         return drainTime;
     }
 
-    public Beatmap setDrainTime(int drainTime) {
+    Beatmap setDrainTime(int drainTime) {
         this.drainTime = drainTime;
         return this;
     }
@@ -219,7 +221,7 @@ public class Beatmap {
         return gameMode;
     }
 
-    public Beatmap setGameMode(GameMode gameMode) {
+    Beatmap setGameMode(GameMode gameMode) {
         this.gameMode = gameMode;
         return this;
     }
@@ -235,12 +237,12 @@ public class Beatmap {
 
     RankedStatus getRankedStatus() {
         if (rankedStatus == null) {
-            return rankedStatus.UNKNOWN;
+            return RankedStatus.UNKNOWN;
         }
         return rankedStatus;
     }
 
-    public Beatmap setRankedStatus(RankedStatus rankedStatus) {
+    Beatmap setRankedStatus(RankedStatus rankedStatus) {
         this.rankedStatus = rankedStatus;
         return this;
     }
@@ -303,7 +305,7 @@ public class Beatmap {
         return difficultyRating;
     }
 
-    public Beatmap setDifficultyRating(double difficultyRating) {
+    Beatmap setDifficultyRating(double difficultyRating) {
         this.difficultyRating = difficultyRating;
         return this;
     }

@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class Action implements Callable<Optional<SamuraiMessage>> {
 
-    protected static final String AVATER_URL = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
+    protected static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
 
     //TheseMembers are neverNull
     protected Member author;

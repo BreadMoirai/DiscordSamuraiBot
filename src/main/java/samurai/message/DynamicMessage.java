@@ -139,8 +139,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return stage;
     }
 
-    protected DynamicMessage setStage(int stage) {
+    protected void setStage(int stage) {
         this.stage = stage;
-        return this;
     }
 }

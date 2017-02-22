@@ -6,15 +6,15 @@ package samurai.data;
  * @since 2/15/2017
  */
 public class SamuraiUser {
-    private long discordId;
-    private int osuId;
-    private String osuName;
-    private int g_rank;
-    private int c_rank;
+    private final long discordId;
+    private final int osuId;
+    private final String osuName;
+    private final int g_rank;
+    private final int c_rank;
     private short l_rank;
 
 
-    public SamuraiUser(long discordId, int osuId, String osuName, int g, int c) {
+    SamuraiUser(long discordId, int osuId, String osuName, int g, int c) {
         this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
@@ -55,7 +55,7 @@ public class SamuraiUser {
         return l_rank;
     }
 
-    public void setL_rank(short l_rank) {
+    void setL_rank(short l_rank) {
         this.l_rank = l_rank;
     }
 

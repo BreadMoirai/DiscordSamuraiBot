@@ -47,7 +47,7 @@ public class SamuraiGuild implements Externalizable {
         return null;
     }
 
-    public void updateLocalRanks() {
+    private void updateLocalRanks() {
         active = true;
         users.sort(Comparator.comparingInt(SamuraiUser::getG_rank));
         for (int i = 1; i <= users.size(); i++) {
@@ -183,15 +183,7 @@ public class SamuraiGuild implements Externalizable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SamuraiGuild{");
-        sb.append("\n\tprefix='").append(prefix).append('\'');
-        sb.append("\n\tguildId=").append(guildId);
-        sb.append("\n\tscoreCount=").append(getScoreCount());
-        sb.append("\n\tusers=").append(users);
-        sb.append("\n\tcharts=").append(charts);
-        sb.append("\n\tactive=").append(active);
-        sb.append("\n}");
-        return sb.toString();
+        return String.format("SamuraiGuild{\n\tprefix='%s'\n\tguildId=%d\n\tscoreCount=%d\n\tusers=%s\n\tcharts=%s\n\tactive=%s\n}", prefix, guildId, getScoreCount(), users, charts, active);
     }
 
 }

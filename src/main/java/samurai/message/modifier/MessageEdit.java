@@ -10,8 +10,8 @@ import java.util.function.Consumer;
  * @since 2/14/2017
  */
 public class MessageEdit {
-    private long channelId, messageId;
-    private Message content;
+    private final long channelId, messageId;
+    private final Message content;
     private Consumer<Message> successConsumer;
 
 

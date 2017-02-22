@@ -3,6 +3,7 @@ package samurai.osu.enums;
 import org.apache.commons.lang3.text.WordUtils;
 
 /**
+ * Osu Game Mode from Osu!API
  * Created by TonTL on 1/23/2017.
  */
 public enum GameMode {
@@ -12,19 +13,10 @@ public enum GameMode {
     MANIA (3);
 
 
-    private int value;
+    private final int value;
 
     GameMode(int value) {
         this.value = value;
-    }
-
-    public int value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return WordUtils.capitalizeFully(this.name());
     }
 
     public static GameMode get(int value) {
@@ -34,5 +26,14 @@ public enum GameMode {
             }
         }
         return OSU;
+    }
+
+    public int value() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return WordUtils.capitalizeFully(this.name());
     }
 }

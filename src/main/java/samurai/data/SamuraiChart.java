@@ -20,17 +20,17 @@ public class SamuraiChart {
         this.beatmapIds = new ArrayList<>();
     }
 
-    public SamuraiChart(int chartId, String chartName, ArrayList<Integer> beatmapIds) {
+    SamuraiChart(int chartId, String chartName, ArrayList<Integer> beatmapIds) {
         this.chartId = chartId;
         this.chartName = chartName;
         this.beatmapIds = beatmapIds;
     }
 
-    public int getChartId() {
+    int getChartId() {
         return chartId;
     }
 
-    public String getChartName() {
+    String getChartName() {
         return chartName;
     }
 
@@ -38,7 +38,7 @@ public class SamuraiChart {
         return !beatmapIds.contains(id) && beatmapIds.add(id);
     }
 
-    public ArrayList<Integer> getBeatmapIds() {
+    ArrayList<Integer> getBeatmapIds() {
         return beatmapIds;
     }
 
@@ -51,7 +51,7 @@ public class SamuraiChart {
 
     }
 
-    private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream o) throws IOException {
         chartId = o.readInt();
         chartName = o.readUTF();
         int size = o.readByte();

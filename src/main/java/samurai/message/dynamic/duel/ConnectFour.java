@@ -28,7 +28,7 @@ public class ConnectFour extends Game {
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
 
-    private char[][] board;
+    private final char[][] board;
 
     public ConnectFour(User Seeker) {
         super(Seeker);

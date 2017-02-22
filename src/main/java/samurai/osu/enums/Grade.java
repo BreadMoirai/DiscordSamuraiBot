@@ -1,6 +1,7 @@
 package samurai.osu.enums;
 
 /**
+ * Osu!Grade from Osu!API
  * Created by TonTL on 1/23/2017.
  */
 public enum Grade {
@@ -14,21 +15,11 @@ public enum Grade {
     D (7),
     NONE (9);
 
-    private int value;
-
     private static final String[] id = {"273365912348917760)","273365939829997568","273365958960087040", "273365977826328576", "273365998634008576", "273366010894221312", "273366026513547264", "273366042737246208"};
+    private final int value;
 
     Grade(int value) {
         this.value = value;
-    }
-
-    public int value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return this.name();
     }
 
     public static Grade get(int value) {
@@ -38,6 +29,15 @@ public enum Grade {
             }
         }
         return NONE;
+    }
+
+    public int value() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return this.name();
     }
 
     public String getEmote() {
