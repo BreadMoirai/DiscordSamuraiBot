@@ -10,6 +10,7 @@ import samurai.annotations.*;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.dynamic.RankList;
 
 
 /**
@@ -32,6 +33,8 @@ public class Groovy extends Action {
         binding.setVariable("creator", "DreadMoirai");
         binding.setVariable("bot", Bot.class);
         binding.setVariable("store", SamuraiStore.class);
+
+        binding.setVariable("ranklist", RankList.class);
         gs = new GroovyShell(binding);
     }
 
@@ -48,7 +51,7 @@ public class Groovy extends Action {
         try {
             Object result = gs.evaluate(args.get(0));
             if (result != null) {
-                return FixedMessage.build(String.format("```\n%s\n```", result.toString()));
+                return FixedMessage.build(String.format("```%n%s%n```", result.toString()));
             } else return FixedMessage.build("Success.");
         } catch (CompilationFailedException | MissingPropertyException e) {
             return FixedMessage.build("Failure.");

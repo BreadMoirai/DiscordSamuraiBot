@@ -1,6 +1,5 @@
 package samurai.message.dynamic.duel;
 
-import com.sun.javafx.UnmodifiableArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -10,6 +9,8 @@ import samurai.Bot;
 import samurai.message.modifier.Reaction;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -22,7 +23,7 @@ import java.util.function.Consumer;
 public class ConnectFour extends Game {
 
 
-    private static final List<String> CONNECTFOUR_REACTIONS = new UnmodifiableArrayList<>(new String[]{"1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"}, 7);
+    private static final List<String> CONNECTFOUR_REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
     private static final String DUEL_REACTION = "⚔";
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
@@ -83,7 +84,7 @@ public class ConnectFour extends Game {
                 }
                 break;
             default:
-                new IllegalAccessException(String.format("[%d]Game is accessed when no action should take place.", this.getMessageId())).printStackTrace();
+                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser().getId());
         }
     }
 

@@ -52,10 +52,11 @@ public class DynamicTemplate extends DynamicMessage {
             case 2:
                 mb.append(getReaction().getUser().getAsMention()).append(" is a monster.");
                 break;
+            case 3:
+                mb.append(" gagagsga.");
+                break;
             case 4:
                 mb.append("Wow. It's a Dynamic Message.");
-            case 3:
-                mb.append(" Whoops.");
                 break;
             case 5:
                 mb.append("5/").append(getLastStage()).append("? More like 5/7.");
