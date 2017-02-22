@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import org.reflections.Reflections;
 import samurai.action.Action;
+import samurai.action.admin.Groovy;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
@@ -57,6 +58,8 @@ public class SamuraiController {
         executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
+
+        Groovy.addBinding("samurai", this);
     }
 
     public static Channel getOfficialChannel() {

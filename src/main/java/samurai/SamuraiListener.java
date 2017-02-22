@@ -33,13 +33,16 @@ public class SamuraiListener extends ListenerAdapter {
     private HashMap<String, String> prefixMap;
 
 
+    public SamuraiListener() {
+        samurai = new SamuraiController(this);
+        prefixMap = new HashMap<>();
+        Groovy.addBinding("samurai", samurai);
+    }
+
     @Override
     public void onReady(ReadyEvent event) {
         SamuraiController.setOfficialChannel(event.getJDA().getTextChannelById(String.valueOf(274732231124320257L)));
-        samurai = new SamuraiController(this);
-        prefixMap = new HashMap<>();
         System.out.println("Ready!");
-        Groovy.addBinding("samurai", samurai);
     }
 
 
@@ -76,8 +79,8 @@ public class SamuraiListener extends ListenerAdapter {
             content = null;
             if (key.length() > 10) return;
         } else {
-            key = content.substring(0, content.indexOf(" "));
-            content = content.substring(content.indexOf(" ")).trim();
+            key = content.substring(0, content.indexOf(' '));
+            content = content.substring(content.indexOf(' ')).trim();
         }
         Action action = samurai.getAction(key);
         if (action == null) return;

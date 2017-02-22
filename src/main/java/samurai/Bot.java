@@ -1,5 +1,6 @@
 package samurai;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -23,10 +24,11 @@ public class Bot {
     public static final String SOURCE_GUILD = "233097800722808832";
     public static final String BOT_ID = "270044218167132170";
     private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
+    @SuppressFBWarnings
     public static User self;
     private static TextChannel logChannel;
 
-    private Bot() {
+    private static void start() {
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             SamuraiListener listener = new SamuraiListener();
@@ -40,13 +42,12 @@ public class Bot {
             logChannel = client.getTextChannelById("281911114265001985");
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 
 
     public static void main(String[] args) {
-        new Bot();
+        Bot.start();
     }
 
     public static void logError(Throwable e) {
