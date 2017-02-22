@@ -35,9 +35,9 @@ public class SamuraiGuild implements Externalizable {
     }
 
     public void addUser(long id, JSONObject userJSON) {
+        active = true;
         users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank")));
         updateLocalRanks();
-        active = true;
     }
 
     public SamuraiUser getUser(long discordId) {
