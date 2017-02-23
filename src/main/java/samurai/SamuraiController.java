@@ -1,7 +1,6 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
 import samurai.annotations.*;
@@ -99,12 +98,15 @@ public class SamuraiController {
     private void takeAction() {
         try {
             Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
-            if (smOption == null || !smOption.get().isPresent()) return;
+            if (!smOption.get().isPresent()) return;
             SamuraiMessage samuraiMessage = smOption.get().get();
 
+            //This is not the best practice.
+            //if FixedMessage and DynamicMessage extends SamuraiMessage,
+            // should exhibit same behavior
+            // remove and merge if-else block
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
-                //I might make another message sent queue with .submit();
                 Message message = client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).complete();
                 dynamicMessage.setMessageId(Long.parseLong(message.getId()));
                 dynamicMessage.getConsumer().accept(message);
@@ -151,7 +153,6 @@ public class SamuraiController {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
-            client.getPresence().setGame(Game.of("mention me"));
             if (SamuraiStore.containsGuild(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {

@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -58,6 +59,7 @@ public class Bot {
                     .setToken(TOKEN)
                     .buildBlocking();
             listener.setJDA(client);
+            client.getPresence().setGame(Game.of("@Samurai"));
             logChannel = client.getTextChannelById("281911114265001985");
             shards.add(client);
             Groovy.addBinding("client", client);
