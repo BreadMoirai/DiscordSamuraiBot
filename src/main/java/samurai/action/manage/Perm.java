@@ -1,4 +1,4 @@
-package samurai.action.admin;
+package samurai.action.manage;
 
 import net.dv8tion.jda.core.Permission;
 import samurai.Bot;
