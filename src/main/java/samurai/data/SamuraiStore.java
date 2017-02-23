@@ -48,7 +48,7 @@ public class SamuraiStore {
     public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
         if (SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)) == null)
-            return String.format("`[prefix]%s` should be pretty self-explanatory... use `[prefix]join` if you need more help", fileName);
+            return String.format("Nothing found for `%s`. Sorry!", fileName);
         try {
             Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
         } catch (URISyntaxException | IOException e) {
