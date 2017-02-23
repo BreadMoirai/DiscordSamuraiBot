@@ -106,6 +106,7 @@ public class SamuraiController {
                 return;
             }
             SamuraiMessage samuraiMessage = smOption.get().get();
+
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
                 //I might make another message sent queue with .submit();
@@ -113,6 +114,7 @@ public class SamuraiController {
                 dynamicMessage.setMessageId(Long.parseLong(message.getId()));
                 dynamicMessage.getConsumer().accept(message);
                 messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
+
             } else if (samuraiMessage instanceof FixedMessage) {
                 if (((FixedMessage) samuraiMessage).getConsumer().isPresent())
                     client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(((FixedMessage) samuraiMessage).getConsumer().get());
