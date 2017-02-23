@@ -1,10 +1,10 @@
 package samurai.action.admin;
 
 import samurai.action.Action;
-import samurai.annotations.Controller;
 import samurai.annotations.Creator;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
+import samurai.message.MarkerMessage;
 import samurai.message.SamuraiMessage;
 
 /**
@@ -13,13 +13,11 @@ import samurai.message.SamuraiMessage;
  */
 @Key("shutdown")
 @Source
-@Controller
 @Creator
 public class Shutdown extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        controller.shutdown();
-        return null;
+        return new MarkerMessage();
     }
 }
