@@ -1,9 +1,13 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
@@ -31,7 +35,7 @@ public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private final SamuraiController samurai;
-    private final HashMap<String, String> prefixMap;
+    private final HashMap<Long, String> prefixMap;
 
 
     SamuraiListener() {
@@ -46,29 +50,48 @@ public class SamuraiListener extends ListenerAdapter {
         System.out.println("Ready!");
     }
 
+    @Override
+    public void onMessageUpdate(MessageUpdateEvent event) {
+        if (!event.getChannelType().equals(ChannelType.TEXT)) return;
+        final Member author = event.getMember();
+        if (author.getUser().isBot()) return;
+        final Message message = event.getMessage();
+        final long channelId = Long.parseLong(event.getChannel().getId());
+        final long guildId = Long.parseLong(event.getGuild().getId());
+        process(author, message, channelId, guildId);
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().getId().equals(Bot.BOT_ID)) {
+        final Member author = event.getGuild().getMember(event.getAuthor());
+        if (author.getUser().getId().equals(Bot.BOT_ID)) {
             messagesSent.incrementAndGet();
             return;
-        }
-        if (event.getAuthor().isBot()) return;
-        String token;
-        if (prefixMap.containsKey(event.getGuild().getId()))
-            token = prefixMap.get(event.getGuild().getId());
+        } else if (author.getUser().isBot()) return;
+        final Message message = event.getMessage();
+        final long channelId = Long.parseLong(event.getChannel().getId());
+        final long guildId = Long.parseLong(event.getGuild().getId());
+        process(author, message, channelId, guildId);
+    }
+
+    private void process(Member author, Message message, long channelId, long guildId) {
+        final String token;
+        if (prefixMap.containsKey(guildId))
+            token = prefixMap.get(guildId);
         else {
-            token = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
-            prefixMap.put(event.getGuild().getId(), token);
+            token = samurai.getPrefix(guildId);
+            prefixMap.put(guildId, token);
         }
-        String content = event.getMessage().getRawContent().trim();
+
+        String content = message.getRawContent().trim();
 
         //if content begins with token ex. "!"
+
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
             if (content.equals("<@270044218167132170>"))
                 samurai.execute(new Help()
-                        .setChannelId(Long.valueOf(event.getChannel().getId()))
-                        .setGuildId(Long.valueOf(event.getGuild().getId()))
+                        .setChannelId(channelId)
+                        .setGuildId(guildId)
                         .setArgs(new ArrayList<>()));
             return;
         }
@@ -87,24 +110,21 @@ public class SamuraiListener extends ListenerAdapter {
         if (action == null) return;
         List<String> args = new ArrayList<>();
 
-        if (content != null && !content.equals(""))
-            /*if ((content.startsWith("```") && content.endsWith("```")) || (content.startsWith("`") && content.endsWith("`"))) {
-                args.add(content.replace('`', ' ').trim());
-            }*/ {
+        if (content != null && !content.equals("")) {
             String[] argArray = argPattern.split(content.replace('`', '\"'));
-            //String[] argArray = content.substring(content.indexOf(" ") + 1).split("[ ]+");
             for (String argument : argArray)
                 if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
                     args.add(argument.replace("\"", "").trim());
         }
 
+
         action.setArgs(args)
-                .setAuthor(event.getMember())
-                .setGuildId(Long.valueOf(event.getGuild().getId()))
-                .setChannelId(Long.valueOf(event.getChannel().getId()))
-                .setMessageId(Long.valueOf(event.getMessage().getId()))
-                .setMentions(event.getMessage().getMentionedUsers())
-                .setAttaches(event.getMessage().getAttachments());
+                .setAuthor(author)
+                .setGuildId(guildId)
+                .setChannelId(channelId)
+                .setMessageId(Long.parseLong(message.getId()))
+                .setMentions(message.getMentionedUsers())
+                .setAttaches(message.getAttachments());
         samurai.execute(action);
     }
 
@@ -112,12 +132,13 @@ public class SamuraiListener extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getUser().isBot() && samurai.isWatching(Long.parseLong(event.getMessageId())))
             samurai.execute(new Reaction()
-                    .setChannelId(Long.valueOf(event.getChannel().getId()))
-                    .setMessageId(Long.valueOf(event.getMessageId()))
+                    .setChannelId(Long.parseLong(event.getChannel().getId()))
+                    .setMessageId(Long.parseLong(event.getMessageId()))
                     .setUser(event.getUser())
                     .setName(event.getReaction().getEmote().getName())
                     .setTime(System.currentTimeMillis()));
     }
+
     void setJDA(JDA jda) {
         samurai.setJDA(jda);
     }
@@ -133,7 +154,7 @@ public class SamuraiListener extends ListenerAdapter {
     }
 
     public void setPrefix(long guildId, String prefix) {
-        prefixMap.put(String.valueOf(guildId), prefix);
+        prefixMap.put(guildId, prefix);
     }
 
 
