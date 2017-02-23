@@ -9,7 +9,6 @@ import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
 import samurai.message.DynamicMessage;
 import samurai.message.FixedMessage;
-import samurai.message.MarkerMessage;
 import samurai.message.SamuraiMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
@@ -101,10 +100,6 @@ public class SamuraiController {
         try {
             Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
             if (smOption == null || !smOption.get().isPresent()) return;
-            if (smOption.get().get() instanceof MarkerMessage) {
-                shutdown();
-                return;
-            }
             SamuraiMessage samuraiMessage = smOption.get().get();
 
             if (samuraiMessage instanceof DynamicMessage) {
