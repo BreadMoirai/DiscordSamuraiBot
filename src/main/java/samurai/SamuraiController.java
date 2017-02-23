@@ -156,7 +156,7 @@ public class SamuraiController {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
-            client.getPresence().setGame(Game.of("@Samurai"));
+            client.getPresence().setGame(Game.of("mention me"));
             if (SamuraiStore.containsGuild(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {
