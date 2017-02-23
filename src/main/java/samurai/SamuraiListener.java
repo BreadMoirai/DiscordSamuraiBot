@@ -78,7 +78,7 @@ public class SamuraiListener extends ListenerAdapter {
 
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
-            content.replaceFirst("<@270044218167132170>", token);
+            content = content.replaceFirst("<@270044218167132170>( )?", token);
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
             return;
         }
