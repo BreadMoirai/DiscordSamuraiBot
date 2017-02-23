@@ -49,7 +49,7 @@ public class Groovy extends Action {
         try {
             Object result = gs.evaluate(args.get(0));
             if (result != null) {
-                return FixedMessage.build(String.format("```%n%s%n```", result.toString()));
+                return FixedMessage.build(String.format("%s", result.toString()));
             } else return FixedMessage.build("Success.");
         } catch (CompilationFailedException | MissingPropertyException e) {
             return FixedMessage.build("Failure.");
