@@ -8,8 +8,8 @@ import net.dv8tion.jda.core.entities.User;
  */
 public class Reaction {
     private User user;
-    private Long messageId;
-    private Long channelId;
+    private long messageId;
+    private long channelId;
     private String name;
     private long time;
 
@@ -26,7 +26,7 @@ public class Reaction {
         return messageId;
     }
 
-    public Reaction setMessageId(Long messageId) {
+    public Reaction setMessageId(long messageId) {
         this.messageId = messageId;
         return this;
     }
@@ -35,7 +35,7 @@ public class Reaction {
         return channelId;
     }
 
-    public Reaction setChannelId(Long channelId) {
+    public Reaction setChannelId(long channelId) {
         this.channelId = channelId;
         return this;
     }
