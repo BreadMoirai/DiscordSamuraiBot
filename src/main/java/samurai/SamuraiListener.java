@@ -18,7 +18,6 @@ import samurai.message.modifier.Reaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -35,18 +34,17 @@ public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private final SamuraiController samurai;
-    private final HashMap<Long, String> prefixMap;
+    //private final HashMap<Long, String> prefixMap;
 
 
     SamuraiListener() {
-        samurai = new SamuraiController(this);
-        prefixMap = new HashMap<>();
+        samurai = new SamuraiController();
+        //prefixMap = new HashMap<>();
         Groovy.addBinding("samurai", samurai);
     }
 
     @Override
     public void onReady(ReadyEvent event) {
-        SamuraiController.setOfficialChannel(event.getJDA().getTextChannelById(String.valueOf(274732231124320257L)));
         System.out.println("Ready!");
     }
 
@@ -76,12 +74,12 @@ public class SamuraiListener extends ListenerAdapter {
 
     private void process(Member author, Message message, long channelId, long guildId) {
         final String token;
-        if (prefixMap.containsKey(guildId))
-            token = prefixMap.get(guildId);
-        else {
+//        if (prefixMap.containsKey(guildId))
+//            token = prefixMap.get(guildId);
+//        else {
             token = samurai.getPrefix(guildId);
-            prefixMap.put(guildId, token);
-        }
+//            prefixMap.put(guildId, token);
+//        }
 
         String content = message.getRawContent().trim();
 
@@ -153,9 +151,9 @@ public class SamuraiListener extends ListenerAdapter {
         }
     }
 
-    public void setPrefix(long guildId, String prefix) {
-        prefixMap.put(guildId, prefix);
-    }
+//    public void setPrefix(long guildId, String prefix) {
+//        prefixMap.put(guildId, prefix);
+//    }
 
 
 }

@@ -1,8 +1,8 @@
 package samurai.action.general;
 
 import net.dv8tion.jda.core.MessageBuilder;
-import samurai.SamuraiController;
 import samurai.action.Action;
+import samurai.annotations.Client;
 import samurai.annotations.Key;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @version 4.2
  */
 @Key("join")
+@Client
 public class Join extends Action {
 
     @Override
@@ -21,8 +22,7 @@ public class Join extends Action {
         return new FixedMessage()
                 .setMessage(new MessageBuilder()
                         .append("https://discord.gg/")
-                        .append(SamuraiController
-                                .getOfficialChannel()
+                        .append(client.getTextChannelById("274732231124320257")
                                 .createInvite()
                                 .setMaxAge(15L, TimeUnit.MINUTES)
                                 .complete()

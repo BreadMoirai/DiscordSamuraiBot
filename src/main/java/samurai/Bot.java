@@ -12,6 +12,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import samurai.action.admin.Groovy;
 
 import javax.security.auth.login.LoginException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main Class
@@ -21,14 +22,25 @@ public class Bot {
 
     public static final String AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
     public static final long initializationTime = System.currentTimeMillis();
-    public static final String SOURCE_GUILD = "233097800722808832";
-    public static final String BOT_ID = "270044218167132170";
+    public static final AtomicInteger CALLS;
+    public static final AtomicInteger SENT;
+
+    static final String SOURCE_GUILD = "233097800722808832";
+    static final String BOT_ID = "270044218167132170";
     private static final String TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
+
+
     @SuppressFBWarnings
     public static User self;
     private static TextChannel logChannel;
 
+    static {
+        CALLS = new AtomicInteger();
+        SENT = new AtomicInteger();
+    }
+
     private static void start() {
+
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             SamuraiListener listener = new SamuraiListener();

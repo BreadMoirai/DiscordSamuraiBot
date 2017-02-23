@@ -1,23 +1,21 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
-import samurai.action.admin.Groovy;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
 import samurai.message.DynamicMessage;
 import samurai.message.FixedMessage;
+import samurai.message.MarkerMessage;
 import samurai.message.SamuraiMessage;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
 import java.util.Optional;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -27,22 +25,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version 4.2
  */
 public class SamuraiController {
-    public static final AtomicInteger callsMade = new AtomicInteger(0);
 
-    private static Channel officialChannel;
     private final ExecutorService commandPool;
     private final ScheduledExecutorService executorPool;
     private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
     private final BlockingQueue<Future<MessageEdit>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
-    private final SamuraiListener listener;
     private JDA client;
 
 
-
-    SamuraiController(SamuraiListener listener) {
-        this.listener = listener;
+    SamuraiController() {
         commandPool = Executors.newFixedThreadPool(1);
         actionQueue = new LinkedBlockingQueue<>();
         reactionQueue = new LinkedBlockingQueue<>();
@@ -52,20 +45,10 @@ public class SamuraiController {
         executorPool.scheduleWithFixedDelay(this::takeReaction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleWithFixedDelay(this::takeAction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
-
-        Groovy.addBinding("samurai", this);
-    }
-
-    public static Channel getOfficialChannel() {
-        return officialChannel;
-    }
-
-    static void setOfficialChannel(Channel officialChannel) {
-        SamuraiController.officialChannel = officialChannel;
     }
 
     void execute(Action action) {
-        callsMade.incrementAndGet();
+        Bot.CALLS.incrementAndGet();
         if (!checkAnts(action)) {
             return;
         }
@@ -79,14 +62,10 @@ public class SamuraiController {
         }
         if (action.getClass().isAnnotationPresent(Creator.class) && !action.getAuthor().isOwner())
             return false;
-        if (action.getClass().isAnnotationPresent(Controller.class))
-            action.setController(this);
         if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().canInteract(client.getGuildById(String.valueOf(action.getGuildId())).getSelfMember())) {
             Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
             return false;
         }
-        if (action.getClass().isAnnotationPresent(Listener.class))
-            action.setListener(listener);
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
         if (action.getClass().isAnnotationPresent(Guild.class)) {
             action.setGuild(guildMap.get(action.getGuildId()));
@@ -122,6 +101,10 @@ public class SamuraiController {
         try {
             Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
             if (smOption == null || !smOption.get().isPresent()) return;
+            if (smOption.get().get() instanceof MarkerMessage) {
+                shutdown();
+                return;
+            }
             SamuraiMessage samuraiMessage = smOption.get().get();
             if (samuraiMessage instanceof DynamicMessage) {
                 DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
@@ -187,7 +170,7 @@ public class SamuraiController {
         }
     }
 
-    public void shutdown() {
+    private void shutdown() {
         Bot.log("Shutting Down");
         executorPool.shutdownNow();
         commandPool.shutdownNow();
