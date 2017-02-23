@@ -22,7 +22,7 @@ public class Ping extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        OffsetDateTime recieveTime = client.getTextChannelById(String.valueOf(channelId)).getMessageById(String.valueOf(messageId)).complete().getCreationTime();
-        return FixedMessage.build("Calculating Ping...").setConsumer(message -> message.editMessage(String.format("Pung! %dms", MILLIS.between(recieveTime, message.getCreationTime()))).queue());
+        OffsetDateTime receiveTime = client.getTextChannelById(String.valueOf(channelId)).getMessageById(String.valueOf(messageId)).complete().getCreationTime();
+        return FixedMessage.build("Calculating Ping...").setConsumer(message -> message.editMessage(String.format("Pung! %dms", MILLIS.between(receiveTime, message.getCreationTime()))).queue());
     }
 }
