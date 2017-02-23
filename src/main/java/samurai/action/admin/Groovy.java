@@ -10,7 +10,6 @@ import samurai.annotations.*;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.dynamic.RankList;
 
 
 /**
@@ -34,7 +33,6 @@ public class Groovy extends Action {
         binding.setVariable("bot", Bot.class);
         binding.setVariable("store", SamuraiStore.class);
 
-        binding.setVariable("ranklist", RankList.class);
         gs = new GroovyShell(binding);
     }
 
