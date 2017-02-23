@@ -49,7 +49,7 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        if (!event.getChannelType().equals(ChannelType.TEXT)) return;
+        if (!event.isFromType(ChannelType.TEXT)) return;
         final Member author = event.getMember();
         if (author.getUser().isBot()) return;
         final Message message = event.getMessage();
@@ -60,6 +60,7 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.TEXT)) return;
         final Member author = event.getGuild().getMember(event.getAuthor());
         if (author.getUser().getId().equals(Bot.ID)) {
             messagesSent.incrementAndGet();
