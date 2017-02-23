@@ -5,17 +5,16 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import samurai.SamuraiController;
-import samurai.SamuraiListener;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 /**
  * Superclass of all actions
+ *
  * @author TonTL
  * @version 4.0
  */
@@ -35,9 +34,7 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     //optional members
     protected JDA client; //@Client
     protected SamuraiGuild guild; //@Guild
-    protected SamuraiListener listener; //@Listener
-    protected Set<String> actionKeySet;
-    protected SamuraiController controller;
+    protected SamuraiController controller; //@Controller
 
     @Override
     public Optional<SamuraiMessage> call() {
@@ -91,21 +88,13 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
         return this;
     }
 
-    public void setClient(JDA client) {
-        this.client = client;
-    }
-
     public Action setGuild(SamuraiGuild guild) {
         this.guild = guild;
         return this;
     }
 
-    public void setListener(SamuraiListener listener) {
-        this.listener = listener;
-    }
-
-    public void setKeySet(Set<String> actionKeySet) {
-        this.actionKeySet = actionKeySet;
+    public void setClient(JDA client) {
+        this.client = client;
     }
 
     public void setController(SamuraiController controller) {
