@@ -25,8 +25,8 @@ public class Bot {
     public static final String AVATAR;
     public static final AtomicInteger CALLS;
     public static final AtomicInteger SENT;
+    public static final String ID;
     static final String SOURCE_GUILD;
-    static final String BOT_ID;
     private static final String TOKEN;
     private static TextChannel logChannel;
 
@@ -35,7 +35,7 @@ public class Bot {
     static {
         START_TIME = System.currentTimeMillis();
         SOURCE_GUILD = "233097800722808832";
-        BOT_ID = "270044218167132170";
+        ID = "270044218167132170";
         AVATAR = "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg";
         TOKEN = "MjcwMDQ0MjE4MTY3MTMyMTcw.C1yJ0Q.oyQMo7ZGXdaq2K3P43NMwOO8diM";
 
@@ -90,7 +90,7 @@ public class Bot {
         logChannel.sendMessage(s).queue();
     }
 
-    public static User getSelf() {
-        return shards.get(0).getSelfUser();
+    public static User getUser(Long id) {
+        return shards.get(0).getUserById(String.valueOf(id));
     }
 }

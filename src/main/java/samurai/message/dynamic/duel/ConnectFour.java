@@ -84,7 +84,7 @@ public class ConnectFour extends Game {
                 }
                 break;
             default:
-                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser().getId());
+                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser());
         }
     }
 
@@ -93,11 +93,11 @@ public class ConnectFour extends Game {
         switch (getStage()) {
             case 0:
                 return new MessageBuilder()
-                        .append(String.format("Who is willing to accept %s's challenge to a perilous game of **Connect Four**", A.getAsMention()))
+                        .append(String.format("Who is willing to accept <@%d>'s challenge to a perilous game of **Connect Four**", A))
                         .build();
             case 1:
                 return new MessageBuilder()
-                        .append(String.format("Building %s's game against %s.", A.getAsMention(), B.getAsMention()))
+                        .append(String.format("Building <@%d>'s game against <@%d>.", A, B))
                         .build();
             case 2:
                 return buildTitle()
@@ -107,8 +107,8 @@ public class ConnectFour extends Game {
             case 3:
                 return buildTitle()
                         .setEmbed(buildBoard()
-                                .addField("The Winner is:", winner.getName(), false)
-                                .setImage(winner.getAvatarUrl())
+                                .addField("The Winner is:", String.format("<@%d>", winner), false)
+                                .setImage(Bot.getUser(winner).getAvatarUrl())
                                 .build())
                         .build();
             default:
@@ -146,7 +146,7 @@ public class ConnectFour extends Game {
                 return message -> message.addReaction(DUEL_REACTION).queue();
             case 1:
                 return message -> {
-                    message.editMessage(String.format("Building %s's game against %s", A.getAsMention(), B.getAsMention())).queue();
+                    message.editMessage(String.format("Building <@%d>'s game against <@%d>", A, B)).queue();
                     getInitialConsumer(CONNECTFOUR_REACTIONS).accept(message);
                 };
             case 2:
@@ -235,7 +235,7 @@ public class ConnectFour extends Game {
             if (board[x][Y_BOUND - 1] == '\u0000') {
                 break;
             } else if (x == 6) {
-                winner = Bot.getSelf();
+                winner = Long.valueOf(Bot.ID);
                 return true;
             }
         }

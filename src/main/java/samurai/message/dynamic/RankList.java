@@ -92,7 +92,7 @@ public class RankList extends DynamicMessage {
                 setStage(getStage() + 1);
                 break;
             default:
-                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser().getId());
+                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser());
         }
     }
 

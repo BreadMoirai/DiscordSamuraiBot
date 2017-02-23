@@ -1,23 +1,21 @@
 package samurai.message.modifier;
 
-import net.dv8tion.jda.core.entities.User;
-
 /**
  * @author TonTL
  * @since 4.0
  */
 public class Reaction {
-    private User user;
+    private long user;
     private long messageId;
     private long channelId;
     private String name;
     private long time;
 
-    public User getUser() {
+    public long getUser() {
         return user;
     }
 
-    public Reaction setUser(User user) {
+    public Reaction setUser(long user) {
         this.user = user;
         return this;
     }

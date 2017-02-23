@@ -22,15 +22,17 @@ public abstract class Game extends DynamicMessage {
         random = new Random();
     }
 
-    User A, B;
-    User winner;
-    User next;
+    Long A, B, winner, next;
+    private String nameA, nameB;
 
-    Game(User Instigator, User... Challenged) {
+    Game(User instigator, User... challengers) {
         super();
-        A = Instigator;
-        if (Challenged.length > 0)
-            B = Challenged[0];
+        A = Long.valueOf(instigator.getId());
+        nameA = instigator.getName();
+        if (challengers.length > 0) {
+            B = Long.valueOf(challengers[0].getId());
+            nameB = challengers[0].getName();
+        }
         else B = null;
         winner = null;
     }
@@ -43,15 +45,15 @@ public abstract class Game extends DynamicMessage {
     MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (next == A) {
-            mb.append(A.getAsMention())
-                    .append(" \uD83C\uDD9A ")
-                    .append(B.getName())
+            mb.append("<@").append(A)
+                    .append("> \uD83C\uDD9A ")
+                    .append(nameB)
                     .append("\n");
         } else {
-            mb.append(A.getName())
-                    .append(" \uD83C\uDD9A ")
-                    .append(B.getAsMention())
-                    .append("\n");
+            mb.append(nameA)
+                    .append(" \uD83C\uDD9A <@")
+                    .append(B)
+                    .append(">\n");
         }
         return mb;
     }
@@ -67,14 +69,14 @@ public abstract class Game extends DynamicMessage {
                 winner = B;
                 break;
             default:
-                winner = Bot.getSelf();
+                winner = Long.valueOf(Bot.ID);
                 break;
         }
     }
 
-    public List<User> getLosers() {
-        ArrayList<User> losers = new ArrayList<>();
-        if (winner == Bot.getSelf()) {
+    public List<Long> getLosers() {
+        ArrayList<Long> losers = new ArrayList<>();
+        if (winner.equals(Long.parseLong(Bot.ID))) {
             losers.add(A);
             losers.add(B);
         } else if (winner == A) {
