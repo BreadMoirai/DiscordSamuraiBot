@@ -63,7 +63,7 @@ public class SamuraiStore {
         } catch (IOException e) {
             Bot.logError(e);
         }
-        Bot.log("✅ GuildWrite - " + g.getGuildId());
+        Bot.log("☑ GuildWrite - " + g.getGuildId());
     }
 
     public static SamuraiGuild readGuild(long guildId) {
@@ -113,5 +113,26 @@ public class SamuraiStore {
             Bot.logError(e);
             return false;
         }
+    }
+
+    public static HashMap<String, LinkedList<Score>> readScores(String path) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
+        int version = DbReader.nextInt(bis);
+        System.out.println("version: " + version);
+        if (version > VERSION) {
+            System.out.println("NEW SCORE VERSION FOUND\n" + version + "\n");
+        }
+        int count = DbReader.nextInt(bis);
+        HashMap<String, LinkedList<Score>> beatmapScores = new HashMap<>(count);
+        for (int i = 0; i < count; i++) {
+            String hash = DbReader.nextString(bis);
+            int scoreCount = DbReader.nextInt(bis);
+            LinkedList<Score> scoreList = new LinkedList<>();
+            for (int j = 0; j < scoreCount; j++) {
+                scoreList.add(DbReader.nextScore(bis));
+            }
+            beatmapScores.put(hash, scoreList);
+        }
+        return beatmapScores;
     }
 }
