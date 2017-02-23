@@ -2,6 +2,7 @@ package samurai.message;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
+import samurai.Bot;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
@@ -93,7 +94,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return message -> {
             for (MessageReaction mr : message.getReactions())
                 if (mr.getEmote().getName().equals(getReaction().getName()))
-                    mr.removeReaction(getReaction().getUser()).queue();
+                    mr.removeReaction(Bot.getUser(getReaction().getUser())).queue();
         };
     }
 

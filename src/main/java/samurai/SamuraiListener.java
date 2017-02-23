@@ -13,7 +13,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
 import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
-import samurai.action.general.Help;
 import samurai.message.modifier.Reaction;
 
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        if (!event.getChannelType().equals(ChannelType.TEXT)) return;
+        if (!event.isFromType(ChannelType.TEXT)) return;
         final Member author = event.getMember();
         if (author.getUser().isBot()) return;
         final Message message = event.getMessage();
@@ -61,8 +60,9 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (!event.isFromType(ChannelType.TEXT)) return;
         final Member author = event.getGuild().getMember(event.getAuthor());
-        if (author.getUser().getId().equals(Bot.BOT_ID)) {
+        if (author.getUser().getId().equals(Bot.ID)) {
             messagesSent.incrementAndGet();
             return;
         } else if (author.getUser().isBot()) return;
@@ -73,24 +73,14 @@ public class SamuraiListener extends ListenerAdapter {
     }
 
     private void process(Member author, Message message, long channelId, long guildId) {
-        final String token;
-//        if (prefixMap.containsKey(guildId))
-//            token = prefixMap.get(guildId);
-//        else {
-            token = samurai.getPrefix(guildId);
-//            prefixMap.put(guildId, token);
-//        }
+        final String token = samurai.getPrefix(guildId);
 
         String content = message.getRawContent().trim();
 
-        //if content begins with token ex. "!"
-
+        //if content does not with token ex. "!"
+        if (content.startsWith("<@270044218167132170>"))
+            content = content.replaceFirst("<@270044218167132170>( )?", token);
         if (!content.startsWith(token) || content.length() <= token.length() + 3) {
-            if (content.equals("<@270044218167132170>"))
-                samurai.execute(new Help()
-                        .setChannelId(channelId)
-                        .setGuildId(guildId)
-                        .setArgs(new ArrayList<>()));
             return;
         }
 
@@ -132,7 +122,7 @@ public class SamuraiListener extends ListenerAdapter {
             samurai.execute(new Reaction()
                     .setChannelId(Long.parseLong(event.getChannel().getId()))
                     .setMessageId(Long.parseLong(event.getMessageId()))
-                    .setUser(event.getUser())
+                    .setUser(Long.valueOf(event.getUser().getId()))
                     .setName(event.getReaction().getEmote().getName())
                     .setTime(System.currentTimeMillis()));
     }
@@ -151,9 +141,9 @@ public class SamuraiListener extends ListenerAdapter {
         }
     }
 
-//    public void setPrefix(long guildId, String prefix) {
-//        prefixMap.put(guildId, prefix);
-//    }
+    void stop() {
+        samurai.shutdown();
+    }
 
 
 }

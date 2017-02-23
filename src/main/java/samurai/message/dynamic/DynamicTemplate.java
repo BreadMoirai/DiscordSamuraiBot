@@ -50,7 +50,7 @@ public class DynamicTemplate extends DynamicMessage {
                 mb.append("I'm a monster.");
                 break;
             case 2:
-                mb.append(getReaction().getUser().getAsMention()).append(" is a monster.");
+                mb.append("<@").append(getReaction().getUser()).append("> is a monster.");
                 break;
             case 3:
                 mb.append(" gagagsga.");
@@ -113,7 +113,7 @@ public class DynamicTemplate extends DynamicMessage {
                 if (getStage() <= 5) setStage(getStage() * 2);
                 break;
             default:
-                Bot.logError(new AccessControlException(String.format("Invalid reaction allowed access to execute%n%s from %s", action.getName(), action.getUser().getName())));
+                Bot.logError(new AccessControlException(String.format("Invalid reaction allowed access to execute%n%s by %s", action.getName(), action.getUser())));
         }
     }
 

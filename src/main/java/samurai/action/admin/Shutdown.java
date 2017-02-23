@@ -1,10 +1,11 @@
 package samurai.action.admin;
 
+import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Creator;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
-import samurai.message.MarkerMessage;
+import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 
 /**
@@ -18,6 +19,7 @@ public class Shutdown extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        return new MarkerMessage();
+        Bot.stop();
+        return FixedMessage.build("See ya later, loser.");
     }
 }

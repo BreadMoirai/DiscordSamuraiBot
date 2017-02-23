@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import samurai.SamuraiController;
 import samurai.data.SamuraiGuild;
 import samurai.message.SamuraiMessage;
 
@@ -34,7 +33,6 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
     //optional members
     protected JDA client; //@Client
     protected SamuraiGuild guild; //@Guild
-    protected SamuraiController controller; //@Controller
 
     @Override
     public Optional<SamuraiMessage> call() {
@@ -97,7 +95,4 @@ public abstract class Action implements Callable<Optional<SamuraiMessage>> {
         this.client = client;
     }
 
-    public void setController(SamuraiController controller) {
-        this.controller = controller;
-    }
 }

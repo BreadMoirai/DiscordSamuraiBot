@@ -14,8 +14,6 @@ import java.util.List;
  * Score
  */
 public class Score {
-    private static final String emptyString = "";
-    private static final int emptyInt = 0xffffffff;
     private GameMode mode;
     private int version;
     private String beatmapHash, player, replayHash;

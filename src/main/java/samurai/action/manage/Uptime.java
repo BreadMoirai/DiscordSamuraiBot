@@ -15,7 +15,7 @@ import samurai.message.SamuraiMessage;
 public class Uptime extends Action {
     @Override
     protected SamuraiMessage buildMessage() {
-        long timeDifference = System.currentTimeMillis() - Bot.initializationTime;
+        long timeDifference = System.currentTimeMillis() - Bot.START_TIME;
         int seconds = (int) ((timeDifference / 1000) % 60);
         int minutes = (int) ((timeDifference / 60000) % 60);
         int hours = (int) ((timeDifference / 3600000) % 24);
