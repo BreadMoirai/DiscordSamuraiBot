@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
-import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
@@ -91,9 +90,6 @@ public class SamuraiController {
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
         if (action.getClass().isAnnotationPresent(Guild.class)) {
             action.setGuild(guildMap.get(action.getGuildId()));
-        }
-        if (action.getClass().isAnnotationPresent(ActionKeySet.class)) {
-            action.setKeySet(ActionFactory.getKeys());
         }
         return true;
     }

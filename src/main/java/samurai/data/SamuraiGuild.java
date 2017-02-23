@@ -185,7 +185,7 @@ public class SamuraiGuild implements Externalizable {
 
     @Override
     public String toString() {
-        return String.format("SamuraiGuild{\n\tprefix='%s'\n\tguildId=%d\n\tscoreCount=%d\n\tusers=%s\n\tcharts=%s\n\tactive=%s\n}", prefix, guildId, getScoreCount(), users, charts, active);
+        return String.format("SamuraiGuild{%n\tprefix='%s'%n\tguildId=%d%n\tscoreCount=%d%n\tusers=%s%n\tcharts=%s%n\tactive=%s%n}", prefix, guildId, getScoreCount(), users, charts, active);
     }
 
 }

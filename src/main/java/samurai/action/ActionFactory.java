@@ -34,9 +34,6 @@ public class ActionFactory {
     private ActionFactory() {
     }
 
-    public static Set<String> getKeys() {
-        return actionMap.keySet();
-    }
 
     public static Action newAction(String key) {
         if (!actionMap.containsKey(key)) return null;
