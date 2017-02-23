@@ -235,7 +235,7 @@ public class ConnectFour extends Game {
             if (board[x][Y_BOUND - 1] == '\u0000') {
                 break;
             } else if (x == 6) {
-                winner = Bot.self;
+                winner = Bot.getSelf();
                 return true;
             }
         }

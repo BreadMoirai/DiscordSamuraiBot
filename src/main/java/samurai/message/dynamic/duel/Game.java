@@ -67,14 +67,14 @@ public abstract class Game extends DynamicMessage {
                 winner = B;
                 break;
             default:
-                winner = Bot.self;
+                winner = Bot.getSelf();
                 break;
         }
     }
 
     public List<User> getLosers() {
         ArrayList<User> losers = new ArrayList<>();
-        if (winner == Bot.self) {
+        if (winner == Bot.getSelf()) {
             losers.add(A);
             losers.add(B);
         } else if (winner == A) {

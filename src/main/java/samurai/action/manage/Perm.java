@@ -1,7 +1,6 @@
 package samurai.action.manage;
 
 import net.dv8tion.jda.core.Permission;
-import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Client;
 import samurai.annotations.Key;
@@ -25,7 +24,7 @@ public class Perm extends Action {
     @Override
     protected SamuraiMessage buildMessage() {
         List<Permission> permsNotFound = new LinkedList<>();
-        List<Permission> permsFound = client.getGuildById(String.valueOf(guildId)).getMember(Bot.self).getPermissions(client.getTextChannelById(String.valueOf(channelId)));
+        List<Permission> permsFound = client.getGuildById(String.valueOf(guildId)).getSelfMember().getPermissions(client.getTextChannelById(String.valueOf(channelId)));
         for (Permission p : required)
             if (!permsFound.contains(p))
                 permsNotFound.add(p);
