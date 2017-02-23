@@ -172,7 +172,7 @@ public class SamuraiController {
         }
     }
 
-    private void shutdown() {
+    void shutdown() {
         Bot.log("Shutting Down");
         executorPool.shutdownNow();
         commandPool.shutdownNow();

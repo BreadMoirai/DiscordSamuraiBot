@@ -151,9 +151,9 @@ public class SamuraiListener extends ListenerAdapter {
         }
     }
 
-//    public void setPrefix(long guildId, String prefix) {
-//        prefixMap.put(guildId, prefix);
-//    }
+    public void stop() {
+        samurai.shutdown();
+    }
 
 
 }
