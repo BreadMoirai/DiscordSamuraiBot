@@ -1,0 +1,29 @@
+```diff
+Admin
+- [prefix]groovy
+- [prefix]shutdown
++ [prefix]template
+- [prefix]throw
+
+General
++ [prefix]duel
++ [prefix]help
+- [prefix]invite
+- [prefix]join
+- [prefix]ping
+
+Guild
++ [prefix]info
++ [prefix]link
+- [prefix]rank
+- [prefix]upload
+
+Manage
+- [prefix]perm
++ [prefix]prefix
+- [prefix]status
+- [prefix]uptime
+
+Osu
++ [prefix]profile
+```
