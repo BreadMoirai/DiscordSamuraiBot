@@ -36,7 +36,7 @@ class Hangman extends Game {
     }
 
     @Override
-    public Consumer<Message> getConsumer() {
+    public Consumer<Message> createConsumer() {
         return null;
     }
 

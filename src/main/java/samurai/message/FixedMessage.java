@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +22,12 @@ public class FixedMessage extends SamuraiMessage {
     public static FixedMessage build(MessageEmbed e) {
         return new FixedMessage().setMessage(new MessageBuilder().setEmbed(e).build());
     }
+
+    @Override
+    public boolean isPersistent() {
+        return false;
+    }
+
     @Override
     public Message getMessage() {
         return message;
@@ -33,8 +38,9 @@ public class FixedMessage extends SamuraiMessage {
         return this;
     }
 
-    public Optional<Consumer<Message>> getConsumer() {
-        return Optional.ofNullable(consumer);
+    @Override
+    public Consumer<Message> getConsumer() {
+        return consumer;
     }
 
     public FixedMessage setConsumer(Consumer<Message> consumer) {

@@ -140,14 +140,14 @@ public class ConnectFour extends Game {
     }
 
     @Override
-    public Consumer<Message> getConsumer() {
+    public Consumer<Message> createConsumer() {
         switch (getStage()) {
             case 0:
                 return message -> message.addReaction(DUEL_REACTION).queue();
             case 1:
                 return message -> {
                     message.editMessage(String.format("Building <@%d>'s game against <@%d>", A, B)).queue();
-                    getInitialConsumer(CONNECTFOUR_REACTIONS).accept(message);
+                    getEmojiConsumer(CONNECTFOUR_REACTIONS).accept(message);
                 };
             case 2:
                 return getEditConsumer();

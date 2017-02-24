@@ -20,13 +20,18 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     private static final int timeout = 15 * 60 * 1000;
 
-    private long messageId;
+    private Long messageId;
     private long lastActive;
     private Reaction action;
     private int stage;
 
     protected DynamicMessage() {
         stage = 0;
+    }
+
+    @Override
+    public boolean isPersistent() {
+        return true;
     }
 
     /**
@@ -62,7 +67,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      *
      * @return a consumer for when the message has been sent
      */
-    public abstract Consumer<Message> getConsumer();
+    public abstract Consumer<Message> createConsumer();
 
     /**
      * Used with DynamicMessage#isExpired
@@ -73,10 +78,10 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     protected abstract int getLastStage();
 
 
-
     /**
      * Defines Behavior for when User interacts with an emoji.
      * for default consumers, see getInitalConsumer() and getEditConsumer()
+     *
      * @return A MessageEdit object that modifies the message
      */
     @Override
@@ -88,7 +93,8 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     /**
      * will delete the most recent valid reaction added by a user
-     * @return the consumer, use with getConsumer()
+     *
+     * @return the consumer, use with createConsumer()
      */
     protected Consumer<Message> getEditConsumer() {
         return message -> {
@@ -100,13 +106,14 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     /**
      * adds the emojis and increments the stage
+     *
      * @param emoji unicode emojis
-     * @return the consumer, use with getConsumer()
+     * @return the consumer, use with createConsumer()
      */
-    protected Consumer<Message> getInitialConsumer(List<String> emoji) {
+    protected Consumer<Message> getEmojiConsumer(List<String> emoji) {
         return message -> {
             emoji.forEach(reaction -> message.addReaction(reaction).complete());
-            setStage(getStage()+1);
+            setStage(getStage() + 1);
             message.editMessage(this.getMessage()).queue();
         };
     }
@@ -142,5 +149,17 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     protected void setStage(int stage) {
         this.stage = stage;
+    }
+
+    @Override
+    public Consumer<Message> getConsumer() {
+        if (messageId == null) {
+            Consumer<Message> consumer;
+            if ((consumer = createConsumer()) != null) {
+                return ((Consumer<Message>) message -> setMessageId(Long.parseLong(message.getId()))).andThen(consumer);
+            } else
+                return message -> setMessageId(Long.parseLong(message.getId()));
+        } else
+            return createConsumer();
     }
 }

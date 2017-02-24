@@ -123,14 +123,14 @@ public class DynamicTemplate extends DynamicMessage {
      * @return a consumer to edit message after sending
      */
     @Override
-    public Consumer<Message> getConsumer() {
+    public Consumer<Message> createConsumer() {
 
         switch (getStage()) {
             case 0:
                 // this is the initialization stage
                 // you can use this method to pre-add reactions to message
                 // this method will also increment the stage by 1
-                return getInitialConsumer(ACCEPTED_REACTIONS);
+                return getEmojiConsumer(ACCEPTED_REACTIONS);
             default: //getEditConsumer will automatically delete the users reaction
                 return getEditConsumer();
         }

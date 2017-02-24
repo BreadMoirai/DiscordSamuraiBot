@@ -1,14 +1,13 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Message;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
 import samurai.message.DynamicMessage;
-import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.modifier.Direct;
 import samurai.message.modifier.MessageEdit;
 import samurai.message.modifier.Reaction;
 
@@ -77,8 +76,12 @@ public class SamuraiController {
         if (samuraiMessage.setValidReaction(reaction)) {
             System.out.println("Executing...");
             if (!reactionQueue.offer(commandPool.submit(samuraiMessage)))
-                new RejectedExecutionException("Could not add Action to Queue").printStackTrace();
+                Bot.log("Could not add ReAction to Queue");
         }
+    }
+
+    void execute(Direct message) {
+
     }
 
     private void takeReaction() {
@@ -105,19 +108,22 @@ public class SamuraiController {
             //if FixedMessage and DynamicMessage extends SamuraiMessage,
             // should exhibit same behavior
             // remove and merge if-else block
-            if (samuraiMessage instanceof DynamicMessage) {
-                DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
-                Message message = client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).complete();
-                dynamicMessage.setMessageId(Long.parseLong(message.getId()));
-                dynamicMessage.getConsumer().accept(message);
-                messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
+//            if (samuraiMessage instanceof DynamicMessage) {
+//                DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
+//                client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).queue(dynamicMessage.getConsumer().get());
+//
+//                messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
+//
+//            } else if (samuraiMessage instanceof FixedMessage) {
+//                if (((FixedMessage) samuraiMessage).getConsumer().isPresent())
+//                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(((FixedMessage) samuraiMessage).getConsumer().get());
+//                else
+//                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
+//            }
 
-            } else if (samuraiMessage instanceof FixedMessage) {
-                if (((FixedMessage) samuraiMessage).getConsumer().isPresent())
-                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(((FixedMessage) samuraiMessage).getConsumer().get());
-                else
-                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
-            }
+            client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(samuraiMessage.isPersistent() ? samuraiMessage.getConsumer().andThen(message -> messageMap.put(Long.valueOf(message.getId()), (DynamicMessage) samuraiMessage)) : samuraiMessage.getConsumer());
+
+
         } catch (ExecutionException e) {
             Bot.logError(e);
         } catch (InterruptedException e) {

@@ -97,8 +97,8 @@ public class RankList extends DynamicMessage {
     }
 
     @Override
-    public Consumer<Message> getConsumer() {
-        if (getStage() == 0) return getInitialConsumer(REACTIONS);
+    public Consumer<Message> createConsumer() {
+        if (getStage() == 0) return getEmojiConsumer(REACTIONS);
         else if (stop) return message -> {
             setStage(getLastStage());
             message.clearReactions().queue();

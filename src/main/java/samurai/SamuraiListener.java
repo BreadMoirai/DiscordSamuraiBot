@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
@@ -58,9 +59,10 @@ public class SamuraiListener extends ListenerAdapter {
         process(author, message, channelId, guildId);
     }
 
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.isFromType(ChannelType.TEXT)) return;
+        if (!event.isFromType(ChannelType.TEXT) || event.getAuthor().isFake()) return;
         final Member author = event.getGuild().getMember(event.getAuthor());
         if (author.getUser().getId().equals(Bot.ID)) {
             messagesSent.incrementAndGet();
@@ -70,6 +72,20 @@ public class SamuraiListener extends ListenerAdapter {
         final long channelId = Long.parseLong(event.getChannel().getId());
         final long guildId = Long.parseLong(event.getGuild().getId());
         process(author, message, channelId, guildId);
+    }
+
+    @Override
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+        String content = event.getMessage().getRawContent().trim();
+        ArrayList<String> args = new ArrayList<>();
+        if (!content.equals("")) {
+            String[] argArray = argPattern.split(content.replace('`', '\"'));
+            for (String argument : argArray)
+                if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
+                    args.add(argument.replace("\"", "").trim());
+        }
+        event.getChannel().sendMessage(args.toString()).queue();
     }
 
     private void process(Member author, Message message, long channelId, long guildId) {
