@@ -9,16 +9,18 @@ import java.util.function.Consumer;
  * @version 4.0
  * @since 2/14/2017
  */
-public class MessageEdit {
+public class DynamicMessageResponse {
     private final long channelId, messageId;
     private final Message content;
+    private boolean dead;
     private Consumer<Message> successConsumer;
 
 
-    public MessageEdit(long channelId, long messageId, Message content) {
+    public DynamicMessageResponse(long channelId, long messageId, Message content, boolean remove) {
         this.channelId = channelId;
         this.messageId = messageId;
         this.content = content;
+        this.dead = remove;
         successConsumer = null;
     }
 
@@ -26,7 +28,7 @@ public class MessageEdit {
         return successConsumer;
     }
 
-    public MessageEdit setSuccessConsumer(Consumer<Message> consumer) {
+    public DynamicMessageResponse setSuccessConsumer(Consumer<Message> consumer) {
         successConsumer = consumer;
         return this;
     }
@@ -41,5 +43,9 @@ public class MessageEdit {
 
     public Message getContent() {
         return content;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 }

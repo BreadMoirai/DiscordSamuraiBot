@@ -3,7 +3,7 @@ package samurai.message;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import samurai.Bot;
-import samurai.message.modifier.MessageEdit;
+import samurai.message.modifier.DynamicMessageResponse;
 import samurai.message.modifier.Reaction;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * @author TonTL
  * @since 4.0
  */
-public abstract class DynamicMessage extends SamuraiMessage implements Callable<MessageEdit> {
+public abstract class DynamicMessage extends SamuraiMessage implements Callable<DynamicMessageResponse> {
 
     private static final int timeout = 15 * 60 * 1000;
 
@@ -34,14 +34,30 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return true;
     }
 
+    @Override
+    public Consumer<Message> getConsumer() {
+        if (messageId == null) {
+            Consumer<Message> consumer;
+            if ((consumer = createConsumer()) != null) {
+                return ((Consumer<Message>) message -> setMessageId(Long.parseLong(message.getId()))).andThen(consumer);
+            } else
+                return message -> setMessageId(Long.parseLong(message.getId()));
+        } else
+            return createConsumer();
+    }
+
     /**
-     * This is the method that retrieves the message to be sent/updated to.
-     * What is returned should be determined by what stage the dynamic message is in.
+     * Defines Behavior for when User interacts with an emoji.
+     * for default consumers, see getInitalConsumer() and createEditConsumer()
      *
-     * @return A Message that will replace the current content
+     * @return A DynamicMessageResponse object that modifies the message
      */
     @Override
-    public abstract Message getMessage();
+    public DynamicMessageResponse call() {
+        this.lastActive = getReaction().getTime();
+        execute(getReaction());
+        return new DynamicMessageResponse(getChannelId(), getMessageId(), getMessage(), isExpired()).setSuccessConsumer(getConsumer());
+    }
 
     /**
      * This is method determines who gets to interact with the message.
@@ -49,7 +65,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      * @param action This is the messageAction associated with this message. Consists of a reaction.
      * @return true if the Reaction is accepted. false otherwise
      */
-    public abstract boolean valid(Reaction action);
+    protected abstract boolean valid(Reaction action);
 
     /**
      * When this method is called, valid() has also been called prior
@@ -78,25 +94,14 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     protected abstract int getLastStage();
 
 
-    /**
-     * Defines Behavior for when User interacts with an emoji.
-     * for default consumers, see getInitalConsumer() and getEditConsumer()
-     *
-     * @return A MessageEdit object that modifies the message
-     */
-    @Override
-    public MessageEdit call() {
-        this.lastActive = getReaction().getTime();
-        execute(getReaction());
-        return new MessageEdit(getChannelId(), getMessageId(), getMessage()).setSuccessConsumer(getConsumer());
-    }
+
 
     /**
      * will delete the most recent valid reaction added by a user
      *
      * @return the consumer, use with createConsumer()
      */
-    protected Consumer<Message> getEditConsumer() {
+    protected Consumer<Message> createEditConsumer() {
         return message -> {
             for (MessageReaction mr : message.getReactions())
                 if (mr.getEmote().getName().equals(getReaction().getName()))
@@ -110,7 +115,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      * @param emoji unicode emojis
      * @return the consumer, use with createConsumer()
      */
-    protected Consumer<Message> getEmojiConsumer(List<String> emoji) {
+    protected Consumer<Message> createMenu(List<String> emoji) {
         return message -> {
             emoji.forEach(reaction -> message.addReaction(reaction).complete());
             setStage(getStage() + 1);
@@ -123,7 +128,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     }
 
     //setters and getters
-    public void setMessageId(long messageId) {
+    protected void setMessageId(long messageId) {
         this.messageId = messageId;
     }
 
@@ -151,15 +156,15 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         this.stage = stage;
     }
 
-    @Override
-    public Consumer<Message> getConsumer() {
-        if (messageId == null) {
-            Consumer<Message> consumer;
-            if ((consumer = createConsumer()) != null) {
-                return ((Consumer<Message>) message -> setMessageId(Long.parseLong(message.getId()))).andThen(consumer);
-            } else
-                return message -> setMessageId(Long.parseLong(message.getId()));
-        } else
-            return createConsumer();
+    /**
+     * increments stage and returns it
+     *
+     * @return the stage after incrementing by 1
+     */
+    protected int nextStage() {
+        stage += 1;
+        return stage;
     }
+
+
 }

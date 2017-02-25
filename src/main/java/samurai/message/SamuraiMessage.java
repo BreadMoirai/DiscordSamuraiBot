@@ -13,6 +13,11 @@ public abstract class SamuraiMessage {
 
     private long channelId;
 
+    /**
+     * This is the method that retrieves the message to be sent/updated to.
+     *
+     * @return the message that will be sent/replace
+     */
     public abstract Message getMessage();
 
     public long getChannelId() {
