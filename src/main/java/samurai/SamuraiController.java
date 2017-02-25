@@ -7,8 +7,7 @@ import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
 import samurai.message.DynamicMessage;
 import samurai.message.SamuraiMessage;
-import samurai.message.modifier.Direct;
-import samurai.message.modifier.MessageEdit;
+import samurai.message.modifier.DynamicMessageResponse;
 import samurai.message.modifier.Reaction;
 
 import java.util.Optional;
@@ -26,7 +25,7 @@ public class SamuraiController {
     private final ExecutorService commandPool;
     private final ScheduledExecutorService executorPool;
     private final BlockingQueue<Future<Optional<SamuraiMessage>>> actionQueue;
-    private final BlockingQueue<Future<MessageEdit>> reactionQueue;
+    private final BlockingQueue<Future<DynamicMessageResponse>> reactionQueue;
     private final ConcurrentHashMap<Long, DynamicMessage> messageMap;
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
     private JDA client;
@@ -80,17 +79,14 @@ public class SamuraiController {
         }
     }
 
-    void execute(Direct message) {
-
-    }
-
     private void takeReaction() {
         try {
-            final Future<MessageEdit> editFuture = reactionQueue.take();
+            final Future<DynamicMessageResponse> editFuture = reactionQueue.take();
             if (editFuture == null)
                 return;
-            final MessageEdit edit = editFuture.get();
+            final DynamicMessageResponse edit = editFuture.get();
             client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
+            if (edit.isDead()) messageMap.remove(edit.getMessageId());
         } catch (ExecutionException e) {
             Bot.logError(e);
         } catch (InterruptedException e) {
@@ -104,23 +100,6 @@ public class SamuraiController {
             if (!smOption.get().isPresent()) return;
             SamuraiMessage samuraiMessage = smOption.get().get();
 
-            //This is not the best practice.
-            //if FixedMessage and DynamicMessage extends SamuraiMessage,
-            // should exhibit same behavior
-            // remove and merge if-else block
-//            if (samuraiMessage instanceof DynamicMessage) {
-//                DynamicMessage dynamicMessage = (DynamicMessage) samuraiMessage;
-//                client.getTextChannelById(String.valueOf(dynamicMessage.getChannelId())).sendMessage(dynamicMessage.getMessage()).queue(dynamicMessage.getConsumer().get());
-//
-//                messageMap.putIfAbsent(dynamicMessage.getMessageId(), dynamicMessage);
-//
-//            } else if (samuraiMessage instanceof FixedMessage) {
-//                if (((FixedMessage) samuraiMessage).getConsumer().isPresent())
-//                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(((FixedMessage) samuraiMessage).getConsumer().get());
-//                else
-//                    client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue();
-//            }
-
             client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(samuraiMessage.isPersistent() ? samuraiMessage.getConsumer().andThen(message -> messageMap.put(Long.valueOf(message.getId()), (DynamicMessage) samuraiMessage)) : samuraiMessage.getConsumer());
 
 
@@ -130,6 +109,7 @@ public class SamuraiController {
             Bot.log("Command Thread Shutdown");
         }
     }
+
 
     private void clearInactive() {
         messageMap.forEachValue(1000L, message -> {

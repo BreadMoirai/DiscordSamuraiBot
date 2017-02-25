@@ -34,7 +34,6 @@ public class SamuraiListener extends ListenerAdapter {
     public static final AtomicInteger messagesSent = new AtomicInteger(0);
     private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private final SamuraiController samurai;
-    //private final HashMap<Long, String> prefixMap;
 
 
     SamuraiListener() {
@@ -78,14 +77,7 @@ public class SamuraiListener extends ListenerAdapter {
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
         String content = event.getMessage().getRawContent().trim();
-        ArrayList<String> args = new ArrayList<>();
-        if (!content.equals("")) {
-            String[] argArray = argPattern.split(content.replace('`', '\"'));
-            for (String argument : argArray)
-                if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument.replace("\"", "").trim());
-        }
-        event.getChannel().sendMessage(args.toString()).queue();
+        List<String> args = parseArgs(content);
     }
 
     private void process(Member author, Message message, long channelId, long guildId) {
@@ -96,9 +88,7 @@ public class SamuraiListener extends ListenerAdapter {
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
             content = content.replaceFirst("<@270044218167132170>( )?", token);
-        if (!content.startsWith(token) || content.length() <= token.length() + 3) {
-            return;
-        }
+        if (!content.startsWith(token) || content.length() <= token.length() + 3) return;
 
         content = content.substring(token.length());
         String key;
@@ -112,15 +102,8 @@ public class SamuraiListener extends ListenerAdapter {
         }
         Action action = ActionFactory.newAction(key);
         if (action == null) return;
-        List<String> args = new ArrayList<>();
 
-        if (content != null && !content.equals("")) {
-            String[] argArray = argPattern.split(content.replace('`', '\"'));
-            for (String argument : argArray)
-                if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument.replace("\"", "").trim());
-        }
-
+        List<String> args = parseArgs(content);
 
         action.setArgs(args)
                 .setAuthor(author)
@@ -130,6 +113,17 @@ public class SamuraiListener extends ListenerAdapter {
                 .setMentions(message.getMentionedUsers())
                 .setAttaches(message.getAttachments());
         samurai.execute(action);
+    }
+
+    private List<String> parseArgs(String content) {
+        List<String> args = new ArrayList<>();
+        if (content != null && !content.equals("")) {
+            String[] argArray = argPattern.split(content.replace('`', '\"'));
+            for (String argument : argArray)
+                if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
+                    args.add(argument.replace("\"", "").trim());
+        }
+        return args;
     }
 
     @Override
