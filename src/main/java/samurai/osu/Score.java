@@ -59,18 +59,27 @@ public class Score {
     }
 
     @Override
-    public boolean equals(Object score) {
-        return score instanceof Score && getReplayHash().equals(((Score) score).getReplayHash());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Score score1 = (Score) o;
+
+        if (score != score1.score) return false;
+        if (timestamp != score1.timestamp) return false;
+        return replayHash.equals(score1.replayHash);
+    }
+
+    @Override
+    public int hashCode() {
+        return replayHash.hashCode();
     }
 
     public String toString() {
         return getReplayHash() + " " + player + " " + score;
     }
 
-    @Override
-    public int hashCode() {
-        return beatmapHash.hashCode();
-    }
+
 
     public GameMode getMode() {
         return mode;
