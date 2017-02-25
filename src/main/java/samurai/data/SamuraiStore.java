@@ -116,23 +116,24 @@ public class SamuraiStore {
     }
 
     public static HashMap<String, LinkedList<Score>> readScores(String path) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
-        int version = DbReader.nextInt(bis);
-        System.out.println("version: " + version);
-        if (version > VERSION) {
-            System.out.println("NEW SCORE VERSION FOUND\n" + version + "\n");
-        }
-        int count = DbReader.nextInt(bis);
-        HashMap<String, LinkedList<Score>> beatmapScores = new HashMap<>(count);
-        for (int i = 0; i < count; i++) {
-            String hash = DbReader.nextString(bis);
-            int scoreCount = DbReader.nextInt(bis);
-            LinkedList<Score> scoreList = new LinkedList<>();
-            for (int j = 0; j < scoreCount; j++) {
-                scoreList.add(DbReader.nextScore(bis));
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path))) {
+            int version = DbReader.nextInt(bis);
+            System.out.println("version: " + version);
+            if (version > VERSION) {
+                System.out.println("NEW SCORE VERSION FOUND\n" + version + "\n");
             }
-            beatmapScores.put(hash, scoreList);
+            int count = DbReader.nextInt(bis);
+            HashMap<String, LinkedList<Score>> beatmapScores = new HashMap<>(count);
+            for (int i = 0; i < count; i++) {
+                String hash = DbReader.nextString(bis);
+                int scoreCount = DbReader.nextInt(bis);
+                LinkedList<Score> scoreList = new LinkedList<>();
+                for (int j = 0; j < scoreCount; j++) {
+                    scoreList.add(DbReader.nextScore(bis));
+                }
+                beatmapScores.put(hash, scoreList);
+            }
+            return beatmapScores;
         }
-        return beatmapScores;
     }
 }

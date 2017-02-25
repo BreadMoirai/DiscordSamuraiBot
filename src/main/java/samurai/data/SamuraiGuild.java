@@ -36,6 +36,24 @@ public class SamuraiGuild implements Externalizable {
         active = false;
     }
 
+    public static int mergeScoreMap(HashMap<String, LinkedList<Score>> base, HashMap<String, LinkedList<Score>> annex) {
+        int scoresMerged = 0;
+        for (Map.Entry<String, LinkedList<Score>> sourceEntry : annex.entrySet()) {
+            if (base.containsKey(sourceEntry.getKey())) {
+                List<Score> destinationScores = base.get(sourceEntry.getKey());
+                for (Score sourceScore : sourceEntry.getValue())
+                    if (!destinationScores.contains(sourceScore)) {
+                        destinationScores.add(sourceScore);
+                        scoresMerged++;
+                    }
+            } else {
+                base.put(sourceEntry.getKey(), sourceEntry.getValue());
+                scoresMerged += sourceEntry.getValue().size();
+            }
+        }
+        return scoresMerged;
+    }
+
     public void addUser(long id, JSONObject userJSON) {
         active = true;
         users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank")));
@@ -71,24 +89,6 @@ public class SamuraiGuild implements Externalizable {
 
     public HashMap<String, LinkedList<Score>> getScoreMap() {
         return scoreMap;
-    }
-
-    public int mergeScoreMap(HashMap<String, LinkedList<Score>> source) {
-        int scoresMerged = 0;
-        for (Map.Entry<String, LinkedList<Score>> sourceEntry : source.entrySet()) {
-            if (scoreMap.containsKey(sourceEntry.getKey())) {
-                List<Score> destinationScores = scoreMap.get(sourceEntry.getKey());
-                for (Score sourceScore : sourceEntry.getValue())
-                    if (!destinationScores.contains(sourceScore)) {
-                        destinationScores.add(sourceScore);
-                        scoresMerged++;
-                    }
-            } else {
-                scoreMap.put(sourceEntry.getKey(), sourceEntry.getValue());
-                scoresMerged += sourceEntry.getValue().size();
-            }
-        }
-        return scoresMerged;
     }
 
     public int getScoreCount() {
