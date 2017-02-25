@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class ConnectFour extends Game {
 
 
-    private static final List<String> CONNECTFOUR_REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
+    private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
     private static final String DUEL_REACTION = "⚔";
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
@@ -49,7 +49,7 @@ public class ConnectFour extends Game {
             case 0:
                 return action.getName().equals("⚔") && action.getUser() != A;
             case 2:
-                return CONNECTFOUR_REACTIONS.contains(action.getName()) && action.getUser() == next;
+                return REACTIONS.contains(action.getName()) && action.getUser() == next;
             default:
                 return false;
         }
@@ -65,7 +65,7 @@ public class ConnectFour extends Game {
                 setStage(1);
                 break;
             case 2:
-                int move = CONNECTFOUR_REACTIONS.indexOf(action.getName());
+                int move = REACTIONS.indexOf(action.getName());
                 for (int y = 0; y < Y_BOUND; y++) {
                     if (board[move][y] == '\u0000') {
                         if (action.getUser() == A) {
@@ -118,7 +118,7 @@ public class ConnectFour extends Game {
 
     private EmbedBuilder buildBoard() {
         StringBuilder sb = new StringBuilder();
-        for (String emojiNum : CONNECTFOUR_REACTIONS)
+        for (String emojiNum : REACTIONS)
             sb.append(emojiNum);
         sb.append("\n");
         for (int y = Y_BOUND - 1; y >= 0; y--) {
@@ -147,14 +147,14 @@ public class ConnectFour extends Game {
             case 1:
                 return message -> {
                     message.editMessage(String.format("Building <@%d>'s game against <@%d>", A, B)).queue();
-                    getEmojiConsumer(CONNECTFOUR_REACTIONS).accept(message);
+                    createMenu(REACTIONS).accept(message);
                 };
             case 2:
-                return getEditConsumer();
+                return createEditConsumer();
             case 3:
                 return message -> {
                     for (MessageReaction mr : message.getReactions()) {
-                        if (CONNECTFOUR_REACTIONS.contains(mr.getEmote().getName()) || mr.getEmote().getName().equals(DUEL_REACTION)) {
+                        if (REACTIONS.contains(mr.getEmote().getName()) || mr.getEmote().getName().equals(DUEL_REACTION)) {
                             mr.removeReaction().queue();
                         }
                     }

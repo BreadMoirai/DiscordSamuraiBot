@@ -83,13 +83,13 @@ public class RankList extends DynamicMessage {
     protected void execute(Reaction action) {
         switch (REACTIONS.indexOf(action.getName())) {
             case 0:
-                setStage(getStage() - 1);
+                nextStage();
                 break;
             case 1:
                 stop = true;
                 break;
             case 2:
-                setStage(getStage() + 1);
+                nextStage();
                 break;
             default:
                 Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser());
@@ -98,13 +98,13 @@ public class RankList extends DynamicMessage {
 
     @Override
     public Consumer<Message> createConsumer() {
-        if (getStage() == 0) return getEmojiConsumer(REACTIONS);
+        if (getStage() == 0) return createMenu(REACTIONS);
         else if (stop) return message -> {
             setStage(getLastStage());
             message.clearReactions().queue();
         };
         else if (getStage() == getLastStage()) return message -> message.clearReactions().queue();
-        else return getEditConsumer();
+        else return createEditConsumer();
     }
 
     @Override

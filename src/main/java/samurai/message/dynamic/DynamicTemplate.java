@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 public class DynamicTemplate extends DynamicMessage {
 
     // should probably have one of these
-    private static final List<String> ACCEPTED_REACTIONS = Arrays.asList("☑", "👌", "\uD83D\uDC4E", "👥");
+    private static final List<String> REACTIONS = Arrays.asList("☑", "👌", "\uD83D\uDC4E", "👥");
 
     /**
      * this is the method that retrieves the message to be sent/updated to.
@@ -85,10 +85,10 @@ public class DynamicTemplate extends DynamicMessage {
      */
     @Override
     public boolean valid(Reaction action) {
-        //Rejects the Reaction if it is not within ACCEPTED_REACTIONS
+        //Rejects the Reaction if it is not within REACTIONS
         // You should always have an initialization stage where no input is accepted.
         // here the initialization stage is 0 check DynamicTemplate#GetConsumer
-        return getStage() != 0 && getStage() != getLastStage() && ACCEPTED_REACTIONS.contains(action.getName());
+        return getStage() != 0 && getStage() != getLastStage() && REACTIONS.contains(action.getName());
     }
 
     /**
@@ -130,9 +130,9 @@ public class DynamicTemplate extends DynamicMessage {
                 // this is the initialization stage
                 // you can use this method to pre-add reactions to message
                 // this method will also increment the stage by 1
-                return getEmojiConsumer(ACCEPTED_REACTIONS);
-            default: //getEditConsumer will automatically delete the users reaction
-                return getEditConsumer();
+                return createMenu(REACTIONS);
+            default: //createEditConsumer will automatically delete the users reaction
+                return createEditConsumer();
         }
     }
 
