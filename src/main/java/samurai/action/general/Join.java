@@ -1,13 +1,10 @@
 package samurai.action.general;
 
-import net.dv8tion.jda.core.MessageBuilder;
 import samurai.action.Action;
 import samurai.annotations.Client;
 import samurai.annotations.Key;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -19,6 +16,7 @@ public class Join extends Action {
 
     @Override
     public SamuraiMessage buildMessage() {
+        /*
         return new FixedMessage()
                 .setMessage(new MessageBuilder()
                         .append("https://discord.gg/")
@@ -28,5 +26,7 @@ public class Join extends Action {
                                 .complete()
                                 .getCode())
                         .build());
+                        */
+        return FixedMessage.build("https://discord.gg/yAMdGU9");
     }
 }
