@@ -44,7 +44,7 @@ public class OsuJsonReader {
         return json.getJSONObject(0);
     }
 
-    static Beatmap getBeatmapInfo(String hash) {
+    public static Beatmap getBeatmapInfo(String hash) {
         JSONArray json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
         if (json == null || json.length() == 0) {
             return null;

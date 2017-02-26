@@ -25,13 +25,13 @@ public class Score {
     private long timestamp;
     private long onlineScoreID;
 
-    float getAccuracy() {
+    public float getAccuracy() {
         float maxHitPoints = (count0 + count50 + count100 + count300) * 300;
         float totalHitPoints = (count50*50) + (count100*100) + (count300*300);
         return totalHitPoints/maxHitPoints;
     }
 
-    Grade getGrade() {
+    public Grade getGrade() {
         float countTotal = count0 + count50 + count100 + count300;
         float percent300 = (float)count300/countTotal;
         List<Mod> mods = Mod.getMods(modCombo);
@@ -39,9 +39,9 @@ public class Score {
 
         if (percent300 == 1.00) {
             if (h)
-                return Grade.SSH;
+                return Grade.XH;
             else
-                return Grade.SS;
+                return Grade.X;
         } else if (percent300 > 0.90 && (float)count50/countTotal < 0.10 && count0==0) {
             if (h)
                 return Grade.SH;

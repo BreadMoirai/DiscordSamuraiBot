@@ -31,7 +31,7 @@ public class Beatmap {
         scores = new ArrayList<>();
     }
 
-    String getSong() {
+    public String getSong() {
         if (song == null) {
             return "null";
         }
@@ -43,7 +43,7 @@ public class Beatmap {
         return this;
     }
 
-    String getArtist() {
+    public String getArtist() {
         if (artist == null) {
             return "null";
         } return artist;
@@ -54,7 +54,7 @@ public class Beatmap {
         return this;
     }
 
-    String getMapper() {
+    public String getMapper() {
         if (mapper == null) {
             return "null";
         } return mapper;
@@ -65,7 +65,7 @@ public class Beatmap {
         return this;
     }
 
-    String getDifficulty() {
+    public String getDifficulty() {
         if (difficulty == null) {
             return "null";
         } return difficulty;
@@ -142,7 +142,7 @@ public class Beatmap {
         return this;
     }
 
-    float getAr() {
+    public float getAr() {
         return ar;
     }
 
@@ -151,7 +151,7 @@ public class Beatmap {
         return this;
     }
 
-    float getCs() {
+    public float getCs() {
         return cs;
     }
 
@@ -160,7 +160,7 @@ public class Beatmap {
         return this;
     }
 
-    float getHp() {
+    public float getHp() {
         return hp;
     }
 
@@ -169,7 +169,7 @@ public class Beatmap {
         return this;
     }
 
-    float getOd() {
+    public float getOd() {
         return od;
     }
 
@@ -178,7 +178,7 @@ public class Beatmap {
         return this;
     }
 
-    int getMapID() {
+    public int getMapID() {
         return mapID;
     }
 
@@ -196,7 +196,7 @@ public class Beatmap {
         return this;
     }
 
-    int getTotalTime() {
+    public int getTotalTime() {
         return totalTime;
     }
 
@@ -205,7 +205,7 @@ public class Beatmap {
         return this;
     }
 
-    int getDrainTime() {
+    public int getDrainTime() {
         return drainTime;
     }
 
@@ -235,7 +235,7 @@ public class Beatmap {
         return this;
     }
 
-    RankedStatus getRankedStatus() {
+    public RankedStatus getRankedStatus() {
         if (rankedStatus == null) {
             return RankedStatus.UNKNOWN;
         }

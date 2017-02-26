@@ -55,20 +55,17 @@ public class SamuraiGuild implements Externalizable {
     }
 
     public void addUser(long id, JSONObject userJSON) {
-        active = true;
         users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank")));
         updateLocalRanks();
     }
 
     public SamuraiUser getUser(long discordId) {
-        active = true;
         for (SamuraiUser user : users)
             if (user.getDiscordId() == discordId) return user;
         return null;
     }
 
     private void updateLocalRanks() {
-        active = true;
         users.sort(Comparator.comparingInt(SamuraiUser::getG_rank));
         for (int i = 1; i <= users.size(); i++) {
             users.get(i - 1).setL_rank((short) i);
@@ -76,7 +73,6 @@ public class SamuraiGuild implements Externalizable {
     }
 
     public boolean hasUser(long id) {
-        active = true;
         for (SamuraiUser s : users)
             if (s.getDiscordId() == id)
                 return true;
@@ -119,6 +115,7 @@ public class SamuraiGuild implements Externalizable {
     }
 
     public String getPrefix() {
+        active = true;
         return prefix;
     }
 

@@ -5,8 +5,8 @@ package samurai.osu.enums;
  * Created by TonTL on 1/23/2017.
  */
 public enum Grade {
-    SSH (0),
-    SS (1),
+    XH(0),
+    X(1),
     SH (2),
     S (3),
     A (4),
@@ -15,7 +15,7 @@ public enum Grade {
     D (7),
     NONE (9);
 
-    private static final String[] id = {"273365912348917760)","273365939829997568","273365958960087040", "273365977826328576", "273365998634008576", "273366010894221312", "273366026513547264", "273366042737246208"};
+    private static final String[] id = {"285320304618766346", "285320304610508800", "285320304618766346", "285320304614572042", "285320304476291074", "285320304354656267", "285320304392273921", "285320304614703104"};
     private final int value;
 
     Grade(int value) {
@@ -44,7 +44,7 @@ public enum Grade {
         if (this==Grade.NONE) {
             return "";
         } else {
-            return String.format("<:rank_%s:%s>", this.toString(), id[this.value()]);
+            return String.format("<:ranking%s:%s>", this.toString(), id[this.value()]);
         }
     }
 }
