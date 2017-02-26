@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
@@ -156,4 +157,10 @@ public class SamuraiListener extends ListenerAdapter {
     }
 
 
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if (event.getGuild().getId().equals("233097800722808832")) {
+            event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById("267924616574533634"));
+        }
+    }
 }
