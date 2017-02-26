@@ -21,8 +21,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="DiscordSamuraiBot_main" target="1.8" />
-      <module name="DiscordSamuraiBot_test" target="1.8" />
       <module name="Samurai_main" target="1.8" />
       <module name="Samurai_test" target="1.8" />
     </bytecodeTargetLevel>

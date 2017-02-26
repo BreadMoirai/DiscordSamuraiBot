@@ -115,7 +115,11 @@ public class SamuraiStore {
     }
 
     public static HashMap<String, LinkedList<Score>> readScores(long id) {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(getScoreDataPath(id)))) {
+        return readScores(getScoreDataPath(id));
+    }
+
+    public static HashMap<String, LinkedList<Score>> readScores(String path) {
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path))) {
             int version = DbReader.nextInt(bis);
             System.out.println("version: " + version);
             if (version > VERSION) {
@@ -132,9 +136,13 @@ public class SamuraiStore {
                 }
                 beatmapScores.put(hash, scoreList);
             }
+            Bot.log("Scores successfully read from " + path.substring(path.indexOf("data")));
             return beatmapScores;
+        } catch (FileNotFoundException e) {
+            Bot.log("No Score File Found for ." + path.substring(path.length() - 28));
+            return null;
         } catch (IOException e) {
-            Bot.log(String.format("Score for %d could not be read.", id));
+            Bot.logError(e);
             return null;
         }
     }

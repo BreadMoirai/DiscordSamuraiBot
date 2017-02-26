@@ -125,7 +125,7 @@ public class ConflictMerge extends DynamicMessage {
                 MessageBuilder mb = new MessageBuilder();
                 for (Conflict c : conflicts) {
                     if (!c.approved) Bot.log("Non approved conflict found.");
-                    if (c.renamed) {
+                    if (!c.renamed) {
                         mb.append("\n`").append(c.scoreCount).append("` scores added to `").append(c.name).append('`');
                     }
                 }
@@ -221,12 +221,12 @@ public class ConflictMerge extends DynamicMessage {
         } else if (getStage() == getLastStage()) {
             return message -> message.clearReactions().queue();
         } else if (getStage() == getLastStage() - 1) {
-            return message -> message.getReactions().forEach(messageReaction -> {
+            return createEditConsumer().andThen(message -> message.getReactions().forEach(messageReaction -> {
                 final String name = messageReaction.getEmote().getName();
                 if (name.equals("\uD83C\uDE51") || name.equals("\uD83D\uDEAE")) {
                     messageReaction.getUsers().queue(users -> users.forEach(user -> messageReaction.removeReaction(user).queue()));
                 }
-            });
+            }));
         } else return createEditConsumer();
     }
 
@@ -245,12 +245,31 @@ public class ConflictMerge extends DynamicMessage {
         }
         for (Conflict c : conflicts)
             if (c.approved) {
-                for (Score s : c.scores) base.get(s.getBeatmapHash()).add(s);
+                for (Score s : c.scores)
+                    if (base.containsKey(s.getBeatmapHash()))
+                        base.get(s.getBeatmapHash()).add(s);
+                    else {
+                        LinkedList<Score> list = new LinkedList<>();
+                        list.add(s);
+                        base.put(s.getBeatmapHash(), list);
+                    }
                 if (c.renamed) {
                     userScoresMerged += c.scoreCount;
                 }
 
             }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ConflictMerge{");
+        sb.append("\nuploader=").append(uploader);
+        sb.append("\nconflicts=").append(conflicts);
+        sb.append("\nStage=").append(getStage());
+        sb.append("\nLastStage=").append(getLastStage());
+        sb.append("\ncanceled=").append(canceled);
+        sb.append("\n}");
+        return sb.toString();
     }
 
     private class Conflict {
@@ -299,6 +318,16 @@ public class ConflictMerge extends DynamicMessage {
         public int hashCode() {
             return name.hashCode();
         }
-    }
 
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("Conflict{");
+            sb.append("\nname='").append(name).append('\'');
+            sb.append("\nscores=").append(scores);
+            sb.append("\napproved=").append(approved);
+            sb.append("\nrenamed=").append(renamed);
+            sb.append("\n}");
+            return sb.toString();
+        }
+    }
 }

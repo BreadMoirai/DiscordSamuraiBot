@@ -61,6 +61,6 @@ public class SamuraiUser {
 
     @Override
     public String toString() {
-        return String.format("User{%n\tdiscordId=%d%n\tosuId=%d%n\tosuName='%s'%n\tg_rank=%d%n\tc_rank=%d%n\tl_rank=%s%n}", discordId, osuId, osuName, g_rank, c_rank, l_rank);
+        return String.format("User{%n\tdiscordId=%d%n\tosuId=%d%n\tosuName=%s%nl_rank=%s%n}", discordId, osuId, osuName, l_rank);
     }
 }

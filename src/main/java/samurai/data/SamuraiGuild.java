@@ -92,10 +92,11 @@ public class SamuraiGuild implements Externalizable {
     }
 
     public void setScoreMap(HashMap<String, LinkedList<Score>> scoreMap) {
-        this.scoreMap = scoreMap;
+        if (scoreMap != null)
+            this.scoreMap = scoreMap;
     }
 
-    public int getScoreCount() {
+    public Integer getScoreCount() {
         int scoreCount = 0;
         for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
         return scoreCount;
@@ -189,7 +190,7 @@ public class SamuraiGuild implements Externalizable {
 
     @Override
     public String toString() {
-        return String.format("SamuraiGuild{%n\tprefix='%s'%n\tguildId=%d%n\tscoreCount=%d%n\tusers=%s%n\tcharts=%s%n\tactive=%s%n}", prefix, guildId, getScoreCount(), users, charts, active);
+        return String.format("SamuraiGuild{%n\tprefix='%s'%n\tguildId=%d%n\tscoreCount=%d%n\tusers=%n%s%n\tcharts=%s%n\tactive=%s%n}", prefix, guildId, getScoreCount(), users, charts, active);
     }
 
 }

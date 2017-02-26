@@ -157,8 +157,10 @@ class SamuraiController {
         Bot.log("Shutting Down");
         executorPool.shutdownNow();
         commandPool.shutdownNow();
-        for (SamuraiGuild g : guildMap.values())
+        for (SamuraiGuild g : guildMap.values()) {
             SamuraiStore.writeGuild(g);
+            SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
+        }
         client.shutdown();
     }
 }
