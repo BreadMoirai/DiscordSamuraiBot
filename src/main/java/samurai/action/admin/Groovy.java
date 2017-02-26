@@ -2,6 +2,7 @@ package samurai.action.admin;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
 import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.Bot;
@@ -51,8 +52,12 @@ public class Groovy extends Action {
             if (result != null) {
                 return FixedMessage.build(String.format("%s", result.toString()));
             } else return FixedMessage.build("Success.");
-        } catch (CompilationFailedException | MissingPropertyException e) {
-            return FixedMessage.build("Failure.");
+        } catch (CompilationFailedException e) {
+            return FixedMessage.build("Compilation Failure.");
+        } catch (MissingPropertyException e) {
+            return FixedMessage.build("Missing Property Failure.");
+        } catch (MissingMethodException e) {
+            return FixedMessage.build("Missing Method Failure.");
         }
     }
 

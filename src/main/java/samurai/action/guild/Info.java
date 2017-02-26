@@ -25,9 +25,14 @@ public class Info extends Action {
     protected SamuraiMessage buildMessage() {
         Color color = author.getColor();
         User userD;
-        if (mentions.size() == 0)
-            userD = author.getUser();
-        else userD = mentions.get(0);
+        if (mentions.size() == 0) {
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setAuthor("Info", null, null)
+                    .setColor(color)
+                    .setDescription(String.format("**Guild ID:** `%d`\n**Prefix:** `%s`\n**Linked Users:** `%d`\n**Score Count:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount()))
+                    .setFooter("SamuraiStats™", Bot.AVATAR);
+            return FixedMessage.build(eb.build());
+        } else userD = mentions.get(0);
         if (!guild.hasUser(Long.parseLong(userD.getId()))) {
             return FixedMessage.build(String.format("No info found for **%s**.", userD.getName()));
         } else {

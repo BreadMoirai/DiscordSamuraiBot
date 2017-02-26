@@ -2,6 +2,7 @@ package samurai.action.guild;
 
 import samurai.action.Action;
 import samurai.annotations.Guild;
+import samurai.annotations.Key;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
@@ -14,6 +15,7 @@ import java.io.IOException;
  * @version 4.0
  * @since 2/20/2017
  */
+@Key("upload")
 @Guild
 public class Upload extends Action {
     @Override
