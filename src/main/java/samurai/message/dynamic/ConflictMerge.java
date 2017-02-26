@@ -26,7 +26,7 @@ public class ConflictMerge extends DynamicMessage {
     private final HashMap<String, LinkedList<Score>> base;
     private final ArrayList<Conflict> conflicts;
     private ListIterator<Conflict> itr;
-    private int duplicateScores, newScores, totalScores, totalMerged;
+    private int duplicateScores, newScores, totalScores, userScoresMerged;
     private int totalConflicts, conflictPos;
     private Conflict current;
     private boolean canceled;
@@ -39,7 +39,7 @@ public class ConflictMerge extends DynamicMessage {
         duplicateScores = 0;
         newScores = 0;
         totalScores = 0;
-        totalMerged = 0;
+        userScoresMerged = 0;
         canceled = false;
         conflicts = new ArrayList<>();
     }
@@ -119,13 +119,24 @@ public class ConflictMerge extends DynamicMessage {
             mb.append("\nMerge?  **Yes:** ✅, **No: **❌");
             return mb.build();
         } else if (stage == getLastStage()) {
-            if (canceled)
+            if (canceled) {
                 return new MessageBuilder().append("Operation Cancelled.").build();
-            else
+            } else if (!conflicts.isEmpty()) {
+                MessageBuilder mb = new MessageBuilder();
+                for (Conflict c : conflicts) {
+                    if (!c.approved) Bot.log("Non approved conflict found.");
+                    if (c.renamed) {
+                        mb.append("\n`").append(c.scoreCount).append("` scores added to `").append(c.name).append('`');
+                    }
+                }
+                mb.append("\n`").append(userScoresMerged).append("` scores added to `").append(uploader.getOsuName()).append("`");
+                return mb.build();
+            } else {
                 return new MessageBuilder()
                         .append("Success. `")
-                        .append(String.valueOf(totalMerged))
+                        .append(String.valueOf(userScoresMerged))
                         .append("` scores merged.").build();
+            }
         } else {
             Bot.log(String.format("Score Merge Error by <@%d>", uploader.getDiscordId()));
             return new MessageBuilder().append("An Unknown Error has occurred!").build();
@@ -148,6 +159,7 @@ public class ConflictMerge extends DynamicMessage {
             switch (action.getName()) {
                 case "✅":
                     nextStage();
+                    merge();
                     return;
                 case "❌":
                     canceled = true;
@@ -224,10 +236,24 @@ public class ConflictMerge extends DynamicMessage {
     }
 
     private void merge() {
+        for (Map.Entry<String, LinkedList<Score>> entry : annex.entrySet()) {
+            if (base.containsKey(entry.getKey()))
+                base.get(entry.getKey()).addAll(entry.getValue());
+            else
+                base.put(entry.getKey(), entry.getValue());
+            userScoresMerged += entry.getValue().size();
+        }
+        for (Conflict c : conflicts)
+            if (c.approved) {
+                for (Score s : c.scores) base.get(s.getBeatmapHash()).add(s);
+                if (c.renamed) {
+                    userScoresMerged += c.scoreCount;
+                }
 
+            }
     }
 
-    class Conflict {
+    private class Conflict {
         String name;
         LinkedList<Score> scores;
         int scoreCount;
