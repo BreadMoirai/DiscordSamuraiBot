@@ -78,16 +78,15 @@ public class SamuraiStore {
     }
 
     public static boolean writeScoreData(long guildId, HashMap<String, LinkedList<Score>> scoreMap) {
+        if (scoreMap.isEmpty()) return false;
         try (BufferedOutputStream out = new BufferedOutputStream(
                 new DataOutputStream(
                         new FileOutputStream(getScoreDataPath(guildId).substring(3))))) {
 
-            //Path path = Paths.get(getScoreDataPath(guildId).substring(3));
             ByteBuffer scoreDatabase = ByteBuffer.allocate(8);
             scoreDatabase.order(ByteOrder.LITTLE_ENDIAN);
             scoreDatabase.putInt(VERSION);
             scoreDatabase.putInt(scoreMap.keySet().size());
-            //outputStream.write(scoreDatabase.array());
             out.write(scoreDatabase.array());
             int scoreCount = 0;
             for (Map.Entry<String, LinkedList<Score>> entry : scoreMap.entrySet()) {
@@ -115,8 +114,8 @@ public class SamuraiStore {
         }
     }
 
-    public static HashMap<String, LinkedList<Score>> readScores(String path) throws IOException {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path))) {
+    public static HashMap<String, LinkedList<Score>> readScores(long id) {
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(getScoreDataPath(id)))) {
             int version = DbReader.nextInt(bis);
             System.out.println("version: " + version);
             if (version > VERSION) {
@@ -134,6 +133,9 @@ public class SamuraiStore {
                 beatmapScores.put(hash, scoreList);
             }
             return beatmapScores;
+        } catch (IOException e) {
+            Bot.log(String.format("Score for %d could not be read.", id));
+            return null;
         }
     }
 }

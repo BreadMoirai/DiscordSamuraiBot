@@ -100,8 +100,6 @@ class SamuraiController {
             if (!smOption.get().isPresent()) return;
             SamuraiMessage samuraiMessage = smOption.get().get();
             client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(samuraiMessage.isPersistent() ? samuraiMessage.getConsumer().andThen(message -> messageMap.put(Long.valueOf(message.getId()), (DynamicMessage) samuraiMessage)) : samuraiMessage.getConsumer());
-
-
         } catch (ExecutionException e) {
             Bot.logError(e);
         } catch (InterruptedException e) {
@@ -122,6 +120,7 @@ class SamuraiController {
                 SamuraiStore.writeGuild(guild);
                 if (!guildMap.remove(guild.getGuildId(), guild))
                     Bot.log("Failed to remove " + guild.getGuildId());
+                SamuraiStore.writeScoreData(guild.getGuildId(), guild.getScoreMap());
             }
         });
     }
@@ -145,6 +144,7 @@ class SamuraiController {
                     return "!";
                 }
                 guildMap.put(id, guild);
+                guild.setScoreMap(SamuraiStore.readScores(id));
                 return guild.getPrefix();
             } else {
                 guildMap.put(id, new SamuraiGuild(id));

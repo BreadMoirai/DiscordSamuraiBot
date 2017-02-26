@@ -91,6 +91,10 @@ public class SamuraiGuild implements Externalizable {
         return scoreMap;
     }
 
+    public void setScoreMap(HashMap<String, LinkedList<Score>> scoreMap) {
+        this.scoreMap = scoreMap;
+    }
+
     public int getScoreCount() {
         int scoreCount = 0;
         for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
