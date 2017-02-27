@@ -9,18 +9,18 @@ import java.util.ArrayList;
  * @author TonTL
  * @version 4.x - 2/16/2017
  */
-public class SamuraiChart {
+public class Chart {
     private int chartId;
     private String chartName;
     private ArrayList<Integer> beatmapIds;
 
-    public SamuraiChart(int chartId, String chartName) {
+    public Chart(int chartId, String chartName) {
         this.chartId = chartId;
         this.chartName = chartName;
         this.beatmapIds = new ArrayList<>();
     }
 
-    SamuraiChart(int chartId, String chartName, ArrayList<Integer> beatmapIds) {
+    Chart(int chartId, String chartName, ArrayList<Integer> beatmapIds) {
         this.chartId = chartId;
         this.chartName = chartName;
         this.beatmapIds = beatmapIds;

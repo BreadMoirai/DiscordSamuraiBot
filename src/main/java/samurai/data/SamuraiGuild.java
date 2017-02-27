@@ -21,7 +21,7 @@ public class SamuraiGuild implements Externalizable {
     private long guildId;
     private transient HashMap<String, LinkedList<Score>> scoreMap;
     private ArrayList<SamuraiUser> users;
-    private ArrayList<SamuraiChart> charts;
+    private ArrayList<Chart> charts;
     private transient boolean active;
 
     public SamuraiGuild() {
@@ -153,7 +153,7 @@ public class SamuraiGuild implements Externalizable {
             out.writeShort(u.getL_rank());
         }
         out.writeShort(charts.size());
-        for (SamuraiChart c : charts) {
+        for (Chart c : charts) {
             out.writeInt(c.getChartId());
             out.writeUTF(c.getChartName());
             out.writeByte(c.getBeatmapIds().size());
@@ -180,7 +180,7 @@ public class SamuraiGuild implements Externalizable {
             for (int j = 0; j < chartSize; j++) {
                 chart.add(in.readInt());
             }
-            charts.add(new SamuraiChart(id, name, chart));
+            charts.add(new Chart(id, name, chart));
         }
         scoreMap = new HashMap<>();
     }

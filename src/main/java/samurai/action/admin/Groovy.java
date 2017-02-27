@@ -8,7 +8,7 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.*;
-import samurai.data.SamuraiStore;
+import samurai.data.Store;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 
@@ -32,7 +32,7 @@ public class Groovy extends Action {
         binding = new Binding();
         binding.setVariable("creator", "DreadMoirai");
         binding.setVariable("bot", Bot.class);
-        binding.setVariable("store", SamuraiStore.class);
+        binding.setVariable("store", Store.class);
 
         gs = new GroovyShell(binding);
     }
