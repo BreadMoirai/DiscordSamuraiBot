@@ -4,7 +4,7 @@ import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
-import samurai.data.SamuraiStore;
+import samurai.data.Store;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 
@@ -33,7 +33,7 @@ public class Flame extends Action {
     @Override
     protected SamuraiMessage buildMessage() {
         try {
-            List<String> flameList = Files.readAllLines(Paths.get(SamuraiStore.class.getResource("./flame.txt").toURI()));
+            List<String> flameList = Files.readAllLines(Paths.get(Store.class.getResource("./flame.txt").toURI()));
             if (mentions.isEmpty()) {
                 return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", author.getAsMention()));
             } else {

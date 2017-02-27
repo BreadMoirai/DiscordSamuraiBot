@@ -20,7 +20,7 @@ import java.util.Map;
  * @author TonTL
  * @version 4.5 - 2/20/2017
  */
-public class SamuraiStore {
+public class Store {
     private static final int VERSION = 20170103;
 
     public static boolean containsGuild(long id) {
@@ -32,25 +32,25 @@ public class SamuraiStore {
     }
 
     private static String getGuildDataPath(long id) {
-        return String.format("%s/%d.ser", SamuraiStore.class.getResource("guild").getPath(), id);
+        return String.format("%s/%d.ser", Store.class.getResource("guild").getPath(), id);
     }
 
     private static String getScoreDataPath(long id) {
-        return String.format("%s/%d.db", SamuraiStore.class.getResource("score").getPath(), id);
+        return String.format("%s/%d.db", Store.class.getResource("score").getPath(), id);
     }
 
     public static String downloadFile(Message.Attachment attachment) {
-        String path = String.format("%s/%s.db", SamuraiStore.class.getResource("temp").getPath(), attachment.getId());
+        String path = String.format("%s/%s.db", Store.class.getResource("temp").getPath(), attachment.getId());
         attachment.download(new File(path));
         return path;
     }
 
     public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
-        if (SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)) == null)
+        if (Store.class.getResource(String.format("./help/%s.txt", fileName)) == null)
             return String.format("Nothing found for `%s`. Sorry!", fileName);
         try {
-            Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
+            Files.readAllLines(new File(Store.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
         } catch (URISyntaxException | IOException e) {
             Bot.logError(e);
         }

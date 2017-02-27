@@ -1,4 +1,4 @@
-package samurai.message.dynamic.duel;
+package samurai.message.dynamic;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -11,7 +11,7 @@ import samurai.osu.Score;
 import samurai.osu.enums.Mod;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -19,24 +19,31 @@ import java.util.function.Consumer;
  * @author TonTL
  * @version 4.x - 2/25/2017
  */
-public class BeatmapDisplay extends DynamicMessage {
+public class RandomBeatmapDisplay extends DynamicMessage {
 
+
+    private ArrayList<LinkedList<Score>> scoreArray;
+    private Random r;
+    private int bound;
+
+    public RandomBeatmapDisplay(Collection<LinkedList<Score>> scoreListCollection) {
+        this.scoreArray = new ArrayList<>(scoreListCollection);
+        r = new Random();
+        bound = scoreArray.size();
+    }
 
     @Override
     public Message getMessage() {
-        String hash = hashes.get(r.nextInt(hashes.size()));
-        System.out.println(hash);
-        return buildBeatmapInfo(hash, false, false);
+        return buildBeatmapInfo(r.nextInt(bound), false, false);
     }
 
     public List<Message> getAllBeatmaps() {
         ArrayList<Message> beatmapInfoArray = new ArrayList<>();
         beatmapInfoArray.add(buildBeatmapInfo(hash, false, false));
-    }
         return beatmapInfoArray;
-}
+    }
 
-    public Message buildBeatmapInfo(String hash, boolean fullScore, boolean fullMap) {
+    public Message buildBeatmapInfo(int index, boolean fullScore, boolean fullMap) {
         System.out.println("Building Beatmap: " + fullScore + " | " + fullMap);
         Beatmap beatmap = beatmaps.get(hash);
         if (beatmap.isEmpty()) {

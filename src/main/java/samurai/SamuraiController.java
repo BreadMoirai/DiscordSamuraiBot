@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.JDA;
 import samurai.action.Action;
 import samurai.annotations.*;
 import samurai.data.SamuraiGuild;
-import samurai.data.SamuraiStore;
+import samurai.data.Store;
 import samurai.message.DynamicMessage;
 import samurai.message.SamuraiMessage;
 import samurai.message.modifier.DynamicMessageResponse;
@@ -117,10 +117,10 @@ class SamuraiController {
         guildMap.forEachValue(100L, guild -> {
             if (guild.isActive()) guild.setInactive();
             else {
-                SamuraiStore.writeGuild(guild);
+                Store.writeGuild(guild);
                 if (!guildMap.remove(guild.getGuildId(), guild))
                     Bot.log("Failed to remove " + guild.getGuildId());
-                SamuraiStore.writeScoreData(guild.getGuildId(), guild.getScoreMap());
+                Store.writeScoreData(guild.getGuildId(), guild.getScoreMap());
             }
         });
     }
@@ -137,14 +137,14 @@ class SamuraiController {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
-            if (SamuraiStore.containsGuild(id)) {
-                SamuraiGuild guild = SamuraiStore.readGuild(id);
+            if (Store.containsGuild(id)) {
+                SamuraiGuild guild = Store.readGuild(id);
                 if (guild == null) {
                     Bot.log(String.format("Could not read data for Guild %d", id));
                     return "!";
                 }
                 guildMap.put(id, guild);
-                guild.setScoreMap(SamuraiStore.readScores(id));
+                guild.setScoreMap(Store.readScores(id));
                 return guild.getPrefix();
             } else {
                 guildMap.put(id, new SamuraiGuild(id));
@@ -158,8 +158,8 @@ class SamuraiController {
         executorPool.shutdownNow();
         commandPool.shutdownNow();
         for (SamuraiGuild g : guildMap.values()) {
-            SamuraiStore.writeGuild(g);
-            SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
+            Store.writeGuild(g);
+            Store.writeScoreData(g.getGuildId(), g.getScoreMap());
         }
         client.shutdown();
     }
