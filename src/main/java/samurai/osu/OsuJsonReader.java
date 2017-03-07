@@ -4,14 +4,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import samurai.Bot;
-import samurai.osu.enums.GameMode;
-import samurai.osu.enums.RankedStatus;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -44,52 +42,37 @@ public class OsuJsonReader {
         return json.getJSONObject(0);
     }
 
-    public static Beatmap getBeatmapInfo(String hash) {
-        JSONArray json = readJsonFromUrl(OSU_API + GET_BEATMAPS + KEY + "&limit=1&h=" + hash);
-        if (json == null || json.length() == 0) {
-            return null;
+    public static JSONArray getBeatmapSetArrayFromMap(String hash) {
+        JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&h=%s", OSU_API, GET_BEATMAPS, KEY, hash));
+        if (jsonArray != null) {
+            return getBeatmapSetArray(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
         }
-        JSONObject info = json.getJSONObject(0);
-        Beatmap beatmap = new Beatmap();
-        switch (info.getInt("approved")) {
-            case (1):
-                beatmap.setRankedStatus(RankedStatus.RANKED);
-                break;
-            case (2):
-                beatmap.setRankedStatus(RankedStatus.APPROVED);
-                break;
-            default:
-                beatmap.setRankedStatus(RankedStatus.UNKNOWN);
+        return null;
+    }
+
+    public static JSONArray getBeatmapSetArrayFromMap(int mapId) {
+        JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&b=%d", OSU_API, GET_BEATMAPS, KEY, mapId));
+        if (jsonArray != null) {
+            return getBeatmapSetArray(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
         }
-        beatmap.setArtist(info.getString("artist"));
-        beatmap.setMapID(info.getInt("beatmap_id"));
-        beatmap.setMapID(info.getInt("beatmapset_id"));
-        beatmap.setMapper(info.getString("creator"));
-        beatmap.setDifficultyRating(info.getDouble("difficultyrating"));
-        beatmap.setCs((float) info.getDouble("diff_size"));
-        beatmap.setOd((float) info.getDouble("diff_overall"));
-        beatmap.setAr((float) info.getDouble("diff_approach"));
-        beatmap.setHp((float) info.getDouble("diff_drain"));
-        beatmap.setDrainTime(info.getInt("hit_length"));
-        beatmap.setTotalTime(info.getInt("total_length") * 1000);
-        beatmap.setSource(info.getString("source"));
-        beatmap.setSong(info.getString("title"));
-        beatmap.setDifficulty(info.getString("version"));
-        beatmap.setHash(hash);
-        beatmap.setGameMode(GameMode.get(info.getInt("mode")));
-        beatmap.setTags(info.getString("tags"));
-        return beatmap;
+        return null;
+    }
+
+    public static JSONArray getBeatmapSetArray(int setId) {
+        return readJsonFromUrl(String.format("%s%s%s&s=%d", OSU_API, GET_BEATMAPS, KEY, setId));
     }
 
     private static JSONArray readJsonFromUrl(String url) {
         count.incrementAndGet();
-        try (BufferedReader rd = new BufferedReader(new InputStreamReader(new URL(url).openStream(), Charset.forName("UTF-8")))) {
+        try (BufferedReader rd = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             int cp;
             while ((cp = rd.read()) != -1) {
                 sb.append((char) cp);
             }
-            return new JSONArray(sb.toString());
+            JSONArray jsonArray = new JSONArray(sb.toString());
+            if (jsonArray.length() == 0) return null;
+            return jsonArray;
         } catch (IOException e) {
             Bot.log("Error at " + url);
             return null;

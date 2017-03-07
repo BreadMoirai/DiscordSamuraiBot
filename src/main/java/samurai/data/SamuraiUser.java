@@ -55,7 +55,7 @@ public class SamuraiUser {
         return l_rank;
     }
 
-    void setL_rank(short l_rank) {
+    public void setL_rank(short l_rank) {
         this.l_rank = l_rank;
     }
 

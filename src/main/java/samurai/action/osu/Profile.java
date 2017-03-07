@@ -57,7 +57,7 @@ public class Profile extends Action {
                 .addField("Rank", String.format("**#**%s", profile.getString("pp_rank")), true)
                 .addField("Play Count", profile.getString("playcount"), true)
                 .addField("Accuracy", profile.getString("accuracy").substring(0, 5) + "%", true)
-                .addField("Grades", String.format("%s%s\t%s%s\t%s%s", Grade.SS.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
+                .addField("Grades", String.format("%s%s\t%s%s\t%s%s", Grade.X.getEmote(), profile.getString("count_rank_ss"), Grade.S.getEmote(), profile.getString("count_rank_s"), Grade.A.getEmote(), profile.getString("count_rank_a")), true)
                 .setFooter(profile.getString("user_id"), "http://w.ppy.sh/c/c9/Logo.png")
                 .setTimestamp(OffsetDateTime.now());
         return FixedMessage.build(eb.build());

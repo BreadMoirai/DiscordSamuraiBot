@@ -88,4 +88,5 @@ fabric.properties
 
 
 src/main/groovy/
+src/main/resources/samurai/data/set
 src/test/

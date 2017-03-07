@@ -2,6 +2,7 @@ package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
+import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
 import java.io.*;
@@ -20,41 +21,72 @@ import java.util.Map;
  * @author TonTL
  * @version 4.5 - 2/20/2017
  */
-public class Store {
+public class SamuraiStore {
     private static final int VERSION = 20170103;
 
-    public static boolean containsGuild(long id) {
-        return new File(getGuildDataPath(id)).exists();
+
+    public static File getSetFile(int setId) {
+        try {
+            return new File(SamuraiStore.class.getResource("./set").toURI().getPath() + "/" + setId + ".ser");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public static boolean containsScores(long id) {
-        return new File(getScoreDataPath(id)).exists();
+    public static void writeSet(BeatmapSet set) {
+        File outFile = getSetFile(set.getSetId());
+        assert outFile != null;
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                new BufferedOutputStream(
+                        new FileOutputStream(outFile)))) {
+            out.writeObject(set);
+            Bot.log("Write Set " + set.getSetId());
+        } catch (IOException e) {
+            Bot.log("Could not write beatmap set: " + set.getSetId());
+        }
     }
 
-    private static String getGuildDataPath(long id) {
-        return String.format("%s/%d.ser", Store.class.getResource("guild").getPath(), id);
+    public static BeatmapSet readSet(int setId) {
+        File inFile = getSetFile(setId);
+        if (inFile == null || !inFile.exists()) return null;
+        try (ObjectInputStream in = new ObjectInputStream(
+                new BufferedInputStream(
+                        new FileInputStream(inFile)))) {
+            Bot.log("Read Set " + setId);
+            return (BeatmapSet) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            Bot.log("Could not read beatmap set: " + setId);
+            return null;
+        }
     }
 
-    private static String getScoreDataPath(long id) {
-        return String.format("%s/%d.db", Store.class.getResource("score").getPath(), id);
-    }
 
     public static String downloadFile(Message.Attachment attachment) {
-        String path = String.format("%s/%s.db", Store.class.getResource("temp").getPath(), attachment.getId());
+        String path = String.format("%s/%s.db", SamuraiStore.class.getResource("temp").getPath(), attachment.getId());
         attachment.download(new File(path));
         return path;
     }
 
     public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
-        if (Store.class.getResource(String.format("./help/%s.txt", fileName)) == null)
+        if (SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)) == null)
             return String.format("Nothing found for `%s`. Sorry!", fileName);
         try {
-            Files.readAllLines(new File(Store.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
+            Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
         } catch (URISyntaxException | IOException e) {
             Bot.logError(e);
         }
         return sb.toString();
+    }
+
+    //guild methods
+    public static boolean guildExists(long id) {
+        return new File(getGuildDataPath(id)).exists();
+    }
+
+    private static String getGuildDataPath(long id) {
+        return String.format("%s/%d.ser", SamuraiStore.class.getResource("guild").getPath(), id);
     }
 
     public static void writeGuild(SamuraiGuild g) {
@@ -75,6 +107,16 @@ public class Store {
             Bot.logError(e);
             return null;
         }
+    }
+
+
+    //score methods
+    public static boolean containsScores(long id) {
+        return new File(getScoreDataPath(id)).exists();
+    }
+
+    private static String getScoreDataPath(long id) {
+        return String.format("%s/%d.db", SamuraiStore.class.getResource("score").getPath(), id);
     }
 
     public static boolean writeScoreData(long guildId, HashMap<String, LinkedList<Score>> scoreMap) {

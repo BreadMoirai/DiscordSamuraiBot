@@ -3,7 +3,7 @@ package samurai.message.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
-import samurai.action.admin.Template;
+import samurai.action.util.Template;
 import samurai.message.DynamicMessage;
 import samurai.message.modifier.Reaction;
 
@@ -130,9 +130,9 @@ public class DynamicTemplate extends DynamicMessage {
                 // this is the initialization stage
                 // you can use this method to pre-add reactions to message
                 // this method will also increment the stage by 1
-                return createMenu(REACTIONS);
-            default: //createEditConsumer will automatically delete the users reaction
-                return createEditConsumer();
+                return newMenuConsumer(REACTIONS);
+            default: //newEditConsumer will automatically delete the users reaction
+                return newEditConsumer();
         }
     }
 

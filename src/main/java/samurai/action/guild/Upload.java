@@ -3,7 +3,7 @@ package samurai.action.guild;
 import samurai.action.Action;
 import samurai.annotations.Guild;
 import samurai.annotations.Key;
-import samurai.data.Store;
+import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 import samurai.message.dynamic.ConflictMerge;
@@ -21,7 +21,7 @@ public class Upload extends Action {
         if (attaches.size() != 1 || !attaches.get(0).getFileName().endsWith(".db")) {
             return FixedMessage.build("❌ No valid attachment found.");
         } else if (attaches.get(0).getFileName().equalsIgnoreCase("scores.db")) {
-            return new ConflictMerge(Store.readScores(Store.downloadFile(attaches.get(0))), guild.getScoreMap(), guild.getUser(Long.parseLong(author.getUser().getId())));
+            return new ConflictMerge(SamuraiStore.readScores(SamuraiStore.downloadFile(attaches.get(0))), guild.getScoreMap(), guild.getUser(Long.parseLong(author.getUser().getId())));
         }
         return null;
     }

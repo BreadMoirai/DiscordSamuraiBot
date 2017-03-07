@@ -48,7 +48,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     /**
      * Defines Behavior for when User interacts with an emoji.
-     * for default consumers, see getInitalConsumer() and createEditConsumer()
+     * for default consumers, see getInitalConsumer() and newEditConsumer()
      *
      * @return A DynamicMessageResponse object that modifies the message
      */
@@ -101,7 +101,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      *
      * @return the consumer, use with createConsumer()
      */
-    protected Consumer<Message> createEditConsumer() {
+    protected Consumer<Message> newEditConsumer() {
         return message -> {
             for (MessageReaction mr : message.getReactions())
                 if (mr.getEmote().getName().equals(getReaction().getName()))
@@ -115,7 +115,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      * @param emoji unicode emojis
      * @return the consumer, use with createConsumer()
      */
-    protected Consumer<Message> createMenu(List<String> emoji) {
+    protected Consumer<Message> newMenuConsumer(List<String> emoji) {
         return message -> {
             emoji.forEach(reaction -> message.addReaction(reaction).complete());
             setStage(getStage() + 1);

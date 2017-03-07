@@ -61,6 +61,7 @@ public class ConnectFour extends Game {
         switch (getStage()) {
             case 0:
                 B = action.getUser();
+                nameB = Bot.getUser(action.getUser()).getName();
                 next = Game.random.nextBoolean() ? A : B;
                 setStage(1);
                 break;
@@ -147,10 +148,10 @@ public class ConnectFour extends Game {
             case 1:
                 return message -> {
                     message.editMessage(String.format("Building <@%d>'s game against <@%d>", A, B)).queue();
-                    createMenu(REACTIONS).accept(message);
+                    newMenuConsumer(REACTIONS).accept(message);
                 };
             case 2:
-                return createEditConsumer();
+                return newEditConsumer();
             case 3:
                 return message -> {
                     for (MessageReaction mr : message.getReactions()) {

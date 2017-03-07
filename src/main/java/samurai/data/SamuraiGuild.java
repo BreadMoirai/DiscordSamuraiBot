@@ -92,10 +92,12 @@ public class SamuraiGuild implements Externalizable {
             this.scoreMap = scoreMap;
     }
 
-    public Integer getScoreCount() {
-        int scoreCount = 0;
-        for (LinkedList<Score> scoreList : scoreMap.values()) scoreCount += scoreList.size();
-        return scoreCount;
+    public int getScoreCount() {
+        return scoreMap.values().stream().mapToInt(LinkedList::size).sum();
+    }
+
+    public int getScoreCount(String name) {
+        return (int) scoreMap.values().stream().flatMap(Collection::stream).filter(s -> s.getPlayer().equals(name)).count();
     }
 
     public boolean isActive() {

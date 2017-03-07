@@ -1,4 +1,4 @@
-```cs
+!```cs
 Purpose: What does Samurai knows about you?
 Restrictions: user has linked their osu profile
 Arguments:  '' your info

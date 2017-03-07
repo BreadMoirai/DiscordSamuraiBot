@@ -211,23 +211,23 @@ public class ConflictMerge extends DynamicMessage {
             };
         } else if (getStage() == 1) {
             if (conflicts.isEmpty())
-                return createMenu(CONFIRM);
-            else return createMenu(REACTIONS);
+                return newMenuConsumer(CONFIRM);
+            else return newMenuConsumer(REACTIONS);
         } else if (getStage() == 2) {
             if (conflicts.isEmpty()) {
                 return message -> message.clearReactions().queue();
             }
-            return createEditConsumer();
+            return newEditConsumer();
         } else if (getStage() == getLastStage()) {
             return message -> message.clearReactions().queue();
         } else if (getStage() == getLastStage() - 1) {
-            return createEditConsumer().andThen(message -> message.getReactions().forEach(messageReaction -> {
+            return newEditConsumer().andThen(message -> message.getReactions().forEach(messageReaction -> {
                 final String name = messageReaction.getEmote().getName();
                 if (name.equals("\uD83C\uDE51") || name.equals("\uD83D\uDEAE")) {
                     messageReaction.getUsers().queue(users -> users.forEach(user -> messageReaction.removeReaction(user).queue()));
                 }
             }));
-        } else return createEditConsumer();
+        } else return newEditConsumer();
     }
 
     @Override

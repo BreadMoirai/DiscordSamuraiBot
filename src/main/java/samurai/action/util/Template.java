@@ -1,4 +1,4 @@
-package samurai.action.admin;
+package samurai.action.util;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;

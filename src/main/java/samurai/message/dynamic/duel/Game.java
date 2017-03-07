@@ -23,7 +23,7 @@ public abstract class Game extends DynamicMessage {
     }
 
     Long A, B, winner, next;
-    private String nameA, nameB;
+    String nameA, nameB;
 
     Game(User instigator, User... challengers) {
         super();
@@ -44,7 +44,7 @@ public abstract class Game extends DynamicMessage {
 
     MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
-        if (next == A) {
+        if (next.equals(A)) {
             mb.append("<@").append(A)
                     .append("> \uD83C\uDD9A ")
                     .append(nameB)
@@ -79,7 +79,7 @@ public abstract class Game extends DynamicMessage {
         if (winner.equals(Long.parseLong(Bot.ID))) {
             losers.add(A);
             losers.add(B);
-        } else if (winner == A) {
+        } else if (winner.equals(A)) {
             losers.add(B);
         } else {
             losers.add(A);

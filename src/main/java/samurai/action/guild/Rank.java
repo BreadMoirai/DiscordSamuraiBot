@@ -41,10 +41,12 @@ public class Rank extends Action {
         int target = guild.getUser(id).getL_rank() - 1;
         ArrayList<String> nameList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
+            final String name = client.getUserById(String.valueOf(guild.getUsers().get(i).getDiscordId())).getName();
+            final String osuName = guild.getUsers().get(i).getOsuName();
             if (i != target) {
-                nameList.add(String.format("%d. %s : %s", i, client.getUserById(String.valueOf(guild.getUsers().get(i).getDiscordId())).getName(), guild.getUsers().get(i).getOsuName()));
+                nameList.add(String.format("%d. %s : %s (%d)", i, name, osuName, guild.getScoreCount(osuName)));
             } else {
-                nameList.add(String.format("#%d %s : %s", i, client.getUserById(String.valueOf(guild.getUsers().get(i).getDiscordId())).getName(), guild.getUsers().get(i).getOsuName()));
+                nameList.add(String.format("#%d %s : %s (%d)", i, name, osuName, guild.getScoreCount(osuName)));
             }
         }
 //        if (listSize < 17) {

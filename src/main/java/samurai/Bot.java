@@ -8,8 +8,10 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import samurai.action.admin.Groovy;
+import samurai.data.SamuraiDatabase;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -28,7 +30,9 @@ public class Bot {
     public static final String ID;
     static final String SOURCE_GUILD;
     private static final String TOKEN;
+
     private static TextChannel logChannel;
+    private static TextChannel infoChannel;
 
     private static ArrayList<JDA> shards;
 
@@ -43,6 +47,8 @@ public class Bot {
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
+        SimpleLog.ENABLE_GUI = false;
+        SimpleLog.LEVEL = SimpleLog.Level.DEBUG;
     }
 
     public static void main(String[] args) {
@@ -50,7 +56,6 @@ public class Bot {
     }
 
     private static void start() {
-
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             SamuraiListener listener = new SamuraiListener();
@@ -60,18 +65,21 @@ public class Bot {
                     .buildBlocking();
             listener.setJDA(client);
             client.getPresence().setGame(Game.of("@Samurai"));
-            logChannel = client.getTextChannelById("281911114265001985");
+            logChannel = client.getTextChannelById("288157271291068417");
+            infoChannel = client.getTextChannelById("288159388374663170");
             shards.add(client);
             Groovy.addBinding("client", client);
         } catch (LoginException | RateLimitedException | InterruptedException e) {
             e.printStackTrace();
         }
+        addLogListener();
     }
 
     public static void stop() {
         for (JDA client : shards) {
             ((SamuraiListener) client.getRegisteredListeners().get(0)).stop();
         }
+        SamuraiDatabase.writeSamuraiDatabase();
     }
 
 
@@ -90,7 +98,30 @@ public class Bot {
         logChannel.sendMessage(s).queue();
     }
 
+    private static void logInfo(String s) {
+        infoChannel.sendMessage(s).queue();
+    }
+
     public static User getUser(Long id) {
         return shards.get(0).getUserById(String.valueOf(id));
     }
+
+
+    private static void addLogListener() {
+        SimpleLog.addListener(new SimpleLog.LogListener() {
+            @Override
+            public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
+                if (logLevel == SimpleLog.Level.WARNING || logLevel == SimpleLog.Level.DEBUG)
+                    Bot.log(logLevel.name());
+                else if (logLevel == SimpleLog.Level.INFO)
+                    Bot.logInfo(message.toString());
+            }
+
+            @Override
+            public void onError(SimpleLog log, Throwable err) {
+                Bot.logError(err);
+            }
+        });
+    }
+
 }

@@ -1,7 +1,9 @@
 package samurai.osu.enums;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Osu!Mods from Osu!API
@@ -36,12 +38,7 @@ public enum Mod {
             mods.add(Mod.None);
             return mods;
         }
-        for (Mod mod : Mod.values()) {
-            if ((modCombo & mod.value) == mod.value) {
-                mods.add(mod);
-            }
-        }
-        return mods;
+        return Arrays.stream(Mod.values()).filter(mod -> (mod != None && (modCombo & mod.value) == mod.value)).collect(Collectors.toList());
     }
 
     public int value() {

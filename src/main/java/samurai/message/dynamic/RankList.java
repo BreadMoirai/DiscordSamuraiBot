@@ -98,13 +98,13 @@ public class RankList extends DynamicMessage {
 
     @Override
     public Consumer<Message> createConsumer() {
-        if (getStage() == 0) return createMenu(REACTIONS);
+        if (getStage() == 0) return newMenuConsumer(REACTIONS);
         else if (stop) return message -> {
             setStage(getLastStage());
             message.clearReactions().queue();
         };
         else if (getStage() == getLastStage()) return message -> message.clearReactions().queue();
-        else return createEditConsumer();
+        else return newEditConsumer();
     }
 
     @Override

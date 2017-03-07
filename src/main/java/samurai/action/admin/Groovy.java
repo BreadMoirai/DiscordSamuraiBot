@@ -8,9 +8,11 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.*;
-import samurai.data.Store;
+import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -32,8 +34,8 @@ public class Groovy extends Action {
         binding = new Binding();
         binding.setVariable("creator", "DreadMoirai");
         binding.setVariable("bot", Bot.class);
-        binding.setVariable("store", Store.class);
-
+        binding.setVariable("store", SamuraiStore.class);
+        binding.setVariable("utf8", StandardCharsets.UTF_8);
         gs = new GroovyShell(binding);
     }
 

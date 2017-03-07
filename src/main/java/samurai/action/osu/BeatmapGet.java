@@ -16,7 +16,6 @@ public class BeatmapGet extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
-
-        return new RandomBeatmapDisplay(guild.getScoreMap().values());
+        return new RandomBeatmapDisplay(guild.getScoreMap());
     }
 }

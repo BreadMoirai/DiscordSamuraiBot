@@ -13,21 +13,13 @@ public enum RankedStatus {
     RANKED (4),
     APPROVED (5),
     QUALIFIED (6),
-    LOVED (7);
+    LOVED(7),
+    PENDING(8);
 
     private final int value;
 
     RankedStatus(int value) {
         this.value = value;
-    }
-
-    int value() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return WordUtils.capitalizeFully(this.name().replaceAll("_", " "));
     }
 
     public static RankedStatus get(int value) {
@@ -37,6 +29,36 @@ public enum RankedStatus {
             }
         }
         return UNKNOWN;
+    }
+
+    public static RankedStatus fromAPI(int approved) {
+        switch (approved) {
+            case -2:
+                return GRAVEYARD;
+            case -1:
+                return NOT_SUBMITTED;
+            case 0:
+                return PENDING;
+            case 1:
+                return RANKED;
+            case 2:
+                return APPROVED;
+            case 3:
+                return QUALIFIED;
+            case 4:
+                return LOVED;
+            default:
+                return UNKNOWN;
+        }
+    }
+
+    int value() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return WordUtils.capitalizeFully(this.name().replaceAll("_", " "));
     }
 
     public String getEmote() {
