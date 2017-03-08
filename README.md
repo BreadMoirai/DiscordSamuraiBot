@@ -3,7 +3,7 @@
 OUTDATED
 
 ## About
-Join this guild for help [here](https:://discord.gg/yAMdGU9)
+Join this guild for help [here](https://discord.gg/yAMdGU9)
 
 ### Overview
 
