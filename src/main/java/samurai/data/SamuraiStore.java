@@ -5,12 +5,7 @@ import samurai.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
@@ -196,36 +191,47 @@ public class SamuraiStore {
         }
     }
 
-    public static File saveToFile(BufferedImage img, String fileName) throws IOException {
+    public static File saveToFile(BufferedImage img, String filename) throws IOException {
 
-        File file = new File(SamuraiStore.class.getResource("temp").getPath() + "/" + fileName);
+        File file = getTempFile(filename);
 
-        ImageWriter writer = null;
+//        ImageWriter writer = null;
+//
+//        java.util.Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
+//
+//
+//        if (iter.hasNext()) writer = (ImageWriter) iter.next();
+//
+//
+//        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
+//
+//        assert writer != null;
+//        writer.setOutput(ios);
+//
+//
+//        ImageWriteParam param = new JPEGImageWriteParam(java.util.Locale.getDefault());
+//
+//        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//
+//        param.setCompressionQuality(0.98f);
+//
+//        writer.write(null, new IIOImage(img, null, null), param);
 
-        java.util.Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
-
-
-        if (iter.hasNext()) {
-
-            writer = (ImageWriter) iter.next();
-
-        }
-
-
-        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
-
-        assert writer != null;
-        writer.setOutput(ios);
-
-
-        ImageWriteParam param = new JPEGImageWriteParam(java.util.Locale.getDefault());
-
-        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-
-        param.setCompressionQuality(0.98f);
-
-        writer.write(null, new IIOImage(img, null, null), param);
+        ImageIO.write(img, "jpg", file);
 
         return file;
+    }
+
+    public static File getTempFile(String filename) {
+        return new File(SamuraiStore.class.getResource("temp").getPath() + "/" + filename);
+    }
+
+    public static BufferedImage getImage(String s) {
+        try {
+            return ImageIO.read(new File(SamuraiStore.class.getResource("images").getPath() + "/" + s));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

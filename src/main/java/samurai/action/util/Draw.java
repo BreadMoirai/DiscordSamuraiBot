@@ -24,6 +24,7 @@ public class Draw extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
+        if (args.size() != 1) return null;
         try {
             client.getTextChannelById(String.valueOf(channelId)).sendFile(generateImageFile(args.get(0)), null).queue();
         } catch (IOException e) {
@@ -33,7 +34,6 @@ public class Draw extends Action {
     }
 
     private File generateImageFile(String message) {
-        int PIX_SIZE = 5;
         int WIDTH = 100;
         int HEIGHT = 20;
         BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
