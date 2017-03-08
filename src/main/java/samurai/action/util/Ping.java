@@ -1,4 +1,4 @@
-package samurai.action.general;
+package samurai.action.util;
 
 import samurai.action.Action;
 import samurai.annotations.Client;

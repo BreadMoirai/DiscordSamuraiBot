@@ -5,6 +5,8 @@ import samurai.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -185,6 +187,50 @@ public class SamuraiStore {
             return null;
         } catch (IOException e) {
             Bot.logError(e);
+            return null;
+        }
+    }
+
+    public static File saveToFile(BufferedImage img, String filename) throws IOException {
+
+        File file = getTempFile(filename);
+
+//        ImageWriter writer = null;
+//
+//        java.util.Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
+//
+//
+//        if (iter.hasNext()) writer = (ImageWriter) iter.next();
+//
+//
+//        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
+//
+//        assert writer != null;
+//        writer.setOutput(ios);
+//
+//
+//        ImageWriteParam param = new JPEGImageWriteParam(java.util.Locale.getDefault());
+//
+//        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//
+//        param.setCompressionQuality(0.98f);
+//
+//        writer.write(null, new IIOImage(img, null, null), param);
+
+        ImageIO.write(img, "jpg", file);
+
+        return file;
+    }
+
+    public static File getTempFile(String filename) {
+        return new File(SamuraiStore.class.getResource("temp").getPath() + "/" + filename);
+    }
+
+    public static BufferedImage getImage(String s) {
+        try {
+            return ImageIO.read(new File(SamuraiStore.class.getResource("images").getPath() + "/" + s));
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
