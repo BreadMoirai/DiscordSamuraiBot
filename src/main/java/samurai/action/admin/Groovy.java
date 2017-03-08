@@ -4,10 +4,12 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
+import org.apache.commons.codec.binary.Hex;
 import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.Bot;
 import samurai.action.Action;
 import samurai.annotations.*;
+import samurai.data.SamuraiDatabase;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
@@ -36,7 +38,9 @@ public class Groovy extends Action {
         binding.setVariable("bot", Bot.class);
         binding.setVariable("store", SamuraiStore.class);
         binding.setVariable("utf8", StandardCharsets.UTF_8);
+        binding.setVariable("db", SamuraiDatabase.class);
         gs = new GroovyShell(binding);
+
     }
 
     public static void addBinding(String name, Object value) {
@@ -52,6 +56,12 @@ public class Groovy extends Action {
         try {
             Object result = gs.evaluate(args.get(0));
             if (result != null) {
+                if (result instanceof byte[]) {
+                    if (((byte[]) result).length == 0) {
+                        return FixedMessage.build("Empty Array");
+                    }
+                    return FixedMessage.build(Hex.encodeHexString((byte[]) result));
+                }
                 return FixedMessage.build(result.toString());
             } else return FixedMessage.build("Success.");
         } catch (CompilationFailedException e) {
