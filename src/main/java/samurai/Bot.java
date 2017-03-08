@@ -14,6 +14,7 @@ import samurai.action.admin.Groovy;
 import samurai.data.SamuraiDatabase;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +57,7 @@ public class Bot {
     }
 
     private static void start() {
+
         try {
             JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
             SamuraiListener listener = new SamuraiListener();
@@ -73,13 +75,20 @@ public class Bot {
             e.printStackTrace();
         }
         addLogListener();
+        SamuraiDatabase.read();
     }
 
     public static void stop() {
         for (JDA client : shards) {
             ((SamuraiListener) client.getRegisteredListeners().get(0)).stop();
         }
-        SamuraiDatabase.writeSamuraiDatabase();
+        System.out.println("Shutting Down");
+        for (JDA client : shards) client.shutdown();
+        try {
+            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

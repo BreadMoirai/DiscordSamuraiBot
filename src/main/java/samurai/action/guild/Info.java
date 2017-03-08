@@ -29,7 +29,7 @@ public class Info extends Action {
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor("Info", null, null)
                     .setColor(color)
-                    .setDescription(String.format("**Guild ID:** `%d`\n**Prefix:** `%s`\n**Linked Users:** `%d`\n**Score Count:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount()))
+                    .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Score Count:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount()))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);

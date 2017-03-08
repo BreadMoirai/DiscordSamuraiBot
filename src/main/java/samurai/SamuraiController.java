@@ -161,6 +161,5 @@ class SamuraiController {
             SamuraiStore.writeGuild(g);
             SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
         }
-        client.shutdown();
     }
 }

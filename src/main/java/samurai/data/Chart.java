@@ -15,6 +15,9 @@ public class Chart implements Externalizable {
     private String chartName;
     private ArrayList<Integer> beatmapIds;
 
+    public Chart() {
+    }
+
     public Chart(int chartId, String chartName) {
         this.chartId = chartId;
         this.chartName = chartName;

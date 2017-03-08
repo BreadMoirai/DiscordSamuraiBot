@@ -1,3 +1,5 @@
 \temp
+\images
+\help
 blank
 help.txt

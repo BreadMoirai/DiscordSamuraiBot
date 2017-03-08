@@ -5,6 +5,7 @@ import samurai.action.Action;
 import samurai.annotations.Creator;
 import samurai.annotations.Key;
 import samurai.annotations.Source;
+import samurai.data.SamuraiDatabase;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
 
@@ -19,6 +20,7 @@ public class Shutdown extends Action {
 
     @Override
     protected SamuraiMessage buildMessage() {
+        SamuraiDatabase.write();
         Bot.stop();
         return FixedMessage.build("See ya later, loser.");
     }

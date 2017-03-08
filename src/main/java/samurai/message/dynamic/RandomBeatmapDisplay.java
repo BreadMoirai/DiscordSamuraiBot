@@ -7,6 +7,7 @@ import samurai.Bot;
 import samurai.data.SamuraiDatabase;
 import samurai.message.DynamicMessage;
 import samurai.message.modifier.Reaction;
+import samurai.osu.Beatmap;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 import samurai.osu.enums.Mod;
@@ -46,10 +47,9 @@ public class RandomBeatmapDisplay extends DynamicMessage {
     @Override
     public Message getMessage() {
         if (getStage() == 0) return new MessageBuilder().append("Initializing...").build();
-        System.out.println("Building Beatmap: " + fullScore + " | " + fullMap);
         String hash = hashArray.get(currentIdx);
 
-        BeatmapSet.Beatmap beatmap;
+        Beatmap beatmap;
         if (currentSet.hasCurrent()) beatmap = currentSet.current();
         else beatmap = currentSet.getBeatmapByHash(hash);
         LinkedList<Score> scores = scoreMap.getOrDefault(beatmap.getHash(), new LinkedList<>());
