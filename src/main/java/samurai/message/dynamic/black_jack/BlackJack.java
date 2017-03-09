@@ -1,4 +1,4 @@
-package samurai.message.dynamic.BlackJack;
+package samurai.message.dynamic.black_jack;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.message.DynamicMessage;

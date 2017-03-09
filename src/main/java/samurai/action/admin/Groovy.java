@@ -11,6 +11,7 @@ import samurai.annotations.*;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.dynamic.black_jack.Card;
 
 import java.nio.charset.StandardCharsets;
 
@@ -36,6 +37,7 @@ public class Groovy extends Action {
         binding.setVariable("bot", Bot.class);
         binding.setVariable("store", SamuraiStore.class);
         binding.setVariable("utf8", StandardCharsets.UTF_8);
+        binding.setVariable("card", Card.class);
         gs = new GroovyShell(binding);
     }
 
