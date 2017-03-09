@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  * @version 4.0
  * @since 2/18/2017
  */
-@Key("groovy")
+@Key({"groovy", "g"})
 @Client
 @Admin
 @Creator
