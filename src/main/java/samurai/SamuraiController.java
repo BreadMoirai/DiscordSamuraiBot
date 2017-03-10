@@ -8,7 +8,7 @@ import samurai.data.SamuraiStore;
 import samurai.message.DynamicMessage;
 import samurai.message.SamuraiMessage;
 import samurai.message.modifier.DynamicMessageResponse;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -43,7 +43,7 @@ class SamuraiController {
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
     }
 
-    void execute(Action action) {
+    void onAction(Action action) {
         Bot.CALLS.incrementAndGet();
         if (!checkAnts(action)) {
             return;
@@ -59,7 +59,7 @@ class SamuraiController {
         if (action.getClass().isAnnotationPresent(Creator.class) && !action.getAuthor().isOwner())
             return false;
         if (action.getClass().isAnnotationPresent(Admin.class) && !action.getAuthor().canInteract(client.getGuildById(String.valueOf(action.getGuildId())).getSelfMember())) {
-            Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()));
+            Bot.log(String.format("%s does not have adequate privileges to use `%s`", action.getAuthor().getEffectiveName(), action.getClass().getAnnotation(Key.class).value()[0]));
             return false;
         }
         if (action.getClass().isAnnotationPresent(Client.class)) action.setClient(client);
@@ -69,7 +69,7 @@ class SamuraiController {
         return true;
     }
 
-    void execute(Reaction reaction) {
+    void onReaction(ReactionEvent reaction) {
         System.out.println("Reaction Found: " + reaction.getName());
         DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
         if (samuraiMessage.setValidReaction(reaction)) {

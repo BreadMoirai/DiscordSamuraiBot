@@ -21,6 +21,7 @@ import samurai.message.dynamic.DynamicTemplate;
  * @since 2/16/2017
  */
 @Key("template") //this denotes what command the user should type in ex. "!template"
+// you can use an array for aliases ex. @Key({"template", "tp", "temp"})
 //keys should be less than 10 characters
 @Source // can only be used in DreadMoirai's Samurais;
 public class Template extends Action {

@@ -4,7 +4,7 @@ package samurai.message.dynamic.duel;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +31,7 @@ class Hangman extends Game {
     }
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
 
     }
 

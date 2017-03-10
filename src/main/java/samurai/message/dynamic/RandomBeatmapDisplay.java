@@ -6,8 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
 import samurai.data.SamuraiDatabase;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
-import samurai.osu.Beatmap;
+import samurai.message.modifier.ReactionEvent;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 import samurai.osu.enums.Mod;
@@ -87,12 +86,12 @@ public class RandomBeatmapDisplay extends DynamicMessage {
     }
 
     @Override
-    protected boolean valid(Reaction action) {
+    protected boolean valid(ReactionEvent action) {
         return getStage() == 1 && REACTIONS.contains(action.getName());
     }
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
         switch (action.getName()) {
             case "🔁":
                 nextSet();

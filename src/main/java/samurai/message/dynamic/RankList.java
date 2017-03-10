@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class RankList extends DynamicMessage {
     }
 
     @Override
-    public boolean valid(Reaction action) {
+    public boolean valid(ReactionEvent action) {
         if (getStage() <= 0 || getStage() == getLastStage()) return false;
         if (!REACTIONS.contains(action.getName())) {
             return false;
@@ -80,7 +80,7 @@ public class RankList extends DynamicMessage {
     }
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
         switch (REACTIONS.indexOf(action.getName())) {
             case 0:
             case 2:

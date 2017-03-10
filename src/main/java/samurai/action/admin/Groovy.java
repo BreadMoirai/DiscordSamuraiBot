@@ -13,6 +13,7 @@ import samurai.data.SamuraiDatabase;
 import samurai.data.SamuraiStore;
 import samurai.message.FixedMessage;
 import samurai.message.SamuraiMessage;
+import samurai.message.dynamic.black_jack.Card;
 
 import java.nio.charset.StandardCharsets;
 
@@ -22,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  * @version 4.0
  * @since 2/18/2017
  */
-@Key("groovy")
+@Key({"groovy", "g"})
 @Client
 @Admin
 @Creator
@@ -39,6 +40,7 @@ public class Groovy extends Action {
         binding.setVariable("store", SamuraiStore.class);
         binding.setVariable("utf8", StandardCharsets.UTF_8);
         binding.setVariable("db", SamuraiDatabase.class);
+
         gs = new GroovyShell(binding);
 
     }

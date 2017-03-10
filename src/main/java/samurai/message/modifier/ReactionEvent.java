@@ -4,7 +4,7 @@ package samurai.message.modifier;
  * @author TonTL
  * @since 4.0
  */
-public class Reaction {
+public class ReactionEvent {
     private long user;
     private long messageId;
     private long channelId;
@@ -15,7 +15,7 @@ public class Reaction {
         return user;
     }
 
-    public Reaction setUser(long user) {
+    public ReactionEvent setUser(long user) {
         this.user = user;
         return this;
     }
@@ -24,7 +24,7 @@ public class Reaction {
         return messageId;
     }
 
-    public Reaction setMessageId(long messageId) {
+    public ReactionEvent setMessageId(long messageId) {
         this.messageId = messageId;
         return this;
     }
@@ -33,7 +33,7 @@ public class Reaction {
         return channelId;
     }
 
-    public Reaction setChannelId(long channelId) {
+    public ReactionEvent setChannelId(long channelId) {
         this.channelId = channelId;
         return this;
     }
@@ -42,7 +42,7 @@ public class Reaction {
         return name;
     }
 
-    public Reaction setName(String name) {
+    public ReactionEvent setName(String name) {
         this.name = name;
         return this;
     }
@@ -51,7 +51,7 @@ public class Reaction {
         return time;
     }
 
-    public Reaction setTime(long time) {
+    public ReactionEvent setTime(long time) {
         this.time = time;
         return this;
     }

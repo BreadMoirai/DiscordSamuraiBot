@@ -5,7 +5,6 @@ import samurai.Bot;
 import samurai.annotations.Key;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -21,13 +20,17 @@ public class ActionFactory {
         Set<Class<? extends Action>> classes = reflections.getSubTypesOf(Action.class);
         for (Class<? extends Action> action : classes) {
             Key actionKey = action.getAnnotation(Key.class);
-            if (actionKey == null || Objects.equals(actionKey.value(), "")) {
+            if (actionKey == null || actionKey.value().length == 0) {
                 System.err.printf("No key found for %s%n", action.getName());
                 continue;
             }
-            actionMap.put(actionKey.value(), action);
             String[] name = action.getName().substring(15).split("\\.");
-            System.out.printf("%-10s mapped to %-7s.%s%n", String.format("\"%s\"", actionKey.value()), name[0], name[1]);
+            for (String key : actionKey.value()) {
+                actionMap.put(key, action);
+                System.out.printf("%-10s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[0], name[1]);
+            }
+
+
         }
     }
 
@@ -44,4 +47,9 @@ public class ActionFactory {
             return null;
         }
     }
+
+    public static Set<String> keySet() {
+        return actionMap.keySet();
+    }
 }
+

@@ -1,8 +1,8 @@
-package samurai.message.dynamic.BlackJack;
+package samurai.message.dynamic.black_jack;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.function.Consumer;
 
@@ -19,12 +19,12 @@ public class BlackJack extends DynamicMessage {
     }
 
     @Override
-    protected boolean valid(Reaction action) {
+    protected boolean valid(ReactionEvent action) {
         return false;
     }
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
 
     }
 
