@@ -20,13 +20,15 @@ public class ConflictMerge extends DynamicMessage {
 
     private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("✅", "\uD83C\uDE51", "\uD83D\uDEAE", "❌"));
     private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("✅", "❌"));
-
+    @SuppressWarnings("WeakerAccess")
+    protected final SamuraiUser uploader;
     private final HashMap<String, LinkedList<Score>> annex;
-    private final SamuraiUser uploader;
     private final HashMap<String, LinkedList<Score>> base;
     private final ArrayList<Conflict> conflicts;
+    @SuppressWarnings("WeakerAccess")
+    protected int newScores;
     private ListIterator<Conflict> itr;
-    private int duplicateScores, newScores, totalScores, userScoresMerged;
+    private int duplicateScores, totalScores, userScoresMerged;
     private int totalConflicts, conflictPos;
     private Conflict current;
     private boolean canceled;
@@ -164,6 +166,9 @@ public class ConflictMerge extends DynamicMessage {
                 case "❌":
                     canceled = true;
                     setStage(getLastStage());
+                    break;
+                default:
+
             }
         } else if (getStage() < getLastStage() - 1)
             switch (action.getName()) {
@@ -191,6 +196,8 @@ public class ConflictMerge extends DynamicMessage {
                 case "❌":
                     canceled = true;
                     setStage(getLastStage());
+                    return;
+                default:
             }
         else Bot.log(String.format("Illegal Access in ConflictMerge by <@%d>", uploader.getDiscordId()));
     }

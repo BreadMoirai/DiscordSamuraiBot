@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
@@ -17,7 +16,6 @@ import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
 import samurai.message.modifier.ReactionEvent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,13 +71,6 @@ public class SamuraiListener extends ListenerAdapter {
         process(author, message, channelId, guildId);
     }
 
-    @Override
-    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
-        String content = event.getMessage().getRawContent().trim();
-        List<String> args = parseArgs(content);
-    }
-
     private void process(Member author, Message message, long channelId, long guildId) {
         final String token = samurai.getPrefix(guildId);
 
@@ -132,7 +123,7 @@ public class SamuraiListener extends ListenerAdapter {
             samurai.onReaction(new ReactionEvent()
                     .setChannelId(Long.parseLong(event.getChannel().getId()))
                     .setMessageId(Long.parseLong(event.getMessageId()))
-                    .setUser(Long.valueOf(event.getUser().getId()))
+                    .setUser(Long.parseLong(event.getUser().getId()))
                     .setName(event.getReaction().getEmote().getName())
                     .setTime(System.currentTimeMillis()));
     }
@@ -143,12 +134,7 @@ public class SamuraiListener extends ListenerAdapter {
 
     @Override
     public void onShutdown(ShutdownEvent event) {
-        System.out.println("Shutting Down");
-        try {
-            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     void stop() {

@@ -2,7 +2,6 @@
 Admin
 - [prefix]groovy
 - [prefix]shutdown
-+ [prefix]template
 - [prefix]throw
 
 General
@@ -11,13 +10,14 @@ General
 + [prefix]help
 - [prefix]invite
 - [prefix]join
-- [prefix]ping
 
 Guild
 + [prefix]info
-+ [prefix]link
 - [prefix]rank
++ [prefix]link
 - [prefix]upload
++ [prefix]profile
+- [prefix]beatmap
 
 Manage
 - [prefix]perm
@@ -25,6 +25,9 @@ Manage
 - [prefix]status
 - [prefix]uptime
 
-Osu
-+ [prefix]profile
+Util
+- [prefix]draw
++ [prefix]wasted
+- [prefix]ping
++ [prefix]template
 ```

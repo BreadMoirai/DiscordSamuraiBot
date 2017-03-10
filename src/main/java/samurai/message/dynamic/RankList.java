@@ -83,13 +83,11 @@ public class RankList extends DynamicMessage {
     protected void execute(ReactionEvent action) {
         switch (REACTIONS.indexOf(action.getName())) {
             case 0:
+            case 2:
                 nextStage();
                 break;
             case 1:
                 stop = true;
-                break;
-            case 2:
-                nextStage();
                 break;
             default:
                 Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUser());

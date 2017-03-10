@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,7 +76,6 @@ public class SamuraiDatabase {
      * @return an array of bytes
      */
     public static byte[] toBytes() {
-        int keysize = mapSetMap.size();
         int valsize = mapSetMap.values().size();
         Queue<ByteBuffer> bufferQueue = new LinkedList<>();
         Map<Integer, List<Integer>> writeMap = new HashMap<>(valsize);
@@ -89,7 +88,7 @@ public class SamuraiDatabase {
         Map<Integer, String> md5Map = MapUtils.invertMap(mapMD5);
         int capacity = 0;
         for (Map.Entry<Integer, List<Integer>> e : writeMap.entrySet()) {
-            ByteBuffer buf = ByteBuffer.allocate(Byte.BYTES + (Integer.BYTES + HASH_SIZE) * e.getValue().size());
+            ByteBuffer buf = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + (Integer.BYTES + HASH_SIZE) * e.getValue().size());
             buf.put((byte) e.getValue().size());
             buf.putInt(e.getKey());
             for (Integer i : e.getValue()) {
@@ -101,7 +100,7 @@ public class SamuraiDatabase {
         }
         ByteBuffer data = ByteBuffer.allocate(capacity);
         try {
-            bufferQueue.forEach(data::put);
+            bufferQueue.forEach(buf -> data.put(buf.array()));
         } catch (BufferOverflowException e) {
             Bot.logError(e);
         }
@@ -110,7 +109,6 @@ public class SamuraiDatabase {
 
     public static boolean initializeFromBytes(byte[] data) {
         ByteBuffer buf = ByteBuffer.wrap(data);
-        buf.order(ByteOrder.BIG_ENDIAN);
         try {
             while (buf.remaining() > 0) {
                 int ksize = buf.get();
@@ -131,20 +129,24 @@ public class SamuraiDatabase {
     }
 
 
-    public static void initializeSamuraiDatabase() {
+    public static void read() {
         byte[] data;
         try {
-            data = Files.readAllBytes(Paths.get(SamuraiDatabase.class.getResource("./set/MapSetIds.db").toURI()));
+            data = Files.readAllBytes(Paths.get(SamuraiDatabase.class.getResource("./MapSetIds.db").toURI()));
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
             return;
         }
         if (!SamuraiDatabase.initializeFromBytes(data)) Bot.log("Failed to initializeFromBytes Samurai Database");
+        else Bot.log("Successfully initialized Database");
     }
 
-    public static void writeSamuraiDatabase() {
+    public static void write() {
         try {
-            Files.write(Paths.get(SamuraiStore.class.getResource("./set/MapSetIds.db").toURI()), SamuraiDatabase.toBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(Paths.get(SamuraiStore.class.getResource("./MapSetIds.db").toURI()), SamuraiDatabase.toBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            System.out.print("Database Write Success");
+        } catch (ClosedByInterruptException e) {
+            System.err.println("Write operation interrupted. Could not write SamuraiDatabase.");
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
