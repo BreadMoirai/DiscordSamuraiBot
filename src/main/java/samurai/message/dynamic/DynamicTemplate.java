@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
 import samurai.action.util.Template;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.security.AccessControlException;
 import java.util.Arrays;
@@ -84,7 +84,7 @@ public class DynamicTemplate extends DynamicMessage {
      * @return true if the Reaction is accepted. false otherwise
      */
     @Override
-    public boolean valid(Reaction action) {
+    public boolean valid(ReactionEvent action) {
         //Rejects the Reaction if it is not within REACTIONS
         // You should always have an initialization stage where no input is accepted.
         // here the initialization stage is 0 check DynamicTemplate#GetConsumer
@@ -95,7 +95,7 @@ public class DynamicTemplate extends DynamicMessage {
      * This method changes the message based on the current Reaction
      */
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
         //this method runs every time a new Reaction is detected and validated through valid(Reaction)
         //get the current Reaction
         switch (action.getName()) {

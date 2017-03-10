@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import samurai.Bot;
 import samurai.message.modifier.DynamicMessageResponse;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -12,6 +12,21 @@ import java.util.function.Consumer;
 
 /**
  * These messages can change base on user interaction through reactions
+ *
+ * Initial method call order
+ * <ol>
+ *     <li>getMessage()</li>
+ *     <li>getConsumer()</li>
+ * </ol>
+ *
+ * Upon reaction
+ * <ol>
+ *     <li>valid()</li>
+ *     <li>execute()</li>
+ *     <li>getMessage()</li>
+ *     <li>getConsumer()</li>
+ *     <li>check isExpired()</li>
+ * </ol>
  *
  * @author TonTL
  * @since 4.0
@@ -22,7 +37,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
 
     private Long messageId;
     private long lastActive;
-    private Reaction action;
+    private ReactionEvent action;
     private int stage;
 
     protected DynamicMessage() {
@@ -65,7 +80,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      * @param action This is the messageAction associated with this message. Consists of a reaction.
      * @return true if the Reaction is accepted. false otherwise
      */
-    protected abstract boolean valid(Reaction action);
+    protected abstract boolean valid(ReactionEvent action);
 
     /**
      * When this method is called, valid() has also been called prior
@@ -75,7 +90,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
      *
      * @param action this is the reaction added by the user
      */
-    protected abstract void execute(Reaction action);
+    protected abstract void execute(ReactionEvent action);
 
     /**
      * This is used to edit the message that has been sent
@@ -88,6 +103,8 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     /**
      * Used with DynamicMessage#isExpired
      * ex. Connect Four has 4 possible forms so this method would return 3.
+     *
+     * indicates at what point should the object stop receiving updates.
      *
      * @return the index of the last possible form of this object
      */
@@ -110,7 +127,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
     }
 
     /**
-     * adds the emojis and increments the stage
+     * adds the emojis and increments the stage by 1
      *
      * @param emoji unicode emojis
      * @return the consumer, use with createConsumer()
@@ -132,11 +149,15 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         this.messageId = messageId;
     }
 
+    protected void setExpired() {
+        setStage(getLastStage());
+    }
+
     public boolean isExpired() {
         return getStage() == getLastStage() || System.currentTimeMillis() - lastActive > timeout;
     }
 
-    public boolean setValidReaction(Reaction action) {
+    public boolean setValidReaction(ReactionEvent action) {
         if (valid(action)) {
             this.action = action;
             return true;
@@ -144,7 +165,7 @@ public abstract class DynamicMessage extends SamuraiMessage implements Callable<
         return false;
     }
 
-    protected Reaction getReaction() {
+    protected ReactionEvent getReaction() {
         return action;
     }
 

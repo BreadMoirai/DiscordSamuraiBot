@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public abstract class Game extends DynamicMessage {
     }
 
     @Override
-    public boolean valid(Reaction action) {
+    public boolean valid(ReactionEvent action) {
         return false;
     }
 

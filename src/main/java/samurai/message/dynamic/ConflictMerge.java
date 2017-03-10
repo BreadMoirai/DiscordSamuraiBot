@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import samurai.Bot;
 import samurai.data.SamuraiUser;
 import samurai.message.DynamicMessage;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 import samurai.osu.Score;
 
 import java.util.*;
@@ -145,7 +145,7 @@ public class ConflictMerge extends DynamicMessage {
 
 
     @Override
-    protected boolean valid(Reaction action) {
+    protected boolean valid(ReactionEvent action) {
         if (getStage() < 2 || getStage() == getLastStage()) return false;
         else if (conflicts.isEmpty()) {
             return CONFIRM.contains(action.getName());
@@ -154,7 +154,7 @@ public class ConflictMerge extends DynamicMessage {
     }
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
         if (getStage() == getLastStage() - 1) {
             switch (action.getName()) {
                 case "✅":

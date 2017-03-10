@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.Bot;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ public class ConnectFour extends Game {
     }
 
     @Override
-    public boolean valid(Reaction action) {
+    public boolean valid(ReactionEvent action) {
         switch (getStage()) {
             case 0:
                 return action.getName().equals("⚔") && action.getUser() != A;
@@ -57,7 +57,7 @@ public class ConnectFour extends Game {
 
 
     @Override
-    protected void execute(Reaction action) {
+    protected void execute(ReactionEvent action) {
         switch (getStage()) {
             case 0:
                 B = action.getUser();

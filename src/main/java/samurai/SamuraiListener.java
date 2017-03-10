@@ -15,7 +15,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.action.Action;
 import samurai.action.ActionFactory;
 import samurai.action.admin.Groovy;
-import samurai.message.modifier.Reaction;
+import samurai.message.modifier.ReactionEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 /**
  * Listener for SamuraiBot
- * This class listens to events from discord, takes the required information by building the appropriate action and passing it to SamuraiController#execute
+ * This class listens to events from discord, takes the required information by building the appropriate action and passing it to SamuraiController#onReaction
  *
  * @author TonTL
  * @version 4.0 - 2/16/2017
@@ -39,7 +39,6 @@ public class SamuraiListener extends ListenerAdapter {
 
     SamuraiListener() {
         samurai = new SamuraiController();
-        //prefixMap = new HashMap<>();
         Groovy.addBinding("samurai", samurai);
     }
 
@@ -113,7 +112,7 @@ public class SamuraiListener extends ListenerAdapter {
                 .setMessageId(Long.parseLong(message.getId()))
                 .setMentions(message.getMentionedUsers())
                 .setAttaches(message.getAttachments());
-        samurai.execute(action);
+        samurai.onAction(action);
     }
 
     private List<String> parseArgs(String content) {
@@ -130,7 +129,7 @@ public class SamuraiListener extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getUser().isBot() && samurai.isWatching(Long.parseLong(event.getMessageId())))
-            samurai.execute(new Reaction()
+            samurai.onReaction(new ReactionEvent()
                     .setChannelId(Long.parseLong(event.getChannel().getId()))
                     .setMessageId(Long.parseLong(event.getMessageId()))
                     .setUser(Long.valueOf(event.getUser().getId()))
