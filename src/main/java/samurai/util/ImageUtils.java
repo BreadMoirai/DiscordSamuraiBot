@@ -9,6 +9,12 @@ import java.awt.image.BufferedImage;
  */
 public class ImageUtils {
 
+    /**
+     * turns a Buffered Image greyscale
+     *
+     * @param image base image
+     * @return a new BufferedImage with TYPE_BYTE_GRAY
+     */
     public static BufferedImage greyScale(BufferedImage image) {
         BufferedImage gs = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         Graphics2D g2 = (Graphics2D) gs.getGraphics();

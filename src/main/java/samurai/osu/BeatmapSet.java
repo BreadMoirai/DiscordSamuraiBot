@@ -2,8 +2,8 @@ package samurai.osu;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import samurai.Bot;
-import samurai.data.SamuraiDatabase;
+import samurai.core.Bot;
+import samurai.core.data.SamuraiDatabase;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.RankedStatus;
 

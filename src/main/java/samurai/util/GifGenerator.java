@@ -1,6 +1,6 @@
 package samurai.util;
 
-import samurai.data.SamuraiStore;
+import samurai.core.data.SamuraiStore;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -18,7 +18,6 @@ import java.util.Queue;
  */
 public class GifGenerator {
 
-    private static final int crop = 5;
     Queue<BufferedImage> imageQueue;
     private BufferedImage base;
     private BufferedImage overlay;
@@ -64,7 +63,7 @@ public class GifGenerator {
                 at.translate(width / 2, height / 2);
                 at.rotate(Math.PI / frameCount * 2);
                 if (i == 0) {
-                    at.scale(0.9, 0.9);
+                    at.scale(1.1, 1.1);
                 }
                 at.translate(-width / 2, -height / 2);
             }

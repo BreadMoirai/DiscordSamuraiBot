@@ -11,7 +11,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Samurai_main" />
-    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.0.BETA2_143" level="project" />
+    <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.0.BETA2_147" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy:2.4.8" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.10" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.5" level="project" />
