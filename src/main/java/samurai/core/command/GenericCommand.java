@@ -1,6 +1,6 @@
 package samurai.core.command;
 
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL

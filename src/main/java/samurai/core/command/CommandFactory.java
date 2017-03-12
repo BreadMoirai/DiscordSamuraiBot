@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 import samurai.core.Bot;
 import samurai.core.command.annotations.Key;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -59,7 +60,7 @@ public class CommandFactory {
         return actionMap.keySet();
     }
 
-    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments) {
+    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments, OffsetDateTime time) {
 
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
@@ -87,7 +88,8 @@ public class CommandFactory {
                 .setChannelId(channelId)
                 .setMessageId(messageId)
                 .setMentions(mentions)
-                .setAttaches(attachments);
+                .setAttaches(attachments)
+                .setTime(time);
         return command;
     }
 
@@ -118,7 +120,8 @@ public class CommandFactory {
         final long messageId = Long.parseLong(message.getId());
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();
-        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments);
+        final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
+        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments, time);
     }
 }
 

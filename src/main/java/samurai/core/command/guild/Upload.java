@@ -1,11 +1,10 @@
 package samurai.core.command.guild;
 
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Guild;
 import samurai.core.command.annotations.Key;
 import samurai.core.data.SamuraiStore;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.core.entities.dynamic.ConflictMerge;
 
 /**
@@ -14,7 +13,6 @@ import samurai.core.entities.dynamic.ConflictMerge;
  * @since 2/20/2017
  */
 @Key("upload")
-@Guild
 public class Upload extends Command {
     @Override
     protected SamuraiMessage buildMessage() {

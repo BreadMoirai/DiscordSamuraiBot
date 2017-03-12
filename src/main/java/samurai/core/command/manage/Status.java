@@ -2,13 +2,10 @@ package samurai.core.command.manage;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import samurai.core.Bot;
-import samurai.core.MyEventListener;
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Client;
-import samurai.core.command.annotations.Guild;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.osu.OsuJsonReader;
 
 import java.awt.*;
@@ -24,8 +21,6 @@ import java.time.OffsetDateTime;
  * @since 2/15/2017
  */
 @Key("status")
-@Client
-@Guild
 public class Status extends Command {
 
     @Override
@@ -33,13 +28,13 @@ public class Status extends Command {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
         final EmbedBuilder embed = new EmbedBuilder()
-                .setTitle("Status: " + client.getPresence().getStatus().name(), null)
+                .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)
                 .setFooter("Samurai\u2122", AVATAR)
                 .addField("Local Status", String.format("**%-19s**`%s`%n**%-20s**`%d`%n**%-20s**`%d`", "current state:", guild.isActive() ? "Active" : "Inactive", "score count:", guild.getScoreCount(), "active users:", guild.getUserCount()), true)
-                .addField("Global", String.format("**%-14s**`%d`%n**%-14s**`%d`", "Guilds:", client.getGuilds().size(), "Users:", client.getUsers().size()), true)
-                .addField("Time Active", new Uptime().buildMessage().getMessage().getContent(), false)
-                .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", Bot.CALLS.get(), "sent:", MyEventListener.messagesSent.get(), "cmds/hr:", 360.0 * Bot.SENT.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 1000.0)), true)
+                .addField("Global", String.format("**%-14s**`%d`%n**%-14s**`%d`", "Guilds:", Bot.getGuildCount(), "Users:", Bot.getUserCount()), true)
+                .addField("Time Active", ((FixedMessage) new Uptime().buildMessage()).getMessage().getContent(), false)
+                .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", Bot.CALLS.get(), "sent:", Bot.SENT.get(), "cmds/hr:", 360.0 * Bot.CALLS.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 1000.0)), true)
                 .addField("Osu!API", String.format("**%-16s**`%d`%n**%-17s**`%d`", "calls made:", OsuJsonReader.count.get(), "calls/min:", OsuJsonReader.count.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 6000)), true)
                 .addField("Memory", String.format("**used:\t**`%d MB`%n**total:\t**`%d MB`%n**max: \t**`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true)
                 .setTimestamp(OffsetDateTime.now());

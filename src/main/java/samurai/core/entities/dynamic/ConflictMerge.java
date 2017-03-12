@@ -4,8 +4,9 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.core.Bot;
 import samurai.core.data.SamuraiUser;
-import samurai.core.entities.DynamicMessage;
+import samurai.core.entities.base.DynamicMessage;
 import samurai.core.events.ReactionEvent;
+import samurai.core.events.listeners.ReactionListener;
 import samurai.osu.Score;
 
 import java.util.*;
@@ -16,17 +17,16 @@ import java.util.function.Consumer;
  * @version 4.0
  * @since 2/23/2017
  */
-public class ConflictMerge extends DynamicMessage {
+public class ConflictMerge extends DynamicMessage implements ReactionListener {
 
     private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("✅", "\uD83C\uDE51", "\uD83D\uDEAE", "❌"));
     private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("✅", "❌"));
-    @SuppressWarnings("WeakerAccess")
-    protected final SamuraiUser uploader;
+    private final SamuraiUser uploader;
     private final HashMap<String, LinkedList<Score>> annex;
     private final HashMap<String, LinkedList<Score>> base;
     private final ArrayList<Conflict> conflicts;
-    @SuppressWarnings("WeakerAccess")
-    protected int newScores;
+    private int stage;
+    private int newScores;
     private ListIterator<Conflict> itr;
     private int duplicateScores, totalScores, userScoresMerged;
     private int totalConflicts, conflictPos;
@@ -42,6 +42,7 @@ public class ConflictMerge extends DynamicMessage {
         newScores = 0;
         totalScores = 0;
         userScoresMerged = 0;
+        stage = 0;
         canceled = false;
         conflicts = new ArrayList<>();
     }
@@ -94,9 +95,7 @@ public class ConflictMerge extends DynamicMessage {
     }
 
 
-    @Override
     public Message getMessage() {
-        final int stage = getStage();
         if (stage == 0) {
             return new MessageBuilder().append("Analyzing Data...").build();
         } else if (stage == 1) {
@@ -146,98 +145,82 @@ public class ConflictMerge extends DynamicMessage {
     }
 
 
-    @Override
     protected boolean valid(ReactionEvent action) {
-        if (getStage() < 2 || getStage() == getLastStage()) return false;
+        if (stage < 2 || stage == getLastStage()) return false;
         else if (conflicts.isEmpty()) {
             return CONFIRM.contains(action.getName());
         } else
             return REACTIONS.contains(action.getName());
     }
 
-    @Override
+
     protected void execute(ReactionEvent action) {
-        if (getStage() == getLastStage() - 1) {
+        if (stage == getLastStage() - 1) {
             switch (action.getName()) {
                 case "✅":
-                    nextStage();
+                    stage++;
                     merge();
                     return;
                 case "❌":
                     canceled = true;
-                    setStage(getLastStage());
+                    stage = getLastStage();
                     break;
                 default:
 
             }
-        } else if (getStage() < getLastStage() - 1)
+        } else if (stage < getLastStage() - 1)
             switch (action.getName()) {
                 case "✅":
                     current.approve();
                     if (itr.hasNext())
                         current = itr.next();
                     else current = null;
-                    nextStage();
+                    stage++;
                     return;
                 case "\uD83C\uDE51":
                     current.ignore();
                     if (itr.hasNext())
                         current = itr.next();
                     else current = null;
-                    nextStage();
+                    stage++;
                     return;
                 case "\uD83D\uDEAE":
                     itr.remove();
                     if (itr.hasNext())
                         current = itr.next();
                     else current = null;
-                    nextStage();
+                    stage++;
                     return;
                 case "❌":
                     canceled = true;
-                    setStage(getLastStage());
+                    stage = getLastStage();
                     return;
                 default:
             }
         else Bot.log(String.format("Illegal Access in ConflictMerge by <@%d>", uploader.getDiscordId()));
     }
 
-
-    @Override
-    public Consumer<Message> createConsumer() {
-        if (getStage() == 0) {
-            return message -> {
-                setMessageId(Long.parseLong(message.getId()));
-                findConflictsAndRemoveDupes();
-                nextStage();
-                message.editMessage(getMessage()).queue(createConsumer());
-                if (!conflicts.isEmpty()) {
-                    itr = conflicts.listIterator();
-                    current = itr.next();
-                }
-            };
-        } else if (getStage() == 1) {
-            if (conflicts.isEmpty())
-                return newMenuConsumer(CONFIRM);
-            else return newMenuConsumer(REACTIONS);
-        } else if (getStage() == 2) {
+    public Consumer<Message> createConsumer(ReactionEvent event) {
+        if (stage == 2) {
             if (conflicts.isEmpty()) {
                 return message -> message.clearReactions().queue();
             }
-            return newEditConsumer();
-        } else if (getStage() == getLastStage()) {
+            removeReaction(event);
+            return null;
+        } else if (stage == getLastStage()) {
             return message -> message.clearReactions().queue();
-        } else if (getStage() == getLastStage() - 1) {
-            return newEditConsumer().andThen(message -> message.getReactions().forEach(messageReaction -> {
+        } else if (stage == getLastStage() - 1) {
+            removeReaction(event);
+            return message -> message.getReactions().forEach(messageReaction -> {
                 final String name = messageReaction.getEmote().getName();
                 if (name.equals("\uD83C\uDE51") || name.equals("\uD83D\uDEAE")) {
                     messageReaction.getUsers().queue(users -> users.forEach(user -> messageReaction.removeReaction(user).queue()));
                 }
-            }));
-        } else return newEditConsumer();
+            });
+        } else removeReaction(event);
+        return null;
     }
 
-    @Override
     protected int getLastStage() {
         return conflicts.isEmpty() ? 3 : totalConflicts + 3;
     }
@@ -269,14 +252,34 @@ public class ConflictMerge extends DynamicMessage {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ConflictMerge{");
-        sb.append("\nuploader=").append(uploader);
-        sb.append("\nconflicts=").append(conflicts);
-        sb.append("\nStage=").append(getStage());
-        sb.append("\nLastStage=").append(getLastStage());
-        sb.append("\ncanceled=").append(canceled);
-        sb.append("\n}");
-        return sb.toString();
+        return "ConflictMerge{"
+                + "\nuploader=" + uploader
+                + "\nconflicts=" + conflicts
+                + "\nLastStage=" + getLastStage()
+                + "\ncanceled=" + canceled + "\n}";
+    }
+
+    @Override
+    protected void onReady() {
+        submitNewMessage(getMessage(), ((Consumer<Message>) (message -> findConflictsAndRemoveDupes()))
+                .andThen(conflicts.isEmpty() ? newMenu(CONFIRM) : newMenu(REACTIONS))
+                .andThen(message -> {
+                    stage++;
+                    message.editMessage(getMessage()).queue();
+                    if (!conflicts.isEmpty()) {
+                        itr = conflicts.listIterator();
+                        current = itr.next();
+                    }
+                }));
+
+    }
+
+    @Override
+    public void onReaction(ReactionEvent event) {
+        if (valid(event)) {
+            execute(event);
+            updateMessage(getMessage(), createConsumer(event));
+        }
     }
 
     private class Conflict {

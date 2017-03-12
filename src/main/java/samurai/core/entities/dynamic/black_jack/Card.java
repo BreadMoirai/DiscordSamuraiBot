@@ -144,6 +144,30 @@ public class Card {
         return value == 1 || value > 10;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Card card = (Card) o;
+
+        if (value != card.value) return false;
+        return suit == card.suit;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = value;
+        result = 31 * result + suit.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "_C" + value +
+                suit + "";
+    }
+
     public enum Suit {
         SPADES, CLUBS, DIAMONDS, HEARTS;
     }

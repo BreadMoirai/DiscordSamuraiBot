@@ -1,21 +1,24 @@
 package samurai.core.command.util;
 
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Client;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.annotations.Source;
-import samurai.core.data.SamuraiStore;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FileMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.core.entities.dynamic.black_jack.Card;
 import samurai.core.entities.dynamic.black_jack.CardFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -23,7 +26,6 @@ import java.util.ArrayList;
  */
 @Key("draw")
 @Source
-@Client
 public class Draw extends Command {
 
 
@@ -46,8 +48,7 @@ public class Draw extends Command {
                 return FixedMessage.build("Failure to draw Stack.");
             }
             InputStream is = new ByteArrayInputStream(os.toByteArray());
-            client.getTextChannelById(String.valueOf(channelId)).sendFile(is, "cardStack235y.png", null).queue();
-            return FixedMessage.build("success");
+            return new FileMessage(channelId, is, cards.stream().map(Card::toString).collect(Collectors.joining()) + ".png", null);
         }
         try {
             Card c;
@@ -55,33 +56,28 @@ public class Draw extends Command {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(CardFactory.drawCard(c), "jpg", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
-            client.getTextChannelById(String.valueOf(channelId)).sendFile(is, c.toString() + ".png", null).queue();
-            return FixedMessage.build(c.toString() + ".jpg");
+            return new FileMessage(channelId, is, c.toString() + ".png", null);
         } catch (ParseException ignored) {
         } catch (IOException e) {
             return FixedMessage.build("Failed to save and upload drawing");
         }
         try {
-            client.getTextChannelById(String.valueOf(channelId)).sendFile(generateImageFile(args.get(0)), null).queue();
+            return new FileMessage(channelId, textToImage(args.get(0)), args.get(0) + ".png", null);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private File generateImageFile(String message) {
+    private InputStream textToImage(String text) throws IOException {
         int WIDTH = 100;
         int HEIGHT = 20;
-        BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage bi = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g = (Graphics2D) bi.getGraphics();
-        g.drawString(message, 8, 13);
+        g.drawString(text, 8, 13);
         g.dispose();
-        File f = null;
-        try { //remove
-            f = SamuraiStore.saveToFile(bi, String.valueOf((System.currentTimeMillis() - messageId)).substring(0, 10) + ".png");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return f;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(bi, "png", os);
+        return new ByteArrayInputStream(os.toByteArray());
     }
 }

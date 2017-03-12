@@ -3,8 +3,8 @@ package samurai.core.command.manage;
 import samurai.core.Bot;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL
@@ -13,6 +13,7 @@ import samurai.core.entities.SamuraiMessage;
  */
 @Key("uptime")
 public class Uptime extends Command {
+
     @Override
     protected SamuraiMessage buildMessage() {
         long timeDifference = System.currentTimeMillis() - Bot.START_TIME;

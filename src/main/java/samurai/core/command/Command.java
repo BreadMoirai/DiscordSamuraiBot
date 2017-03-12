@@ -3,8 +3,9 @@ package samurai.core.command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.core.data.SamuraiGuild;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -28,6 +29,7 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
     protected long channelId;
     protected long messageId;
     protected SamuraiGuild guild; //@Guild
+    protected OffsetDateTime time;
 
     @Override
     public Optional<SamuraiMessage> call() {
@@ -47,13 +49,57 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
         return this;
     }
 
+    public List<Member> getMentions() {
+        return mentions;
+    }
+
     public Command setMentions(List<Member> mentions) {
         this.mentions = mentions;
         return this;
     }
 
+    public List<String> getArgs() {
+        return args;
+    }
+
     public Command setArgs(List<String> args) {
         this.args = args;
+        return this;
+    }
+
+    public List<Message.Attachment> getAttaches() {
+        return attaches;
+    }
+
+    public Command setAttaches(List<Message.Attachment> attaches) {
+        this.attaches = attaches;
+        return this;
+    }
+
+    public long getChannelId() {
+        return channelId;
+    }
+
+    public Command setChannelId(long channelId) {
+        this.channelId = channelId;
+        return this;
+    }
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public Command setMessageId(long messageId) {
+        this.messageId = messageId;
+        return this;
+    }
+
+    public SamuraiGuild getGuild() {
+        return guild;
+    }
+
+    public Command setGuild(SamuraiGuild guild) {
+        this.guild = guild;
         return this;
     }
 
@@ -66,24 +112,8 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
         return this;
     }
 
-    public Command setChannelId(long channelId) {
-        this.channelId = channelId;
+    public Command setTime(OffsetDateTime time) {
+        this.time = time;
         return this;
     }
-
-    public Command setMessageId(long messageId) {
-        this.messageId = messageId;
-        return this;
-    }
-
-    public Command setAttaches(List<Message.Attachment> attaches) {
-        this.attaches = attaches;
-        return this;
-    }
-
-    public Command setGuild(SamuraiGuild guild) {
-        this.guild = guild;
-        return this;
-    }
-
 }

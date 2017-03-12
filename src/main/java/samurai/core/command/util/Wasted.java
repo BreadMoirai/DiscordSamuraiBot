@@ -1,21 +1,22 @@
 package samurai.core.command.util;
 
-import samurai.core.Bot;
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Client;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.annotations.Source;
 import samurai.core.data.SamuraiStore;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FileMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.util.GifGenerator;
 import samurai.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -26,30 +27,27 @@ import java.net.URLConnection;
  */
 @Key("wasted")
 @Source
-@Client
 public class Wasted extends Command {
+
     @Override
     protected SamuraiMessage buildMessage() {
         if (mentions.size() != 1) return null;
-        String targetUrl = mentions.get(0).getAvatarUrl();
+        String targetUrl = mentions.get(0).getUser().getEffectiveAvatarUrl();
         try {
             boolean spin;
             boolean rave;
             spin = args.contains("spin");
             rave = args.contains("rave");
             boolean grey = args.contains("grey") || args.contains("gs");
-            File file = generateImageFile(new URL(targetUrl), spin, rave, grey);
-            if (file == null) return null;
-            client.getTextChannelById(String.valueOf(channelId)).sendFile(file, null).queue();
+            InputStream is = generateImage(new URL(targetUrl), spin, rave, grey);
+            if (is == null) return FixedMessage.build("Failure");
+            return new FileMessage(channelId, is, "_" + mentions.get(0).getEffectiveName() + "_" + (spin ? 'S' : "") + (rave ? 'R' : "") + (grey ? 'G' : "") + ".png", null);
         } catch (MalformedURLException e) {
-            return FixedMessage.build("Cannot use the default profile picture.");
-        } catch (IOException e) {
-            e.printStackTrace();
+            return FixedMessage.build("Invalid Profile Picture. I cannot work with gifs yet");
         }
-        return null;
     }
 
-    private File generateImageFile(URL url, boolean spin, boolean rave, boolean grey) {
+    private InputStream generateImage(URL url, boolean spin, boolean rave, boolean grey) {
         URLConnection connection;
         BufferedImage avatarBI;
         try {
@@ -74,14 +72,13 @@ public class Wasted extends Command {
             g.drawImage(ImageUtils.greyScale(avatarBI), 0, 0, null);
             g.drawImage(wastedBI, width / 6, height / 6, width * 2 / 3, height * 2 / 3, null);
             g.dispose();
-            File f;
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             try {
-                f = SamuraiStore.saveToFile(result, String.valueOf((System.currentTimeMillis() - messageId)).substring(10) + ".jpg");
+                ImageIO.write(result, "png", os);
             } catch (IOException e) {
-                Bot.logError(e);
                 return null;
             }
-            return f;
+            return new ByteArrayInputStream(os.toByteArray());
         }
 
         GifGenerator gg = new GifGenerator(avatarBI, wastedBI, String.valueOf((System.currentTimeMillis() - messageId)).substring(10) + ".gif");
@@ -98,7 +95,7 @@ public class Wasted extends Command {
             }
         }
         gg.generate(frames, spin, rave, grey);
-        return gg.write();
+        return gg.getInputStream();
     }
 }
 

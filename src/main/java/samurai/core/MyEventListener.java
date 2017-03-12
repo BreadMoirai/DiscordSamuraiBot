@@ -6,12 +6,16 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import samurai.core.command.Command;
 import samurai.core.command.CommandFactory;
 import samurai.core.command.admin.Groovy;
-import samurai.core.events.MessageEvent;
+import samurai.core.events.GuildMessageEvent;
+import samurai.core.events.PrivateMessageEvent;
 import samurai.core.events.ReactionEvent;
 
 /**
@@ -44,15 +48,28 @@ public class MyEventListener implements EventListener {
         if (event instanceof GenericGuildMessageEvent)
             if (event instanceof GuildMessageReceivedEvent || event instanceof GuildMessageUpdateEvent) {
                 onGenericGuildMessageEvent((GenericGuildMessageEvent) event);
+                Bot.CALLS.incrementAndGet();
                 return;
             }
         if (event instanceof MessageReactionAddEvent) {
             onMessageReactionAdd((MessageReactionAddEvent) event);
+            Bot.CALLS.incrementAndGet();
             return;
         }
         if (event instanceof GuildMemberJoinEvent) {
             onGuildMemberJoin((GuildMemberJoinEvent) event);
         }
+        if (event instanceof GenericPrivateMessageEvent) {
+            if (event instanceof PrivateMessageReceivedEvent || event instanceof PrivateMessageUpdateEvent) {
+                onGenericPrivateMessageEvent((GenericPrivateMessageEvent) event);
+            }
+        }
+    }
+
+    private void onGenericPrivateMessageEvent(GenericPrivateMessageEvent event) {
+        if (messageManager.hasChannelListener(Long.parseLong(event.getChannel().getId())))
+            messageManager.onPrivateMessageEvent(new PrivateMessageEvent(event));
+
     }
 
     private void onGenericGuildMessageEvent(GenericGuildMessageEvent event) {
@@ -69,14 +86,17 @@ public class MyEventListener implements EventListener {
             samurai.onCommand(c);
         }
 
-        messageManager.onMessageEvent(new MessageEvent(event));
+        if (messageManager.hasChannelListener(Long.parseLong(event.getChannel().getId()))) {
+            messageManager.onMessageEvent(new GuildMessageEvent(event));
+            messageManager.onCommand(c);
+        }
     }
 
 
     private void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (!event.getUser().isBot() && samurai.isWatching(Long.parseLong(event.getMessageId()))) {
+        if (!event.getUser().isBot() && messageManager.hasMessageListener(Long.parseLong(event.getMessageId()))) {
             final ReactionEvent r = new ReactionEvent(event);
-            samurai.onReaction(r);
+            messageManager.onReaction(r);
         }
     }
 

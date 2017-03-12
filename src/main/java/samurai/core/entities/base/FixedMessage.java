@@ -1,8 +1,9 @@
-package samurai.core.entities;
+package samurai.core.entities.base;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import samurai.core.MessageManager;
 
 import java.util.function.Consumer;
 
@@ -23,12 +24,10 @@ public class FixedMessage extends SamuraiMessage {
         return new FixedMessage().setMessage(new MessageBuilder().setEmbed(e).build());
     }
 
-    @Override
     public boolean isPersistent() {
         return false;
     }
 
-    @Override
     public Message getMessage() {
         return message;
     }
@@ -38,7 +37,6 @@ public class FixedMessage extends SamuraiMessage {
         return this;
     }
 
-    @Override
     public Consumer<Message> getConsumer() {
         return consumer;
     }
@@ -48,4 +46,8 @@ public class FixedMessage extends SamuraiMessage {
         return this;
     }
 
+    @Override
+    public void onReady(MessageManager manager) {
+        manager.submit(getChannelId(), getMessage(), getConsumer());
+    }
 }

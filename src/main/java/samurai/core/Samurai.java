@@ -5,10 +5,8 @@ import samurai.core.command.annotations.Admin;
 import samurai.core.command.annotations.Creator;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.annotations.Source;
-import samurai.core.entities.DynamicMessage;
-import samurai.core.entities.SamuraiMessage;
-import samurai.core.entities.modifier.DynamicMessageResponse;
-import samurai.core.events.ReactionEvent;
+import samurai.core.entities.base.SamuraiMessage;
+import samurai.core.events.listeners.CommandListener;
 
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -20,7 +18,7 @@ import java.util.concurrent.*;
  * @author TonTL
  * @version 4.2
  */
-class Samurai {
+class Samurai implements CommandListener {
 
     private final ExecutorService commandPool;
     private final ScheduledExecutorService executorPool;
@@ -49,7 +47,7 @@ class Samurai {
         try {
             Future<Optional<SamuraiMessage>> optionalFuture = actionQueue.take();
             Optional<SamuraiMessage> messageOptional = optionalFuture.get();
-            messageOptional.ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
+            messageOptional.ifPresent(messageManager::submit);
         } catch (ExecutionException e) {
             Bot.logError(e);
         } catch (InterruptedException e) {
@@ -57,7 +55,8 @@ class Samurai {
         }
     }
 
-    void onCommand(Command command) {
+    @Override
+    public void onCommand(Command command) {
         command.setGuild(guildManager.getGuild(command.getGuildId()));
         Bot.CALLS.incrementAndGet();
 
@@ -81,45 +80,6 @@ class Samurai {
         return true;
     }
 
-    void onReaction(ReactionEvent reaction) {
-        System.out.println("Reaction Found: " + reaction.getName());
-        DynamicMessage samuraiMessage = messageMap.get(reaction.getMessageId());
-        if (samuraiMessage.setValidReaction(reaction)) {
-            System.out.println("Executing...");
-            if (!reactionQueue.offer(commandPool.submit(samuraiMessage)))
-                Bot.log("Could not add ReAction to Queue");
-        }
-    }
-
-    private void takeReaction() {
-        try {
-            final Future<DynamicMessageResponse> editFuture = reactionQueue.take();
-            if (editFuture == null)
-                return;
-            final DynamicMessageResponse edit = editFuture.get();
-            client.getTextChannelById(String.valueOf(edit.getChannelId())).editMessageById(String.valueOf(edit.getMessageId()), edit.getContent()).queue(edit.getConsumer());
-            if (edit.isDead()) messageMap.remove(edit.getMessageId());
-        } catch (ExecutionException e) {
-            Bot.logError(e);
-        } catch (InterruptedException e) {
-            Bot.log("Reaction Thread Shutdown");
-        }
-    }
-
-    private void takeAction() {
-        try {
-            Future<Optional<SamuraiMessage>> smOption = actionQueue.take();
-            if (!smOption.get().isPresent()) return;
-            SamuraiMessage samuraiMessage = smOption.get().get();
-            client.getTextChannelById(String.valueOf(samuraiMessage.getChannelId())).sendMessage(samuraiMessage.getMessage()).queue(samuraiMessage.isPersistent() ? samuraiMessage.getConsumer().andThen(message -> messageMap.put(Long.valueOf(message.getId()), (DynamicMessage) samuraiMessage)) : samuraiMessage.getConsumer());
-        } catch (ExecutionException e) {
-            Bot.logError(e);
-        } catch (InterruptedException e) {
-            Bot.log("Command Thread Shutdown");
-        }
-    }
-
-
     private void clearInactive() {
         messageManager.clearInactive();
         guildManager.clearInactive();
@@ -133,10 +93,8 @@ class Samurai {
         Bot.log("Shutting Down");
         executorPool.shutdownNow();
         commandPool.shutdownNow();
+        messageManager.shutdown();
         guildManager.shutdown();
     }
 
-    boolean isWatching(long l) {
-        return messageManager.isWatching(l);
-    }
 }

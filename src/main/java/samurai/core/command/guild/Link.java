@@ -5,11 +5,10 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.json.JSONObject;
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Client;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.osu.Profile;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.osu.OsuJsonReader;
 
 import java.util.Collections;
@@ -20,7 +19,6 @@ import java.util.Collections;
  * @since 2/20/2017
  */
 @Key("link")
-@Client
 public class Link extends Command {
 
 
@@ -36,27 +34,26 @@ public class Link extends Command {
         Message profileMessage;
         if (mentions.size() == 0) {
             guild.addUser(Long.parseLong(author.getUser().getId()), userJSON);
-            profileMessage = new Profile()
+            profileMessage = ((FixedMessage) new Profile()
                     .setAuthor(author)
                     .setMentions(Collections.emptyList())
                     .setArgs(Collections.emptyList())
                     .setGuild(guild)
                     .setChannelId(channelId)
-                    .call().orElse(FixedMessage.build("Error"))
+                    .call()
+                    .orElse(FixedMessage.build("Error")))
                     .getMessage();
         } else if (mentions.size() == 1) {
-            if (PermissionUtil.canInteract(author, mentions.get(0)))
-
-                if (!author.canInteract(client.getGuildById(String.valueOf(guildId)).getMember(mentions.get(0)))) {
-                    return FixedMessage.build("You do not have sufficient access to manage " + mentions.get(0).getAsMention());
-                }
+            if (!PermissionUtil.canInteract(author, mentions.get(0)))
+                return FixedMessage.build("You do not have sufficient access to manage " + mentions.get(0).getAsMention());
             guild.addUser(Long.parseLong(mentions.get(0).getUser().getId()), userJSON);
-            profileMessage = new Profile()
+            profileMessage = ((FixedMessage) new Profile()
                     .setMentions(mentions)
                     .setArgs(Collections.emptyList())
                     .setGuild(guild)
                     .setChannelId(channelId)
-                    .call().orElse(FixedMessage.build("Error"))
+                    .call()
+                    .orElse(FixedMessage.build("Error")))
                     .getMessage();
         } else {
             return FixedMessage.build("Failed to link account.");

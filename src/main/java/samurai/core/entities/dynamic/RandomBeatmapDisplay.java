@@ -5,8 +5,10 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.core.Bot;
 import samurai.core.data.SamuraiDatabase;
-import samurai.core.entities.DynamicMessage;
+import samurai.core.entities.base.DynamicMessage;
 import samurai.core.events.ReactionEvent;
+import samurai.core.events.listeners.ReactionListener;
+import samurai.osu.Beatmap;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 import samurai.osu.enums.Mod;
@@ -14,13 +16,12 @@ import samurai.osu.enums.Mod;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * @author TonTL
  * @version 4.x - 2/25/2017
  */
-public class RandomBeatmapDisplay extends DynamicMessage {
+public class RandomBeatmapDisplay extends DynamicMessage implements ReactionListener {
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("🔙", "\uD83D\uDD12", "🛂", "🛃", "📈", "📉", "🔁"));
     private final ArrayList<String> hashArray;
@@ -44,10 +45,24 @@ public class RandomBeatmapDisplay extends DynamicMessage {
     }
 
     @Override
-    public Message getMessage() {
-        if (getStage() == 0) return new MessageBuilder().append("Initializing...").build();
-        String hash = hashArray.get(currentIdx);
+    protected void onReady() {
+        submitNewMessage("Initializing...", newMenu(REACTIONS).andThen(message -> message.editMessage(getMessage()).queue()));
+    }
 
+    @Override
+    public void onReaction(ReactionEvent event) {
+        if (getMessageId() == 0) return;
+        final String name = event.getName();
+        if (REACTIONS.contains(name)) {
+            execute(name);
+            removeReaction(event);
+            updateMessage(getMessage());
+        }
+    }
+
+
+    public Message getMessage() {
+        String hash = hashArray.get(currentIdx);
         Beatmap beatmap;
         if (currentSet.hasCurrent()) beatmap = currentSet.current();
         else beatmap = currentSet.getBeatmapByHash(hash);
@@ -85,14 +100,8 @@ public class RandomBeatmapDisplay extends DynamicMessage {
         return new MessageBuilder().setEmbed(embedBuilder.build()).build();
     }
 
-    @Override
-    protected boolean valid(ReactionEvent action) {
-        return getStage() == 1 && REACTIONS.contains(action.getName());
-    }
-
-    @Override
-    protected void execute(ReactionEvent action) {
-        switch (action.getName()) {
+    private void execute(String reactionName) {
+        switch (reactionName) {
             case "🔁":
                 nextSet();
                 break;
@@ -101,7 +110,8 @@ public class RandomBeatmapDisplay extends DynamicMessage {
                     setCurrentSet(currentIdx = history.pop());
                 break;
             case "\uD83D\uDD12":
-                setStage(getLastStage());
+                clearReactions();
+                unregister();
                 break;
             case "🛂":
                 fullMap = !fullMap;
@@ -129,26 +139,5 @@ public class RandomBeatmapDisplay extends DynamicMessage {
     private void setCurrentSet(Integer idx) {
         currentSet = SamuraiDatabase.getSet(hashArray.get(idx));
     }
-
-    @Override
-    public Consumer<Message> createConsumer() {
-        switch (getStage()) {
-            case 0:
-                return newMenuConsumer(REACTIONS);
-            case 1:
-                return newEditConsumer();
-            case 2:
-                return message -> message.clearReactions().queue();
-            default:
-                Bot.log("Illegal AccessState RandomBeatmapDisplay");
-                return null;
-        }
-    }
-
-    @Override
-    protected int getLastStage() {
-        return 2;
-    }
-
 
 }

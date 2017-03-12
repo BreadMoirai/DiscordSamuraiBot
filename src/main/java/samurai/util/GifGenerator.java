@@ -1,13 +1,12 @@
 package samurai.util;
 
-import samurai.core.data.SamuraiStore;
-
-import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,17 +30,18 @@ public class GifGenerator {
         imageQueue = new LinkedList<>();
     }
 
-    public File write() {
-        ImageOutputStream output;
+    public ByteArrayInputStream getInputStream() {
+        ByteArrayOutputStream output;
         GifSequenceWriter writer;
         try {
-            File f = SamuraiStore.getTempFile(filename);
-            output = new FileImageOutputStream(f);
-            writer = new GifSequenceWriter(output, BufferedImage.TYPE_3BYTE_BGR, 63, true);
+
+            output = new ByteArrayOutputStream();
+            ImageOutputStream ios = new MemoryCacheImageOutputStream(output);
+            writer = new GifSequenceWriter(ios, BufferedImage.TYPE_3BYTE_BGR, 63, true);
             while (!imageQueue.isEmpty()) writer.writeToSequence(imageQueue.poll());
             writer.close();
             output.close();
-            return f;
+            return new ByteArrayInputStream(output.toByteArray());
         } catch (IOException e) {
             e.printStackTrace();
             return null;

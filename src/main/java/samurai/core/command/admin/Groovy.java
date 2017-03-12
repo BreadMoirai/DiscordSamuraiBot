@@ -9,15 +9,12 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.core.Bot;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Admin;
-import samurai.core.command.annotations.Client;
 import samurai.core.command.annotations.Creator;
 import samurai.core.command.annotations.Key;
 import samurai.core.data.SamuraiDatabase;
 import samurai.core.data.SamuraiStore;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
-
-import java.nio.charset.StandardCharsets;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 
 /**
@@ -26,7 +23,6 @@ import java.nio.charset.StandardCharsets;
  * @since 2/18/2017
  */
 @Key({"groovy", "g"})
-@Client
 @Admin
 @Creator
 public class Groovy extends Command {
@@ -39,7 +35,6 @@ public class Groovy extends Command {
         binding.setVariable("creator", "DreadMoirai");
         binding.setVariable("bot", Bot.class);
         binding.setVariable("store", SamuraiStore.class);
-        binding.setVariable("utf8", StandardCharsets.UTF_8);
         binding.setVariable("db", SamuraiDatabase.class);
 
         gs = new GroovyShell(binding);
@@ -53,8 +48,9 @@ public class Groovy extends Command {
     @Override
     protected SamuraiMessage buildMessage() {
         if (args.size() != 1) return FixedMessage.build("Invalid Argument Length: " + args.size());
-        binding.setVariable("chan", client.getTextChannelById(String.valueOf(channelId)));
-        binding.setVariable("guild", client.getGuildById(String.valueOf(guildId)));
+        binding.setVariable("messageId", Long.toString(messageId));
+        binding.setVariable("guildId", Long.toString(guildId));
+        binding.setVariable("channelId", Long.toString(channelId));
         binding.setVariable("sg", guild);
         try {
             Object result = gs.evaluate(args.get(0));

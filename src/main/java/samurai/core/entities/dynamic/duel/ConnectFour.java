@@ -3,10 +3,11 @@ package samurai.core.entities.dynamic.duel;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import samurai.core.Bot;
+import samurai.core.entities.base.DynamicMessage;
 import samurai.core.events.ReactionEvent;
+import samurai.core.events.listeners.ReactionListener;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
  *
  * @since 4.0
  */
-public class ConnectFour extends Game {
+public class ConnectFour extends DynamicMessage implements ReactionListener {
 
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
@@ -30,91 +31,29 @@ public class ConnectFour extends Game {
 
     private final char[][] board;
 
-    public ConnectFour(User Seeker) {
-        super(Seeker);
+    private Long A, B, winner, next;
+    private String nameA, nameB;
+
+    private GameState state;
+
+    public ConnectFour(User seeking) {
+        A = Long.valueOf(seeking.getId());
+        nameA = seeking.getName();
+        B = null;
+        nameB = null;
+        winner = null;
         board = new char[X_BOUND][Y_BOUND];
-        setStage(0);
+        state = new InitialState(this);
     }
 
-    public ConnectFour(User Instigator, User Challenged) {
-        super(Instigator, Challenged);
+    public ConnectFour(User instigator, User challenged) {
+        A = Long.valueOf(instigator.getId());
+        nameA = instigator.getName();
+        B = Long.valueOf(challenged.getId());
+        nameB = challenged.getName();
         next = Game.random.nextBoolean() ? A : B;
         board = new char[X_BOUND][Y_BOUND];
-        setStage(1);
-    }
-
-    @Override
-    public boolean valid(ReactionEvent action) {
-        switch (getStage()) {
-            case 0:
-                return action.getName().equals("⚔") && action.getUserId() != A;
-            case 2:
-                return REACTIONS.contains(action.getName()) && action.getUserId() == next;
-            default:
-                return false;
-        }
-    }
-
-
-    @Override
-    protected void execute(ReactionEvent action) {
-        switch (getStage()) {
-            case 0:
-                B = action.getUserId();
-                nameB = Bot.getUser(action.getUserId()).getName();
-                next = Game.random.nextBoolean() ? A : B;
-                setStage(1);
-                break;
-            case 2:
-                int move = REACTIONS.indexOf(action.getName());
-                for (int y = 0; y < Y_BOUND; y++) {
-                    if (board[move][y] == '\u0000') {
-                        if (action.getUserId() == A) {
-                            board[move][y] = 'a';
-                            next = B;
-                            break;
-                        } else {
-                            board[move][y] = 'b';
-                            next = A;
-                            break;
-                        }
-                    }
-                }
-                if (hasEnded()) {
-                    setStage(3);
-                }
-                break;
-            default:
-                Bot.log("Invalid Reaction Executed \n\tat: " + action.getChannelId() + " \n\tby: " + action.getUserId());
-        }
-    }
-
-    @Override
-    public Message getMessage() {
-        switch (getStage()) {
-            case 0:
-                return new MessageBuilder()
-                        .append(String.format("Who is willing to accept <@%d>'s challenge to a perilous game of **Connect Four**", A))
-                        .build();
-            case 1:
-                return new MessageBuilder()
-                        .append(String.format("Building <@%d>'s game against <@%d>.", A, B))
-                        .build();
-            case 2:
-                return buildTitle()
-                        .setEmbed(buildBoard()
-                                .build())
-                        .build();
-            case 3:
-                return buildTitle()
-                        .setEmbed(buildBoard()
-                                .addField("The Winner is:", String.format("<@%d>", winner), false)
-                                .setImage(Bot.getUser(winner).getAvatarUrl())
-                                .build())
-                        .build();
-            default:
-                return null;
-        }
+        state = new PlayState(this);
     }
 
     private EmbedBuilder buildBoard() {
@@ -141,39 +80,16 @@ public class ConnectFour extends Game {
     }
 
     @Override
-    public Consumer<Message> createConsumer() {
-        switch (getStage()) {
-            case 0:
-                return message -> message.addReaction(DUEL_REACTION).queue();
-            case 1:
-                return message -> {
-                    message.editMessage(String.format("Building <@%d>'s game against <@%d>", A, B)).queue();
-                    newMenuConsumer(REACTIONS).accept(message);
-                };
-            case 2:
-                return newEditConsumer();
-            case 3:
-                return message -> {
-                    for (MessageReaction mr : message.getReactions()) {
-                        if (REACTIONS.contains(mr.getEmote().getName()) || mr.getEmote().getName().equals(DUEL_REACTION)) {
-                            mr.removeReaction().queue();
-                        }
-                    }
-                };
-            default:
-                return null;
-
-        }
-    }
-
-
-    @Override
-    protected int getLastStage() {
-        return 3;
+    protected void onReady() {
+        submitNewMessage(state.buildMessage(), state.buildConsumer());
     }
 
     @Override
-    public boolean hasEnded() {
+    public void onReaction(ReactionEvent event) {
+        if (state.isValid(event)) state.onReaction(event);
+    }
+
+    private boolean hasEnded() {
         for (int x = 0; x < X_BOUND; x++) {
             for (int y = 0; y < Y_BOUND; y++) {
 
@@ -242,4 +158,174 @@ public class ConnectFour extends Game {
         }
         return false;
     }
+
+    MessageBuilder buildTitle() {
+        MessageBuilder mb = new MessageBuilder();
+        if (next.equals(A)) {
+            mb.append("<@").append(A)
+                    .append("> \uD83C\uDD9A ")
+                    .append(nameB)
+                    .append("\n");
+        } else {
+            mb.append(nameA)
+                    .append(" \uD83C\uDD9A <@")
+                    .append(B)
+                    .append(">\n");
+        }
+        return mb;
+    }
+
+    private void setWinner(char w) {
+        switch (w) {
+            case 'a':
+                winner = A;
+                break;
+            case 'b':
+                winner = B;
+                break;
+            default:
+                winner = Long.valueOf(Bot.ID);
+                break;
+        }
+    }
+
+    //todo let's make these singleton eh?
+    private static abstract class GameState implements ReactionListener {
+        ConnectFour game;
+
+        GameState(ConnectFour game) {
+            this.game = game;
+        }
+
+        abstract boolean isValid(ReactionEvent event);
+
+        abstract Message buildMessage();
+
+        abstract Consumer<Message> buildConsumer();
+    }
+
+    private static class InitialState extends GameState {
+
+
+        InitialState(ConnectFour game) {
+            super(game);
+        }
+
+        @Override
+        boolean isValid(ReactionEvent event) {
+            return event.getName().equals(DUEL_REACTION)
+                    && !game.A.equals(event.getUserId());
+        }
+
+        @Override
+        Message buildMessage() {
+            return new MessageBuilder()
+                    .append(String.format("Who is willing to accept <@%d>'s challenge to a perilous game of **Connect Four**", game.A))
+                    .build();
+        }
+
+        @Override
+        Consumer<Message> buildConsumer() {
+            return message -> message.addReaction(DUEL_REACTION).queue();
+        }
+
+        @Override
+        public void onReaction(ReactionEvent event) {
+            game.B = event.getUserId();
+            game.nameB = Bot.getUser(event.getUserId()).getName();
+            game.next = Game.random.nextBoolean() ? game.A : game.B;
+            final BuildState buildState = new BuildState(game);
+            game.state = buildState;
+            game.updateMessage(buildState.buildMessage(), buildState.buildConsumer());
+        }
+    }
+
+    private static class BuildState extends GameState {
+
+        BuildState(ConnectFour game) {
+            super(game);
+        }
+
+        @Override
+        boolean isValid(ReactionEvent event) {
+            return false;
+        }
+
+        @Override
+        Message buildMessage() {
+            return new MessageBuilder()
+                    .append(String.format("Building <@%d>'s game against <@%d>.", game.A, game.B))
+                    .build();
+        }
+
+        @Override
+        Consumer<Message> buildConsumer() {
+            return newMenu(REACTIONS).andThen(message -> {
+                game.state = new PlayState(game);
+                message.editMessage(game.state.buildMessage()).queue();
+            });
+        }
+
+        @Override
+        public void onReaction(ReactionEvent event) {
+
+        }
+    }
+
+    private static class PlayState extends GameState {
+
+        PlayState(ConnectFour game) {
+            super(game);
+        }
+
+        @Override
+        boolean isValid(ReactionEvent event) {
+            int i;
+            return game.next.equals(event.getUserId())
+                    && (i = REACTIONS.indexOf(event.getName())) != -1
+                    && game.board[i][Y_BOUND - 1] == '\u0000';
+        }
+
+        @Override
+        Message buildMessage() {
+            return game.buildTitle().setEmbed(game.buildBoard().build()).build();
+        }
+
+        @Override
+        Consumer<Message> buildConsumer() {
+            return null;
+        }
+
+        @Override
+        public void onReaction(ReactionEvent event) {
+            game.removeReaction(game.getMessageId(), event.getUserId(), event.getName());
+            int move = REACTIONS.indexOf(event.getName());
+            for (int y = 0; y < Y_BOUND; y++) {
+                if (game.board[move][y] == '\u0000') {
+                    if (game.A.equals(event.getUserId())) {
+                        game.board[move][y] = 'a';
+                        game.next = game.B;
+                        break;
+                    } else {
+                        game.board[move][y] = 'b';
+                        game.next = game.A;
+                        break;
+                    }
+                }
+            }
+            if (game.hasEnded()) {
+                game.updateMessage(game.buildTitle()
+                        .setEmbed(game.buildBoard()
+                                .addField("The Winner is:", String.format("<@%d>", game.winner), false)
+                                .setImage(Bot.getUser(game.winner).getAvatarUrl())
+                                .build())
+                        .build());
+                game.clearReactions();
+                game.unregister();
+            } else
+                game.updateMessage(buildMessage());
+        }
+    }
+
+
 }

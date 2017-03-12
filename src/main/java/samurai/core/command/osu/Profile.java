@@ -4,8 +4,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import org.json.JSONObject;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.osu.OsuJsonReader;
 import samurai.osu.enums.Grade;
 
@@ -19,8 +19,9 @@ import java.time.OffsetDateTime;
  */
 @Key("profile")
 public class Profile extends Command {
+
     @Override
-    protected SamuraiMessage buildMessage() {
+    public SamuraiMessage buildMessage() {
         JSONObject profile;
         if (args.size() == 0 && mentions.size() == 0) {
             long authorId = Long.parseLong(author.getUser().getId());

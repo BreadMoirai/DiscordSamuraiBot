@@ -1,8 +1,6 @@
-package samurai.core.entities;
+package samurai.core.entities.base;
 
-import net.dv8tion.jda.core.entities.Message;
-
-import java.util.function.Consumer;
+import samurai.core.MessageManager;
 
 /**
  * @author TonTL
@@ -18,7 +16,6 @@ public abstract class SamuraiMessage {
      *
      * @return the entities that will be sent/replace
      */
-    public abstract Message getMessage();
 
     public long getChannelId() {
         return channelId;
@@ -28,8 +25,6 @@ public abstract class SamuraiMessage {
         this.channelId = channelId;
     }
 
-    public abstract boolean isPersistent();
-
-    public abstract Consumer<Message> getConsumer();
+    public abstract void onReady(MessageManager manager);
 
 }

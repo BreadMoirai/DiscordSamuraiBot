@@ -2,18 +2,15 @@ package samurai.core.command.manage;
 
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Admin;
-import samurai.core.command.annotations.Guild;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL
  * @version 4.4 - 2/16/2017
  */
 @Key("prefix")
-
-@Guild
 @Admin
 public class Prefix extends Command {
 

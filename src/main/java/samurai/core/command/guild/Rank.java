@@ -1,13 +1,14 @@
 package samurai.core.command.guild;
 
+import samurai.core.Bot;
 import samurai.core.command.Command;
-import samurai.core.command.annotations.Client;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
-import samurai.core.entities.dynamic.RankList;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
+import samurai.core.entities.dynamic.Book;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 /**
  * @author TonTL
@@ -15,14 +16,11 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("ALL")
 @Key("rank")
-@Client
 public class Rank extends Command {
 
     @Override
     protected SamuraiMessage buildMessage() {
-        int size = getPageSize();
-        if (size == -1) return FixedMessage.build("No users found.");
-        else if (size == 0) return FixedMessage.build("Invalid Arguments");
+        if (guild.getUsers().size() == 0) return FixedMessage.build("No users found.");
         long id;
         if (mentions.size() == 0) {
             id = Long.parseLong(author.getUser().getId());
@@ -31,69 +29,42 @@ public class Rank extends Command {
             id = Long.parseLong(mentions.get(0).getUser().getId());
             if (!guild.hasUser(id))
                 return FixedMessage.build(String.format("**%s** does not have an osu account linked.", mentions.get(0).getEffectiveName()));
-        }
-        else {
+        } else {
             return FixedMessage.build("Too many mentions");
         }
         int listSize = guild.getUserCount();
         int target = guild.getUser(id).getL_rank() - 1;
         ArrayList<String> nameList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
-            final String name = client.getUserById(String.valueOf(guild.getUsers().get(i).getDiscordId())).getName();
+            final String name = Bot.getUser(guild.getUsers().get(i).getDiscordId()).getName();
             final String osuName = guild.getUsers().get(i).getOsuName();
             if (i != target) {
-                nameList.add(String.format("%d. %s : %s (%d)", i, name, osuName, guild.getScoreCount(osuName)));
+                nameList.add(String.format("%d. %s : %s (%d)\n", i, name, osuName, guild.getScoreCount(osuName)));
             } else {
-                nameList.add(String.format("#%d %s : %s (%d)", i, name, osuName, guild.getScoreCount(osuName)));
+                nameList.add(String.format("#%d %s : %s (%d)\n", i, name, osuName, guild.getScoreCount(osuName)));
             }
         }
-//        if (listSize < 17) {
-//            return new RankList(0, listSize, nameList);
-//        }
-        int from = target, to = target;
-        int i = 1;
-        size = 2;
-        while (i < size) {
-            {
-                if (from > 0) {
-                    from--;
-                } else {
-                    to++;
-                }
-                i++;
+
+        ListIterator<String> itr = nameList.listIterator();
+        int pageLen = listSize % 10 >= 5 ? listSize / 10 + 1 : listSize / 10;
+        ArrayList<String> book = new ArrayList<>(pageLen);
+        for (int i = 0; i < pageLen - 1; i++) {
+            StringBuilder sb = new StringBuilder().append("```md\n");
+            int j = 0;
+            while (j++ < 10) {
+                sb.append(itr.next());
             }
-            {
-                if (to < listSize) {
-                    to++;
-                } else {
-                    from--;
-                }
-                i++;
-            }
+            sb.append("```");
+            book.add(sb.toString());
         }
-        return new RankList(from, to, nameList);
+        StringBuilder sb = new StringBuilder().append("```md\n");
+        itr.forEachRemaining(sb::append);
+        sb.append("```");
+        book.add(sb.toString());
+
+
+        return new Book(target / 10, book);
     }
 
-    private int getPageSize() {
-        if (guild.getUserCount() == 0) {
-            return -1;
-        }
-        if (args.size() == 1) {
-            String arg = args.get(0);
-            if (arg.equalsIgnoreCase("max") ||
-                    arg.equalsIgnoreCase("full") ||
-                    arg.equalsIgnoreCase("all")) {
-                return guild.getUserCount();
-            } else {
-                return 0;
-            }
-        } else {
-            int max = guild.getUserCount();
-            if (max >= 10) {
-                return 10;
-            } else
-                return max - 1;
-        }
-    }
 }
 

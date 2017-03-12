@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import java.time.OffsetDateTime;
 
 /**
+ * fired when a reaction is added to a message
  * @author TonTL
  * @since 4.0
  */

@@ -1,10 +1,6 @@
 package samurai.core.entities.dynamic.black_jack;
 
-import net.dv8tion.jda.core.entities.Message;
-import samurai.core.entities.DynamicMessage;
-import samurai.core.events.ReactionEvent;
-
-import java.util.function.Consumer;
+import samurai.core.entities.base.DynamicMessage;
 
 /**
  * @author TonTL
@@ -12,29 +8,8 @@ import java.util.function.Consumer;
  */
 public class BlackJack extends DynamicMessage {
 
-
     @Override
-    public Message getMessage() {
-        return null;
-    }
+    protected void onReady() {
 
-    @Override
-    protected boolean valid(ReactionEvent action) {
-        return false;
-    }
-
-    @Override
-    protected void execute(ReactionEvent action) {
-
-    }
-
-    @Override
-    public Consumer<Message> createConsumer() {
-        return null;
-    }
-
-    @Override
-    protected int getLastStage() {
-        return 0;
     }
 }

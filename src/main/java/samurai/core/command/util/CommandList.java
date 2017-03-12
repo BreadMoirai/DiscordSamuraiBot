@@ -3,8 +3,8 @@ package samurai.core.command.util;
 import samurai.core.command.Command;
 import samurai.core.command.CommandFactory;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL

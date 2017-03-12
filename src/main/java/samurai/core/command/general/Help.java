@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.MessageBuilder;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
 import samurai.core.data.SamuraiStore;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL

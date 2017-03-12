@@ -1,13 +1,7 @@
 package samurai.core.entities.dynamic.duel;
 
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.User;
-import samurai.core.Bot;
-import samurai.core.entities.DynamicMessage;
-import samurai.core.events.ReactionEvent;
+import samurai.core.entities.base.DynamicMessage;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -25,66 +19,28 @@ public abstract class Game extends DynamicMessage {
     Long A, B, winner, next;
     String nameA, nameB;
 
-    Game(User instigator, User... challengers) {
-        super();
-        A = Long.valueOf(instigator.getId());
-        nameA = instigator.getName();
-        if (challengers.length > 0) {
-            B = Long.valueOf(challengers[0].getId());
-            nameB = challengers[0].getName();
-        }
-        else B = null;
-        winner = null;
+
+    public Long getA() {
+        return A;
     }
 
-    @Override
-    public boolean valid(ReactionEvent action) {
-        return false;
+    public Long getB() {
+        return B;
     }
 
-    MessageBuilder buildTitle() {
-        MessageBuilder mb = new MessageBuilder();
-        if (next.equals(A)) {
-            mb.append("<@").append(A)
-                    .append("> \uD83C\uDD9A ")
-                    .append(nameB)
-                    .append("\n");
-        } else {
-            mb.append(nameA)
-                    .append(" \uD83C\uDD9A <@")
-                    .append(B)
-                    .append(">\n");
-        }
-        return mb;
+    public Long getWinner() {
+        return winner;
     }
 
-    public abstract boolean hasEnded();
-
-    void setWinner(char w) {
-        switch (w) {
-            case 'a':
-                winner = A;
-                break;
-            case 'b':
-                winner = B;
-                break;
-            default:
-                winner = Long.valueOf(Bot.ID);
-                break;
-        }
+    public Long getNext() {
+        return next;
     }
 
-    public List<Long> getLosers() {
-        ArrayList<Long> losers = new ArrayList<>();
-        if (winner.equals(Long.parseLong(Bot.ID))) {
-            losers.add(A);
-            losers.add(B);
-        } else if (winner.equals(A)) {
-            losers.add(B);
-        } else {
-            losers.add(A);
-        }
-        return losers;
+    public String getNameA() {
+        return nameA;
     }
 
+    public String getNameB() {
+        return nameB;
+    }
 }

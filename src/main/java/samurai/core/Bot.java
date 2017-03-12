@@ -1,9 +1,6 @@
 package samurai.core;
 
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -17,6 +14,8 @@ import samurai.core.data.SamuraiDatabase;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -69,15 +68,17 @@ public class Bot {
             client.addEventListener(listener);
 
             System.out.println("Initializing " + CommandFactory.class.getName());
-            SamuraiDatabase.read();
 
-            client.getPresence().setGame(Game.of("@Samurai"));
+
+            client.getPresence().setGame(Game.of("Shard 1/1"));
 
             logChannel = client.getTextChannelById("288157271291068417");
             infoChannel = client.getTextChannelById("288159388374663170");
             shards.add(client);
 
             Groovy.addBinding("client", client);
+
+            SamuraiDatabase.read();
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
@@ -128,6 +129,7 @@ public class Bot {
         SimpleLog.addListener(new SimpleLog.LogListener() {
             @Override
             public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
+
                 if (logLevel == SimpleLog.Level.WARNING || logLevel == SimpleLog.Level.DEBUG)
                     Bot.log(logLevel.name());
                 else if (logLevel == SimpleLog.Level.INFO)
@@ -141,4 +143,20 @@ public class Bot {
         });
     }
 
+    public static int getGuildCount() {
+        return shards.stream().mapToInt(value -> value.getGuilds().size()).sum();
+    }
+
+    public static int getUserCount() {
+        return shards.stream().mapToInt(value -> value.getUsers().stream().filter(user -> !user.isBot()).mapToInt(value1 -> 1).sum()).sum();
+    }
+
+    public static List<Permission> getChannelPermissions(long channelId) {
+        for (JDA client : shards) {
+            final TextChannel textChannel = client.getTextChannelById(String.valueOf(channelId));
+            if (textChannel == null) continue;
+            return textChannel.getGuild().getSelfMember().getPermissions(textChannel);
+        }
+        return Collections.emptyList();
+    }
 }

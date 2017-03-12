@@ -6,8 +6,8 @@ import samurai.core.command.annotations.Creator;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.annotations.Source;
 import samurai.core.data.SamuraiDatabase;
-import samurai.core.entities.FixedMessage;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.FixedMessage;
+import samurai.core.entities.base.SamuraiMessage;
 
 /**
  * @author TonTL

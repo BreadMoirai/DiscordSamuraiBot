@@ -2,7 +2,7 @@ package samurai.core.command.general;
 
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
-import samurai.core.entities.SamuraiMessage;
+import samurai.core.entities.base.SamuraiMessage;
 import samurai.core.entities.dynamic.duel.ConnectFour;
 
 /**
@@ -17,6 +17,6 @@ public class Duel extends Command {
         if (mentions.size() != 1)
             return new ConnectFour(author.getUser());
         else
-            return new ConnectFour(author.getUser(), mentions.get(0));
+            return new ConnectFour(author.getUser(), mentions.get(0).getUser());
     }
 }
