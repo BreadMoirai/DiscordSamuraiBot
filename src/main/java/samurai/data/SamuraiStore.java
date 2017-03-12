@@ -1,4 +1,4 @@
-package samurai.core.data;
+package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.core.Bot;

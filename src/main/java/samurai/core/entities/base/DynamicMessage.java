@@ -55,29 +55,31 @@ public abstract class DynamicMessage extends SamuraiMessage {
      */
     protected abstract void onReady();
 
-    protected void submitNewMessage(Message message) {
-        submitNewMessage(message, emptyConsumer -> {
-        });
-    }
+
 
     protected void submitNewMessage(Message message, Consumer<Message> success) {
-        manager.submit(getChannelId(), message, success.andThen(result -> setMessageId(Long.valueOf(result.getId()))));
+        if (success == null) success = emptyConsumer -> {
+        };
+        if (getMessageId() != 0) unregister();
+        manager.submit(getChannelId(), message, ((Consumer<Message>) result -> setMessageId(Long.valueOf(result.getId()))).andThen(message1 -> manager.register(this)).andThen(success));
     }
 
-    public void submitNewMessage(String message) {
-        submitNewMessage(message, emptyConsumer -> {
-        });
+    protected void submitNewMessage(Message message) {
+        submitNewMessage(message, null);
     }
 
+    protected void submitNewMessage(String message) {
+        submitNewMessage(message, null);
+    }
     protected void submitNewMessage(String message, Consumer<Message> success) {
         Message newMessage = new MessageBuilder().append(message).build();
-        manager.submit(getChannelId(), newMessage, success.andThen(result -> setMessageId(Long.valueOf(result.getId()))));
+        submitNewMessage(newMessage, success);
     }
 
     protected void submitNewMessageAndDeleteCurrent(String message) {
         Message newMessage = new MessageBuilder().append(message).build();
-        manager.deleteMessage(getChannelId(), getMessageId());
-        manager.submit(getChannelId(), newMessage, null);
+        manager.deleteMessage(getChannelId(), getMessageId(), throwable -> unregister());
+        submitNewMessage(newMessage, null);
     }
 
     protected void updateMessage(String message) {
@@ -86,15 +88,15 @@ public abstract class DynamicMessage extends SamuraiMessage {
     }
 
     public void updateMessage(Message message) {
-        updateMessage(message, null);
+        updateMessage(message, null, null);
     }
 
-    protected void updateMessage(Message message, Consumer<Message> success) {
-        manager.editMessage(getChannelId(), messageId, message, success);
+    protected void updateMessage(Message message, Consumer<Message> success, Consumer<Throwable> failure) {
+        manager.editMessage(getChannelId(), messageId, message, success, failure == null ? t -> unregister() : failure);
     }
 
     public void clearReactions() {
-        manager.clearReactions(getChannelId(), getMessageId());
+        manager.clearReactions(getChannelId(), getMessageId(), throwable -> unregister());
     }
 
     protected void removeReaction(ReactionEvent event) {

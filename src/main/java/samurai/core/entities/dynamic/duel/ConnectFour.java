@@ -236,7 +236,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
             game.next = Game.random.nextBoolean() ? game.A : game.B;
             final BuildState buildState = new BuildState(game);
             game.state = buildState;
-            game.updateMessage(buildState.buildMessage(), buildState.buildConsumer());
+            game.updateMessage(buildState.buildMessage(), buildState.buildConsumer(), null);
         }
     }
 

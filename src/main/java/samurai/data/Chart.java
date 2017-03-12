@@ -1,4 +1,4 @@
-package samurai.core.data;
+package samurai.data;
 
 import java.io.*;
 import java.util.ArrayList;

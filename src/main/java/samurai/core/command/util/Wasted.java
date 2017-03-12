@@ -3,10 +3,10 @@ package samurai.core.command.util;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
 import samurai.core.command.annotations.Source;
-import samurai.core.data.SamuraiStore;
 import samurai.core.entities.base.FileMessage;
 import samurai.core.entities.base.FixedMessage;
 import samurai.core.entities.base.SamuraiMessage;
+import samurai.data.SamuraiStore;
 import samurai.util.GifGenerator;
 import samurai.util.ImageUtils;
 

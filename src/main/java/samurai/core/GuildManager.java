@@ -1,7 +1,7 @@
 package samurai.core;
 
-import samurai.core.data.SamuraiGuild;
-import samurai.core.data.SamuraiStore;
+import samurai.data.SamuraiGuild;
+import samurai.data.SamuraiStore;
 
 import java.util.concurrent.ConcurrentHashMap;
 

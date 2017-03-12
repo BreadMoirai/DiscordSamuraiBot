@@ -2,8 +2,8 @@ package samurai.core.command;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.core.data.SamuraiGuild;
 import samurai.core.entities.base.SamuraiMessage;
+import samurai.data.SamuraiGuild;
 
 import java.time.OffsetDateTime;
 import java.util.List;

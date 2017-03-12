@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import samurai.core.command.CommandFactory;
 import samurai.core.command.admin.Groovy;
-import samurai.core.data.SamuraiDatabase;
+import samurai.data.SamuraiDatabase;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -68,6 +68,7 @@ public class Bot {
             client.addEventListener(listener);
 
             System.out.println("Initializing " + CommandFactory.class.getName());
+            System.out.println("Keys Found: " + CommandFactory.keySet().size());
 
 
             client.getPresence().setGame(Game.of("Shard 1/1"));
@@ -114,7 +115,8 @@ public class Bot {
     }
 
     public static void log(String s) {
-        logChannel.sendMessage(s).queue();
+        if (logChannel != null)
+            logChannel.sendMessage(s).queue();
     }
 
     private static void logInfo(String s) {
@@ -122,7 +124,7 @@ public class Bot {
     }
 
     public static User getUser(Long id) {
-        return shards.get(0).getUserById(String.valueOf(id));
+        return shards.get(0).retrieveUserById(String.valueOf(id)).complete();
     }
 
     private static void addLogListener() {
@@ -130,7 +132,7 @@ public class Bot {
             @Override
             public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
 
-                if (logLevel == SimpleLog.Level.WARNING || logLevel == SimpleLog.Level.DEBUG)
+                if (logLevel == SimpleLog.Level.WARNING)
                     Bot.log(logLevel.name());
                 else if (logLevel == SimpleLog.Level.INFO)
                     Bot.logInfo(message.toString());

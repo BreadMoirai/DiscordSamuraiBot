@@ -2,10 +2,10 @@ package samurai.core.command.guild;
 
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
-import samurai.core.data.SamuraiStore;
 import samurai.core.entities.base.FixedMessage;
 import samurai.core.entities.base.SamuraiMessage;
 import samurai.core.entities.dynamic.ConflictMerge;
+import samurai.data.SamuraiStore;
 
 /**
  * @author TonTL

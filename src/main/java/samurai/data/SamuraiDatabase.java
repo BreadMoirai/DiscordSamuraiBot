@@ -1,6 +1,7 @@
-package samurai.core.data;
+package samurai.data;
 
 import org.apache.commons.collections4.MapUtils;
+import org.json.JSONArray;
 import samurai.core.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.osu.OsuJsonReader;
@@ -48,7 +49,9 @@ public class SamuraiDatabase {
     public static BeatmapSet getSet(String hash) {
         if (mapMD5.containsKey(hash))
             return getSet(mapMD5.get(hash));
-        BeatmapSet set = new BeatmapSet(OsuJsonReader.getBeatmapSetArrayFromMap(hash));
+        final JSONArray beatmapSetArrayFromMap = OsuJsonReader.getBeatmapSetArrayFromMap(hash);
+        if (beatmapSetArrayFromMap == null) return null;
+        BeatmapSet set = new BeatmapSet(beatmapSetArrayFromMap);
         SamuraiStore.writeSet(set);
         return set;
     }
@@ -137,8 +140,9 @@ public class SamuraiDatabase {
             e.printStackTrace();
             return;
         }
-        if (!SamuraiDatabase.initializeFromBytes(data)) Bot.log("Failed to initializeFromBytes Samurai Database");
-        else Bot.log("Successfully initialized Database");
+        if (!SamuraiDatabase.initializeFromBytes(data))
+            System.err.println("Failed to initializeFromBytes Samurai Database");
+        else System.out.println("Successfully initialized Database");
     }
 
     public static void write() {

@@ -25,9 +25,8 @@ public class CommandFactory {
 
     static {
         argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-
         actionMap = new HashMap<>();
-        Reflections reflections = new Reflections("samurai.command");
+        Reflections reflections = new Reflections("samurai.core.command");
         Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
         for (Class<? extends Command> action : classes) {
             Key actionKey = action.getAnnotation(Key.class);
@@ -38,7 +37,7 @@ public class CommandFactory {
             String[] name = action.getName().substring(15).split("\\.");
             for (String key : actionKey.value()) {
                 actionMap.put(key, action);
-                System.out.printf("%-10s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[0], name[1]);
+                System.out.printf("%-11s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
             }
         }
     }
@@ -90,6 +89,7 @@ public class CommandFactory {
                 .setMentions(mentions)
                 .setAttaches(attachments)
                 .setTime(time);
+        //System.out.println("New Command: " + command.getClass().getSimpleName());
         return command;
     }
 

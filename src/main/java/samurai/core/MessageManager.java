@@ -1,12 +1,12 @@
 package samurai.core;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.ErrorResponse;
 import samurai.core.command.Command;
+import samurai.core.command.admin.Groovy;
 import samurai.core.entities.base.DynamicMessage;
 import samurai.core.entities.base.SamuraiMessage;
 import samurai.core.events.GuildMessageEvent;
@@ -19,7 +19,6 @@ import samurai.core.events.listeners.ReactionListener;
 
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -38,6 +37,7 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
 
         reactionListeners = new ConcurrentHashMap<>();
         channelListeners = new ConcurrentHashMap<>();
+        Groovy.addBinding("mm", this);
     }
 
 
@@ -49,13 +49,10 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
     }
 
     void submit(SamuraiMessage samuraiMessage) {
-        if (samuraiMessage instanceof DynamicMessage) {
-            register((DynamicMessage) samuraiMessage);
-        }
         samuraiMessage.onReady(this);
     }
 
-    private void register(DynamicMessage dynamicMessage) {
+    public void register(DynamicMessage dynamicMessage) {
         if (dynamicMessage instanceof ReactionListener)
             reactionListeners.put(dynamicMessage.getMessageId(), dynamicMessage);
         if (dynamicMessage instanceof MessageListener || dynamicMessage instanceof CommandListener || dynamicMessage instanceof PrivateListener) {
@@ -117,10 +114,13 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
     }
 
 
-    public void editMessage(long channelId, long messageId, Message message, Consumer<Message> success) {
-        final TextChannel textChannel = client.getTextChannelById(String.valueOf(channelId));
+    public void editMessage(long channelId, long messageId, Message message, Consumer<Message> success, Consumer<Throwable> failure) {
+        if (success == null) success = emptyConsumer -> {
+        };
+        getMessage(channelId, messageId, ((Consumer<Message>) message1 -> message1.editMessage(message).queue()).andThen(success), failure);
 
-        textChannel.getMessageById(String.valueOf(messageId)).queue(message1 -> message1.editMessage(message).queue(success), throwable -> {
+
+                /*throwable -> {
             final String throwableMessage = throwable.getMessage();
             if (throwableMessage.equals(ErrorResponse.UNKNOWN_MESSAGE.getMeaning()))
                 channelListeners.get(channelId).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId);
@@ -131,8 +131,16 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
                 else if (!textChannel.canTalk())
                     channelListeners.remove(channelId);
             }
-        });
+        });*/
 
+    }
+
+    private void getMessage(long channelId, long messageId, Consumer<Message> success, Consumer<Throwable> failure) {
+        final TextChannel textChannel = client.getTextChannelById(String.valueOf(channelId));
+        if (textChannel == null || !textChannel.canTalk()) {
+            return;
+        }
+        textChannel.getMessageById(String.valueOf(messageId)).queue(success, failure);
     }
 
     boolean hasMessageListener(long l) {
@@ -153,27 +161,27 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
     }
 
     //todo error check
-    public void deleteMessage(long channelId, long messageId) {
-        client.getTextChannelById(String.valueOf(channelId)).getMessageById(String.valueOf(messageId)).queue(message -> message.delete().queue());
+    public void deleteMessage(long channelId, long messageId, Consumer<Throwable> failure) {
+        getMessage(channelId, messageId, message -> message.delete().queue(), failure);
     }
 
-    //todo perm check
-    public void clearReactions(long channelId, long messageId) {
-        client.getTextChannelById(String.valueOf(channelId)).getMessageById(String.valueOf(messageId)).queue(message -> message.clearReactions().queue());
+    public void clearReactions(long channelId, long messageId, Consumer<Throwable> failure) {
+        getMessage(channelId, messageId, message -> message.clearReactions().queue(), failure);
     }
 
     //todo perm check
     public void removeReaction(long channelId, long messageId, long userId, String name) {
-        client.getTextChannelById(String.valueOf(channelId)).getMessageById(String.valueOf(messageId)).queue(message -> {
+        getMessage(channelId, messageId, message -> {
             for (MessageReaction messageReaction : message.getReactions())
                 if (messageReaction.getEmote().getName().equals(name)) {
                     messageReaction.removeReaction(client.getUserById(String.valueOf(userId))).queue();
                     return;
                 }
-        });
+        }, null);
     }
 
     public void submit(long channelId, InputStream data, String fileName, Message message) {
         client.getTextChannelById(String.valueOf(channelId)).sendFile(data, fileName, message).queue();
     }
+
 }

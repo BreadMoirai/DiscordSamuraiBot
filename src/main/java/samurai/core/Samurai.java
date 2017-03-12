@@ -36,7 +36,7 @@ class Samurai implements CommandListener {
         commandPool = Executors.newFixedThreadPool(1);
 
         executorPool = Executors.newScheduledThreadPool(3);
-        executorPool.scheduleWithFixedDelay(this::pollAction, 1000, 1, TimeUnit.NANOSECONDS);
+        executorPool.scheduleWithFixedDelay(this::pollAction, 1000, 1, TimeUnit.MILLISECONDS);
         executorPool.scheduleAtFixedRate(this::clearInactive, 60, 15, TimeUnit.MINUTES);
 
         actionQueue = new LinkedBlockingQueue<>();

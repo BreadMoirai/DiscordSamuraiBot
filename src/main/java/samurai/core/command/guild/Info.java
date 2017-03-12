@@ -5,9 +5,9 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.core.Bot;
 import samurai.core.command.Command;
 import samurai.core.command.annotations.Key;
-import samurai.core.data.SamuraiUser;
 import samurai.core.entities.base.FixedMessage;
 import samurai.core.entities.base.SamuraiMessage;
+import samurai.data.SamuraiUser;
 
 import java.time.OffsetDateTime;
 

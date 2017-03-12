@@ -4,7 +4,7 @@ import samurai.core.MessageManager;
 
 /**
  * @author TonTL
- * @since 4.0
+ * @since 5.0
  */
 public abstract class SamuraiMessage {
 

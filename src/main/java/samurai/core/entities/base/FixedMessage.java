@@ -24,10 +24,6 @@ public class FixedMessage extends SamuraiMessage {
         return new FixedMessage().setMessage(new MessageBuilder().setEmbed(e).build());
     }
 
-    public boolean isPersistent() {
-        return false;
-    }
-
     public Message getMessage() {
         return message;
     }

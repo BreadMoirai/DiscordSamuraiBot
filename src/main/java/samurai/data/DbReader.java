@@ -1,4 +1,4 @@
-package samurai.core.data;
+package samurai.data;
 
 import samurai.osu.Score;
 import samurai.osu.enums.GameMode;

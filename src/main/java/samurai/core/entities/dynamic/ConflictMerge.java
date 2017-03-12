@@ -3,10 +3,10 @@ package samurai.core.entities.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.core.Bot;
-import samurai.core.data.SamuraiUser;
 import samurai.core.entities.base.DynamicMessage;
 import samurai.core.events.ReactionEvent;
 import samurai.core.events.listeners.ReactionListener;
+import samurai.data.SamuraiUser;
 import samurai.osu.Score;
 
 import java.util.*;
@@ -145,7 +145,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     }
 
 
-    protected boolean valid(ReactionEvent action) {
+    private boolean valid(ReactionEvent action) {
         if (stage < 2 || stage == getLastStage()) return false;
         else if (conflicts.isEmpty()) {
             return CONFIRM.contains(action.getName());
@@ -154,7 +154,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     }
 
 
-    protected void execute(ReactionEvent action) {
+    private void execute(ReactionEvent action) {
         if (stage == getLastStage() - 1) {
             switch (action.getName()) {
                 case "✅":
@@ -200,7 +200,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
         else Bot.log(String.format("Illegal Access in ConflictMerge by <@%d>", uploader.getDiscordId()));
     }
 
-    public Consumer<Message> createConsumer(ReactionEvent event) {
+    private Consumer<Message> createConsumer(ReactionEvent event) {
         if (stage == 2) {
             if (conflicts.isEmpty()) {
                 return message -> message.clearReactions().queue();
@@ -278,7 +278,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     public void onReaction(ReactionEvent event) {
         if (valid(event)) {
             execute(event);
-            updateMessage(getMessage(), createConsumer(event));
+            updateMessage(getMessage(), createConsumer(event), null);
         }
     }
 

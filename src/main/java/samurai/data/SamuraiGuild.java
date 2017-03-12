@@ -1,4 +1,4 @@
-package samurai.core.data;
+package samurai.data;
 
 import org.json.JSONObject;
 import samurai.osu.Score;

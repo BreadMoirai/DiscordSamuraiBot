@@ -2,6 +2,7 @@ package samurai.core;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -63,6 +64,9 @@ public class MyEventListener implements EventListener {
             if (event instanceof PrivateMessageReceivedEvent || event instanceof PrivateMessageUpdateEvent) {
                 onGenericPrivateMessageEvent((GenericPrivateMessageEvent) event);
             }
+        }
+        if (event instanceof ReadyEvent) {
+            System.out.println("Ready!");
         }
     }
 
