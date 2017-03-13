@@ -1,7 +1,7 @@
 package samurai.core;
 
-import samurai.core.command.Command;
-import samurai.core.events.listeners.CommandListener;
+import samurai.command.Command;
+import samurai.events.listeners.CommandListener;
 
 /**
  * @author TonTL

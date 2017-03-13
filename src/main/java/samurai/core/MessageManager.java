@@ -5,17 +5,17 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.ErrorResponse;
-import samurai.core.command.Command;
-import samurai.core.command.admin.Groovy;
-import samurai.core.entities.base.DynamicMessage;
-import samurai.core.entities.base.SamuraiMessage;
-import samurai.core.events.GuildMessageEvent;
-import samurai.core.events.PrivateMessageEvent;
-import samurai.core.events.ReactionEvent;
-import samurai.core.events.listeners.CommandListener;
-import samurai.core.events.listeners.MessageListener;
-import samurai.core.events.listeners.PrivateListener;
-import samurai.core.events.listeners.ReactionListener;
+import samurai.command.Command;
+import samurai.command.admin.Groovy;
+import samurai.entities.base.DynamicMessage;
+import samurai.entities.base.SamuraiMessage;
+import samurai.events.GuildMessageEvent;
+import samurai.events.PrivateMessageEvent;
+import samurai.events.ReactionEvent;
+import samurai.events.listeners.CommandListener;
+import samurai.events.listeners.MessageListener;
+import samurai.events.listeners.PrivateListener;
+import samurai.events.listeners.ReactionListener;
 
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -57,7 +57,7 @@ public class MessageManager implements MessageListener, ReactionListener, Comman
             reactionListeners.put(dynamicMessage.getMessageId(), dynamicMessage);
         if (dynamicMessage instanceof MessageListener || dynamicMessage instanceof CommandListener || dynamicMessage instanceof PrivateListener) {
             if (!channelListeners.containsKey(dynamicMessage.getChannelId()))
-                channelListeners.put(dynamicMessage.getChannelId(), new LinkedList<>());
+                channelListeners.putIfAbsent(dynamicMessage.getChannelId(), new LinkedList<>());
             channelListeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
         }
     }

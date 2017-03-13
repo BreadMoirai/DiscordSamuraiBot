@@ -1,12 +1,15 @@
 package samurai.osu;
 
 
+import org.json.JSONObject;
+import samurai.data.SamuraiStore;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
 import samurai.osu.enums.Mod;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -15,7 +18,6 @@ import java.util.List;
  */
 public class Score {
     private GameMode mode;
-    private int version;
     private String beatmapHash, player, replayHash;
     private short count300, count100, count50, geki, katu, count0;
     private int score;
@@ -65,21 +67,41 @@ public class Score {
 
         Score score1 = (Score) o;
 
+        if (count300 != score1.count300) return false;
+        if (count100 != score1.count100) return false;
+        if (count50 != score1.count50) return false;
+        if (geki != score1.geki) return false;
+        if (katu != score1.katu) return false;
+        if (count0 != score1.count0) return false;
         if (score != score1.score) return false;
-        if (timestamp != score1.timestamp) return false;
-        return replayHash.equals(score1.replayHash);
+        if (maxCombo != score1.maxCombo) return false;
+        if (modCombo != score1.modCombo) return false;
+        if (mode != score1.mode) return false;
+        if (!beatmapHash.equals(score1.beatmapHash)) return false;
+        return player.equals(score1.player);
     }
+
 
     @Override
     public int hashCode() {
-        return replayHash.hashCode();
+        int result = mode.hashCode();
+        result = 31 * result + beatmapHash.hashCode();
+        result = 31 * result + player.hashCode();
+        result = 31 * result + (int) count300;
+        result = 31 * result + (int) count100;
+        result = 31 * result + (int) count50;
+        result = 31 * result + (int) geki;
+        result = 31 * result + (int) katu;
+        result = 31 * result + (int) count0;
+        result = 31 * result + score;
+        result = 31 * result + (int) maxCombo;
+        result = 31 * result + modCombo;
+        return result;
     }
 
     public String toString() {
-        return getReplayHash() + " " + player + " " + score;
+        return "[" + Instant.ofEpochMilli(timestamp).toString() + "] " + player + " " + score;
     }
-
-
 
     public GameMode getMode() {
         return mode;
@@ -90,12 +112,9 @@ public class Score {
         return this;
     }
 
-    public int getVersion() {
-        return version;
-    }
 
     public Score setVersion(int version) {
-        this.version = version;
+
         return this;
     }
 
@@ -238,7 +257,7 @@ public class Score {
         ByteBuffer byteBuffer = ByteBuffer.allocate(10*Byte.BYTES + 7*Short.BYTES + 4*Integer.BYTES + 2*Long.BYTES + beatmapHash.length() + player.length() + replayHash.length());
         byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
         byteBuffer.put((byte) mode.value());
-        byteBuffer.putInt(version);
+        byteBuffer.putInt(SamuraiStore.VERSION);
         byteBuffer.put((byte) 0x0b);
         byteBuffer.put((byte) beatmapHash.length());
         for (int i = 0; i < beatmapHash.length(); i++) {
@@ -271,4 +290,5 @@ public class Score {
         byteBuffer.putLong(onlineScoreID);
         return byteBuffer.array();
     }
+
 }

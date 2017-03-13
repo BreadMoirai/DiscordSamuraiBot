@@ -2,7 +2,7 @@ package samurai.osu;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import samurai.core.Bot;
+import samurai.Bot;
 import samurai.data.SamuraiDatabase;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.RankedStatus;
@@ -13,6 +13,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.ListIterator;
+import java.util.Optional;
 
 /**
  * @author TonTL
@@ -138,6 +140,14 @@ public class BeatmapSet implements Externalizable {
             }
         }
         return null;
+    }
+
+    public ListIterator<Beatmap> getListIterator() {
+        return beatmapArrayList.listIterator();
+    }
+
+    public Optional<Beatmap> getBeatmapById(int beatmap_id) {
+        return beatmapArrayList.stream().filter(beatmap -> beatmap.getMapID() == beatmap_id).findFirst();
     }
 
     @Override

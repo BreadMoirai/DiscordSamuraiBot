@@ -60,7 +60,7 @@ public class GifGenerator {
         for (int i = 0; i < frameCount; i++) {
             BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
             if (spin) {
-                at.translate(width / 2, height / 2);
+                at.translate(width >> 1, height >> 1);
                 at.rotate(Math.PI / frameCount * 2);
                 if (i == 0) {
                     at.scale(1.1, 1.1);

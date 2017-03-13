@@ -1,7 +1,7 @@
 package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.core.Bot;
+import samurai.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
@@ -24,7 +24,7 @@ import java.util.Map;
  * @version 4.5 - 2/20/2017
  */
 public class SamuraiStore {
-    private static final int VERSION = 20170103;
+    public static final int VERSION = 20170103;
 
 
     public static File getSetFile(int setId) {

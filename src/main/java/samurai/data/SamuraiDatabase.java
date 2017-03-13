@@ -2,9 +2,9 @@ package samurai.data;
 
 import org.apache.commons.collections4.MapUtils;
 import org.json.JSONArray;
-import samurai.core.Bot;
+import samurai.Bot;
 import samurai.osu.BeatmapSet;
-import samurai.osu.OsuJsonReader;
+import samurai.util.OsuAPI;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -25,31 +25,38 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SamuraiDatabase {
 
-    private static final ConcurrentHashMap<String, Integer> mapMD5;
-    private static final ConcurrentHashMap<Integer, Integer> mapSetMap;
+    private static final ConcurrentHashMap<String, Integer> HASH_ID;
+    private static final ConcurrentHashMap<Integer, String> ID_HASH;
+    private static final ConcurrentHashMap<Integer, Integer> ID_SET;
 
     private static final int HASH_SIZE = 32;
 
     static {
-        mapMD5 = new ConcurrentHashMap<>();
-        mapSetMap = new ConcurrentHashMap<>();
+        HASH_ID = new ConcurrentHashMap<>();
+        ID_HASH = new ConcurrentHashMap<>();
+        ID_SET = new ConcurrentHashMap<>();
     }
 
     private SamuraiDatabase() {
     }
 
     public static void put(int mapId, int setId) {
-        mapSetMap.put(mapId, setId);
+        ID_SET.put(mapId, setId);
     }
 
     public static void put(String hash, int mapId) {
-        mapMD5.put(hash, mapId);
+        HASH_ID.put(hash, mapId);
+        ID_HASH.put(mapId, hash);
+    }
+
+    public static String getHash(int mapId) {
+        return ID_HASH.get(mapId);
     }
 
     public static BeatmapSet getSet(String hash) {
-        if (mapMD5.containsKey(hash))
-            return getSet(mapMD5.get(hash));
-        final JSONArray beatmapSetArrayFromMap = OsuJsonReader.getBeatmapSetArrayFromMap(hash);
+        if (HASH_ID.containsKey(hash))
+            return getSet(HASH_ID.get(hash));
+        final JSONArray beatmapSetArrayFromMap = OsuAPI.getBeatmapSetArrayFromMap(hash);
         if (beatmapSetArrayFromMap == null) return null;
         BeatmapSet set = new BeatmapSet(beatmapSetArrayFromMap);
         SamuraiStore.writeSet(set);
@@ -57,12 +64,12 @@ public class SamuraiDatabase {
     }
 
     public static BeatmapSet getSet(int mapId) {
-        final Integer setId = mapSetMap.get(mapId);
+        final Integer setId = ID_SET.get(mapId);
         //noinspection ConstantConditions
         if (!SamuraiStore.getSetFile(setId).exists()) {
             return SamuraiStore.readSet(setId);
         } else {
-            BeatmapSet set = new BeatmapSet(OsuJsonReader.getBeatmapSetArrayFromMap(mapId));
+            BeatmapSet set = new BeatmapSet(OsuAPI.getBeatmapSetArrayFromMap(mapId));
             SamuraiStore.writeSet(set);
             return set;
         }
@@ -78,17 +85,17 @@ public class SamuraiDatabase {
      *
      * @return an array of bytes
      */
-    public static byte[] toBytes() {
-        int valsize = mapSetMap.values().size();
+    private static byte[] toBytes() {
+        int valsize = ID_SET.values().size();
         Queue<ByteBuffer> bufferQueue = new LinkedList<>();
         Map<Integer, List<Integer>> writeMap = new HashMap<>(valsize);
-        for (Map.Entry<Integer, Integer> e : mapSetMap.entrySet()) {
+        for (Map.Entry<Integer, Integer> e : ID_SET.entrySet()) {
             if (!writeMap.containsKey(e.getValue())) {
                 writeMap.put(e.getValue(), new LinkedList<>());
             }
             writeMap.get(e.getValue()).add(e.getKey());
         }
-        Map<Integer, String> md5Map = MapUtils.invertMap(mapMD5);
+        Map<Integer, String> md5Map = MapUtils.invertMap(HASH_ID);
         int capacity = 0;
         for (Map.Entry<Integer, List<Integer>> e : writeMap.entrySet()) {
             ByteBuffer buf = ByteBuffer.allocate(Byte.BYTES + Integer.BYTES + (Integer.BYTES + HASH_SIZE) * e.getValue().size());
@@ -110,7 +117,7 @@ public class SamuraiDatabase {
         return data.array();
     }
 
-    public static boolean initializeFromBytes(byte[] data) {
+    private static boolean initializeFromBytes(byte[] data) {
         ByteBuffer buf = ByteBuffer.wrap(data);
         try {
             while (buf.remaining() > 0) {
@@ -118,10 +125,10 @@ public class SamuraiDatabase {
                 int setId = buf.getInt();
                 for (int i = 0; i < ksize; i++) {
                     int mapId = buf.getInt();
-                    mapSetMap.put(mapId, setId);
+                    put(mapId, setId);
                     byte[] hashArray = new byte[HASH_SIZE];
                     buf.get(hashArray);
-                    mapMD5.put(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(hashArray)).toString(), mapId);
+                    put(StandardCharsets.UTF_8.decode(ByteBuffer.wrap(hashArray)).toString(), mapId);
                 }
             }
         } catch (BufferUnderflowException e) {
@@ -155,4 +162,5 @@ public class SamuraiDatabase {
             e.printStackTrace();
         }
     }
+
 }

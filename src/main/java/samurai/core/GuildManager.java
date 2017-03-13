@@ -1,9 +1,15 @@
 package samurai.core;
 
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.User;
+import samurai.Bot;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
+import samurai.data.SamuraiUser;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -58,5 +64,10 @@ public class GuildManager {
 
     SamuraiGuild getGuild(Long guildId) {
         return guildMap.get(guildId);
+    }
+
+    public List<SamuraiUser> getUser(User user) {
+        final long id = Long.parseLong(user.getId());
+        return user.getMutualGuilds().stream().map(ISnowflake::getId).mapToLong(Long::parseLong).mapToObj(guildMap::get).filter(samuraiGuild -> samuraiGuild.hasUser(id)).map(samuraiGuild -> samuraiGuild.getUser(id)).collect(Collectors.toList());
     }
 }
