@@ -1,0 +1,9 @@
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/layout/osu-logo%402x.png
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/layout/avatar-guest%402x.png
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/layout/artist-noavatar%402x.jpg
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/layout/beatmaps/default-bg%402x.png
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/layout/beatmaps/not-found%402x.png
+
+
+
+https://raw.githubusercontent.com/ppy/osu-web/master/public/images/badges/levelbadge%402x.png
