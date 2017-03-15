@@ -2,12 +2,14 @@ package samurai.entities.dynamic;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.Bot;
+import net.dv8tion.jda.core.entities.TextChannel;
+import samurai.data.SamuraiUser;
 import samurai.entities.base.DynamicMessage;
 import samurai.events.ReactionEvent;
 import samurai.events.listeners.ReactionListener;
-import samurai.data.SamuraiUser;
 import samurai.osu.Score;
+import samurai.util.wrappers.MessageWrapper;
+import samurai.util.wrappers.SamuraiWrapper;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -32,6 +34,8 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     private int totalConflicts, conflictPos;
     private Conflict current;
     private boolean canceled;
+
+    private MessageWrapper message;
 
     public ConflictMerge(HashMap<String, LinkedList<Score>> annex, HashMap<String, LinkedList<Score>> base, SamuraiUser uploader) {
         super();
@@ -125,7 +129,8 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
             } else if (!conflicts.isEmpty()) {
                 MessageBuilder mb = new MessageBuilder();
                 for (Conflict c : conflicts) {
-                    if (!c.approved) Bot.log("Non approved conflict found.");
+                    if (!c.approved) {
+                    }//todo Bot.log("Non approved conflict found.");
                     if (!c.renamed) {
                         mb.append("\n`").append(c.scoreCount).append("` scores added to `").append(c.name).append('`');
                     }
@@ -139,7 +144,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                         .append("` scores merged.").build();
             }
         } else {
-            Bot.log(String.format("Score Merge Error by <@%d>", uploader.getDiscordId()));
+            //Bot.log(String.format("Score Merge Error by <@%d>", uploader.getDiscordId()));
             return new MessageBuilder().append("An Unknown Error has occurred!").build();
         }
     }
@@ -197,7 +202,8 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                     return;
                 default:
             }
-        else Bot.log(String.format("Illegal Access in ConflictMerge by <@%d>", uploader.getDiscordId()));
+        else {
+        }//Bot.log(String.format("Illegal Access in ConflictMerge by <@%d>", uploader.getDiscordId()));
     }
 
     private Consumer<Message> createConsumer(ReactionEvent event) {
@@ -205,19 +211,19 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
             if (conflicts.isEmpty()) {
                 return message -> message.clearReactions().queue();
             }
-            removeReaction(event);
+           message.removeReaction(event);
             return null;
         } else if (stage == getLastStage()) {
             return message -> message.clearReactions().queue();
         } else if (stage == getLastStage() - 1) {
-            removeReaction(event);
+           message.removeReaction(event);
             return message -> message.getReactions().forEach(messageReaction -> {
                 final String name = messageReaction.getEmote().getName();
                 if (name.equals("\uD83C\uDE51") || name.equals("\uD83D\uDEAE")) {
                     messageReaction.getUsers().queue(users -> users.forEach(user -> messageReaction.removeReaction(user).queue()));
                 }
             });
-        } else removeReaction(event);
+        } else message.removeReaction(event);
         return null;
     }
 
@@ -260,84 +266,87 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     }
 
     @Override
-    protected void onReady() {
-        submitNewMessage(getMessage(), ((Consumer<Message>) (message -> findConflictsAndRemoveDupes()))
-                .andThen(conflicts.isEmpty() ? newMenu(CONFIRM) : newMenu(REACTIONS))
-                .andThen(message -> {
-                    stage++;
-                    message.editMessage(getMessage()).queue();
-                    if (!conflicts.isEmpty()) {
-                        itr = conflicts.listIterator();
-                        current = itr.next();
-                    }
-                }));
-
+    protected void onReady(TextChannel channel) {
+        channel.sendMessage(getMessage()).queue(message1 -> {
+            this.message = SamuraiWrapper.wrap(message1);
+            findConflictsAndRemoveDupes();
+            if (conflicts.isEmpty())
+                message.addReaction(CONFIRM);
+            else message.addReaction(REACTIONS, aVoid -> {
+                stage++;
+                message.editMessage(getMessage());
+                if (!conflicts.isEmpty()) {
+                    itr = conflicts.listIterator();
+                    current = itr.next();
+                }
+            });
+        });
     }
 
-    @Override
-    public void onReaction(ReactionEvent event) {
-        if (valid(event)) {
-            execute(event);
-            updateMessage(getMessage(), createConsumer(event), null);
-        }
-    }
-
-    private class Conflict {
-        String name;
-        LinkedList<Score> scores;
-        int scoreCount;
-        boolean approved, renamed;
-
-        Conflict(String name) {
-            this.name = name;
-            scoreCount = 0;
-            scores = new LinkedList<>();
-            approved = false;
-            renamed = false;
-        }
-
-        void addScore(Score s) {
-            scores.add(s);
-            scoreCount++;
-        }
-
-        void approve() {
-            approved = true;
-            for (Score s : scores) {
-                s.setPlayer(uploader.getOsuName());
-                newScores++;
+        @Override
+        public void onReaction (ReactionEvent event){
+            if (valid(event)) {
+                execute(event);
+                message.editMessage(getMessage(), createConsumer(event));
             }
-            renamed = true;
         }
 
-        void ignore() {
-            approved = true;
-        }
+        private class Conflict {
+            String name;
+            LinkedList<Score> scores;
+            int scoreCount;
+            boolean approved, renamed;
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            Conflict(String name) {
+                this.name = name;
+                scoreCount = 0;
+                scores = new LinkedList<>();
+                approved = false;
+                renamed = false;
+            }
 
-            Conflict conflict = (Conflict) o;
+            void addScore(Score s) {
+                scores.add(s);
+                scoreCount++;
+            }
 
-            return name.equals(conflict.name);
-        }
+            void approve() {
+                approved = true;
+                for (Score s : scores) {
+                    s.setPlayer(uploader.getOsuName());
+                    newScores++;
+                }
+                renamed = true;
+            }
 
-        @Override
-        public int hashCode() {
-            return name.hashCode();
-        }
+            void ignore() {
+                approved = true;
+            }
 
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Conflict{");
-            sb.append("\nname='").append(name).append('\'');
-            sb.append("\nscores=").append(scores);
-            sb.append("\napproved=").append(approved);
-            sb.append("\nrenamed=").append(renamed);
-            sb.append("\n}");
-            return sb.toString();
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                Conflict conflict = (Conflict) o;
+
+                return name.equals(conflict.name);
+            }
+
+            @Override
+            public int hashCode() {
+                return name.hashCode();
+            }
+
+            @Override
+            public String toString() {
+                final StringBuilder sb = new StringBuilder("Conflict{");
+                sb.append("\nname='").append(name).append('\'');
+                sb.append("\nscores=").append(scores);
+                sb.append("\napproved=").append(approved);
+                sb.append("\nrenamed=").append(renamed);
+                sb.append("\n}");
+                return sb.toString();
+            }
         }
     }
-}

@@ -2,7 +2,6 @@ package samurai.core;
 
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.User;
-import samurai.Bot;
 import samurai.data.SamuraiGuild;
 import samurai.data.SamuraiStore;
 import samurai.data.SamuraiUser;
@@ -19,18 +18,18 @@ public class GuildManager {
 
     private final ConcurrentHashMap<Long, SamuraiGuild> guildMap;
 
-    GuildManager() {
+    public GuildManager() {
         this.guildMap = new ConcurrentHashMap<>();
     }
 
-    String getPrefix(long id) {
+    public String getPrefix(long id) {
         if (guildMap.containsKey(id))
             return guildMap.get(id).getPrefix();
         else {
             if (SamuraiStore.guildExists(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {
-                    Bot.log(String.format("Could not read data for Guild %d", id));
+                    System.err.println("Could not read data for Guild %d" + id);
                     return "!";
                 }
                 guildMap.put(id, guild);
@@ -56,13 +55,13 @@ public class GuildManager {
             else {
                 SamuraiStore.writeGuild(guild);
                 if (!guildMap.remove(guild.getGuildId(), guild))
-                    Bot.log("Failed to remove " + guild.getGuildId());
+                    System.err.println("Failed to remove " + guild.getGuildId());
                 SamuraiStore.writeScoreData(guild.getGuildId(), guild.getScoreMap());
             }
         });
     }
 
-    SamuraiGuild getGuild(Long guildId) {
+    public SamuraiGuild getGuild(Long guildId) {
         return guildMap.get(guildId);
     }
 

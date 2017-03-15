@@ -3,15 +3,17 @@ package samurai.entities.dynamic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.Bot;
+import net.dv8tion.jda.core.entities.TextChannel;
+import samurai.data.SamuraiDatabase;
 import samurai.entities.base.DynamicMessage;
 import samurai.events.ReactionEvent;
 import samurai.events.listeners.ReactionListener;
-import samurai.data.SamuraiDatabase;
 import samurai.osu.Beatmap;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 import samurai.osu.enums.Mod;
+import samurai.util.wrappers.MessageWrapper;
+import samurai.util.wrappers.SamuraiWrapper;
 
 import java.awt.*;
 import java.util.*;
@@ -33,6 +35,8 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
     private BeatmapSet currentSet;
     private boolean fullScore, fullMap;
 
+    private MessageWrapper message;
+
     public RandomBeatmapDisplay(HashMap<String, LinkedList<Score>> scoreMap) {
         super();
         this.hashArray = new ArrayList<>(scoreMap.keySet());
@@ -45,8 +49,9 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
     }
 
     @Override
-    protected void onReady() {
-        submitNewMessage("Initializing...", newMenu(REACTIONS).andThen(message -> message.editMessage(getMessage()).queue()));
+    protected void onReady(TextChannel channel) {
+        channel.sendMessage("Initializing...").queue(message1 -> message = SamuraiWrapper.wrap(message1));
+        message.addReaction(REACTIONS, aVoid -> message.editMessage(getMessage()));
     }
 
     @Override
@@ -55,8 +60,8 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
         final String name = event.getName();
         if (REACTIONS.contains(name)) {
             execute(name);
-            removeReaction(event);
-            updateMessage(getMessage());
+            message.removeReaction(event);
+            message.editMessage(getMessage());
         }
     }
 
@@ -110,7 +115,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
                     setCurrentSet(currentIdx = history.pop());
                 break;
             case "\uD83D\uDD12":
-                clearReactions();
+                message.clearReactions();
                 unregister();
                 break;
             case "🛂":
@@ -126,7 +131,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
                 currentSet.back();
                 break;
             default:
-                Bot.log("Illegal BeatmapDisplay Access Error at " + getChannelId() + ":" + getMessageId());
+                //Bot.log("Illegal BeatmapDisplay Access Error at " + getChannelId() + ":" + getMessageId());
         }
     }
 

@@ -2,7 +2,6 @@ package samurai.osu;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import samurai.Bot;
 import samurai.data.SamuraiDatabase;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.RankedStatus;
@@ -38,7 +37,7 @@ public class BeatmapSet implements Externalizable {
     public BeatmapSet(JSONArray jsonArray) {
         final int length = jsonArray.length();
         if (length == 0) {
-            Bot.log("Empty Json Array");
+            //Bot.log("Empty Json Array");
             return;
         }
         {

@@ -1,6 +1,7 @@
 package samurai.command.osu;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.entities.base.SamuraiMessage;
 import samurai.entities.dynamic.RandomBeatmapDisplay;
@@ -13,7 +14,7 @@ import samurai.entities.dynamic.RandomBeatmapDisplay;
 public class BeatmapGet extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
-        return new RandomBeatmapDisplay(guild.getScoreMap());
+    protected SamuraiMessage execute(CommandContext context) {
+        return new RandomBeatmapDisplay(context.getGuild().getScoreMap());
     }
 }

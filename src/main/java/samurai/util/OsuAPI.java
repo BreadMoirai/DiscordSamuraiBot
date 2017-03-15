@@ -4,7 +4,6 @@ import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import samurai.Bot;
 import samurai.data.SamuraiDatabase;
 import samurai.osu.Beatmap;
 import samurai.osu.Score;
@@ -65,8 +64,7 @@ public class OsuAPI {
             }
         }
         if (hash == null) {
-            Bot.logError(new Exception("Could not find Beatmap: " + beatmap_id));
-            return null;
+            //todo error
         }
         s.setBeatmapHash(hash)
                 .setScore(jsonObject.getInt("score"))
@@ -121,10 +119,10 @@ public class OsuAPI {
             if (jsonArray.length() == 0) return null;
             return jsonArray;
         } catch (IOException e) {
-            Bot.log("Error at " + url);
+            //todo error
             return null;
         } catch (JSONException e) {
-            Bot.log(e.getMessage());
+            //todo error
             return null;
         }
     }

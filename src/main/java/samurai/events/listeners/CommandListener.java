@@ -11,6 +11,6 @@ import samurai.command.CommandFactory;
  * @see Command
  * @see CommandFactory
  */
-public interface CommandListener {
+public interface CommandListener extends SamuraiListener {
     void onCommand(Command command);
 }

@@ -1,12 +1,12 @@
 package samurai.command.general;
 
-import samurai.Bot;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
+import samurai.data.SamuraiStore;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
-import samurai.data.SamuraiStore;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,24 +24,20 @@ import java.util.Random;
 @Source
 public class Flame extends Command {
 
-    private static Random r;
-
-    static {
-        r = new Random();
-    }
+    private static Random r = new Random();
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
         try {
             List<String> flameList = Files.readAllLines(Paths.get(SamuraiStore.class.getResource("./flame.txt").toURI()));
-            if (mentions.isEmpty()) {
-                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", author.getAsMention()));
+            if (context.getMentions().isEmpty()) {
+                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getAuthor().getAsMention()));
             } else {
-                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", mentions.get(0).getAsMention()));
+                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getMentions().get(0).getAsMention()));
             }
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
-            Bot.logError(e);
+            //todo
             return null;
         }
     }

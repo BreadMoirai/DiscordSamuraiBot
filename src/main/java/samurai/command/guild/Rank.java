@@ -1,29 +1,34 @@
 package samurai.command.guild;
 
-import samurai.Bot;
+import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.data.SamuraiGuild;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
 import samurai.entities.dynamic.Book;
+import samurai.util.BotUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 /**
  * @author TonTL
  * @version 4.x - 2/17/2017
  */
-@SuppressWarnings("ALL")
 @Key("rank")
 public class Rank extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    public SamuraiMessage execute(CommandContext context) {
+        final SamuraiGuild guild = context.getGuild();
+        final List<Member> mentions = context.getMentions();
         if (guild.getUsers().size() == 0) return FixedMessage.build("No users found.");
         long id;
         if (mentions.size() == 0) {
-            id = Long.parseLong(author.getUser().getId());
+            id = Long.parseLong(context.getAuthor().getUser().getId());
             if (!guild.hasUser(id)) return FixedMessage.build("You have not linked an osu account to yourself yet.");
         } else if (mentions.size() == 1) {
             id = Long.parseLong(mentions.get(0).getUser().getId());
@@ -36,7 +41,7 @@ public class Rank extends Command {
         int target = guild.getUser(id).getL_rank() - 1;
         ArrayList<String> nameList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
-            final String name = Bot.getUser(guild.getUsers().get(i).getDiscordId()).getName();
+            final String name = BotUtil.retrieveUser(guild.getUsers().get(i).getDiscordId()).getName();
             final String osuName = guild.getUsers().get(i).getOsuName();
             if (i != target) {
                 nameList.add(String.format("%d. %s : %s (%d)%n", i, name, osuName, guild.getScoreCount(osuName)));

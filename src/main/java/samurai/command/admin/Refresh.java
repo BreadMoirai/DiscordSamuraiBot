@@ -1,8 +1,8 @@
 package samurai.command.admin;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.Bot;
 import samurai.entities.base.SamuraiMessage;
 
 /**
@@ -12,10 +12,9 @@ import samurai.entities.base.SamuraiMessage;
 @Key("refresh")
 public class Refresh extends Command {
 
-
     @Override
-    protected SamuraiMessage buildMessage() {
-        Bot.refreshGuilds();
+    protected SamuraiMessage execute(CommandContext context) {
+        //Bot.refreshGuilds(); //todo
         return null;
     }
 }

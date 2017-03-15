@@ -1,7 +1,7 @@
 package samurai.entities.base;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.core.MessageManager;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.InputStream;
 
@@ -24,7 +24,8 @@ public class FileMessage extends SamuraiMessage {
     }
 
     @Override
-    public void onReady(MessageManager manager) {
-        manager.submit(channelId, data, fileName, message);
+    protected void onReady(TextChannel channel) {
+        channel.sendFile(data, fileName, message).queue();
     }
+
 }

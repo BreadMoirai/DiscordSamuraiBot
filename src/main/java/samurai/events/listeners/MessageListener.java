@@ -8,8 +8,8 @@ import samurai.events.GuildMessageEvent;
  * @version 4.x - 3/10/2017
  * @see GuildMessageEvent
  */
-public interface MessageListener {
+public interface MessageListener extends SamuraiListener {
 
-    void onMessageEvent(GuildMessageEvent event);
+    void onGuildMessageEvent(GuildMessageEvent event);
 
 }

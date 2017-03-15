@@ -1,6 +1,7 @@
 package samurai.command.util;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.entities.base.FileMessage;
@@ -17,7 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,9 +29,9 @@ import java.util.stream.Collectors;
 @Source
 public class Draw extends Command {
 
-
     @Override
-    protected SamuraiMessage buildMessage() {
+    public SamuraiMessage execute(CommandContext context) {
+        final java.util.List<String> args = context.getArgs();
         if (args.size() == 0) return null;
         if (args.get(0).equals("stack")) {
             ArrayList<Card> cards = new ArrayList<>(args.size() - 1);
@@ -48,7 +49,7 @@ public class Draw extends Command {
                 return FixedMessage.build("Failure to draw Stack.");
             }
             InputStream is = new ByteArrayInputStream(os.toByteArray());
-            return new FileMessage(channelId, is, cards.stream().map(Card::toString).collect(Collectors.joining()) + ".png", null);
+            return new FileMessage(context.getChannelId(), is, cards.stream().map(Card::toString).collect(Collectors.joining()) + ".png", null);
         }
         try {
             Card c;
@@ -56,13 +57,13 @@ public class Draw extends Command {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(CardFactory.drawCard(c), "jpg", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
-            return new FileMessage(channelId, is, c.toString() + ".png", null);
+            return new FileMessage(context.getChannelId(), is, c.toString() + ".png", null);
         } catch (ParseException ignored) {
         } catch (IOException e) {
             return FixedMessage.build("Failed to save and upload drawing");
         }
         try {
-            return new FileMessage(channelId, textToImage(args.get(0)), args.get(0) + ".png", null);
+            return new FileMessage(context.getChannelId(), textToImage(args.get(0)), args.get(0) + ".png", null);
         } catch (IOException e) {
             e.printStackTrace();
         }

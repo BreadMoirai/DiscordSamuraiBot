@@ -1,6 +1,7 @@
 package samurai.command.util;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.entities.base.FixedMessage;
@@ -15,12 +16,13 @@ import java.util.ArrayList;
 @Key("tolist")
 @Source
 public class ToList extends Command {
+
     @Override
-    protected SamuraiMessage buildMessage() {
-        if (args.isEmpty()) return FixedMessage.build("No arguments found");
+    public SamuraiMessage execute(CommandContext context) {
+        if (context.getArgs().isEmpty()) return FixedMessage.build("No arguments found");
         else {
             ArrayList<String> list = new ArrayList<>();
-            for (String s : args) {
+            for (String s : context.getArgs()) {
                 list.add("\"" + s + "\"");
             }
             return FixedMessage.build("``` \n" + list.toString() + "\n```");

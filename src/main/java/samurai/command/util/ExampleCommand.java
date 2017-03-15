@@ -3,12 +3,15 @@ package samurai.command.util;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.command.general.Invite;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
 import samurai.entities.dynamic.ExampleMessage;
+
+import java.util.List;
 
 /**
  * This class defines guidelines to creating a new command
@@ -33,7 +36,8 @@ public class ExampleCommand extends Command {
      * @see ExampleMessage an example for dynamic messages
      */
     @Override
-    protected SamuraiMessage buildMessage() {
+    public SamuraiMessage execute(CommandContext context) {
+        final List<String> args = context.getArgs();
         if (args.contains("simple"))
             //returns a simple text entities
             //use FixedMessage.build("success"); if you just want to acknowledge the user.
@@ -45,7 +49,7 @@ public class ExampleCommand extends Command {
         else
             //builds a fixed entities with all the params
             //see below
-            return buildFixedMessage();
+            return buildFixedMessage(context);
 
     }
 
@@ -55,26 +59,26 @@ public class ExampleCommand extends Command {
      *
      * @see FixedMessage
      */
-    private FixedMessage buildFixedMessage() {
+    private FixedMessage buildFixedMessage(CommandContext context) {
         FixedMessage samuraiMessage = new FixedMessage();
         //In order to build your entities, you want to use a MessageBuilder
         MessageBuilder mb = new MessageBuilder();
         mb.append("This is a FixedMessage.\n");
         mb.append("```\n");
         //This Action object has several fields that you can access
-        mb.append(String.format("%-10s| %s%n", "author", this.author.getUser().getName()))
-                .append(String.format("%-10s| %s%n", "channelId", this.channelId));
+        mb.append(String.format("%-10s| %s%n", "author", context.getAuthor().getUser().getName()))
+                .append(String.format("%-10s| %s%n", "channelId", context.getChannelId()));
         //get the mentions
-        if (!mentions.isEmpty()) {
+        if (!context.getMentions().isEmpty()) {
             int i = 0;
             mb.append(String.format("%-10s| %s%n", "mentions", "----"));
-            for (Member u : mentions) mb.append(String.format("%8s. | %s%n", i++ + 1, u.getEffectiveName()));
+            for (Member u : context.getMentions()) mb.append(String.format("%8s. | %s%n", i++ + 1, u.getEffectiveName()));
         }
         //get the args
-        if (!args.isEmpty()) {
+        if (!context.getArgs().isEmpty()) {
             int i = 0;
             mb.append(String.format("%-10s| %s%n", "arguments", "----"));
-            for (String arg : args) mb.append(String.format("%8s. | %s%n", i++ + 1, arg.replace("\n", "[\\n]")));
+            for (String arg : context.getArgs()) mb.append(String.format("%8s. | %s%n", i++ + 1, arg.replace("\n", "[\\n]")));
         }
         mb.append("```");
         //Now that you have a message built, simply add it to the FixedMessage

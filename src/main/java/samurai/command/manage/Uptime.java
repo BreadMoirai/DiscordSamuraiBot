@@ -2,6 +2,7 @@ package samurai.command.manage;
 
 import samurai.Bot;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
@@ -15,7 +16,7 @@ import samurai.entities.base.SamuraiMessage;
 public class Uptime extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
         long timeDifference = System.currentTimeMillis() - Bot.START_TIME;
         int seconds = (int) ((timeDifference / 1000) % 60);
         int minutes = (int) ((timeDifference / 60000) % 60);

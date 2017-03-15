@@ -1,6 +1,7 @@
 package samurai.command.general;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.entities.base.SamuraiMessage;
 import samurai.entities.dynamic.black_jack.BlackJack;
@@ -11,8 +12,9 @@ import samurai.entities.dynamic.black_jack.BlackJack;
  */
 @Key({"casino", "blackjack", "bj"})
 public class Casino extends Command {
+
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
         return new BlackJack();
     }
 }

@@ -39,9 +39,10 @@
     </properties>
   </component>
   <component name="EntryPointsManager">
-    <list size="2">
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="samurai.annotations.Key" />
-      <item index="1" class="java.lang.String" itemvalue="samurai.core.command.annotations.Key" />
+      <item index="1" class="java.lang.String" itemvalue="samurai.command.annotations.Key" />
+      <item index="2" class="java.lang.String" itemvalue="samurai.core.command.annotations.Key" />
     </list>
   </component>
   <component name="JavadocGenerationManager">

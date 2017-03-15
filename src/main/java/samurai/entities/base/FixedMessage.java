@@ -3,7 +3,7 @@ package samurai.entities.base;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import samurai.core.MessageManager;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.function.Consumer;
 
@@ -43,7 +43,7 @@ public class FixedMessage extends SamuraiMessage {
     }
 
     @Override
-    public void onReady(MessageManager manager) {
-        manager.submit(getChannelId(), getMessage(), getConsumer());
+    protected void onReady(TextChannel channel) {
+        channel.sendMessage(message).queue(consumer);
     }
 }

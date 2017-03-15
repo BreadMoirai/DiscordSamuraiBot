@@ -14,7 +14,7 @@ public class MessageFactory {
     public static Message build(Score s) {
         final MessageBuilder messageBuilder = new MessageBuilder();
         final EmbedBuilder embedBuilder = new EmbedBuilder();
-        EmbedBuilder
+        return null;
     }
 
 }

@@ -1,17 +1,14 @@
 package samurai.command;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import org.reflections.Reflections;
-import samurai.Bot;
 import samurai.command.annotations.Key;
 
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -19,14 +16,12 @@ import java.util.regex.Pattern;
  */
 public class CommandFactory {
 
-    private static final Pattern argPattern;
+    private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-    private static final HashMap<String, Class<? extends Command>> actionMap;
+    private static final HashMap<String, Class<? extends Command>> actionMap = new HashMap<>();
 
-    static {
-        argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-        actionMap = new HashMap<>();
-        Reflections reflections = new Reflections("samurai.core.command");
+    public static void initialize() {
+        Reflections reflections = new Reflections("samurai.command");
         Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
         for (Class<? extends Command> action : classes) {
             Key actionKey = action.getAnnotation(Key.class);
@@ -46,11 +41,11 @@ public class CommandFactory {
     }
 
     private static Command newAction(String key) {
-        if (!actionMap.containsKey(key)) return new GenericCommand().setKey(key);
+        if (!actionMap.containsKey(key)) return new GenericCommand();
         try {
             return actionMap.get(key).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            Bot.logError(e);
+            //todo
             return null;
         }
     }
@@ -59,7 +54,7 @@ public class CommandFactory {
         return actionMap.keySet();
     }
 
-    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments, OffsetDateTime time) {
+    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
@@ -79,29 +74,16 @@ public class CommandFactory {
         Command command = CommandFactory.newAction(key);
         if (command == null) return null;
 
-        List<String> args = parseArgs(content);
+        command.setContext(new CommandContext(key, author, mentions, content, attachments, guildId, channelId, messageId, channel, time));
 
-        command.setArgs(args)
-                .setAuthor(author)
-                .setGuildId(guildId)
-                .setChannelId(channelId)
-                .setMessageId(messageId)
-                .setMentions(mentions)
-                .setAttaches(attachments)
-                .setTime(time);
         //System.out.println("New Command: " + command.getClass().getSimpleName());
         return command;
     }
 
-    private static List<String> parseArgs(String content) {
-        List<String> args = new ArrayList<>();
+    static List<String> parseArgs(String content) {
         if (content != null && !content.equals("")) {
-            String[] argArray = argPattern.split(content.replace('`', '\"'));
-            for (String argument : argArray)
-                if (!argument.startsWith("<@") && !argument.equals("@everyone") && !argument.equals("@here") && argument.length() != 0)
-                    args.add(argument.replace("\"", "").trim());
-        }
-        return args;
+            return Arrays.stream(argPattern.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("everyone") && !s.equals("@here")).map(s -> s.replace("\"", "")).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+        } else return Collections.emptyList();
     }
 
     public static Command build(GenericGuildMessageEvent event, String prefix) {
@@ -121,7 +103,7 @@ public class CommandFactory {
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
-        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments, time);
+        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments, event.getChannel(), time);
     }
 }
 

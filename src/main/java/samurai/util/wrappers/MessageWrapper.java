@@ -1,0 +1,87 @@
+package samurai.util.wrappers;
+
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.User;
+import samurai.events.ReactionEvent;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Consumer;
+
+/**
+ * @author TonTL
+ * @version 3/14/2017
+ */
+public class MessageWrapper {
+
+
+    private final Message message;
+
+    MessageWrapper(Message message) {
+        this.message = message;
+    }
+
+
+    public void editMessage(String s) {
+        message.editMessage(s).queue(null, null);
+    }
+
+
+    public void editMessage(MessageEmbed messageEmbed) {
+        message.editMessage(messageEmbed).queue(null, null);
+    }
+
+
+    public void editMessage(Message message) {
+        this.message.editMessage(message).queue(null, null);
+    }
+
+    public void appendMessage(String s) {
+        message.editMessage(message.getContent() + s).queue(null, null);
+    }
+
+
+    public void delete() {
+        message.delete().queue(null, null);
+    }
+
+    public void addReaction(String... s) {
+        for (String value : s) {
+            message.addReaction(value).queue(null ,null);
+        }
+    }
+
+    public void addReaction(Collection<String> s) {
+        s.stream().map(message::addReaction).forEach((voidRestAction) -> voidRestAction.queue(null, null));
+    }
+
+    public void addReaction(Collection<String> s, Consumer<Void> consumer) {
+        final Iterator<String> iterator = s.iterator();
+        int i = 0;
+        while (i++ != s.size()-2) {
+            message.addReaction(iterator.next()).queue(null ,null);
+        }
+        message.addReaction(iterator.next()).queue(consumer, null);
+    }
+
+
+    public void clearReactions() {
+        message.clearReactions().queue(null, null);
+    }
+
+    public void removeReaction(ReactionEvent event) {
+        removeReaction(event.getUser(), event.getName());
+    }
+
+    public void removeReaction(User u, String reactionName) {
+        message.getReactions().stream().filter(messageReaction -> messageReaction.getEmote().getName().equalsIgnoreCase(reactionName)).findFirst().ifPresent(messageReaction -> messageReaction.removeReaction(u).queue(null ,null));
+    }
+
+    public void editMessage(Message message, Consumer<Message> consumer) {
+        this.message.editMessage(message).queue(consumer, null);
+    }
+    public void editMessage(String message, Consumer<Message> consumer) {
+        this.message.editMessage(message).queue(consumer, null);
+    }
+}

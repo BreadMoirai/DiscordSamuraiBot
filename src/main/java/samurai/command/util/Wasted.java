@@ -1,12 +1,14 @@
 package samurai.command.util;
 
+import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
+import samurai.data.SamuraiStore;
 import samurai.entities.base.FileMessage;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
-import samurai.data.SamuraiStore;
 import samurai.util.GifGenerator;
 import samurai.util.ImageUtils;
 
@@ -20,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 /**
  * @author TonTL
@@ -30,7 +33,9 @@ import java.net.URLConnection;
 public class Wasted extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
+        final java.util.List<Member> mentions = context.getMentions();
+        final List<String> args = context.getArgs();
         if (mentions.size() != 1) return null;
         String targetUrl = mentions.get(0).getUser().getEffectiveAvatarUrl();
         try {
@@ -41,7 +46,7 @@ public class Wasted extends Command {
             boolean grey = args.contains("grey") || args.contains("gs");
             InputStream is = generateImage(new URL(targetUrl), spin, rave, grey);
             if (is == null) return FixedMessage.build("Failure");
-            return new FileMessage(channelId, is, "_" + mentions.get(0).getEffectiveName() + "_" + (spin ? 'S' : "") + (rave ? 'R' : "") + (grey ? 'G' : "") + ".png", null);
+            return new FileMessage(context.getChannelId(), is, "_" + mentions.get(0).getEffectiveName() + "_" + (spin ? 'S' : "") + (rave ? 'R' : "") + (grey ? 'G' : "") + ".png", null);
         } catch (MalformedURLException e) {
             return FixedMessage.build("Invalid Profile Picture. I cannot work with gifs yet");
         }
@@ -81,9 +86,9 @@ public class Wasted extends Command {
             return new ByteArrayInputStream(os.toByteArray());
         }
 
-        GifGenerator gg = new GifGenerator(avatarBI, wastedBI, String.valueOf((System.currentTimeMillis() - messageId)).substring(10) + ".gif");
+        GifGenerator gg = new GifGenerator(avatarBI, wastedBI, String.valueOf((System.currentTimeMillis() - getContext().getMessageId())).substring(10) + ".gif");
         int frames = 60;
-        for (String s : args) {
+        for (String s : getContext().getArgs()) {
             if (s.contains("frame") || s.contains("f:")) {
                 String sc = s.substring(s.indexOf(':') + 1);
                 try {

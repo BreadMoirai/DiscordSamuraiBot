@@ -1,5 +1,6 @@
 package samurai.events;
 
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.time.OffsetDateTime;
@@ -12,8 +13,10 @@ import java.time.OffsetDateTime;
 public class ReactionEvent extends SamuraiEvent {
 
     private String name;
+    private User user;
 
     public ReactionEvent(MessageReactionAddEvent event) {
+        user = event.getUser();
         setTime(OffsetDateTime.now());
         setChannelId(Long.parseLong(event.getChannel().getId()));
         setMessageId(Long.parseLong(event.getMessageId()));
@@ -27,5 +30,9 @@ public class ReactionEvent extends SamuraiEvent {
 
     private void setName(String name) {
         this.name = name;
+    }
+
+    public User getUser() {
+        return user;
     }
 }

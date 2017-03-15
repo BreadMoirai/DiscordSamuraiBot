@@ -2,6 +2,7 @@ package samurai.command.admin;
 
 import samurai.Bot;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
@@ -19,7 +20,7 @@ import samurai.data.SamuraiDatabase;
 public class Shutdown extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    public SamuraiMessage execute(CommandContext context) {
         SamuraiDatabase.write();
         Bot.stop();
         return FixedMessage.build("See ya later, loser.");

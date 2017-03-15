@@ -1,10 +1,13 @@
 package samurai.command.util;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
 import samurai.command.annotations.Key;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
+
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -12,11 +15,9 @@ import samurai.entities.base.SamuraiMessage;
  */
 @Key({"cmdall", "cmdlist"})
 public class CommandList extends Command {
+
     @Override
-    protected SamuraiMessage buildMessage() {
-        StringBuilder sb = new StringBuilder().append("```");
-        CommandFactory.keySet().forEach(s -> sb.append(s).append(' '));
-        sb.append("```");
-        return FixedMessage.build(sb.toString());
+    protected SamuraiMessage execute(CommandContext context) {
+        return FixedMessage.build(CommandFactory.keySet().stream().collect(Collectors.joining(" ", "```", "```")));
     }
 }

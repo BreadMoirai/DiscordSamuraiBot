@@ -9,7 +9,7 @@ import samurai.events.PrivateMessageEvent;
  * @version 4.x - 3/10/2017
  * @see PrivateMessageEvent
  */
-public interface PrivateListener {
+public interface PrivateListener extends SamuraiListener {
 
     void onPrivateMessageEvent(PrivateMessageEvent event);
 }

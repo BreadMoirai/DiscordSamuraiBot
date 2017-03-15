@@ -1,16 +1,20 @@
 package samurai.command.osu;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import org.json.JSONObject;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.data.SamuraiGuild;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
-import samurai.util.OsuAPI;
 import samurai.osu.enums.Grade;
+import samurai.util.OsuAPI;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  * @author TonTL
@@ -21,9 +25,13 @@ import java.time.OffsetDateTime;
 public class Profile extends Command {
 
     @Override
-    public SamuraiMessage buildMessage() {
+    public SamuraiMessage execute(CommandContext context) {
         JSONObject profile;
-        if (args.size() == 0 && mentions.size() == 0) {
+        java.util.List<Member> mentions = context.getMentions();
+        Member author = context.getAuthor();
+        SamuraiGuild guild = context.getGuild();
+        List<String> args = context.getArgs();
+        if (context.getArgs().size() == 0 && mentions.size() == 0) {
             long authorId = Long.parseLong(author.getUser().getId());
             if (guild.hasUser(authorId)) {
                 profile = OsuAPI.getUserJSON(String.valueOf(guild.getUser(authorId).getOsuId()));

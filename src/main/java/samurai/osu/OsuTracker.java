@@ -1,8 +1,8 @@
 package samurai.osu;
 
-import samurai.Bot;
 import samurai.data.SamuraiUser;
 import samurai.osu.enums.GameMode;
+import samurai.util.BotUtil;
 import samurai.util.OsuAPI;
 
 import java.util.List;
@@ -33,19 +33,20 @@ public class OsuTracker {
     }
 
     private List<Score> getRecentScore(SamuraiUser user) {
-        final List<Score> userRecent = OsuAPI.getUserRecent(user.getOsuName(), user.getOsuId(), GameMode.OSU, 10);
+        return OsuAPI.getUserRecent(user.getOsuName(), user.getOsuId(), GameMode.OSU, 10);
+
     }
 
     public void register(List<SamuraiUser> u) {
         if (u.isEmpty()) return;
         u.forEach(tracking::add);
-        Bot.getUser(u.get(0).getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I got you in my sights.").queue());
+        BotUtil.retrieveUser(u.get(0).getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I've got you in my sights.").queue());
     }
 
     public void unregister(List<SamuraiUser> u) {
         if (u.isEmpty()) return;
         u.forEach(tracking::remove);
-        Bot.getUser(u.get(0).getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I sense a weakness in you.").queue());
+        BotUtil.retrieveUser(u.get(0).getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I sense a weakness in you.").queue());
     }
 
 

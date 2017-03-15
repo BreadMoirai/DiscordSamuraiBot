@@ -1,10 +1,13 @@
 package samurai.command.manage;
 
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
+
+import java.util.List;
 
 /**
  * @author TonTL
@@ -15,10 +18,11 @@ import samurai.entities.base.SamuraiMessage;
 public class Prefix extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
-        if (args.size() != 1 || args.get(0).length() > 8)
-            return FixedMessage.build("Invalid Argument. The prefix must be between 1-8 characters in length. Spaces are not allowed.");
-        guild.setPrefix(args.get(0));
+    public SamuraiMessage execute(CommandContext context) {
+        final List<String> args = context.getArgs();
+        if (args.size() != 1)
+            return FixedMessage.build("Invalid Argument. Please provide a single word");
+        context.getGuild().setPrefix(args.get(0));
         return FixedMessage.build(String.format("Prefix successfully set to `%s`", args.get(0)));
     }
 }

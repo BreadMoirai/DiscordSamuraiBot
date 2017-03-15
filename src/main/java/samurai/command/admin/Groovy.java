@@ -8,13 +8,14 @@ import org.apache.commons.codec.binary.Hex;
 import org.codehaus.groovy.control.CompilationFailedException;
 import samurai.Bot;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.entities.base.FixedMessage;
-import samurai.entities.base.SamuraiMessage;
 import samurai.data.SamuraiDatabase;
 import samurai.data.SamuraiStore;
+import samurai.entities.base.FixedMessage;
+import samurai.entities.base.SamuraiMessage;
 
 import java.util.Map;
 import java.util.Set;
@@ -50,13 +51,14 @@ public class Groovy extends Command {
     }
 
     @Override
-    protected SamuraiMessage buildMessage() {
-        if (args.size() != 1) return FixedMessage.build("Invalid Argument Length: " + args.size());
-        binding.setVariable("messageId", Long.toString(messageId));
-        binding.setVariable("guildId", Long.toString(guildId));
-        binding.setVariable("channelId", Long.toString(channelId));
-        binding.setVariable("sg", guild);
-        if (args.size() == 1 && args.get(0).equalsIgnoreCase("bindings")) {
+    protected SamuraiMessage execute(CommandContext context) {
+        final String content = context.getContent();
+        if (content.length() <= 1) return null;
+        binding.setVariable("messageId", Long.toString(context.getMessageId()));
+        binding.setVariable("guildId", Long.toString(context.getGuildId()));
+        binding.setVariable("channelId", Long.toString(context.getChannelId()));
+        binding.setVariable("sg", context.getGuild());
+        if (content.contains("binding")) {
             final Set set = binding.getVariables().entrySet();
             //noinspection unchecked
             return FixedMessage.build("|" + ((Set<Map.Entry<String, Object>>) set).stream().map(stringObjectEntry -> stringObjectEntry.getKey() + "=" + stringObjectEntry.getValue().getClass().getSimpleName() + "|").collect(Collectors.joining()));
@@ -64,11 +66,11 @@ public class Groovy extends Command {
         }
 
         try {
-            Object result = gs.evaluate(args.get(0));
+            Object result = gs.evaluate(content);
             if (result != null) {
                 if (result instanceof byte[]) {
                     if (((byte[]) result).length == 0) {
-                        return FixedMessage.build("Empty Array");
+                        return FixedMessage.build("Empty byte array");
                     }
                     return FixedMessage.build(Hex.encodeHexString((byte[]) result));
                 }

@@ -2,7 +2,6 @@ package samurai.data;
 
 import org.apache.commons.collections4.MapUtils;
 import org.json.JSONArray;
-import samurai.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.util.OsuAPI;
 
@@ -112,7 +111,7 @@ public class SamuraiDatabase {
         try {
             bufferQueue.forEach(buf -> data.put(buf.array()));
         } catch (BufferOverflowException e) {
-            Bot.logError(e);
+            //Bot.logError(e);
         }
         return data.array();
     }
@@ -132,7 +131,7 @@ public class SamuraiDatabase {
                 }
             }
         } catch (BufferUnderflowException e) {
-            Bot.logError(e);
+            //Bot.logError(e);
             return false;
         }
         return true;

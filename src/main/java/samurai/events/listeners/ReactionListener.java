@@ -9,6 +9,6 @@ import samurai.events.ReactionEvent;
  * @version 4.x - 3/10/2017
  * @see ReactionEvent
  */
-public interface ReactionListener {
+public interface ReactionListener extends SamuraiListener {
     void onReaction(ReactionEvent event);
 }

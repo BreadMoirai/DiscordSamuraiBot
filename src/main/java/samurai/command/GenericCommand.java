@@ -8,19 +8,8 @@ import samurai.entities.base.SamuraiMessage;
  */
 public class GenericCommand extends Command {
 
-    private String key;
-
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
         return null;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    GenericCommand setKey(String key) {
-        this.key = key;
-        return this;
     }
 }

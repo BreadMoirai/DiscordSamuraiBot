@@ -2,6 +2,7 @@ package samurai.entities.dynamic;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import samurai.command.GenericCommand;
 import samurai.command.util.ExampleCommand;
@@ -12,6 +13,8 @@ import samurai.events.listeners.GenericCommandListener;
 import samurai.events.listeners.MessageListener;
 import samurai.events.listeners.ReactionListener;
 import samurai.util.CircularlyLinkedList;
+import samurai.util.wrappers.MessageWrapper;
+import samurai.util.wrappers.SamuraiWrapper;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,21 +36,20 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     // should probably have one of these, a list of discord emojis;
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("\uD83D\uDD04", "\uD83D\uDD12"));
     private CircularlyLinkedList<TemplateState> states;
+    private MessageWrapper message;
 
     //this is fired when this object is ready to send and receive events
     @Override
-    protected void onReady() {
+    protected void onReady(TextChannel channel) {
         //step 1. Build a message
         MessageBuilder mb = new MessageBuilder();
         //add some text
         mb.append("This is a dynamic message");
         //let's build it
         Message m = mb.build();
-        //now if we just want to send it back out we can use this.submitNewMessage(m);
-
-        //what if we want to send a message and add reactions?
-        //we will need a success consumer. the success consumer is a lambda that activates after the message is sent with the message as it's argument
-        submitNewMessage(m, newMenu(REACTIONS));
+        //now we want to send it out and store the message as a field.
+        //we can wrap it with my custom wrapper or you can use as is. No difference.
+        channel.sendMessage(m).queue(message -> this.message = SamuraiWrapper.wrap(message));
         //with that the message will be sent and then the reactions will be attached.
 
         //in order to control the behavior of this let's implement a state pattern
@@ -69,12 +71,12 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
             states.advance();
             if (states.current() instanceof AppendState) ((AppendState) states.current()).clear();
             //and remove the reaction so the user can place another reaction if wanted
-            removeReaction(event);
+            message.removeReaction(event);
         }
         //else if we get the lock reaction
         else if (event.getName().equals(REACTIONS.get(1))) {
             //we'll unregister ourselves and thus no longer listen to any events;
-            clearReactions();
+            message.clearReactions();
             unregister();
             //all references to this class should be lost at this point
         }
@@ -82,9 +84,9 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
 
 
     @Override
-    public void onMessageEvent(GuildMessageEvent event) {
+    public void onGuildMessageEvent(GuildMessageEvent event) {
         //here we'll just delegate our behavior to our state
-        states.current().onMessageEvent(event);
+        states.current().onGuildMessageEvent(event);
     }
 
     @Override
@@ -102,14 +104,14 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     private class CopyState extends TemplateState {
 
         @Override
-        public void onMessageEvent(GuildMessageEvent event) {
-            updateMessage("**CopyState**\n" + event.getMessage().getContent());
+        public void onGuildMessageEvent(GuildMessageEvent event) {
+            message.editMessage("**CopyState**\n" + event.getMessage().getContent());
         }
 
         @Override
         public void onCommand(GenericCommand command) {
-            clearReactions();
-            submitNewMessage("**CopyState**\n" + "Key: " + command.getKey(), newMenu(REACTIONS));
+            message.clearReactions();
+            message.editMessage("**CopyState**\n" + "Key: " + command.getContext().getKey(), newMenu(REACTIONS));
         }
     }
 
@@ -117,16 +119,15 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     private class ReverseState extends TemplateState {
 
         @Override
-        public void onMessageEvent(GuildMessageEvent event) {
-            updateMessage("**ReverseState**\n" + StringUtils.reverse(event.getMessage().getRawContent()));
+        public void onGuildMessageEvent(GuildMessageEvent event) {
+            message.editMessage("**ReverseState**\n" + StringUtils.reverse(event.getMessage().getRawContent()));
         }
 
         @Override
         public void onCommand(GenericCommand command) {
             StringBuilder sb = new StringBuilder().append("**ReverseState**\n");
-            command.getArgs().forEach(s -> sb.insert(0, ' ').insert(0, s));
-            clearReactions();
-            submitNewMessage(sb.toString(), newMenu(REACTIONS));
+            command.getContext().getArgs().forEach(s -> sb.insert(0, ' ').insert(0, s));
+            message.editMessage(sb.toString());
         }
     }
 
@@ -136,21 +137,21 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
         private StringBuilder sb = new StringBuilder();
 
         @Override
-        public void onMessageEvent(GuildMessageEvent event) {
+        public void onGuildMessageEvent(GuildMessageEvent event) {
             sb.append(event.getMessage().getContent()).append("\n");
-            updateMessage(sb.toString());
+            message.editMessage(sb.toString());
         }
 
         @Override
         public void onCommand(GenericCommand command) {
-            sb.append("`").append(command.getKey());
-            for (String s : command.getArgs())
+            sb.append("`").append(command.getContext().getKey());
+            for (String s : command.getContext().getArgs())
                 sb.append(' ').append(s);
             sb.append('`').append('\n');
-            submitNewMessageAndDeleteCurrent(sb.toString(), newMenu(REACTIONS));
+            message.editMessage(sb.toString(), newMenu(REACTIONS));
         }
 
-        public void clear() {
+        void clear() {
             sb = new StringBuilder().append("**AppendState**\n");
         }
     }

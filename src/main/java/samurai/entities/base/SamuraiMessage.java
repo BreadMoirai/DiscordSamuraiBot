@@ -1,6 +1,6 @@
 package samurai.entities.base;
 
-import samurai.core.MessageManager;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 /**
  * @author TonTL
@@ -10,6 +10,7 @@ public abstract class SamuraiMessage {
 
 
     private long channelId;
+    private TextChannel channel;
 
     /**
      * This is the method that retrieves the entities to be sent/updated to.
@@ -25,6 +26,17 @@ public abstract class SamuraiMessage {
         this.channelId = channelId;
     }
 
-    public abstract void onReady(MessageManager manager);
+    public void onReady() {
+        onReady(channel);
+    }
 
+    protected abstract void onReady(TextChannel channel);
+
+    public void setChannel(TextChannel channel) {
+        this.channel = channel;
+    }
+
+    public TextChannel getChannel() {
+        return channel;
+    }
 }

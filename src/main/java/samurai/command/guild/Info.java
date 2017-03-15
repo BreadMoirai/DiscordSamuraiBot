@@ -4,12 +4,15 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.Bot;
 import samurai.command.Command;
+import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.data.SamuraiGuild;
 import samurai.entities.base.FixedMessage;
 import samurai.entities.base.SamuraiMessage;
 import samurai.data.SamuraiUser;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 /**
  * @author TonTL
@@ -19,12 +22,14 @@ import java.time.OffsetDateTime;
 public class Info extends Command {
 
     @Override
-    protected SamuraiMessage buildMessage() {
+    protected SamuraiMessage execute(CommandContext context) {
+        final List<Member> mentions = context.getMentions();
+        final SamuraiGuild guild = context.getGuild();
         Member userD;
         if (mentions.size() == 0) {
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor("Info", null, null)
-                    .setColor(author.getColor())
+                    .setColor(context.getAuthor().getColor())
                     .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Score Count:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount()))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());

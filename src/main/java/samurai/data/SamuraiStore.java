@@ -1,7 +1,6 @@
 package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.Bot;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
@@ -43,9 +42,9 @@ public class SamuraiStore {
                 new BufferedOutputStream(
                         new FileOutputStream(outFile)))) {
             out.writeObject(set);
-            Bot.log("Write Set " + set.getSetId());
+            //todo Bot.log("Write Set " + set.getSetId());
         } catch (IOException e) {
-            Bot.log("Could not write beatmap set: " + set.getSetId());
+            //todo Bot.log("Could not write beatmap set: " + set.getSetId());
         }
     }
 
@@ -55,10 +54,10 @@ public class SamuraiStore {
         try (ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(
                         new FileInputStream(inFile)))) {
-            Bot.log("Read Set " + setId);
+            //todo Bot.log("Read Set " + setId);
             return (BeatmapSet) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            Bot.log("Could not read beatmap set: " + setId);
+            //todo Bot.log("Could not read beatmap set: " + setId);
             return null;
         }
     }
@@ -77,7 +76,7 @@ public class SamuraiStore {
         try {
             Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
         } catch (URISyntaxException | IOException e) {
-            Bot.logError(e);
+            //todo Bot.logError(e);
         }
         return sb.toString();
     }
@@ -95,18 +94,18 @@ public class SamuraiStore {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(getGuildDataPath(g.getGuildId())))) {
             outputStream.writeObject(g);
         } catch (IOException e) {
-            Bot.logError(e);
+            //todo Bot.logError(e);
         }
-        Bot.log("☑ GuildWrite - " + g.getGuildId());
+        //todo Bot.log("☑ GuildWrite - " + g.getGuildId());
     }
 
     public static SamuraiGuild readGuild(long guildId) {
         try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
             SamuraiGuild g = (SamuraiGuild) input.readObject();
-            if (g != null) Bot.log("✅ GuildRead - " + g.getGuildId());
+            if (g != null) {}//todo Bot.log("✅ GuildRead - " + g.getGuildId());
             return g;
         } catch (IOException | ClassNotFoundException e) {
-            Bot.logError(e);
+            //todo Bot.logError(e);
             return null;
         }
     }
@@ -153,7 +152,7 @@ public class SamuraiStore {
             System.out.printf("%d scores written to %s%n", scoreCount, getScoreDataPath(guildId).substring(20));
             return true;
         } catch (IOException e) {
-            Bot.logError(e);
+            //Bot.logError(e);
             return false;
         }
     }
@@ -180,13 +179,13 @@ public class SamuraiStore {
                 }
                 beatmapScores.put(hash, scoreList);
             }
-            Bot.log("Scores successfully read from " + path.substring(path.indexOf("data")));
+            //Bot.log("Scores successfully read from " + path.substring(path.indexOf("data")));
             return beatmapScores;
         } catch (FileNotFoundException e) {
-            Bot.log("No Score File Found for ." + path.substring(path.length() - 28));
+            //Bot.log("No Score File Found for ." + path.substring(path.length() - 28));
             return null;
         } catch (IOException e) {
-            Bot.logError(e);
+            //Bot.logError(e);
             return null;
         }
     }

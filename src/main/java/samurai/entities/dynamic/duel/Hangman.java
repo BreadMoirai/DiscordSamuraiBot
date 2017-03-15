@@ -2,6 +2,7 @@
 package samurai.entities.dynamic.duel;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import samurai.entities.base.DynamicMessage;
 
@@ -25,7 +26,7 @@ class Hangman extends DynamicMessage {
     }
 
     @Override
-    protected void onReady() {
+    protected void onReady(TextChannel channel) {
 
     }
 }
