@@ -27,10 +27,10 @@ import java.util.Optional;
  */
 public class SamuraiDiscord implements CommandListener, ReactionListener, MessageListener, PrivateListener {
 
+    private final int shardId;
     private JDA client;
     private GuildManager guildManager;
     private MessageManager messageManager;
-    private final int shardId;
 
     SamuraiDiscord(JDABuilder jdaBuilder) {
         try {
@@ -56,11 +56,6 @@ public class SamuraiDiscord implements CommandListener, ReactionListener, Messag
         return guildManager.getPrefix(guildId);
     }
 
-    public void onMessage(SamuraiMessage samuraiMessage) {
-
-    }
-
-
     @Override
     public void onCommand(Command c) {
         completeContext(c.getContext());
@@ -68,6 +63,7 @@ public class SamuraiDiscord implements CommandListener, ReactionListener, Messag
         if (!messageOptional.isPresent()) return;
 
         messageManager.submit(messageOptional.get());
+        messageManager.onCommand(c);
     }
 
     private void completeContext(CommandContext context) {
@@ -77,26 +73,25 @@ public class SamuraiDiscord implements CommandListener, ReactionListener, Messag
 
     @Override
     public void onReaction(ReactionEvent event) {
-
+        messageManager.onReaction(event);
     }
 
     @Override
     public void onGuildMessageEvent(GuildMessageEvent event) {
-
+        messageManager.onGuildMessageEvent(event);
     }
 
     @Override
     public void onPrivateMessageEvent(PrivateMessageEvent event) {
-
+        messageManager.onPrivateMessageEvent(event);
     }
 
 
-    public void stop() {
-
-    }
-
-    public GuildManager getGuildManager() {
-        return guildManager;
+    public void shutdown() {
+        client.removeEventListener(client.getRegisteredListeners().toArray());
+        guildManager.shutdown();
+        messageManager.shutdown();
+        client.shutdown();
     }
 
     public JDA getClient() {return client;}

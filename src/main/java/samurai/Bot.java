@@ -72,7 +72,7 @@ public class Bot {
     public static void stop() {
         System.out.println("Shutting Down");
         for (SamuraiDiscord samurai : shards) {
-            samurai.stop();
+            samurai.shutdown();
         }
         System.out.println("Complete");
         try {

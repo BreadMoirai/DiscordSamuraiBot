@@ -42,13 +42,6 @@ public class GuildManager {
         }
     }
 
-    void shutdown() {
-        for (SamuraiGuild g : guildMap.values()) {
-            SamuraiStore.writeGuild(g);
-            SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
-        }
-    }
-
     void clearInactive() {
         guildMap.forEachValue(100L, guild -> {
             if (guild.isActive()) guild.setInactive();
@@ -68,5 +61,12 @@ public class GuildManager {
     public List<SamuraiUser> getUser(User user) {
         final long id = Long.parseLong(user.getId());
         return user.getMutualGuilds().stream().map(ISnowflake::getId).mapToLong(Long::parseLong).mapToObj(guildMap::get).filter(samuraiGuild -> samuraiGuild.hasUser(id)).map(samuraiGuild -> samuraiGuild.getUser(id)).collect(Collectors.toList());
+    }
+
+    public void shutdown() {
+        for (SamuraiGuild g : guildMap.values()) {
+            SamuraiStore.writeGuild(g);
+            SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
+        }
     }
 }
