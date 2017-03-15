@@ -16,29 +16,32 @@ import java.util.function.Consumer;
 public class MessageWrapper {
 
 
-    private final Message message;
+    private Message message;
 
     MessageWrapper(Message message) {
         this.message = message;
     }
 
+    private void setMessage(Message message) {
+        this.message = message;
+    }
 
     public void editMessage(String s) {
-        message.editMessage(s).queue(null, null);
+        message.editMessage(s).queue(this::setMessage, null);
     }
 
 
     public void editMessage(MessageEmbed messageEmbed) {
-        message.editMessage(messageEmbed).queue(null, null);
+        message.editMessage(messageEmbed).queue(this::setMessage, null);
     }
 
 
     public void editMessage(Message message) {
-        this.message.editMessage(message).queue(null, null);
+        this.message.editMessage(message).queue(this::setMessage, null);
     }
 
     public void appendMessage(String s) {
-        message.editMessage(message.getContent() + s).queue(null, null);
+        message.editMessage(message.getContent() + s).queue(this::setMessage, null);
     }
 
 
@@ -59,7 +62,7 @@ public class MessageWrapper {
     public void addReaction(Collection<String> s, Consumer<Void> consumer) {
         final Iterator<String> iterator = s.iterator();
         int i = 0;
-        while (i++ != s.size()-2) {
+        while (i++ != s.size()-1) {
             message.addReaction(iterator.next()).queue(null ,null);
         }
         message.addReaction(iterator.next()).queue(consumer, null);
@@ -75,7 +78,11 @@ public class MessageWrapper {
     }
 
     public void removeReaction(User u, String reactionName) {
-        message.getReactions().stream().filter(messageReaction -> messageReaction.getEmote().getName().equalsIgnoreCase(reactionName)).findFirst().ifPresent(messageReaction -> messageReaction.removeReaction(u).queue(null ,null));
+        message.getReactions();
+        message.getReactions()
+                .stream()
+                .filter(messageReaction -> messageReaction.getEmote().getName().equalsIgnoreCase(reactionName))
+                .findFirst().ifPresent(messageReaction -> messageReaction.removeReaction(u).queue(null ,null));
     }
 
     public void editMessage(Message message, Consumer<Message> consumer) {

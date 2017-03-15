@@ -1,6 +1,9 @@
 package samurai.entities.base;
 
 import net.dv8tion.jda.core.entities.TextChannel;
+import samurai.core.MessageManager;
+
+import java.time.OffsetDateTime;
 
 /**
  * @author TonTL
@@ -22,11 +25,7 @@ public abstract class SamuraiMessage {
         return channelId;
     }
 
-    public void setChannelId(long channelId) {
-        this.channelId = channelId;
-    }
-
-    public void onReady() {
+    public void onReady(MessageManager messageManager) {
         onReady(channel);
     }
 
@@ -34,6 +33,7 @@ public abstract class SamuraiMessage {
 
     public void setChannel(TextChannel channel) {
         this.channel = channel;
+        this.channelId = Long.parseLong(channel.getId());
     }
 
     public TextChannel getChannel() {

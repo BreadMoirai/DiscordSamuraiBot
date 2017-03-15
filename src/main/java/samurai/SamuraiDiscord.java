@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.command.Command;
 import samurai.command.CommandContext;
+import samurai.command.admin.Groovy;
 import samurai.core.GuildManager;
 import samurai.core.MessageManager;
 import samurai.entities.base.SamuraiMessage;
@@ -50,6 +51,11 @@ public class SamuraiDiscord implements CommandListener, ReactionListener, Messag
         client.getPresence().setGame(Game.of("Shard " + client.getShardInfo().getShardString()));
         guildManager = new GuildManager();
         messageManager = new MessageManager();
+        if (shardId == 0) {
+            Groovy.addBinding("gm", guildManager);
+            Groovy.addBinding("mm", messageManager);
+        }
+
     }
 
     public String getPrefix(long guildId) {

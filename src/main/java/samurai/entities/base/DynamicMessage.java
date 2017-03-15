@@ -34,6 +34,10 @@ public abstract class DynamicMessage extends SamuraiMessage {
         manager.unregister(this);
     }
 
+    protected void register() {
+        manager.register(this);
+    }
+
     public long getMessageId() {
         return messageId;
     }

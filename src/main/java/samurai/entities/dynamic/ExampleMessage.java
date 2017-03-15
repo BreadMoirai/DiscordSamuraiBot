@@ -49,7 +49,13 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
         Message m = mb.build();
         //now we want to send it out and store the message as a field.
         //we can wrap it with my custom wrapper or you can use as is. No difference.
-        channel.sendMessage(m).queue(message -> this.message = SamuraiWrapper.wrap(message));
+        channel.sendMessage(m).queue(message -> {
+            //it is very important to set the messageId so that this can receive events
+            this.setMessageId(Long.valueOf(message.getId()));
+            this.message = SamuraiWrapper.wrap(message);
+            this.message.addReaction(REACTIONS, aVoid -> register());
+        });
+
         //with that the message will be sent and then the reactions will be attached.
 
         //in order to control the behavior of this let's implement a state pattern
@@ -63,7 +69,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     public void onReaction(ReactionEvent event) {
         //first let's check if the event has the reaction we want
         if (!REACTIONS.contains(event.getName())) return;
-
+        message.removeReaction(event);
 
         //if we get a reaction circle arrows
         if (event.getName().equals(REACTIONS.get(0))) {

@@ -75,13 +75,15 @@ public class Groovy extends Command {
                     return FixedMessage.build(Hex.encodeHexString((byte[]) result));
                 }
                 return FixedMessage.build(result.toString());
-            } else return FixedMessage.build("Success.");
+            } else return FixedMessage.build("Null");
         } catch (CompilationFailedException e) {
             return FixedMessage.build("Compilation Failure.");
         } catch (MissingPropertyException e) {
             return FixedMessage.build("Missing Property Failure.");
         } catch (MissingMethodException e) {
             return FixedMessage.build("Missing Method Failure.");
+        } catch (NullPointerException e) {
+            return FixedMessage.build("Null Pointer Failure");
         }
     }
 

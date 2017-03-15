@@ -1,5 +1,6 @@
 package samurai.events;
 
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
@@ -14,6 +15,7 @@ public class ReactionEvent extends SamuraiEvent {
 
     private String name;
     private User user;
+    private Message message;
 
     public ReactionEvent(MessageReactionAddEvent event) {
         user = event.getUser();
@@ -34,5 +36,9 @@ public class ReactionEvent extends SamuraiEvent {
 
     public User getUser() {
         return user;
+    }
+
+    public Message getMessage() {
+        return message;
     }
 }

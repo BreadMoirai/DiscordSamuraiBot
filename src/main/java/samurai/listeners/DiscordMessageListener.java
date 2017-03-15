@@ -1,5 +1,6 @@
 package samurai.listeners;
 
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -18,7 +19,7 @@ import samurai.events.PrivateMessageEvent;
  */
 public class DiscordMessageListener extends ListenerAdapter {
 
-    SamuraiDiscord samurai;
+    private SamuraiDiscord samurai;
 
     public DiscordMessageListener(SamuraiDiscord samurai) {
         this.samurai = samurai;
@@ -26,6 +27,7 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
+        if (!isHuman(event.getAuthor())) return;
         samurai.onMessageDelete(Long.parseLong(event.getChannel().getId()), Long.parseLong(event.getMessageId()));
     }
 
@@ -41,21 +43,29 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        if (!isHuman(event.getAuthor())) return;
         samurai.onGuildMessageEvent(new GuildMessageEvent(event));
     }
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        if (!isHuman(event.getAuthor())) return;
         samurai.onGuildMessageEvent(new GuildMessageEvent(event));
     }
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        if (!isHuman(event.getAuthor())) return;
         samurai.onPrivateMessageEvent(new PrivateMessageEvent(event));
     }
 
     @Override
     public void onPrivateMessageUpdate(PrivateMessageUpdateEvent event) {
+        if (!isHuman(event.getAuthor())) return;
         samurai.onPrivateMessageEvent(new PrivateMessageEvent(event));
+    }
+
+    private boolean isHuman(User u) {
+        return !u.isBot() && !u.isFake();
     }
 }
