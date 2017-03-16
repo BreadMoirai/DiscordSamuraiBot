@@ -20,7 +20,7 @@ public abstract class Command {
 
     public Optional<SamuraiMessage> call() {
         Optional<SamuraiMessage> messageOptional = Optional.ofNullable(execute(context));
-        messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannel(context.getChannel()));
+        messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannelId(context.getChannelId()));
         return messageOptional;
     }
 

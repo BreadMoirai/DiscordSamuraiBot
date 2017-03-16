@@ -1,6 +1,6 @@
 package samurai.entities.dynamic.black_jack;
 
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.Message;
 import samurai.entities.base.DynamicMessage;
 
 /**
@@ -9,8 +9,14 @@ import samurai.entities.base.DynamicMessage;
  */
 public class BlackJack extends DynamicMessage {
 
+
     @Override
-    protected void onReady(TextChannel channel) {
+    protected Message initialize() {
+        return null;
+    }
+
+    @Override
+    protected void onReady(Message message) {
 
     }
 }

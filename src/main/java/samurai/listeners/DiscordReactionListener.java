@@ -3,7 +3,6 @@ package samurai.listeners;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.SamuraiDiscord;
-import samurai.events.ReactionEvent;
 
 /**
  * @author TonTL
@@ -11,7 +10,7 @@ import samurai.events.ReactionEvent;
  */
 public class DiscordReactionListener extends ListenerAdapter {
 
-    SamuraiDiscord samurai;
+    private final SamuraiDiscord samurai;
 
     public DiscordReactionListener(SamuraiDiscord samurai) {
         this.samurai = samurai;
@@ -20,8 +19,7 @@ public class DiscordReactionListener extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getUser().isBot()) {
-            final ReactionEvent r = new ReactionEvent(event);
-            samurai.onReaction(r);
+            samurai.getMessageManager().onReaction(event);
         }
     }
 }

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module relativePaths="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output/>
+    <orderEntry type="inheritedJdk"/>
+    <content url="file://$MODULE_DIR$/">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false"/>
+      <excludeFolder url="file://$MODULE_DIR$/.gradle"/>
+      <excludeFolder url="file://$MODULE_DIR$/build"/>
+    </content>
+    <orderEntry type="sourceFolder" forTests="false"/>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/2.4.8/31692f7da614d4e3828bd712555b2274eb3ee44a/groovy-2.4.8.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/2.4.8/837cc637051b28aedda14c08d68adac82298e3ae/groovy-2.4.8-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/2.4.8/6e9b9e2acb3139b0e984ee6128946c179c831d97/groovy-2.4.8-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.reflections/reflections/0.9.10/c7f4ea230aedc757ca1499ebcfb2953c81cf8b67/reflections-0.9.10.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.reflections/reflections/0.9.10/5787fbf43893c23777776a36127ab2a12bc6da4/reflections-0.9.10-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.reflections/reflections/0.9.10/606b8587dab0bf1776b896003f2a2fa0470bb105/reflections-0.9.10-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.typesafe/config/1.3.1/2cf7a6cc79732e3bdf1647d7404279900ca63eb0/config-1.3.1.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.typesafe/config/1.3.1/7eb54a3cc4613226ad94e8cd712e83c97b6c44f0/config-1.3.1-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.typesafe/config/1.3.1/a27878630ff503b63ed25ff2a25fa8ef888740b3/config-1.3.1-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_155/eb203bc350884784804a1c6052eb5bcd6dd69274/JDA-3.0.0_155.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_155/8c45168080f181b23fd84fe3cc3f00484f357e0d/JDA-3.0.0_155-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_155/fb04ca25ad1910e28a543b362c313c71002da1e7/JDA-3.0.0_155-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/cce0823396aa693798f8882e64213b1772032b09/guava-18.0.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/418be347c254422b51adee3cacb10e3f69e279ec/guava-18.0-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/ad97fe8faaf01a3d3faacecd58e8fa6e78a973ca/guava-18.0-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.18.2-GA/1180a90fbad732b60fb728a6bbe8fcb3151423d7/javassist-3.18.2-GA.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.18.2-GA/d0e676f1407a226f978018fee1418d4d50dabb64/javassist-3.18.2-GA-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.18.2-GA/7163084913aa7399e4ce2cbc3ee5c00ac2b1f35f/javassist-3.18.2-GA-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/2.0.1/9ef6656259841cebfb9fb0697bb122ada4485498/annotations-2.0.1.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES/>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.5/6c6c702c89bfff3cd9e80b04d668c5e190d588c6/commons-lang3-3.5.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.5/337310e98410d577aca675930bb46405a0a8fb0c/commons-lang3-3.5-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.5/f7d878153e86a1cdddf6b37850e00a9f8bff726f/commons-lang3-3.5-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.1/a4cf4688fe1c7e3a63aa636cc96d013af537768e/commons-collections4-4.1.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.1/4bb2e39f1eed190d997b8aefccc68d25b4e5af0a/commons-collections4-4.1-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.1/f305f3aa45a3b208c013ef92328f8f230329f20e/commons-collections4-4.1-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.json/json/20160810/aca5eb39e2a12fddd6c472b240afe9ebea3a6733/json-20160810.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.json/json/20160810/86b28952aebfea64a5528198df6a75172baa22f3/json-20160810-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.json/json/20160810/92f4b89bc0bb4c7c3f7b52724568a901b7e0195b/json-20160810-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/4.2.2/5012450aee579c3118ff09461d5ce210e0cdc2a9/jna-4.2.2.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/4.2.2/8cf693f684e2fbe132808bd67c476f47ce31a33e/jna-4.2.2-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/4.2.2/948a9338b46e83bc029a0c500f1de0fc6eea8900/jna-4.2.2-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.30/15bf9b7a6b93a04823641eab76587a983c81d764/nv-websocket-client-1.30.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.30/4f2dfa9d37269e0724f1aaf88834e69efee4310/nv-websocket-client-1.30-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.30/5be805b93041f248c7f00d2de6db267b25348bc8/nv-websocket-client-1.30-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.mashape.unirest/unirest-java/1.4.9/778cffcba803dc7d43932266aef4c91f5b6b4dd0/unirest-java-1.4.9.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.mashape.unirest/unirest-java/1.4.9/2f612969cccba6904fded377061f8dfc00deb170/unirest-java-1.4.9-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/com.mashape.unirest/unirest-java/1.4.9/fc3504b646ef187849da8caa2e4e9c1b962b5caf/unirest-java-1.4.9-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.2/733db77aa8d9b2d68015189df76ab06304406e50/httpclient-4.5.2.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.2/cde431ba6b9871fbd0abb65d740424c8e5b734b6/httpclient-4.5.2-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpclient/4.5.2/b9f9e3e5255b6ddc3bf21be05428c7a60d00e042/httpclient-4.5.2-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpasyncclient/4.1.1/dd624f5a0ff43eb5cdf828d9739d3177ee00a5a9/httpasyncclient-4.1.1.jar!/"/>
+        </CLASSES>
+        <JAVADOC/>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpasyncclient/4.1.1/548f9cae59a0d01571ac39f714f19682cb68c481/httpasyncclient-4.1.1-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpmime/4.5.2/22b4c53dd9b6761024258de8f9240c3dce6ea368/httpmime-4.5.2.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpmime/4.5.2/ac6e2d85df4048af97004a0ea120dd98685f0939/httpmime-4.5.2-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpmime/4.5.2/ca23fd61a082eab682fc0ffd29e37d09eab07180/httpmime-4.5.2-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.4/b31526a230871fbe285fbcbe2813f9c0839ae9b0/httpcore-4.4.4.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.4/1b4a6aa7a5d36816fe5a291b9d4aac4e22a1d54b/httpcore-4.4.4-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore/4.4.4/c5c19e3e6af6b452def290cde12a3ee4c35c893c/httpcore-4.4.4-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/4bfc12adfe4842bf07b657f0369c4cb522955686/commons-logging-1.2.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/83033ee697035dfb9ce3503e1ac0c5a33021e503/commons-logging-1.2-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-logging/commons-logging/1.2/ecf26c7507d67782a3bbd148d170b31dfad001aa/commons-logging-1.2-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.9/9ce04e34240f674bc72680f8b843b1457383161a/commons-codec-1.9.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.9/d103169e712eb2473072d53636b0c3bc380b8afb/commons-codec-1.9-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.9/3f15fff45d57656685abfee9e8302bf14580044c/commons-codec-1.9-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore-nio/4.4.4/16badfc2d99db264c486ba8c57ae577301a58bd9/httpcore-nio-4.4.4.jar!/"/>
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore-nio/4.4.4/7d1b444ab3ce8fabc30fdafa6f0f46f3310be258/httpcore-nio-4.4.4-javadoc.jar!/"/>
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.httpcomponents/httpcore-nio/4.4.4/816d16779b3058b1454908757fbc9ec8d233d7ba/httpcore-nio-4.4.4-sources.jar!/"/>
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+  <component name="ModuleRootManager"/>
+</module>

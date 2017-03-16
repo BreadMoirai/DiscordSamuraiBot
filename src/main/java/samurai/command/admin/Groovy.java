@@ -61,7 +61,7 @@ public class Groovy extends Command {
         if (content.contains("binding")) {
             final Set set = binding.getVariables().entrySet();
             //noinspection unchecked
-            return FixedMessage.build("|" + ((Set<Map.Entry<String, Object>>) set).stream().map(stringObjectEntry -> stringObjectEntry.getKey() + "=" + stringObjectEntry.getValue().getClass().getSimpleName() + "|").collect(Collectors.joining()));
+            return FixedMessage.build(((Set<Map.Entry<String, Object>>) set).stream().map(stringObjectEntry -> stringObjectEntry.getKey() + "=" + stringObjectEntry.getValue().getClass().getSimpleName()).collect(Collectors.joining("\n")));
 
         }
 

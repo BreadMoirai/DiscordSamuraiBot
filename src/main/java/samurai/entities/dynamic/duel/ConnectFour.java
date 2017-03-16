@@ -3,19 +3,18 @@ package samurai.entities.dynamic.duel;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.entities.base.DynamicMessage;
-import samurai.events.ReactionEvent;
-import samurai.events.listeners.ReactionListener;
+import samurai.events.ReactionListener;
 import samurai.util.BotUtil;
-import samurai.util.MessageUtils;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 
@@ -32,13 +31,14 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
 
+    private static final Random random = new Random();
+
     private final char[][] board;
 
     private Long A, B, winner, next;
     private String nameA, nameB;
 
     private GameState state;
-    private Message message;
 
     public ConnectFour(User seeking) {
         A = Long.valueOf(seeking.getId());
@@ -55,9 +55,24 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         nameA = instigator.getName();
         B = Long.valueOf(challenged.getId());
         nameB = challenged.getName();
-        next = Game.random.nextBoolean() ? A : B;
+        next = random.nextBoolean() ? A : B;
         board = new char[X_BOUND][Y_BOUND];
         state = new PlayState(this);
+    }
+
+    @Override
+    protected Message initialize() {
+        return state.buildMessage();
+    }
+
+    @Override
+    protected void onReady(Message message) {
+        state.buildConsumer().accept(message);
+    }
+
+    @Override
+    public void onReaction(MessageReactionAddEvent event) {
+        if (state.isValid(event)) state.onReaction(event);
     }
 
     private EmbedBuilder buildBoard() {
@@ -81,16 +96,6 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 .addField("Connect 4", sb.toString(), true)
                 .setColor(Color.BLACK)
                 .setFooter("SamuraiGames\u2122", Bot.AVATAR);
-    }
-
-    @Override
-    protected void onReady(TextChannel channel) {
-        channel.sendMessage(state.buildMessage()).queue(state.buildConsumer().andThen(message1 -> message = message1));
-    }
-
-    @Override
-    public void onReaction(ReactionEvent event) {
-        if (state.isValid(event)) state.onReaction(event);
     }
 
     private boolean hasEnded() {
@@ -201,7 +206,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
             this.game = game;
         }
 
-        abstract boolean isValid(ReactionEvent event);
+        abstract boolean isValid(MessageReactionAddEvent event);
 
         abstract Message buildMessage();
 
@@ -216,9 +221,9 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        boolean isValid(ReactionEvent event) {
-            return event.getName().equals(DUEL_REACTION)
-                    && !game.A.equals(event.getUserId());
+        boolean isValid(MessageReactionAddEvent event) {
+            return event.getReaction().getEmote().getName().equals(DUEL_REACTION)
+                    && !game.A.equals(Long.valueOf(event.getUser().getId()));
         }
 
         @Override
@@ -234,13 +239,13 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        public void onReaction(ReactionEvent event) {
-            game.B = event.getUserId();
-            game.nameB = BotUtil.retrieveUser(event.getUserId()).getName();
-            game.next = Game.random.nextBoolean() ? game.A : game.B;
+        public void onReaction(MessageReactionAddEvent event) {
+            game.B = Long.valueOf(event.getUser().getId());
+            game.nameB = event.getUser().getName();
+            game.next = random.nextBoolean() ? game.A : game.B;
             final BuildState buildState = new BuildState(game);
             game.state = buildState;
-            game.message.editMessage(buildState.buildMessage()).queue(buildState.buildConsumer());
+            event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildState.buildMessage()).queue(buildState.buildConsumer()));
         }
     }
 
@@ -251,7 +256,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        boolean isValid(ReactionEvent event) {
+        boolean isValid(MessageReactionAddEvent event) {
             return false;
         }
 
@@ -271,7 +276,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        public void onReaction(ReactionEvent event) {
+        public void onReaction(MessageReactionAddEvent event) {
 
         }
     }
@@ -283,10 +288,10 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        boolean isValid(ReactionEvent event) {
+        boolean isValid(MessageReactionAddEvent event) {
             int i;
-            return game.next.equals(event.getUserId())
-                    && (i = REACTIONS.indexOf(event.getName())) != -1
+            return game.next.equals(Long.valueOf(event.getUser().getId()))
+                    && (i = REACTIONS.indexOf(event.getReaction().getEmote().getName())) != -1
                     && game.board[i][Y_BOUND - 1] == '\u0000';
         }
 
@@ -301,12 +306,12 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
 
         @Override
-        public void onReaction(ReactionEvent event) {
-            MessageUtils.removeReaction(game.message, event);
-            int move = REACTIONS.indexOf(event.getName());
+        public void onReaction(MessageReactionAddEvent event) {
+            event.getReaction().removeReaction(event.getUser()).queue();
+            int move = REACTIONS.indexOf(event.getReaction().getEmote().getName());
             for (int y = 0; y < Y_BOUND; y++) {
                 if (game.board[move][y] == '\u0000') {
-                    if (game.A.equals(event.getUserId())) {
+                    if (game.A.equals(Long.valueOf(event.getUser().getId()))) {
                         game.board[move][y] = 'a';
                         game.next = game.B;
                         break;
@@ -318,17 +323,19 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 }
             }
             if (game.hasEnded()) {
-                game.message.editMessage(game.buildTitle()
-                        .setEmbed(game.buildBoard()
-                                .addField("The Winner is:", String.format("<@%d>", game.winner), false)
-                                .setImage(BotUtil.retrieveUser(game.winner).getAvatarUrl())
-                                .build())
-                        .build())
-                        .queue();
-                game.message.clearReactions().queue();
+                event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                    message.editMessage(game.buildTitle()
+                            .setEmbed(game.buildBoard()
+                                    .addField("The Winner is:", String.format("<@%d>", game.winner), false)
+                                    .setImage(BotUtil.retrieveUser(game.winner).getAvatarUrl())
+                                    .build())
+                            .build())
+                            .queue();
+                    message.clearReactions().queue();
+                });
                 game.unregister();
             } else
-                game.message.editMessage(buildMessage()).queue();
+                event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue());
         }
     }
 

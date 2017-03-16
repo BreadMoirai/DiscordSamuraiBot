@@ -59,7 +59,7 @@ public class CommandFactory {
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
             content = content.replaceFirst("<@270044218167132170>( )?", token);
-        if (!content.startsWith(token) || content.length() <= token.length() + 3) return null;
+        if (!content.startsWith(token) || content.length() <= token.length()) return null;
 
         content = content.substring(token.length());
         String key;

@@ -6,6 +6,12 @@ plugins {
     id'groovy'
 }
 
+idea {
+    module {
+        downloadJavadoc = true
+    }
+}
+
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
 
@@ -23,6 +29,7 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.4.8'
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
+    compile 'net.dv8tion:JDA:3.0.0_155'
 }
 
 compileJava.options.encoding = 'UTF-8'

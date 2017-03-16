@@ -3,17 +3,15 @@ package samurai.entities.dynamic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.data.SamuraiDatabase;
 import samurai.entities.base.DynamicMessage;
-import samurai.events.ReactionEvent;
-import samurai.events.listeners.ReactionListener;
+import samurai.events.ReactionListener;
 import samurai.osu.Beatmap;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 import samurai.osu.enums.Mod;
-import samurai.util.wrappers.MessageWrapper;
-import samurai.util.wrappers.SamuraiWrapper;
+import samurai.util.MessageUtil;
 
 import java.awt.*;
 import java.util.*;
@@ -26,6 +24,7 @@ import java.util.List;
 public class RandomBeatmapDisplay extends DynamicMessage implements ReactionListener {
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("🔙", "\uD83D\uDD12", "🛂", "🛃", "📈", "📉", "🔁"));
+
     private final ArrayList<String> hashArray;
     private final Stack<Integer> history = new Stack<>();
     private final Random r;
@@ -34,8 +33,6 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
     private int currentIdx;
     private BeatmapSet currentSet;
     private boolean fullScore, fullMap;
-
-    private MessageWrapper message;
 
     public RandomBeatmapDisplay(HashMap<String, LinkedList<Score>> scoreMap) {
         super();
@@ -46,23 +43,6 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
         fullMap = false;
         fullScore = false;
         nextSet();
-    }
-
-    @Override
-    protected void onReady(TextChannel channel) {
-        channel.sendMessage("Initializing...").queue(message1 -> message = SamuraiWrapper.wrap(message1));
-        message.addReaction(REACTIONS, aVoid -> message.editMessage(getMessage()));
-    }
-
-    @Override
-    public void onReaction(ReactionEvent event) {
-        if (getMessageId() == 0) return;
-        final String name = event.getName();
-        if (REACTIONS.contains(name)) {
-            execute(name);
-            message.removeReaction(event);
-            message.editMessage(getMessage());
-        }
     }
 
 
@@ -105,7 +85,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
         return new MessageBuilder().setEmbed(embedBuilder.build()).build();
     }
 
-    private void execute(String reactionName) {
+    private boolean execute(String reactionName) {
         switch (reactionName) {
             case "🔁":
                 nextSet();
@@ -115,9 +95,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
                     setCurrentSet(currentIdx = history.pop());
                 break;
             case "\uD83D\uDD12":
-                message.clearReactions();
-                unregister();
-                break;
+                return false;
             case "🛂":
                 fullMap = !fullMap;
                 break;
@@ -133,6 +111,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
             default:
                 //Bot.log("Illegal BeatmapDisplay Access Error at " + getChannelId() + ":" + getMessageId());
         }
+        return true;
     }
 
     private void nextSet() {
@@ -149,4 +128,28 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
         }
     }
 
+    @Override
+    protected Message initialize() {
+        return new MessageBuilder().append("Initializing...").build();
+    }
+
+    @Override
+    protected void onReady(Message message) {
+        MessageUtil.addReaction(message, REACTIONS, aVoid -> message.editMessage(getMessage()).queue());
+    }
+
+    @Override
+    public void onReaction(MessageReactionAddEvent event) {
+        final String name = event.getReaction().getEmote().getName();
+        if (REACTIONS.contains(name)) {
+            boolean done = !execute(name);
+            if (done) {
+                unregister();
+                event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.clearReactions().queue());
+            } else {
+                event.getReaction().removeReaction(event.getUser());
+                event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(getMessage()).queue());
+            }
+        }
+    }
 }

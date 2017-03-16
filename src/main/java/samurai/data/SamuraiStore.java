@@ -28,7 +28,7 @@ public class SamuraiStore {
 
     public static File getSetFile(int setId) {
         try {
-            return new File(SamuraiStore.class.getResource("./set").toURI().getPath() + "/" + setId + ".ser");
+            return new File(SamuraiStore.class.getResource("set").toURI().getPath() + "/" + setId + ".ser");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return null;

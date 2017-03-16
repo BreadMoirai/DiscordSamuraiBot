@@ -10,8 +10,6 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.SamuraiDiscord;
-import samurai.events.GuildMessageEvent;
-import samurai.events.PrivateMessageEvent;
 
 /**
  * @author TonTL
@@ -27,7 +25,6 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        if (!isHuman(event.getAuthor())) return;
         samurai.onMessageDelete(Long.parseLong(event.getChannel().getId()), Long.parseLong(event.getMessageId()));
     }
 
@@ -44,25 +41,25 @@ public class DiscordMessageListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (!isHuman(event.getAuthor())) return;
-        samurai.onGuildMessageEvent(new GuildMessageEvent(event));
+        samurai.getMessageManager().onGuildMessageEvent(event);
     }
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
         if (!isHuman(event.getAuthor())) return;
-        samurai.onGuildMessageEvent(new GuildMessageEvent(event));
+        samurai.getMessageManager().onGuildMessageEvent(event);
     }
 
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
         if (!isHuman(event.getAuthor())) return;
-        samurai.onPrivateMessageEvent(new PrivateMessageEvent(event));
+        samurai.getMessageManager().onPrivateMessageEvent(event);
     }
 
     @Override
     public void onPrivateMessageUpdate(PrivateMessageUpdateEvent event) {
         if (!isHuman(event.getAuthor())) return;
-        samurai.onPrivateMessageEvent(new PrivateMessageEvent(event));
+        samurai.getMessageManager().onPrivateMessageEvent(event);
     }
 
     private boolean isHuman(User u) {

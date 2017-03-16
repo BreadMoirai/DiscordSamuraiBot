@@ -18,7 +18,6 @@ public abstract class DynamicMessage extends SamuraiMessage {
 
     private static final int TIMEOUT = 30;
 
-    private long messageId;
     private OffsetDateTime lastActive;
     private MessageManager manager;
 
@@ -30,26 +29,38 @@ public abstract class DynamicMessage extends SamuraiMessage {
         return MINUTES.between(lastActive, OffsetDateTime.now()) > TIMEOUT;
     }
 
+    /**
+     * Unregisters this object with the messageManager.
+     * This object will stop receiving any events and should fall to garbage collection
+     */
     protected void unregister() {
         manager.unregister(this);
     }
 
+    /**
+     * Registers this object with the messageManager.
+     * Doing so allows the object to receive events for listener interface <? extends SamuraiListener>
+     */
     protected void register() {
         manager.register(this);
     }
 
-    public long getMessageId() {
-        return messageId;
+    @Override
+    public void onReady(MessageManager messageManager) {
+        setActive();
+        this.manager = messageManager;
+        super.onReady(messageManager);
+        register();
     }
 
-    public void setMessageId(Long messageId) {
-        this.messageId = messageId;
-    }
-
-    public void onReady(MessageManager manager) {
-        this.manager = manager;
+    /**
+     * use this to refresh the timeout of your message. By default, dynamic message are automaticall unregistered at 30 minutes after initialization.
+     */
+    public void setActive() {
         lastActive = OffsetDateTime.now();
-        onReady(getChannel());
     }
 
+    protected MessageManager getManager() {
+        return manager;
+    }
 }

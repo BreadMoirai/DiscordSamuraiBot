@@ -1,7 +1,5 @@
 package samurai.listeners;
 
-
-import net.dv8tion.jda.core.events.guild.member.GuildMemberGameUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.SamuraiDiscord;
@@ -18,12 +16,6 @@ public class DiscordGameUpdateListener extends ListenerAdapter {
     public DiscordGameUpdateListener(SamuraiDiscord samurai) {
 
         this.samurai = samurai;
-    }
-
-    @Override
-    public void onGuildMemberGameUpdate(GuildMemberGameUpdateEvent event) {
-
-        System.out.println("MemberGame Detected" +event.getMember().getGame().getName());
     }
 
     @Override

@@ -2,8 +2,7 @@ package samurai.util.wrappers;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
-import samurai.events.ReactionEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -73,16 +72,9 @@ public class MessageWrapper {
         message.clearReactions().queue(null, null);
     }
 
-    public void removeReaction(ReactionEvent event) {
-        removeReaction(event.getUser(), event.getName());
-    }
-
-    public void removeReaction(User u, String reactionName) {
-        message.getReactions();
-        message.getReactions()
-                .stream()
-                .filter(messageReaction -> messageReaction.getEmote().getName().equalsIgnoreCase(reactionName))
-                .findFirst().ifPresent(messageReaction -> messageReaction.removeReaction(u).queue(null ,null));
+    public void removeReaction(MessageReactionAddEvent event)
+    {
+        event.getReaction().removeReaction(event.getUser()).queue();
     }
 
     public void editMessage(Message message, Consumer<Message> consumer) {
