@@ -65,7 +65,7 @@ public class CommandFactory {
         String key;
         if (!content.contains(" ")) {
             key = content;
-            content = null;
+            content = "";
             if (key.length() > 10) return null;
         } else {
             key = content.substring(0, content.indexOf(' '));
@@ -80,7 +80,7 @@ public class CommandFactory {
         return command;
     }
 
-    static List<String> parseArgs(String content) {
+    public static List<String> parseArgs(String content) {
         if (content != null && !content.equals("")) {
             return Arrays.stream(argPattern.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("everyone") && !s.equals("@here")).map(s -> s.replace("\"", "")).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
         } else return Collections.emptyList();

@@ -22,7 +22,7 @@ public class MessageUtil {
     }
 
     public static void addReaction(Message message, Collection<String> s) {
-        s.stream().map(message::addReaction).forEach((voidRestAction) -> voidRestAction.queue(null, null));
+        s.forEach(s1 -> message.addReaction(s1).queue());
     }
 
     public static void addReaction(Message message, Collection<String> s, Consumer<Void> consumer) {

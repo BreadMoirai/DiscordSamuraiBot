@@ -59,12 +59,8 @@ public class SamuraiDiscord {
 
     public void onCommand(Command c) {
         completeContext(c.getContext());
-        final Optional<SamuraiMessage> messageOptional = c.call();
-        if (!messageOptional.isPresent()) return;
-
-        messageManager.submit(messageOptional.get());
+        c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
         if (c instanceof GenericCommand) {
-
             messageManager.onCommand((GenericCommand) c);
         }
     }

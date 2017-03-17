@@ -20,7 +20,7 @@ public class DiscordGameUpdateListener extends ListenerAdapter {
 
     @Override
     public void onUserGameUpdate(UserGameUpdateEvent event) {
-        System.out.println("UserGame Detected" + event.getGuild().getMember(event.getUser()).getGame().getName());
+        System.out.println("UserGame Detected" + event.getGuild().getMember(event.getUser()).getGame());
 
     }
 }
