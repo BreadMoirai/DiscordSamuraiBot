@@ -19,7 +19,8 @@ import samurai.events.ReactionListener;
 import samurai.util.MessageUtil;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,14 +38,13 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
     private final String authorId;
     private final String authorAvatar;
     private final String prefix;
-
-    private String word;
     private final CopyOnWriteArrayList<String> reactions;
-    private HangmanHelper helper;
     private final ConcurrentSkipListSet<Integer> hidden;
+    private String word;
+    private HangmanHelper helper;
     private int life, death;
 
-    public Hangman(Member author, boolean easy, String prefix) {
+    public Hangman(Member author, String prefix) {
         this.authorColor = author.getColor();
         this.authorName = author.getEffectiveName();
         this.authorAvatar = author.getUser().getEffectiveAvatarUrl();
@@ -53,8 +53,7 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
         reactions = new CopyOnWriteArrayList<>(HANGMAN_REACTIONS);
         hidden = new ConcurrentSkipListSet<>();
         life = 0;
-        if (easy) death = 10;
-        else death = 7;
+        death = 10;
     }
 
     @Override
@@ -73,6 +72,7 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
     @Override
     public void onReaction(MessageReactionAddEvent event) {
         //if (event.getUser().getId().equals(authorId)) return;
+        if (word == null) return;
 
         final MessageReaction reaction = event.getReaction();
         final String name = reaction.getEmote().getName();
@@ -80,24 +80,24 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
         if (!reactions.contains(name)) {
             return;
         }
-        reaction.getUsers().queue(users -> users.forEach(user -> reaction.removeReaction(user).queue()));
+        reaction.removeReaction().queue();
+        reaction.removeReaction(event.getUser()).queue();
         reactions.remove(name);
-        if (reactions.size() < 20) {
-            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> helper.kill(event.getChannel()).forEach(s -> message.addReaction(s).queue()));
+        if (reactions.size() < 20 && helper != null) {
+            helper.kill(event.getChannel());
+            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> reactions.forEach(s -> message.addReaction(s).queue()));
             helper = null;
         }
 
         char letter = (char) (HANGMAN_REACTIONS.indexOf(name) + 65);
+
         int letterIdx = word.indexOf(letter);
         StringBuilder sb = new StringBuilder();
         if (letterIdx == -1) {
             life++;
             sb.append("Oops! **").append(letter).append("** was not found within the word");
         } else {
-            while (letterIdx != 1) {
-                letterIdx = word.indexOf(++letterIdx, letter);
-                hidden.remove(letterIdx);
-            }
+            hidden.removeIf(integer -> word.charAt(integer) == letter);
             if (hidden.isEmpty()) {
                 sb.append("\uD83C\uDF8A ")
                         .append(event.getUser().getAsMention())
@@ -117,12 +117,65 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
                 .queue(message -> message.editMessage(
                         buildEmbed(sb.toString())
                 ).queue());
+        if (life == death) {
+            unregister();
+            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.clearReactions().queue());
+            if (helper != null) {
+                helper.kill(event.getChannel());
+                helper = null;
+            }
+        }
+    }
+
+    @Override
+    public void onCommand(GenericCommand command) {
+        if (word == null) return;
+        if (command.getContext().getKey().equalsIgnoreCase("guess")) {
+            if (command.getContext().getContent().trim().equalsIgnoreCase(word)) {
+                hidden.clear();
+                StringBuilder sb = new StringBuilder().append("\uD83C\uDF8A**").append(command.getContext().getAuthor().getEffectiveName()).append("** has guessed correctly!\uD83C\uDF8A\n");
+                command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> {
+                    message.clearReactions().queue();
+                    message.editMessage(buildEmbed(sb.toString())).queue();
+                });
+                unregister();
+                if (helper != null) {
+                    helper.kill(command.getContext().getChannel());
+                    helper = null;
+                }
+            } else {
+                life++;
+                if (life == death) {
+                    unregister();
+                    command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.clearReactions().queue());
+                    if (helper != null) {
+                        helper.kill(command.getContext().getChannel());
+                        helper = null;
+                    }
+                }
+                command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(buildEmbed("Bad guess " + command.getContext().getAuthor().getAsMention() + ". Better luck next time.")).queue());
+            }
+        }
+    }
+
+
+    @Override
+    public void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
+        if (word != null) return;
+        if (!event.getAuthor().getId().equals(authorId)) return;
+
+        word = CommandFactory.parseArgs(event.getMessage().getContent().trim()).stream().collect(Collectors.joining(" ")).toUpperCase();
+        event.getChannel().sendMessage("Recieved Word: `" + word + '`').queue();
+        IntStream.range(0, word.length()).boxed().forEach(hidden::add);
+        hidden.removeIf(integer -> !Character.isLetter(word.charAt(integer)));
+
+        event.getJDA().getTextChannelById(String.valueOf(getChannelId())).getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(buildEmbed("I have received a secret transmission. Just try and decode it!")).queue());
     }
 
     private String buildWord() {
         boolean prevIC = false;
 
-        StringBuilder sb = new StringBuilder()/*.append("`")*/;
+        StringBuilder sb = new StringBuilder().append('`');
         for (int i = 0; i < word.length(); i++) {
             final char ch = word.charAt(i);
             if (Character.isLetter(ch)) {
@@ -141,7 +194,7 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
                 prevIC = false;
             }
         }
-        return sb/*.append('`')*/.toString();
+        return sb.append('`').toString();
     }
 
     private MessageEmbed buildEmbed(String s) {
@@ -153,39 +206,5 @@ public class Hangman extends DynamicMessage implements PrivateMessageListener, R
                 .setImage(life == death ? HANGMAN_IMAGES.get(HANGMAN_IMAGES.size() - 1) : HANGMAN_IMAGES.get(life))
                 .setColor(authorColor)
                 .build();
-    }
-
-    @Override
-    public void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        if (word != null) return;
-        if (!event.getAuthor().getId().equals(authorId)) return;
-
-        word = CommandFactory.parseArgs(event.getMessage().getContent().trim()).stream().collect(Collectors.joining(" ")).toUpperCase();
-        event.getChannel().sendMessage("Recieved Word: `" + word + '`').queue();
-        IntStream.range(0, word.length()).boxed().forEach(hidden::add);
-
-        event.getJDA().getTextChannelById(String.valueOf(getChannelId())).getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(buildEmbed("I have received a secret transmission. Just try and decode it!")).queue());
-    }
-
-    @Override
-    public void onCommand(GenericCommand command) {
-        if (command.getContext().getKey().equalsIgnoreCase("guess")) {
-            if (command.getContext().getContent().trim().equalsIgnoreCase(word)) {
-                hidden.clear();
-                StringBuilder sb = new StringBuilder().append("\uD83C\uDF8A**").append(command.getContext().getAuthor().getEffectiveName()).append("** has guessed correctly!\uD83C\uDF8A\n");
-                command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> {
-                    message.clearReactions().queue();
-                    message.editMessage(buildEmbed(sb.toString())).queue();
-                });
-                unregister();
-                if (helper != null) {
-                    helper.kill(command.getContext().getChannel());
-                    helper = null;
-                }
-            } else {
-                life++;
-                command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(buildEmbed("Bad guess " + command.getContext().getAuthor().getAsMention() + ". Better luck next time.")).queue());
-            }
-        }
     }
 }

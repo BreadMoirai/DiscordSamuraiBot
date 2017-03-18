@@ -16,6 +16,6 @@ import samurai.entities.dynamic.duel.Hangman;
 public class HangmanCommand extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return new Hangman(context.getAuthor(), context.getContent().contains("easy"), context.getGuild().getPrefix());
+        return new Hangman(context.getAuthor(), context.getGuild().getPrefix());
     }
 }

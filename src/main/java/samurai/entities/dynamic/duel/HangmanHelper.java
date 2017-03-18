@@ -1,10 +1,8 @@
 package samurai.entities.dynamic.duel;
 
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.entities.base.DynamicMessage;
 import samurai.events.ReactionListener;
@@ -42,12 +40,9 @@ public class HangmanHelper extends DynamicMessage implements ReactionListener {
         hangman.onReaction(event);
     }
 
-    List<String> kill(MessageChannel channel) {
+    void kill(MessageChannel channel) {
         unregister();
         channel.getMessageById(String.valueOf(getMessageId())).queue(message -> message.delete().queue());
         hangman = null;
-//        List<String> leftovers = reactions;
-//        reactions = null;
-        return reactions;
     }
 }
