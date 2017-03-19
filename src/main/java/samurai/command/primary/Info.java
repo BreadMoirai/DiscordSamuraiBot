@@ -23,14 +23,14 @@ public class Info extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final List<Member> mentions = context.getMentions();
+        final List<Member> mentions = context.getMentionsMembers();
         final SamuraiGuild guild = context.getGuild();
         Member userD;
         if (mentions.size() == 0) {
             EmbedBuilder eb = new EmbedBuilder()
                     .setAuthor("Info", null, null)
                     .setColor(context.getAuthor().getColor())
-                    .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Score Count:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount()))
+                    .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Score Count:** `%d`%n**Dedicated Channel:** `%d`", guild.getGuildId(), guild.getPrefix(), guild.getUserCount(), guild.getScoreCount(), guild.getDedicatedChannel()))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);

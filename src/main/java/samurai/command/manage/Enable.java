@@ -26,6 +26,8 @@ public class Enable extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final long enabledCommands = context.getGuild().getEnabledCommands();
         if (context.hasContent()) {
+            if (context.getContent().contains("byte"))
+                return FixedMessage.build("`" + Long.toBinaryString(context.getGuild().getEnabledCommands()) + "`");
             final Set<Commands> args;
             try {
                 final HashMap<String, Class<? extends Command>> commandMap = CommandFactory.getCommandMap();
@@ -47,7 +49,7 @@ public class Enable extends Command {
             }
             return null;
         } else {
-            return FixedMessage.build(Arrays.stream(Commands.values()).map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
+            return FixedMessage.build((context.isSource() ? Arrays.stream(Commands.values()) : Commands.getVisible().stream()).map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
         }
     }
 }

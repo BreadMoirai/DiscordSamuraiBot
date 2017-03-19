@@ -21,6 +21,7 @@ public class SamuraiGuild {
     private ArrayList<SamuraiUser> users;
     private ArrayList<Chart> charts;
     private long enabledCommands;
+    private long dedicatedChannel;
 
     public SamuraiGuild() {
     }
@@ -34,6 +35,7 @@ public class SamuraiGuild {
         charts = new ArrayList<>();
         active = false;
         enabledCommands = Commands.getDefaultEnabledCommands();
+        dedicatedChannel = 0L;
     }
 
     public static int mergeScoreMap(HashMap<String, LinkedList<Score>> base, HashMap<String, LinkedList<Score>> annex) {
@@ -147,6 +149,7 @@ public class SamuraiGuild {
         out.writeUTF(prefix);
         out.writeLong(guildId);
         out.writeLong(enabledCommands);
+        out.writeLong(dedicatedChannel);
         out.writeShort(users.size());
         for (SamuraiUser u : users) {
             out.writeLong(u.getDiscordId());
@@ -210,5 +213,13 @@ public class SamuraiGuild {
 
     public void setEnabledCommands(long enabledCommands) {
         this.enabledCommands = enabledCommands;
+    }
+
+    public long getDedicatedChannel() {
+        return dedicatedChannel;
+    }
+
+    public void setDedicatedChannel(String dedicatedChannel) {
+        this.dedicatedChannel = Long.parseLong(dedicatedChannel);
     }
 }
