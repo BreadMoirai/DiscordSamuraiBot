@@ -4,13 +4,16 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.GenericCommand;
-import samurai.command.restricted.Groovy;
+import samurai.command.annotations.Admin;
+import samurai.command.debug.Groovy;
 import samurai.core.GuildManager;
 import samurai.core.MessageManager;
 import samurai.discord.listeners.*;
+import samurai.messages.base.FixedMessage;
 
 import javax.security.auth.login.LoginException;
 
@@ -59,6 +62,12 @@ public class SamuraiDiscord {
     public void onCommand(Command c) {
         completeContext(c.getContext());
         if (c.isEnabled()) {
+            if (c.getClass().isAnnotationPresent(Admin.class)) {
+                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), client.getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
+                    messageManager.submit(FixedMessage.build("You do not have the appropriate permissions to use this command. Try asking someone of higher status to help you."));
+                    return;
+                }
+            }
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
             if (c instanceof GenericCommand) {
                 messageManager.onCommand((GenericCommand) c);

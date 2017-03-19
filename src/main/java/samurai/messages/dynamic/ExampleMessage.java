@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import org.apache.commons.lang3.StringUtils;
-import samurai.command.limited.ExampleCommand;
+import samurai.command.debug.ExampleCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ChannelMessageListener;
 import samurai.messages.listeners.ReactionListener;

@@ -1,6 +1,9 @@
 package samurai.command;
 
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -8,35 +11,35 @@ import java.util.Comparator;
  */
 public enum Commands {
     GenericCommand(0x0L),
-    Info(0x1L),
-    Link(0x2L),
-    Profile(0x4L),
-    RandomBeatmap(0x8L),
-    Rank(0x10L),
-    Upload(0x20L),
-    Help(0x40L),
-    Invite(0x80L),
-    Join(0x100L),
-    Menu(0x200L),
-    Ping(0x400L),
-    Enable(0x800L),
-    Perm(0x1000L),
-    Prefix(0x2000L),
-    Status(0x4000L),
-    Uptime(0x8000L),
-    Casino(0x10000L),
-    Duel(0x20000L),
-    Hangman(0x40000L),
-    Draw(0x80000L),
-    ExampleCommand(0x100000L),
-    Flame(0x200000L),
-    ToList(0x400000L),
-    Wasted(0x800000L),
-    Groovy(0x1000000L),
-    Purge(0x2000000L),
-    Refresh(0x4000000L),
-    Reset(0x8000000L),
-    Shutdown(0x10000000L);
+    Info(1L),
+    Link(2L),
+    Profile(4L),
+    RandomBeatmap(8L),
+    Rank(16L),
+    Upload(32L),
+    Help(64L),
+    Invite(128L),
+    Join(256L),
+    Menu(512L),
+    Ping(1024L),
+    Enable(2048L),
+    Perm(4096L),
+    Prefix(8192L),
+    Status(16384L),
+    Uptime(32768L),
+    Casino(65536L),
+    Duel(131072L),
+    Flame(262144L),
+    Hangman(524288L),
+    Wasted(1048576L),
+    Purge(2097152L),
+    Refresh(4194304L),
+    Reset(8388608L),
+    Shutdown(16777216L),
+    Draw(33554432L),
+    ExampleCommand(67108864L),
+    Groovy(134217728L),
+    ToList(268435456L);
 
 
     private final long value;
@@ -60,6 +63,10 @@ public enum Commands {
 
     public static long getEnabledAll() {
         return getEnabled(Commands.values());
+    }
+
+    public static List<Commands> getVisible() {
+        return Arrays.stream(Commands.values()).filter(commands -> commands.value < Purge.value).collect(Collectors.toList());
     }
 
     public long getValue() {
@@ -92,6 +99,8 @@ public enum Commands {
                 return 5;
             } else if (s.contains("restricted")) {
                 return 6;
+            } else if (s.contains("debug")) {
+                return 7;
             } else return 0;
         }
     }

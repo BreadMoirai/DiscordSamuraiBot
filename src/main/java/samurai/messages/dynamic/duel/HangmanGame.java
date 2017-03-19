@@ -22,6 +22,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -164,7 +165,7 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
         if (word != null) return;
         if (!event.getAuthor().getId().equals(authorId)) return;
 
-        word = CommandFactory.parseArgs(event.getMessage().getContent().trim()).stream().collect(Collectors.joining(" ")).toUpperCase();
+        word = CommandFactory.parseArgs(event.getMessage().getContent().trim()).stream().collect(Collectors.joining(" ")).toUpperCase(Locale.ENGLISH);
         event.getChannel().sendMessage("Recieved Word: `" + word + '`').queue();
         IntStream.range(0, word.length()).boxed().forEach(hidden::add);
         hidden.removeIf(integer -> !Character.isLetter(word.charAt(integer)));

@@ -1,4 +1,4 @@
-package samurai.command.limited;
+package samurai.command.hidden;
 
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
@@ -34,7 +34,7 @@ public class Wasted extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final java.util.List<Member> mentions = context.getMentions();
+        final java.util.List<Member> mentions = context.getMentionsMembers();
         final List<String> args = context.getArgs();
         if (mentions.size() != 1) return null;
         String targetUrl = mentions.get(0).getUser().getEffectiveAvatarUrl();

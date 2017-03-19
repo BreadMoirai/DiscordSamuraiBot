@@ -1,4 +1,4 @@
-package samurai.command.restricted;
+package samurai.command.debug;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -36,11 +36,11 @@ public class Groovy extends Command {
 
     static {
         binding = new Binding();
-        binding.setVariable("creator", "DreadMoirai");
-        binding.setVariable("bot", Bot.class);
-        binding.setVariable("store", SamuraiStore.class);
-        binding.setVariable("db", SamuraiDatabase.class);
-        binding.setVariable("cf", CommandFactory.class);
+        binding.setVariable("CREATOR", "DreadMoirai");
+        binding.setVariable("BOT", Bot.class);
+        binding.setVariable("STORE", SamuraiStore.class);
+        binding.setVariable("DB", SamuraiDatabase.class);
+        binding.setVariable("CF", CommandFactory.class);
         binding.setVariable("CD", Commands.class);
         binding.setVariable("CDP", Commands.CommandCP.class);
         gs = new GroovyShell(binding);
@@ -55,15 +55,11 @@ public class Groovy extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final String content = context.getContent().replaceAll("`", "");
         if (content.length() <= 1) return null;
-        binding.setVariable("messageId", Long.toString(context.getMessageId()));
-        binding.setVariable("guildId", Long.toString(context.getGuildId()));
-        binding.setVariable("channelId", Long.toString(context.getChannelId()));
-        binding.setVariable("sg", context.getGuild());
+        binding.setVariable("context", context);
         if (content.contains("binding")) {
             final Set set = binding.getVariables().entrySet();
             //noinspection unchecked
             return FixedMessage.build(((Set<Map.Entry<String, Object>>) set).stream().map(stringObjectEntry -> stringObjectEntry.getKey() + "=" + stringObjectEntry.getValue().getClass().getSimpleName()).collect(Collectors.joining("\n")));
-
         }
 
         try {

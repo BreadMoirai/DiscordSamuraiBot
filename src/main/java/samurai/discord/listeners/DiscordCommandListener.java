@@ -34,6 +34,7 @@ public class DiscordCommandListener extends ListenerAdapter {
             Bot.SENT.incrementAndGet();
             return;
         } else if (event.getAuthor().isBot()) return;
+        if (event.getMessage().isPinned()) return;
 
         final String prefix = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
         final Command c = CommandFactory.build(event, prefix);

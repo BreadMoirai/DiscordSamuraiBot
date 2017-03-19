@@ -1,4 +1,4 @@
-package samurai.command.limited;
+package samurai.command.debug;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;

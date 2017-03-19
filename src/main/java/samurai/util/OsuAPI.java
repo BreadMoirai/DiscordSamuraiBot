@@ -64,7 +64,7 @@ public class OsuAPI {
             }
         }
         if (hash == null) {
-            //todo error
+            new NullPointerException("hash").printStackTrace();
         }
         s.setBeatmapHash(hash)
                 .setScore(jsonObject.getInt("score"))

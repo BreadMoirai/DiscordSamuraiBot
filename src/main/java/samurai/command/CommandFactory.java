@@ -54,7 +54,7 @@ public class CommandFactory {
         return commandMap.keySet();
     }
 
-    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
+    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentionedMembers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
@@ -76,7 +76,7 @@ public class CommandFactory {
         Command command = CommandFactory.newAction(key);
         if (command == null) return null;
 
-        command.setContext(new CommandContext(key, author, mentions, content, attachments, guildId, channelId, messageId, channel, time));
+        command.setContext(new CommandContext(key, author, mentionedMembers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
 
         //System.out.println("New Command: " + command.getClass().getSimpleName());
         return command;
@@ -93,19 +93,21 @@ public class CommandFactory {
         final Message message = event.getMessage();
         final long channelId = Long.parseLong(event.getChannel().getId());
         final long guildId = Long.parseLong(event.getGuild().getId());
-        final List<Member> mentions;
+        final List<Member> mentionedMembers;
         {
             final Guild g = message.getGuild();
             final List<Member> members = new ArrayList<>();
             final List<User> mentionedUsers = message.getMentionedUsers();
             mentionedUsers.forEach(user -> members.add(g.getMember(user)));
-            mentions = Collections.unmodifiableList(members);
+            mentionedMembers = Collections.unmodifiableList(members);
         }
+        final List<Role> mentionedRoles = event.getMessage().getMentionedRoles();
+        final List<TextChannel> mentionedChannels = event.getMessage().getMentionedChannels();
         final long messageId = Long.parseLong(message.getId());
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
-        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments, event.getChannel(), time);
+        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentionedMembers, mentionedRoles, mentionedChannels, attachments, event.getChannel(), time);
     }
 
     public static HashMap<String, Class<? extends Command>> getCommandMap() {

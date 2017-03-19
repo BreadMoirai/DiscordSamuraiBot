@@ -1,4 +1,4 @@
-package samurai.command.limited;
+package samurai.command.debug;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -69,10 +69,11 @@ public class ExampleCommand extends Command {
         mb.append(String.format("%-10s| %s%n", "author", context.getAuthor().getUser().getName()))
                 .append(String.format("%-10s| %s%n", "channelId", context.getChannelId()));
         //get the mentions
-        if (!context.getMentions().isEmpty()) {
+        if (!context.getMentionsMembers().isEmpty()) {
             int i = 0;
             mb.append(String.format("%-10s| %s%n", "mentions", "----"));
-            for (Member u : context.getMentions()) mb.append(String.format("%8s. | %s%n", i++ + 1, u.getEffectiveName()));
+            for (Member u : context.getMentionsMembers())
+                mb.append(String.format("%8s. | %s%n", i++ + 1, u.getEffectiveName()));
         }
         //get the args
         if (!context.getArgs().isEmpty()) {

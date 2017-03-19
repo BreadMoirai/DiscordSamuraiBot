@@ -65,7 +65,7 @@ public class GifGenerator {
                 if (i == 0) {
                     at.scale(1.1, 1.1);
                 }
-                at.translate(-width / 2, -height / 2);
+                at.translate(-width / 2.0, -height / 2.0);
             }
             Graphics2D g = (Graphics2D) bi.getGraphics();
 

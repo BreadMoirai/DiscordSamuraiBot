@@ -21,7 +21,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
 
     private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("✅", "\uD83C\uDE51", "\uD83D\uDEAE", "❌"));
     private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("✅", "❌"));
-    private final SamuraiUser uploader;
+    final SamuraiUser uploader;
     private final HashMap<String, LinkedList<Score>> annex;
     private final HashMap<String, LinkedList<Score>> base;
     private final ArrayList<Conflict> conflicts;
@@ -126,7 +126,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                 MessageBuilder mb = new MessageBuilder();
                 for (Conflict c : conflicts) {
                     if (!c.approved) {
-                        //todo log error
+                        System.err.println("Conflict Merge Dange Danger Danger!");
                     }
                     if (!c.renamed) {
                         mb.append("\n`").append(c.scoreCount).append("` scores added to `").append(c.name).append('`');

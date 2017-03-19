@@ -6,6 +6,7 @@ import samurai.util.BotUtil;
 import samurai.util.OsuAPI;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,30 +18,27 @@ import java.util.concurrent.TimeUnit;
  */
 public class OsuTracker {
 
-    private final CopyOnWriteArrayList<SamuraiUser> tracking;
-    private final ScheduledExecutorService service;
+    private static final CopyOnWriteArrayList<OsuSession> tracking;
+    private static final ScheduledExecutorService service;
 
-    public OsuTracker() {
+    static {
         tracking = new CopyOnWriteArrayList<>();
         service = Executors.newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(this::dotheThing, 10, 5, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(OsuTracker::dotheThing, 3, 1, TimeUnit.MINUTES);
     }
 
-    private void dotheThing() {
-        tracking.forEach(user -> {
-            getRecentScore(user);
-        });
+    private static void dotheThing() {
+
     }
 
-    private List<Score> getRecentScore(SamuraiUser user) {
+    private static List<Score> getRecentScore(SamuraiUser user) {
         return OsuAPI.getUserRecent(user.getOsuName(), user.getOsuId(), GameMode.OSU, 10);
 
     }
 
-    public void register(List<SamuraiUser> u) {
-        if (u.isEmpty()) return;
-        u.forEach(tracking::add);
-        BotUtil.retrieveUser(u.get(0).getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I've got you in my sights.").queue());
+    public static void register(SamuraiUser u) {
+        final Optional<OsuSession> session = tracking.stream().filter(osuSession -> osuSession.match(u)).findFirst();
+        BotUtil.retrieveUser(u.getDiscordId()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I've got you in my sights.").queue());
     }
 
     public void unregister(List<SamuraiUser> u) {

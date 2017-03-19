@@ -2,7 +2,7 @@ package samurai.command.restricted;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.annotations.Admin;
+import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
@@ -13,7 +13,7 @@ import samurai.messages.base.SamuraiMessage;
  */
 @Key("purge")
 @Source
-@Admin
+@Creator
 public class Purge extends Command{
 
     @Override

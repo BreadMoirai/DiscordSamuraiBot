@@ -33,15 +33,15 @@ public class Link extends Command {
             return FixedMessage.build("Failed to link account.");
         }
         Message profileMessage;
-        List<Member> mentions = context.getMentions();
-        if (context.getMentions().size() == 0) {
+        List<Member> mentions = context.getMentionsMembers();
+        if (context.getMentionsMembers().size() == 0) {
             context.getGuild().addUser(Long.parseLong(context.getAuthor().getUser().getId()), userJSON);
-            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", context.getAuthor(), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
-        } else if (context.getMentions().size() == 1) {
-            if (!PermissionUtil.canInteract(context.getAuthor(), context.getMentions().get(0)))
-                return FixedMessage.build("You do not have sufficient access to manage " + context.getMentions().get(0).getAsMention());
+            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", context.getAuthor(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
+        } else if (context.getMentionsMembers().size() == 1) {
+            if (!PermissionUtil.canInteract(context.getAuthor(), context.getMentionsMembers().get(0)))
+                return FixedMessage.build("You do not have sufficient access to manage " + context.getMentionsMembers().get(0).getAsMention());
             context.getGuild().addUser(Long.parseLong(mentions.get(0).getUser().getId()), userJSON);
-            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", mentions.get(0), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
+            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", mentions.get(0), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
         } else {
             return FixedMessage.build("Failed to link account.");
         }
