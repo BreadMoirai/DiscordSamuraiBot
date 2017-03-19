@@ -3,7 +3,7 @@ package samurai.command;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.data.SamuraiGuild;
+import samurai.entities.SamuraiGuild;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -44,11 +44,6 @@ public class CommandContext {
         return guildId;
     }
 
-
-    public void setGuild(SamuraiGuild guild) {
-        this.guild = guild;
-    }
-
     public Member getAuthor() {
         return author;
     }
@@ -80,16 +75,21 @@ public class CommandContext {
         return guild;
     }
 
+    public CommandContext setGuild(SamuraiGuild guild) {
+        this.guild = guild;
+        return this;
+    }
+
     public OffsetDateTime getTime() {
         return time;
     }
 
-    public void setShardId(int shardId) {
-        this.shardId = shardId;
-    }
-
     public int getShardId() {
         return shardId;
+    }
+
+    public void setShardId(int shardId) {
+        this.shardId = shardId;
     }
 
     public String getKey() {
@@ -98,5 +98,9 @@ public class CommandContext {
 
     public TextChannel getChannel() {
         return channel;
+    }
+
+    public boolean hasContent() {
+        return content.length() > 0;
     }
 }

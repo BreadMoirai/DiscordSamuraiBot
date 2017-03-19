@@ -1,10 +1,12 @@
 package samurai.core;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.User;
-import samurai.data.SamuraiGuild;
+import samurai.Bot;
 import samurai.data.SamuraiStore;
-import samurai.data.SamuraiUser;
+import samurai.entities.SamuraiGuild;
+import samurai.entities.SamuraiUser;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,15 +31,15 @@ public class GuildManager {
             if (SamuraiStore.guildExists(id)) {
                 SamuraiGuild guild = SamuraiStore.readGuild(id);
                 if (guild == null) {
-                    System.err.println("Could not read data for Guild %d" + id);
-                    return "!";
+                    System.err.println("Could not read data for Guild " + id);
+                    return Bot.DEFAULT_PREFIX;
                 }
                 guildMap.put(id, guild);
                 guild.setScoreMap(SamuraiStore.readScores(id));
                 return guild.getPrefix();
             } else {
                 guildMap.put(id, new SamuraiGuild(id));
-                return "!";
+                return Bot.DEFAULT_PREFIX;
             }
         }
     }
@@ -67,6 +69,15 @@ public class GuildManager {
         for (SamuraiGuild g : guildMap.values()) {
             SamuraiStore.writeGuild(g);
             SamuraiStore.writeScoreData(g.getGuildId(), g.getScoreMap());
+        }
+    }
+
+    public void refresh(List<Guild> guilds) {
+        for (Guild g : guilds) {
+            final long id = Long.parseLong(g.getId());
+            if (SamuraiStore.guildExists(id)) {
+                SamuraiStore.writeGuild(SamuraiStore.readGuild(id));
+            }
         }
     }
 }

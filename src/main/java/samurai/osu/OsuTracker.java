@@ -1,6 +1,6 @@
 package samurai.osu;
 
-import samurai.data.SamuraiUser;
+import samurai.entities.SamuraiUser;
 import samurai.osu.enums.GameMode;
 import samurai.util.BotUtil;
 import samurai.util.OsuAPI;

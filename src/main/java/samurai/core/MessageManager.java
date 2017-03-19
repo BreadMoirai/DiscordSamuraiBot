@@ -7,9 +7,9 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.command.GenericCommand;
-import samurai.entities.base.DynamicMessage;
-import samurai.entities.base.SamuraiMessage;
-import samurai.events.*;
+import samurai.messages.base.DynamicMessage;
+import samurai.messages.base.SamuraiMessage;
+import samurai.messages.listeners.*;
 
 import java.util.Collections;
 import java.util.Iterator;

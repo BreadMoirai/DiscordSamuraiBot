@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import samurai.command.CommandFactory;
 import samurai.data.SamuraiDatabase;
 import samurai.util.BotUtil;
@@ -69,17 +70,26 @@ public class Bot {
 
     }
 
-    public static void stop() {
+    public static void shutdown() {
         System.out.println("Shutting Down");
         for (SamuraiDiscord samurai : shards) {
             samurai.shutdown();
         }
         System.out.println("Complete");
         try {
-            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
+            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\primary\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\primary\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\primary\\resources\\samurai\\data\\exclude.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
+    public static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
+        shards.forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event));
+    }
+
+    public static void refreshGuilds() {
+        shards.forEach(samuraiDiscord -> samuraiDiscord.getGuildManager().refresh(samuraiDiscord.getClient().getGuilds()));
+        Bot.shutdown();
+    }
 }

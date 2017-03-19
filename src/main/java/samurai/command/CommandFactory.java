@@ -18,7 +18,10 @@ public class CommandFactory {
 
     private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-    private static final HashMap<String, Class<? extends Command>> actionMap = new HashMap<>();
+    private static final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+
+    private CommandFactory() {
+    }
 
     public static void initialize() {
         Reflections reflections = new Reflections("samurai.command");
@@ -31,19 +34,16 @@ public class CommandFactory {
             }
             String[] name = action.getName().substring(15).split("\\.");
             for (String key : actionKey.value()) {
-                actionMap.put(key, action);
+                commandMap.put(key, action);
                 System.out.printf("%-11s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
             }
         }
     }
 
-    private CommandFactory() {
-    }
-
     private static Command newAction(String key) {
-        if (!actionMap.containsKey(key)) return new GenericCommand();
+        if (!commandMap.containsKey(key)) return new GenericCommand();
         try {
-            return actionMap.get(key).newInstance();
+            return commandMap.get(key).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             //todo
             return null;
@@ -51,7 +51,7 @@ public class CommandFactory {
     }
 
     public static Set<String> keySet() {
-        return actionMap.keySet();
+        return commandMap.keySet();
     }
 
     private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentions, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
@@ -59,6 +59,8 @@ public class CommandFactory {
         //if content does not with token ex. "!"
         if (content.startsWith("<@270044218167132170>"))
             content = content.replaceFirst("<@270044218167132170>( )?", token);
+        if (content.startsWith("<@!270044218167132170>"))
+            content = content.replaceFirst("<@!270044218167132170>( )?", token);
         if (!content.startsWith(token) || content.length() <= token.length()) return null;
 
         content = content.substring(token.length());
@@ -104,6 +106,10 @@ public class CommandFactory {
         final String content = message.getRawContent().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
         return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentions, attachments, event.getChannel(), time);
+    }
+
+    public static HashMap<String, Class<? extends Command>> getCommandMap() {
+        return commandMap;
     }
 }
 

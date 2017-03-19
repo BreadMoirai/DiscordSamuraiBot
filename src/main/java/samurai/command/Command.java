@@ -1,6 +1,6 @@
 package samurai.command;
 
-import samurai.entities.base.SamuraiMessage;
+import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
@@ -14,10 +14,6 @@ public abstract class Command {
 
     private CommandContext context;
 
-    public void setContext(CommandContext context) {
-        this.context = context;
-    }
-
     public Optional<SamuraiMessage> call() {
         Optional<SamuraiMessage> messageOptional = Optional.ofNullable(execute(context));
         messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannelId(context.getChannelId()));
@@ -26,8 +22,15 @@ public abstract class Command {
 
     protected abstract SamuraiMessage execute(CommandContext context);
 
-
     public CommandContext getContext() {
         return context;
+    }
+
+    public void setContext(CommandContext context) {
+        this.context = context;
+    }
+
+    public boolean isEnabled() {
+        return Commands.valueOf(this.getClass().getSimpleName()).isEnabled(context.getGuild().getEnabledCommands());
     }
 }

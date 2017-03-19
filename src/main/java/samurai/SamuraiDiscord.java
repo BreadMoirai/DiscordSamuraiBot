@@ -7,14 +7,12 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.GenericCommand;
-import samurai.command.admin.Groovy;
+import samurai.command.restricted.Groovy;
 import samurai.core.GuildManager;
 import samurai.core.MessageManager;
-import samurai.entities.base.SamuraiMessage;
-import samurai.listeners.*;
+import samurai.discord.listeners.*;
 
 import javax.security.auth.login.LoginException;
-import java.util.Optional;
 
 /**
  * @author TonTL
@@ -38,7 +36,7 @@ public class SamuraiDiscord {
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
-        if (client.getGuildById("233097800722808832") != null)
+        if (client.getGuildById(Bot.SOURCE_GUILD) != null)
             client.addEventListener(new DreadmoiraiSamuraiGuildListener());
 
         shardId = client.getShardInfo().getShardId();
@@ -46,6 +44,7 @@ public class SamuraiDiscord {
         guildManager = new GuildManager();
         messageManager = new MessageManager(client);
         if (shardId == 0) {
+            client.addEventListener(new DiscordPrivateMessageListener());
             Groovy.addBinding("gm", guildManager);
             Groovy.addBinding("mm", messageManager);
         }
@@ -59,9 +58,11 @@ public class SamuraiDiscord {
 
     public void onCommand(Command c) {
         completeContext(c.getContext());
-        c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
-        if (c instanceof GenericCommand) {
-            messageManager.onCommand((GenericCommand) c);
+        if (c.isEnabled()) {
+            c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
+            if (c instanceof GenericCommand) {
+                messageManager.onCommand((GenericCommand) c);
+            }
         }
     }
 
@@ -89,5 +90,10 @@ public class SamuraiDiscord {
 
     public void onMessageDelete(long channelId, long messageId) {
         messageManager.remove(channelId, messageId);
+    }
+
+
+    public GuildManager getGuildManager() {
+        return guildManager;
     }
 }

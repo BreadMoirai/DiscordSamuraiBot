@@ -4,8 +4,8 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
-import samurai.entities.base.FixedMessage;
-import samurai.entities.base.SamuraiMessage;
+import samurai.messages.base.FixedMessage;
+import samurai.messages.base.SamuraiMessage;
 
 import java.util.List;
 

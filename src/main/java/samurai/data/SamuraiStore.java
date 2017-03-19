@@ -1,6 +1,7 @@
 package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
+import samurai.entities.SamuraiGuild;
 import samurai.osu.BeatmapSet;
 import samurai.osu.Score;
 
@@ -12,6 +13,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,31 +86,33 @@ public class SamuraiStore {
 
     //guild methods
     public static boolean guildExists(long id) {
-        return new File(getGuildDataPath(id)).exists();
+        return getGuildDataPath(id).toFile().exists();
     }
 
-    private static String getGuildDataPath(long id) {
-        return String.format("%s/%d.ser", SamuraiStore.class.getResource("guild").getPath(), id);
+    private static Path getGuildDataPath(long id) {
+        return Paths.get(String.format("%s/%d.ser", SamuraiStore.class.getResource("guild").getPath(), id).substring(1));
     }
 
     public static void writeGuild(SamuraiGuild g) {
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(getGuildDataPath(g.getGuildId())))) {
-            outputStream.writeObject(g);
+        try {
+            Files.write(getGuildDataPath(g.getGuildId()), g.writeBytes());
+            System.out.println("Successfully wrote guild " + g.getGuildId());
         } catch (IOException e) {
-            //todo Bot.logError(e);
+            System.err.println("Failed to write " + g.getGuildId());
         }
-        //todo Bot.log("☑ GuildWrite - " + g.getGuildId());
     }
 
     public static SamuraiGuild readGuild(long guildId) {
-        try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(getGuildDataPath(guildId)))) {
-            SamuraiGuild g = (SamuraiGuild) input.readObject();
-            if (g != null) {}//todo Bot.log("✅ GuildRead - " + g.getGuildId());
-            return g;
-        } catch (IOException | ClassNotFoundException e) {
-            //todo Bot.logError(e);
-            return null;
+        try {
+            SamuraiGuild g = new SamuraiGuild();
+            if (g.readBytes(Files.readAllBytes(getGuildDataPath(guildId)))) {
+                System.out.println("Successfully read guild " + guildId);
+                return g;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
 

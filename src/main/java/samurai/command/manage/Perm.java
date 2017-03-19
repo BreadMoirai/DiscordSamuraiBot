@@ -4,8 +4,8 @@ import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.entities.base.FixedMessage;
-import samurai.entities.base.SamuraiMessage;
+import samurai.messages.base.FixedMessage;
+import samurai.messages.base.SamuraiMessage;
 import samurai.util.BotUtil;
 
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import java.util.List;
 @Key("perm")
 public class Perm extends Command {
 
-    private static final List<Permission> required = Arrays.asList(Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY);
+    private static final List<Permission> required = Arrays.asList(Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY);
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
