@@ -7,6 +7,7 @@ import samurai.SamuraiDiscord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author TonTL
@@ -28,5 +29,9 @@ public class BotUtil {
 
     public static User retrieveUser(long discordId) {
         return shards.get(0).getClient().retrieveUserById(String.valueOf(discordId)).complete();
+    }
+
+    public static TextChannel getChannel(long id) {
+        return shards.stream().map(SamuraiDiscord::getClient).map(jda -> jda.getTextChannelById(String.valueOf(id))).filter(Objects::nonNull).findAny().orElse(null);
     }
 }

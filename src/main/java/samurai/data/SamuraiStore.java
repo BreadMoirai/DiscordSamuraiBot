@@ -2,8 +2,8 @@ package samurai.data;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.entities.SamuraiGuild;
-import samurai.osu.BeatmapSet;
-import samurai.osu.Score;
+import samurai.osu.entities.BeatmapSet;
+import samurai.osu.entities.Score;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

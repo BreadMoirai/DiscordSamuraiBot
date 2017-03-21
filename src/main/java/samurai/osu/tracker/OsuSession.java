@@ -1,11 +1,14 @@
-package samurai.osu;
+package samurai.osu.tracker;
 
 import org.json.JSONObject;
 import samurai.entities.SamuraiUser;
+import samurai.osu.entities.Score;
+import samurai.osu.enums.GameMode;
 import samurai.util.OsuAPI;
 
 import java.time.OffsetDateTime;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author TonTL
@@ -14,9 +17,10 @@ import java.util.LinkedList;
 public class OsuSession {
     private OffsetDateTime startTime;
     private String player;
-    private long osuId;
+    private int osuId;
     private int initialRankGlobal;
     private LinkedList<SamuraiUser> samuraiUsers;
+    private ScoreCache cache;
 
     public OsuSession(SamuraiUser u) {
         startTime = OffsetDateTime.now();
@@ -41,4 +45,7 @@ public class OsuSession {
     }
 
 
+    public void update() {
+        List<Score> newScores = cache.addScores(OsuAPI.getUserRecent(player, osuId, GameMode.OSU, 10));
+    }
 }

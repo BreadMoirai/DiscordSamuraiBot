@@ -1,7 +1,6 @@
-package samurai.osu;
+package samurai.osu.entities;
 
 
-import org.json.JSONObject;
 import samurai.data.SamuraiStore;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;

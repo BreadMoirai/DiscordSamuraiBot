@@ -5,8 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import samurai.data.SamuraiDatabase;
-import samurai.osu.Beatmap;
-import samurai.osu.Score;
+import samurai.osu.entities.Beatmap;
+import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
 
 import java.io.BufferedReader;

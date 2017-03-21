@@ -7,9 +7,9 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.data.SamuraiDatabase;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ReactionListener;
-import samurai.osu.Beatmap;
-import samurai.osu.BeatmapSet;
-import samurai.osu.Score;
+import samurai.osu.entities.Beatmap;
+import samurai.osu.entities.BeatmapSet;
+import samurai.osu.entities.Score;
 import samurai.osu.enums.Mod;
 import samurai.util.MessageUtil;
 

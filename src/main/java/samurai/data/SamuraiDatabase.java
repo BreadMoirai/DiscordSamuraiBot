@@ -2,7 +2,7 @@ package samurai.data;
 
 import org.apache.commons.collections4.MapUtils;
 import org.json.JSONArray;
-import samurai.osu.BeatmapSet;
+import samurai.osu.entities.BeatmapSet;
 import samurai.util.OsuAPI;
 
 import java.io.IOException;

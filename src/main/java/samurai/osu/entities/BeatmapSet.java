@@ -1,4 +1,4 @@
-package samurai.osu;
+package samurai.osu.entities;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

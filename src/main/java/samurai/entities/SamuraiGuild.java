@@ -3,7 +3,7 @@ package samurai.entities;
 import org.json.JSONObject;
 import samurai.Bot;
 import samurai.command.Commands;
-import samurai.osu.Score;
+import samurai.osu.entities.Score;
 
 import java.io.*;
 import java.util.*;

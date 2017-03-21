@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.entities.SamuraiUser;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ReactionListener;
-import samurai.osu.Score;
+import samurai.osu.entities.Score;
 import samurai.util.MessageUtil;
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package samurai.osu;
+package samurai.osu.entities;
 
 import samurai.osu.enums.GameMode;
 

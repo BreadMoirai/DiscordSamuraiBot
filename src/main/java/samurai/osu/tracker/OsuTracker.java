@@ -1,6 +1,8 @@
-package samurai.osu;
+package samurai.osu.tracker;
 
+import samurai.entities.SamuraiGuild;
 import samurai.entities.SamuraiUser;
+import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
 import samurai.util.BotUtil;
 import samurai.util.OsuAPI;
@@ -28,7 +30,7 @@ public class OsuTracker {
     }
 
     private static void dotheThing() {
-
+        tracking.forEach(OsuSession::update);
     }
 
     private static List<Score> getRecentScore(SamuraiUser user) {
@@ -48,4 +50,7 @@ public class OsuTracker {
     }
 
 
+    public static void register(SamuraiGuild samuraiGuild, SamuraiUser user) {
+
+    }
 }

@@ -1,6 +1,6 @@
 package samurai.data;
 
-import samurai.osu.Score;
+import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
 
 import java.io.BufferedInputStream;
