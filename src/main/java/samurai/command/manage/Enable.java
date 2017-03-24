@@ -11,6 +11,7 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,12 +27,16 @@ public class Enable extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final long enabledCommands = context.getGuild().getEnabledCommands();
         if (context.hasContent()) {
-            if (context.getContent().contains("byte"))
-                return FixedMessage.build("`" + Long.toBinaryString(context.getGuild().getEnabledCommands()) + "`");
+            if (context.getContent().equalsIgnoreCase("byte"))
+                return FixedMessage.build(String.format("`%24s`", Long.toBinaryString(context.getGuild().getEnabledCommands())).replace(' ', '0'));
             final Set<Commands> args;
             try {
                 final HashMap<String, Class<? extends Command>> commandMap = CommandFactory.getCommandMap();
-                args = context.getArgs().stream().map(commandMap::get).map(Class::getSimpleName).map(Commands::valueOf).collect(Collectors.toSet());
+                if (context.getContent().equalsIgnoreCase("all")) {
+                    args = Arrays.stream(Commands.values()).filter(commands -> commands != Commands.Enable).collect(Collectors.toSet());
+                } else {
+                    args = context.getArgs().stream().map(commandMap::get).filter(Objects::nonNull).map(Class::getSimpleName).map(Commands::valueOf).filter(commands -> commands != Commands.Enable).collect(Collectors.toSet());
+                }
             } catch (IllegalArgumentException e) {
                 return FixedMessage.build("Could not find specified command");
             }

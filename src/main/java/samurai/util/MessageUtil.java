@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.osu.entities.Score;
 
+import java.awt.*;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -18,7 +20,15 @@ public class MessageUtil {
     public static Message build(Score s) {
         final MessageBuilder messageBuilder = new MessageBuilder();
         final EmbedBuilder embedBuilder = new EmbedBuilder();
-        return null;
+        embedBuilder.setColor(Color.pink);
+        StringBuilder sb = embedBuilder.getDescriptionBuilder();
+        sb.append("**Player: **").append(s.getPlayer());
+        sb.append("**\nScore: **").append(s.getScore());
+        sb.append("**\nAccuracy: **").append(s.getAccuracy());
+        sb.append("**\nGrade: **").append(s.getGrade());
+        sb.append("**\nMD5: **").append(s.getBeatmapHash());
+        embedBuilder.setTimestamp(Instant.ofEpochSecond(s.getTimestamp()));
+        return messageBuilder.setEmbed(embedBuilder.build()).build();
     }
 
     public static void addReaction(Message message, Collection<String> s) {
@@ -32,6 +42,10 @@ public class MessageUtil {
             message.addReaction(iterator.next()).queue(null ,null);
         }
         message.addReaction(iterator.next()).queue(consumer, null);
+    }
+
+    public static Message of(String s) {
+        return new MessageBuilder().append(s).build();
     }
 
 }

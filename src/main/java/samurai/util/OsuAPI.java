@@ -8,6 +8,7 @@ import samurai.data.SamuraiDatabase;
 import samurai.osu.entities.Beatmap;
 import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
+import samurai.osu.enums.Grade;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +18,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by TonTL on 1/23/2017.
@@ -49,7 +52,7 @@ public class OsuAPI {
         String url = String.format("%s%s%s&u=%d&m=%d&limit=%d&type=id", OSU_API, GET_RECENT, KEY, userId, m.value(), limit);
         final JSONArray jsonArray = readJsonFromUrl(url);
         if (jsonArray == null) return Collections.emptyList();
-        return jsonArray.toList().stream().map(o -> ((JSONObject) o)).map((jsonObject) -> scoreFromJson(jsonObject, player)).collect(Collectors.toList());
+        return IntStream.range(0, limit).mapToObj(jsonArray::optJSONObject).filter(Objects::nonNull).map(jsonObject -> scoreFromJson(jsonObject, player)).collect(Collectors.toList());
     }
 
     private static Score scoreFromJson(JSONObject jsonObject, String player) {
@@ -77,6 +80,7 @@ public class OsuAPI {
                 .setGeki((short) jsonObject.getInt("countgeki"))
                 .setPerfectCombo(jsonObject.getInt("perfect") == 1)
                 .setModCombo(jsonObject.getInt("enabled_mods"))
+                .setGrade(Grade.valueOf(jsonObject.getString("rank")))
                 .setTimestamp(OffsetDateTime.parse(jsonObject.getString("date").replace(' ', 'T') + "+08:00").toEpochSecond());
         return s;
     }

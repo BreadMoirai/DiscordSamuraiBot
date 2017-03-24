@@ -18,6 +18,7 @@ import java.util.List;
 public class Score {
     private GameMode mode;
     private String beatmapHash, player, replayHash;
+    private Grade grade;
     private short count300, count100, count50, geki, katu, count0;
     private int score;
     private short maxCombo;
@@ -33,6 +34,13 @@ public class Score {
     }
 
     public Grade getGrade() {
+        if (grade == null) {
+            setGrade(calculateGrade());
+        }
+        return grade;
+    }
+
+    public Grade calculateGrade() {
         float countTotal = count0 + count50 + count100 + count300;
         float percent300 = (float)count300/countTotal;
         List<Mod> mods = Mod.getMods(modCombo);
@@ -59,6 +67,12 @@ public class Score {
         }
     }
 
+    public Score setGrade(Grade grade) {
+        this.grade = grade;
+        return this;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -79,7 +93,6 @@ public class Score {
         if (!beatmapHash.equals(score1.beatmapHash)) return false;
         return player.equals(score1.player);
     }
-
 
     @Override
     public int hashCode() {
@@ -106,11 +119,11 @@ public class Score {
         return mode;
     }
 
+
     public Score setMode(GameMode mode) {
         this.mode = mode;
         return this;
     }
-
 
     public Score setVersion(int version) {
 
@@ -290,4 +303,7 @@ public class Score {
         return byteBuffer.array();
     }
 
+    public boolean passed() {
+        return grade != Grade.F;
+    }
 }

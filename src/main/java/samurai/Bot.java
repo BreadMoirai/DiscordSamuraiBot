@@ -52,15 +52,14 @@ public class Bot {
 
     private static void start() {
 
-        JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT);
-
         final Config config = ConfigFactory.load();
-        JDABuilder builder = jdaBuilder
-                .setToken(config.getString("samurai.token"))
-                .setAudioEnabled(false);
 
         for (int i = 0; i < SHARD_COUNT; i++)
-        shards.add(new SamuraiDiscord(builder.useSharding(i,SHARD_COUNT)));
+        shards.add(new SamuraiDiscord(
+                new JDABuilder(AccountType.BOT)
+                .setToken(config.getString("samurai.token"))
+                .setAudioEnabled(false)
+                .useSharding(i,SHARD_COUNT)));
 
 
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
@@ -77,7 +76,7 @@ public class Bot {
         }
         System.out.println("Complete");
         try {
-            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\primary\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\primary\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\primary\\resources\\samurai\\data\\exclude.txt");
+            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }

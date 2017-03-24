@@ -4,8 +4,10 @@ import org.json.JSONObject;
 import samurai.Bot;
 import samurai.command.Commands;
 import samurai.osu.entities.Score;
+import samurai.osu.enums.GameMode;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -22,6 +24,7 @@ public class SamuraiGuild {
     private ArrayList<Chart> charts;
     private long enabledCommands;
     private long dedicatedChannel;
+    private HashMap<Long, GameMode> channelModes;
 
     public SamuraiGuild() {
     }
@@ -36,6 +39,7 @@ public class SamuraiGuild {
         active = false;
         enabledCommands = Commands.getDefaultEnabledCommands();
         dedicatedChannel = 0L;
+        channelModes = new HashMap<>();
     }
 
     public static int mergeScoreMap(HashMap<String, LinkedList<Score>> base, HashMap<String, LinkedList<Score>> annex) {
@@ -57,8 +61,9 @@ public class SamuraiGuild {
     }
 
     public void addUser(long id, JSONObject userJSON) {
-        users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank")));
+        users.add(new SamuraiUser(id, userJSON.getInt("user_id"), userJSON.getString("username"), userJSON.getInt("pp_rank"), userJSON.getInt("pp_country_rank"), Instant.now().getEpochSecond()));
         updateLocalRanks();
+
     }
 
     public SamuraiUser getUser(long discordId) {
@@ -150,6 +155,7 @@ public class SamuraiGuild {
         out.writeLong(guildId);
         out.writeLong(enabledCommands);
         out.writeLong(dedicatedChannel);
+
         out.writeShort(users.size());
         for (SamuraiUser u : users) {
             out.writeLong(u.getDiscordId());
@@ -158,7 +164,9 @@ public class SamuraiGuild {
             out.writeInt(u.getG_rank());
             out.writeInt(u.getC_rank());
             out.writeShort(u.getL_rank());
+            out.writeLong(u.getLastUpdated());
         }
+
         out.writeShort(charts.size());
         for (Chart c : charts) {
             out.writeInt(c.getChartId());
@@ -166,6 +174,12 @@ public class SamuraiGuild {
             out.writeByte(c.getBeatmapIds().size());
             for (int i : c.getBeatmapIds())
                 out.writeInt(i);
+        }
+
+        out.writeShort(channelModes.size());
+        for (Map.Entry<Long, GameMode> entry : channelModes.entrySet()) {
+            out.writeLong(entry.getKey());
+            out.writeByte(entry.getValue().value());
         }
         return bout.toByteArray();
     }
@@ -178,10 +192,11 @@ public class SamuraiGuild {
             prefix = in.readUTF();
             guildId = in.readLong();
             enabledCommands = in.readLong();
+            dedicatedChannel = in.readLong();
             users = new ArrayList<>();
             for (int i = 0, size = in.readShort(); i < size; i++) {
                 long id = in.readLong();
-                users.add(new SamuraiUser(id, in.readInt(), in.readUTF(), in.readInt(), in.readInt(), in.readShort()));
+                users.add(new SamuraiUser(id, in.readInt(), in.readUTF(), in.readInt(), in.readInt(), in.readShort(), in.readLong()));
             }
             charts = new ArrayList<>();
             for (int i = 0, size = in.readShort(); i < size; i++) {
@@ -194,7 +209,14 @@ public class SamuraiGuild {
                 }
                 charts.add(new Chart(id, name, chart));
             }
+
+            channelModes = new HashMap<>();
+            for (int i = 0, size = in.readShort(); i < size; i++) {
+                channelModes.put(in.readLong(), GameMode.get(in.readByte()));
+            }
+
             scoreMap = new HashMap<>();
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -221,5 +243,13 @@ public class SamuraiGuild {
 
     public void setDedicatedChannel(String dedicatedChannel) {
         this.dedicatedChannel = Long.parseLong(dedicatedChannel);
+    }
+
+    public GameMode getMode(long channelId) {
+        return channelModes.getOrDefault(channelId, GameMode.OSU);
+    }
+
+    public void setMode(long channelId, GameMode mode) {
+        this.channelModes.put(channelId, mode);
     }
 }

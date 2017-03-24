@@ -7,7 +7,6 @@ import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.data.SamuraiDatabase;
-import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 /**
@@ -23,6 +22,6 @@ public class Shutdown extends Command {
     public SamuraiMessage execute(CommandContext context) {
         SamuraiDatabase.write();
         Bot.shutdown();
-        return FixedMessage.build("See ya later, loser.");
+        return null;
     }
 }

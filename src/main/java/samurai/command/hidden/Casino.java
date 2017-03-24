@@ -4,7 +4,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.black_jack.BlackJack;
+import samurai.messages.dynamic.black_jack.Poker;
 
 /**
  * @author TonTL
@@ -15,6 +15,6 @@ public class Casino extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return new BlackJack();
+        return new Poker();
     }
 }

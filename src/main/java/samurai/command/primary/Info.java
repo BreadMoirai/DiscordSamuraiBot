@@ -11,7 +11,9 @@ import samurai.entities.SamuraiUser;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -42,7 +44,7 @@ public class Info extends Command {
                     .setAuthor(userD.getEffectiveName(), null, userD.getUser().getEffectiveAvatarUrl())
                     .setColor(userD.getColor())
                     .setTimestamp(OffsetDateTime.now())
-                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n", userS.getDiscordId(), userS.getOsuId(), userS.getOsuName(), userS.getG_rank(), userS.getC_rank(), userS.getL_rank(), guild.getUserCount()))
+                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n**Last Updated: **%.2f days ago.", userS.getDiscordId(), userS.getOsuId(), userS.getOsuName(), userS.getG_rank(), userS.getC_rank(), userS.getL_rank(), guild.getUserCount(), Instant.ofEpochSecond(userS.getLastUpdated()).until(Instant.now(), ChronoUnit.HOURS)/24.00))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         }

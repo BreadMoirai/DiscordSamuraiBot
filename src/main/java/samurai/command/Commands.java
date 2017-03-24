@@ -22,24 +22,26 @@ public enum Commands {
     Join(256L),
     Menu(512L),
     Ping(1024L),
-    Enable(2048L),
-    Perm(4096L),
-    Prefix(8192L),
-    Status(16384L),
-    Uptime(32768L),
-    Casino(65536L),
-    Duel(131072L),
-    Flame(262144L),
-    Hangman(524288L),
-    Wasted(1048576L),
-    Purge(2097152L),
-    Refresh(4194304L),
-    Reset(8388608L),
-    Shutdown(16777216L),
-    Draw(33554432L),
-    ExampleCommand(67108864L),
-    Groovy(134217728L),
-    ToList(268435456L);
+    Dedicate(2048L),
+    Enable(4096L),
+    Perm(8192L),
+    Prefix(16384L),
+    Status(32768L),
+    Uptime(65536L),
+    Casino(131072L),
+    Duel(262144L),
+    Flame(524288L),
+    Hangman(1048576L),
+    Wasted(2097152L),
+    Purge(4194304L),
+    Refresh(8388608L),
+    Reset(16777216L),
+    Shutdown(33554432L),
+    Draw(67108864L),
+    ExampleCommand(134217728L),
+    GetRecent(268435456L),
+    Groovy(536870912L),
+    ToList(1073741824L);
 
 
     private final long value;
@@ -103,6 +105,7 @@ public enum Commands {
                 return 7;
             } else return 0;
         }
+
     }
 
 

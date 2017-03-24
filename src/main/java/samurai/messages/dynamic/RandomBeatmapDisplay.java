@@ -56,7 +56,8 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
                 .setTitle(String.format("%s by %s", currentSet.getSong(), currentSet.getArtist()), null)
                 .setColor(Color.PINK)
                 .setAuthor("Osu!BeatmapInfo", String.format("https://osu.ppy.sh/b/%s&m=%d", beatmap.getMapID(), beatmap.getGameMode().value()), "http://w.ppy.sh/c/c9/Logo.png")
-                .setFooter(String.valueOf(beatmap.getMapID()), "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg");
+                .setFooter(String.valueOf(beatmap.getMapID()), "https://cdn.discordapp.com/avatars/270044218167132170/c3b45c87f7b63e7634665a11475beedb.jpg")
+                .setThumbnail("https://b.ppy.sh/thumb/" + currentSet.getSetId() + ".jpg");
         double stars = beatmap.getDifficultyRating();
         StringBuilder diff = new StringBuilder().append(currentSet.getRankedStatus().getEmote());
         diff.append(String.format("[**%s**] ", beatmap.getDifficulty()));

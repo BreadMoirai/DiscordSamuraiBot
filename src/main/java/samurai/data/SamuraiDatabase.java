@@ -64,8 +64,8 @@ public class SamuraiDatabase {
 
     public static BeatmapSet getSet(int mapId) {
         final Integer setId = ID_SET.get(mapId);
-        //noinspection ConstantConditions
-        if (!SamuraiStore.getSetFile(setId).exists()) {
+
+        if (setId != null && !SamuraiStore.getSetFile(setId).exists()) {
             return SamuraiStore.readSet(setId);
         } else {
             BeatmapSet set = new BeatmapSet(OsuAPI.getBeatmapSetArrayFromMap(mapId));

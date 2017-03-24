@@ -13,9 +13,10 @@ public enum Grade {
     B (5),
     C (6),
     D (7),
+    F (8),
     NONE (9);
 
-    private static final String[] id = {"285320304618766346", "285320304610508800", "285320304618766346", "285320304614572042", "285320304476291074", "285320304354656267", "285320304392273921", "285320304614703104"};
+    private static final String[] id = {"<:score_ssplus:291015373850017792>", "<:score_ss:291015373850017802>", "<:score_splus:291015373854212109>", "<:score_s:291015373367803915>", "<:score_a:291015373795622912>", "<:score_b:291015373632045057>", "<:score_c:291015373850148865>", "\uD83C\uDDE9" ,"<:score_f:291015373459816451>"};
     private final int value;
 
     Grade(int value) {
@@ -41,10 +42,6 @@ public enum Grade {
     }
 
     public String getEmote() {
-        if (this==Grade.NONE) {
-            return "";
-        } else {
-            return String.format("<:ranking%s:%s>", this.toString(), id[this.value()]);
-        }
+        return id[value];
     }
 }
