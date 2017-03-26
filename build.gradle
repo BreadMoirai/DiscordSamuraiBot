@@ -1,9 +1,7 @@
 plugins {
-    id'java'
-    id'application'
-    id'com.github.johnrengelman.shadow' version '1.2.4'
-    id'idea'
-    id'groovy'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+    id 'groovy'
 }
 
 idea {
@@ -12,26 +10,14 @@ idea {
     }
 }
 
-//noinspection GroovyUnusedAssignment
-sourceCompatibility = 1.8
+version = "4.5"
 
-version="4.5"
-
-//noinspection GroovyUnusedAssignment
 mainClassName = "samurai.Bot"
-
-repositories {
-    jcenter()
-    mavenCentral()
-}
 
 dependencies {
     compile 'net.dv8tion:JDA:3.0.0_160'
     compile 'org.codehaus.groovy:groovy:2.4.8'
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
-    compile group: 'org.apache.derby', name: 'derby', version: '10.13.1.1'
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile project(':SamuraiDerbyDatabase')
 }
-
-compileJava.options.encoding = 'UTF-8'
