@@ -20,9 +20,7 @@
       <module name="SamuraiDiscordBot_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
-  <component name="CopyrightManager" default="">
-    <module2copyright />
-  </component>
+  <component name="CopyrightManager" default="" />
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
@@ -80,7 +78,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Samurai.iml" filepath="$PROJECT_DIR$/Samurai.iml" group="Samurai" />
+      <module fileurl="file://$PROJECT_DIR$/SamuraiBot.iml" filepath="$PROJECT_DIR$/SamuraiBot.iml" group="Samurai" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase.iml" filepath="$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase.iml" group="SamuraiDerbyDatabase" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase_main.iml" filepath="$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase_main.iml" group="SamuraiDerbyDatabase" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase_test.iml" filepath="$PROJECT_DIR$/.idea/modules/507127170/SamuraiDerbyDatabase_test.iml" group="SamuraiDerbyDatabase" />
