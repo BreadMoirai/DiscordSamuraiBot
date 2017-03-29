@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":Samurai:test" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="SamuraiDiscordBot" external.system.module.type="sourceSet" external.system.module.version="4.5" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":SamuraiBot:test" external.linked.project.path="$MODULE_DIR$/../../.." external.root.project.path="$MODULE_DIR$/../../../.." external.system.id="GRADLE" external.system.module.group="DiscordSamuraiBot" external.system.module.type="sourceSet" external.system.module.version="4.5" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output-test url="file://$MODULE_DIR$/../../build/classes/test" />
+    <output-test url="file://$MODULE_DIR$/../../../build/classes/test" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/groovy" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
+    <content url="file://$MODULE_DIR$/../../../src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/test/groovy" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Samurai_main" />
+    <orderEntry type="module" module-name="SamuraiBot_main" />
     <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.0.0_160" level="project" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy:2.4.8" level="project" />
     <orderEntry type="library" name="Gradle: org.reflections:reflections:0.9.10" level="project" />
@@ -36,5 +36,5 @@
     <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore-nio:4.4.4" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="Samurai_main" />
+  <component name="TestModuleProperties" production-module="SamuraiBot_main" />
 </module>

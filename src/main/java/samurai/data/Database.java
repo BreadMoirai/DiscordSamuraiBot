@@ -163,7 +163,7 @@ public class Database {
              * automatically shuts down all booted databases.
              *
              * Explicitly shutting down the database or the Derby engine with
-             * the connection URL is preferred. This style of shutdown will
+             * the connection URL is preferred. This style of close will
              * always throw an SQLException.
              *
              * Not shutting down when in a client environment, see method
@@ -172,23 +172,23 @@ public class Database {
 
             if (framework.equals("embedded")) {
                 try {
-                    // the shutdown=true attribute shuts down Derby
-                    DriverManager.getConnection("jdbc:derby:;shutdown=true");
+                    // the close=true attribute shuts down Derby
+                    DriverManager.getConnection("jdbc:derby:;close=true");
 
                     // To shut down a specific database only, but keep the
                     // engine running (for example for connecting to other
                     // databases), specify a database in the connection URL:
-                    //DriverManager.getConnection("jdbc:derby:" + dbName + ";shutdown=true");
+                    //DriverManager.getConnection("jdbc:derby:" + dbName + ";close=true");
                 } catch (SQLException se) {
                     if (((se.getErrorCode() == 50000)
                             && ("XJ015".equals(se.getSQLState())))) {
                         // we got the expected exception
                         System.out.println("Derby shut down normally");
-                        // Note that for single database shutdown, the expected
+                        // Note that for single database close, the expected
                         // SQL state is "08006", and the error code is 45000.
                     } else {
                         // if the error code or SQLState is different, we have
-                        // an unexpected exception (shutdown failed)
+                        // an unexpected exception (close failed)
                         System.err.println("Derby did not shut down normally");
                         printSQLException(se);
                     }

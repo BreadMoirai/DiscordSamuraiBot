@@ -31,7 +31,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
 
     /**
      * Unregisters this object with the messageManager.
-     * This object will shutdown receiving any events and should fall to garbage collection
+     * This object will close receiving any events and should fall to garbage collection
      */
     protected void unregister() {
         manager.unregister(this);

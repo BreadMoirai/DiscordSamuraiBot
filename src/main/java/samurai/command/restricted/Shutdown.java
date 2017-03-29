@@ -13,7 +13,7 @@ import samurai.messages.base.SamuraiMessage;
  * @author TonTL
  * @version 4.9 - 2/16/2017
  */
-@Key("shutdown")
+@Key("close")
 @Source
 @Creator
 public class Shutdown extends Command {

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * @version 5.x - 3/18/2017
  */
 public enum Commands {
-    GenericCommand(0x0L),
+    GenericCommand(0L),
     Info(1L),
     Link(2L),
     Profile(4L),
