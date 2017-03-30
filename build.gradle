@@ -4,12 +4,6 @@ plugins {
     id 'groovy'
 }
 
-idea {
-    module {
-        downloadJavadoc = true
-    }
-}
-
 version = "4.5"
 
 mainClassName = "samurai.Bot"
