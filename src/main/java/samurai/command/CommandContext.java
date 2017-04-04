@@ -6,6 +6,7 @@ import samurai.Database;
 import samurai.model.SGuild;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,7 +18,8 @@ import java.util.stream.Collectors;
 public class CommandContext {
     private final String key;
     private final Member author;
-    private final List<Member> mentionedMembers;
+    private final List<User> mentionedUsers;
+    private List<Member> mentionedMembers;
     private final List<Role> mentionedRoles;
     private final String content;
     private final List<Message.Attachment> attaches;
@@ -31,10 +33,10 @@ public class CommandContext {
     private final OffsetDateTime time;
     private int shardId;
 
-    public CommandContext(String key, Member author, List<Member> mentionedMembers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
+    public CommandContext(String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.key = key;
         this.author = author;
-        this.mentionedMembers = mentionedMembers;
+        this.mentionedUsers = mentionedUsers;
         this.mentionedRoles = mentionedRoles;
         this.mentionedChannels = mentionedChannels;
         this.content = content;
@@ -54,7 +56,15 @@ public class CommandContext {
         return author;
     }
 
+    public List<User> getMentionedUsers() {
+        return mentionedUsers;
+    }
+
     public List<Member> getMentionedMembers() {
+        if (mentionedMembers == null) {
+            final Guild guild = channel.getGuild();
+            mentionedMembers = Collections.unmodifiableList(mentionedUsers.stream().map(guild::getMember).collect(Collectors.toList()));
+        }
         return mentionedMembers;
     }
 
