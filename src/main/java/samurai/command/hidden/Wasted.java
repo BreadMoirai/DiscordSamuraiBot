@@ -34,7 +34,7 @@ public class Wasted extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final java.util.List<Member> mentions = context.getMentionsMembers();
+        final java.util.List<Member> mentions = context.getMentionedMembers();
         final List<String> args = context.getArgs();
         if (mentions.size() != 1) return null;
         String targetUrl = mentions.get(0).getUser().getEffectiveAvatarUrl();

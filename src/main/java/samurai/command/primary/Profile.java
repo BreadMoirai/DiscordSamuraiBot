@@ -27,7 +27,7 @@ public class Profile extends Command {
     @Override
     public SamuraiMessage execute(CommandContext context) {
         JSONObject profile;
-        java.util.List<Member> mentions = context.getMentionsMembers();
+        java.util.List<Member> mentions = context.getMentionedMembers();
         Member author = context.getAuthor();
         SamuraiGuild guild = context.getGuild();
         List<String> args = context.getArgs();

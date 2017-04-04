@@ -24,7 +24,7 @@ public class Rank extends Command {
     @Override
     public SamuraiMessage execute(CommandContext context) {
         final SamuraiGuild guild = context.getGuild();
-        final List<Member> mentions = context.getMentionsMembers();
+        final List<Member> mentions = context.getMentionedMembers();
         if (guild.getUsers().size() == 0) return FixedMessage.build("No users found.");
         long id;
         if (mentions.size() == 0) {

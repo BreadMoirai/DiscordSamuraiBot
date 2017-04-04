@@ -3,6 +3,7 @@ package samurai.command;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /**
  * Superclass of all actions
@@ -10,7 +11,7 @@ import java.util.Optional;
  * @author TonTL
  * @version 4.0
  */
-public abstract class Command {
+public abstract class Command implements Callable<Optional<SamuraiMessage>> {
 
     private CommandContext context;
 

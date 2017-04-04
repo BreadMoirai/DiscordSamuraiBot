@@ -7,6 +7,7 @@ import samurai.command.annotations.Key;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,8 @@ public class CommandFactory {
 
     private static final Pattern argPattern = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-    private static final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+    private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(Commands.values().length);
+    private static final Pattern SAMURAI_MENTION = Pattern.compile("<@(!)?270044218167132170>( )?");
 
     private CommandFactory() {
     }
@@ -34,33 +36,29 @@ public class CommandFactory {
             }
             String[] name = action.getName().substring(15).split("\\.");
             for (String key : actionKey.value()) {
-                commandMap.put(key, action);
+                COMMAND_MAP.put(key, action);
                 System.out.printf("%-11s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
             }
         }
     }
 
     private static Command newAction(String key) {
-        if (!commandMap.containsKey(key)) return new GenericCommand();
+        if (!COMMAND_MAP.containsKey(key)) return new GenericCommand();
         try {
-            return commandMap.get(key).newInstance();
+            return COMMAND_MAP.get(key).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             //todo
             return null;
         }
     }
 
-    public static Set<String> keySet() {
-        return commandMap.keySet();
-    }
-
     private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<Member> mentionedMembers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
         //if content does not with token ex. "!"
-        if (content.startsWith("<@270044218167132170>"))
-            content = content.replaceFirst("<@270044218167132170>( )?", token);
-        if (content.startsWith("<@!270044218167132170>"))
-            content = content.replaceFirst("<@!270044218167132170>( )?", token);
+        final Matcher matcher = SAMURAI_MENTION.matcher(content);
+        if (matcher.find() && matcher.start() == 0) {
+            matcher.replaceFirst(token);
+        }
         if (!content.startsWith(token) || content.length() <= token.length()) return null;
 
         content = content.substring(token.length());
@@ -83,8 +81,8 @@ public class CommandFactory {
     }
 
     public static List<String> parseArgs(String content) {
-        if (content != null && !content.equals("")) {
-            return Arrays.stream(argPattern.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("everyone") && !s.equals("@here")).map(s -> s.replace("\"", "")).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+        if (content != null && !content.isEmpty()) {
+            return Arrays.stream(argPattern.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("everyone") && !s.equals("@here")).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
         } else return Collections.emptyList();
     }
 
@@ -96,8 +94,8 @@ public class CommandFactory {
         final List<Member> mentionedMembers;
         {
             final Guild g = message.getGuild();
-            final List<Member> members = new ArrayList<>();
             final List<User> mentionedUsers = message.getMentionedUsers();
+            final List<Member> members = new ArrayList<>(mentionedUsers.size());
             mentionedUsers.forEach(user -> members.add(g.getMember(user)));
             mentionedMembers = Collections.unmodifiableList(members);
         }
@@ -111,7 +109,7 @@ public class CommandFactory {
     }
 
     public static HashMap<String, Class<? extends Command>> getCommandMap() {
-        return commandMap;
+        return COMMAND_MAP;
     }
 }
 

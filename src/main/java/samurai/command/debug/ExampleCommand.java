@@ -69,10 +69,10 @@ public class ExampleCommand extends Command {
         mb.append(String.format("%-10s| %s%n", "author", context.getAuthor().getUser().getName()))
                 .append(String.format("%-10s| %s%n", "channelId", context.getChannelId()));
         //get the mentions
-        if (!context.getMentionsMembers().isEmpty()) {
+        if (!context.getMentionedMembers().isEmpty()) {
             int i = 0;
             mb.append(String.format("%-10s| %s%n", "mentions", "----"));
-            for (Member u : context.getMentionsMembers())
+            for (Member u : context.getMentionedMembers())
                 mb.append(String.format("%8s. | %s%n", i++ + 1, u.getEffectiveName()));
         }
         //get the args

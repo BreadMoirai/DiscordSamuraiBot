@@ -30,10 +30,10 @@ public class Flame extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         try {
             List<String> flameList = Files.readAllLines(Paths.get(SamuraiStore.class.getResource("./flame.txt").toURI()));
-            if (context.getMentionsMembers().isEmpty()) {
+            if (context.getMentionedMembers().isEmpty()) {
                 return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getAuthor().getAsMention()));
             } else {
-                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getMentionsMembers().get(0).getAsMention()));
+                return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getMentionedMembers().get(0).getAsMention()));
             }
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();

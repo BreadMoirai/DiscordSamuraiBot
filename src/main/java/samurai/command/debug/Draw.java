@@ -18,7 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -31,10 +32,10 @@ public class Draw extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final java.util.List<String> args = context.getArgs();
+        final List<String> args = context.getArgs();
         if (args.size() == 0) return null;
         if (args.get(0).equals("stack")) {
-            ArrayList<Card> cards = new ArrayList<>(args.size() - 1);
+            List<Card> cards = new ArrayList<>(args.size() - 1);
             args.stream().skip(1).forEach(s -> {
                 try {
                     cards.add(Card.parseCard(s));

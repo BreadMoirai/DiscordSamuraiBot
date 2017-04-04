@@ -16,6 +16,7 @@ import samurai.data.SamuraiStore;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,39 +32,41 @@ import java.util.stream.Collectors;
 @Creator
 public class Groovy extends Command {
 
-    private static final Binding binding;
-    private static final GroovyShell gs;
+    private static final Binding BINDING;
+    private static final GroovyShell GROOVY_SHELL;
 
     static {
-        binding = new Binding();
-        binding.setVariable("CREATOR", "DreadMoirai");
-        binding.setVariable("BOT", Bot.class);
-        binding.setVariable("STORE", SamuraiStore.class);
-        binding.setVariable("DB", SamuraiDatabase.class);
-        binding.setVariable("CF", CommandFactory.class);
-        binding.setVariable("CD", Commands.class);
-        binding.setVariable("CDP", Commands.CommandCP.class);
-        gs = new GroovyShell(binding);
+        BINDING = new Binding();
+        BINDING.setVariable("CREATOR", "DreadMoirai");
+        BINDING.setVariable("BOT", Bot.class);
+        BINDING.setVariable("STORE", SamuraiStore.class);
+        BINDING.setVariable("DB", SamuraiDatabase.class);
+        BINDING.setVariable("CF", CommandFactory.class);
+        BINDING.setVariable("CD", Commands.class);
+        BINDING.setVariable("CDP", Commands.CommandCP.class);
+        GROOVY_SHELL = new GroovyShell(BINDING);
 
     }
 
     public static void addBinding(String name, Object value) {
-        binding.setVariable(name, value);
+        BINDING.setVariable(name, value);
     }
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final String content = context.getContent().replaceAll("`", "");
         if (content.length() <= 1) return null;
-        binding.setVariable("context", context);
+        BINDING.setVariable("context", context);
         if (content.contains("binding")) {
-            final Set set = binding.getVariables().entrySet();
-            //noinspection unchecked
-            return FixedMessage.build(((Set<Map.Entry<String, Object>>) set).stream().map(stringObjectEntry -> stringObjectEntry.getKey() + "=" + stringObjectEntry.getValue().getClass().getSimpleName()).collect(Collectors.joining("\n")));
+            final Set set = BINDING.getVariables().entrySet();
+            if (set.toArray() instanceof Map.Entry[]) {
+                Map.Entry[] entryArray = (Map.Entry[]) set.toArray();
+                return FixedMessage.build(Arrays.stream(entryArray).map(entry -> entry.getKey().toString() + '=' + entry.getValue().getClass().getSimpleName()).collect(Collectors.joining("\n")));
+            }
         }
 
         try {
-            Object result = gs.evaluate(content);
+            Object result = GROOVY_SHELL.evaluate(content);
             if (result != null) {
                 if (result instanceof byte[]) {
                     if (((byte[]) result).length == 0) {

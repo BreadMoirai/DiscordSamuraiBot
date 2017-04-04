@@ -15,9 +15,9 @@ public class Duel extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        if (context.getMentionsMembers().size() != 1)
+        if (context.getMentionedMembers().size() != 1)
             return new ConnectFour(context.getAuthor().getUser());
         else
-            return new ConnectFour(context.getAuthor().getUser(), context.getMentionsMembers().get(0).getUser());
+            return new ConnectFour(context.getAuthor().getUser(), context.getMentionedMembers().get(0).getUser());
     }
 }

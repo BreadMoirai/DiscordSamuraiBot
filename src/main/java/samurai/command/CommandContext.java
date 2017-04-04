@@ -1,14 +1,14 @@
 package samurai.command;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
-import samurai.entities.SamuraiGuild;
+import samurai.Database;
+import samurai.model.SGuild;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -17,7 +17,7 @@ import java.util.List;
 public class CommandContext {
     private final String key;
     private final Member author;
-    private final List<Member> mentionsMembers;
+    private final List<Member> mentionedMembers;
     private final List<Role> mentionedRoles;
     private final String content;
     private final List<Message.Attachment> attaches;
@@ -26,15 +26,15 @@ public class CommandContext {
     private final long messageId;
     private List<TextChannel> mentionedChannels;
     private List<String> args;
-    private SamuraiGuild guild;
-    private TextChannel channel;
-    private OffsetDateTime time;
+    private SGuild guild;
+    private final TextChannel channel;
+    private final OffsetDateTime time;
     private int shardId;
 
     public CommandContext(String key, Member author, List<Member> mentionedMembers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.key = key;
         this.author = author;
-        this.mentionsMembers = mentionedMembers;
+        this.mentionedMembers = mentionedMembers;
         this.mentionedRoles = mentionedRoles;
         this.mentionedChannels = mentionedChannels;
         this.content = content;
@@ -54,8 +54,8 @@ public class CommandContext {
         return author;
     }
 
-    public List<Member> getMentionsMembers() {
-        return mentionsMembers;
+    public List<Member> getMentionedMembers() {
+        return mentionedMembers;
     }
 
     public String getContent() {return content; }
@@ -77,13 +77,12 @@ public class CommandContext {
         return messageId;
     }
 
-    public SamuraiGuild getGuild() {
+    public SGuild getGuild() {
+        if (guild == null) {
+            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).map(User::getId).map(Long::parseLong).collect(Collectors.toList()));
+            guildOptional.ifPresent(guild -> this.guild = guild);
+        }
         return guild;
-    }
-
-    public CommandContext setGuild(SamuraiGuild guild) {
-        this.guild = guild;
-        return this;
     }
 
     public OffsetDateTime getTime() {
@@ -120,5 +119,13 @@ public class CommandContext {
 
     public List<Role> getMentionedRoles() {
         return mentionedRoles;
+    }
+
+    public Guild getDiscordGuild() {
+        return channel.getGuild();
+    }
+
+    public long getAuthorId() {
+        return Long.parseLong(author.getUser().getId());
     }
 }

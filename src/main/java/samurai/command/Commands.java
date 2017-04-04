@@ -88,7 +88,7 @@ public enum Commands {
             else return i;
         }
 
-        private int packagePriority(String s) {
+        private static int packagePriority(String s) {
             if (s.contains("primary")) {
                 return 1;
             } else if (s.contains("general")) {
