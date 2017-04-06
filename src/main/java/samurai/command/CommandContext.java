@@ -2,8 +2,8 @@ package samurai.command;
 
 import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
-import samurai.Database;
-import samurai.model.SGuild;
+import samurai.database.Database;
+import samurai.entities.model.SGuild;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class CommandContext {
     private final long messageId;
     private List<TextChannel> mentionedChannels;
     private List<String> args;
-    private SGuild guild;
+    private SGuild team;
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
@@ -87,12 +87,12 @@ public class CommandContext {
         return messageId;
     }
 
-    public SGuild getGuild() {
-        if (guild == null) {
+    public SGuild getTeam() {
+        if (team == null) {
             final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).map(User::getId).map(Long::parseLong).collect(Collectors.toList()));
-            guildOptional.ifPresent(guild -> this.guild = guild);
+            guildOptional.ifPresent(guild -> this.team = guild);
         }
-        return guild;
+        return team;
     }
 
     public OffsetDateTime getTime() {

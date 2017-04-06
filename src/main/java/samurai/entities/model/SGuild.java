@@ -2,6 +2,7 @@ package samurai.entities.model;
 
 import samurai.database.Entry;
 import samurai.entities.manager.GuildManager;
+import samurai.osu.enums.GameMode;
 
 import java.util.List;
 import java.util.Optional;

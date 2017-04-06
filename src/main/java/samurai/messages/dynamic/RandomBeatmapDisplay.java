@@ -60,7 +60,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
         double stars = beatmap.getDifficultyRating();
         StringBuilder diff = new StringBuilder().append(currentSet.getRankedStatus().getEmote());
         diff.append(String.format("[**%s**] ", beatmap.getDifficulty()));
-        for (int i = 0; i < (int) stars; i++) diff.append("⭐");
+        for (int i = 0; i < (int) stars; i++) diff.append("\u2b50");
         if (fullMap) {
             diff.append(String.format(" (%.4f) mapped by %s", stars, currentSet.getMapper()));
             embedBuilder.addField("Details", String.format("**AR**: %.2f    **CS**: %.2f    **HP**: %.2f    **OD**: %.2f", beatmap.getAr(), beatmap.getCs(), beatmap.getHp(), beatmap.getOd()), false);

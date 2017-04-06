@@ -1,7 +1,6 @@
 package samurai.command.restricted;
 
 import samurai.Bot;
-import samurai.Database;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Creator;
@@ -20,7 +19,6 @@ public class Shutdown extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        Database.close();
         Bot.shutdown();
         return null;
     }

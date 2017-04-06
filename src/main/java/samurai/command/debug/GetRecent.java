@@ -1,16 +1,16 @@
 package samurai.command.debug;
 
-import samurai.Database;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
+import samurai.database.Database;
+import samurai.entities.model.Player;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.model.Player;
-import samurai.osu.model.Score;
-import samurai.osu.enums.GameMode;
 import samurai.osu.OsuAPI;
+import samurai.osu.enums.GameMode;
+import samurai.osu.model.Score;
 
 import java.util.Optional;
 

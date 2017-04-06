@@ -2,6 +2,7 @@ package samurai.entities.manager;
 
 import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
+import samurai.osu.enums.GameMode;
 
 /**
  * @author TonTL

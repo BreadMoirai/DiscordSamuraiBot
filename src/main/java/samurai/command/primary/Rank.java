@@ -4,11 +4,11 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.entities.model.Player;
+import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.dynamic.Book;
-import samurai.model.Player;
-import samurai.model.SGuild;
 import samurai.util.BotUtil;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class Rank extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final SGuild guild = context.getGuild();
+        final SGuild guild = context.getTeam();
         final List<Member> mentions = context.getMentionedMembers();
         if (guild.getPlayerCount() == 0) return FixedMessage.build("No users found.");
         long id;

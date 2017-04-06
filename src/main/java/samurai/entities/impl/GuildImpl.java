@@ -8,6 +8,7 @@ import samurai.entities.manager.impl.GuildManagerImpl;
 import samurai.entities.model.Chart;
 import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
+import samurai.osu.enums.GameMode;
 
 import java.util.Collections;
 import java.util.Comparator;

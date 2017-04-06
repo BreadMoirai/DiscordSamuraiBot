@@ -7,12 +7,12 @@ import org.json.JSONObject;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.entities.model.Player;
+import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.model.Player;
-import samurai.model.SGuild;
-import samurai.osu.enums.Grade;
 import samurai.osu.OsuAPI;
+import samurai.osu.enums.Grade;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -32,7 +32,7 @@ public class Profile extends Command {
         JSONObject profile;
         java.util.List<Member> mentions = context.getMentionedMembers();
         Member author = context.getAuthor();
-        SGuild guild = context.getGuild();
+        SGuild guild = context.getTeam();
         List<String> args = context.getArgs();
         if (context.getArgs().size() == 0 && mentions.size() == 0) {
             long authorId = Long.parseLong(author.getUser().getId());

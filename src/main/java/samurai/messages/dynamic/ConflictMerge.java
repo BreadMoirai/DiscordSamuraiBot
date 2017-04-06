@@ -3,9 +3,9 @@ package samurai.messages.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import samurai.entities.model.Player;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ReactionListener;
-import samurai.model.Player;
 import samurai.osu.model.Score;
 import samurai.util.MessageUtil;
 

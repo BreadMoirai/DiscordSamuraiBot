@@ -3,12 +3,12 @@ package samurai.messages.dynamic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import samurai.entities.model.SGuild;
 import samurai.messages.base.SamuraiMessage;
-import samurai.model.SGuild;
+import samurai.osu.enums.Mod;
 import samurai.osu.model.Beatmap;
 import samurai.osu.model.BeatmapSet;
 import samurai.osu.model.Score;
-import samurai.osu.enums.Mod;
 
 import java.awt.*;
 import java.util.Collections;
@@ -62,7 +62,7 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
         double stars = beatmap.getDifficultyRating();
         StringBuilder diff = new StringBuilder().append(set.getRankedStatus().getEmote());
         diff.append(String.format("[**%s**] ", beatmap.getDifficulty()));
-        for (int i = 0; i < (int) stars; i++) diff.append("⭐");
+        for (int i = 0; i < (int) stars; i++) diff.append("\u2b50");
         if (fullMap) {
             diff.append(String.format(" (%.4f) mapped by %s", stars, set.getMapper()));
             embedBuilder.addField("Details", String.format("**AR**: %.2f    **CS**: %.2f    **HP**: %.2f    **OD**: %.2f", beatmap.getAr(), beatmap.getCs(), beatmap.getHp(), beatmap.getOd()), false);

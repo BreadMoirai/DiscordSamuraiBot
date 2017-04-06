@@ -10,24 +10,27 @@ import java.sql.SQLException;
  */
 public class Database {
 
-    private static SDatabase database;
+    private static final SDatabase database;
+    private static boolean open;
+
+    static {
+        try {
+            database = new SDatabaseImpl();
+            open = true;
+        } catch (SQLException e) {
+            SQLUtil.printSQLException(e);
+            throw new ExceptionInInitializerError("Failed to initialize database");
+        }
+    }
 
 
     public static SDatabase getDatabase() {
-        if (database == null) {
-            try {
-                database = new SDatabaseImpl();
-            } catch (SQLException e) {
-                SQLUtil.printSQLException(e);
-            }
-        }
+        if (!open) throw new UnsupportedOperationException("Database is closed");
         return database;
     }
 
     public static void close() {
-        if (database != null) {
-            database.close();
-            database = null;
-        }
+        if (!open) throw new UnsupportedOperationException("Database is closed");
+        database.close();
     }
 }

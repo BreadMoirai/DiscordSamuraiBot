@@ -5,10 +5,10 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.Bot;
-import samurai.Database;
 import samurai.SamuraiDiscord;
 import samurai.command.Command;
 import samurai.command.CommandFactory;
+import samurai.database.Database;
 
 /**
  * Listener for SamuraiBot

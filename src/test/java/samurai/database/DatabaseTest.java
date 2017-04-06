@@ -4,6 +4,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import samurai.entities.manager.ChartManager;
+import samurai.entities.manager.GuildManager;
+import samurai.entities.model.Chart;
+import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.osu.enums.GameMode;
 

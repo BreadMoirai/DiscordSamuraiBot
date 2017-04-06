@@ -6,7 +6,7 @@ import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.model.GameMode;
+import samurai.osu.enums.GameMode;
 
 /**
  * @author TonTL
@@ -18,7 +18,7 @@ public class Dedicate extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         if (context.getMentionedChannels().size() == 1) {
-            context.getGuild().getManager().addChannelFilter(Long.parseLong(context.getMentionedChannels().get(0).getId()), GameMode.OSU);
+            context.getTeam().getManager().addChannelFilter(Long.parseLong(context.getMentionedChannels().get(0).getId()), GameMode.OSU);
             return FixedMessage.build("All tracking notifications will be sent to `" + context.getMentionedChannels().get(0).getName() + '`');
         } else return null;
     }

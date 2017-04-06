@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import samurai.command.CommandFactory;
+import samurai.database.Database;
 import samurai.util.BotUtil;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class Bot {
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
-        DEFAULT_PREFIX = "!";
+        DEFAULT_PREFIX = config.getString("samurai.prefix");
     }
 
     public static void main(String[] args) {
@@ -70,15 +71,11 @@ public class Bot {
 
     public static void shutdown() {
         System.out.println("Shutting Down");
+        Database.close();
         for (SamuraiDiscord samurai : shards) {
             samurai.shutdown();
         }
         System.out.println("Complete");
-//        try {
-//            Runtime.getRuntime().exec("cmd /c start xcopy C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\build\\resources\\main\\samurai\\data C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data /d /e /f /h /i /s /y /z /exclude:C:\\Users\\TonTL\\Desktop\\Git\\DiscordSamuraiBot\\src\\main\\resources\\samurai\\data\\exclude.txt");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
 

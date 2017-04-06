@@ -9,6 +9,7 @@ import samurai.entities.model.SGuild;
 import samurai.entities.impl.ChartImpl;
 import samurai.entities.impl.GuildImpl;
 import samurai.entities.impl.PlayerImpl;
+import samurai.osu.enums.GameMode;
 
 import java.sql.*;
 import java.time.Instant;
@@ -458,7 +459,7 @@ public class SDatabaseImpl implements SDatabase {
     public void reset() {
         try {
             final Statement statement = connection.createStatement();
-            statement.addBatch("DROP TABLE GUILDCHART");
+            statement.addBatch("DROP TABLE GuildChart");
             statement.addBatch("DROP TABLE ChannelFilter");
             statement.addBatch("DROP TABLE Guild");
             statement.addBatch("DROP TABLE ChartMap");

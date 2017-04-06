@@ -5,9 +5,9 @@ import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.model.SGuild;
 import samurai.osu.OsuAPI;
 
 import java.awt.*;
@@ -29,7 +29,7 @@ public class Status extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
-        final SGuild guild = context.getGuild();
+        final SGuild team = context.getTeam();
         final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)

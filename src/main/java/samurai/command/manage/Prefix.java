@@ -23,7 +23,7 @@ public class Prefix extends Command {
         if (args.size() != 1)
             return FixedMessage.build("Invalid Argument. Please provide a single word");
         final String newPrefix = args.get(0);
-        context.getGuild().getManager().setPrefix(newPrefix);
+        context.getTeam().getManager().setPrefix(newPrefix);
         return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
     }
 }
