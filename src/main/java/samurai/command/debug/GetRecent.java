@@ -8,7 +8,7 @@ import samurai.command.annotations.Source;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.model.Player;
-import samurai.osu.entities.Score;
+import samurai.osu.model.Score;
 import samurai.osu.enums.GameMode;
 import samurai.osu.OsuAPI;
 

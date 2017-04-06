@@ -3,7 +3,7 @@ package samurai.util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.osu.entities.Score;
+import samurai.osu.model.Score;
 
 import java.awt.*;
 import java.time.Instant;

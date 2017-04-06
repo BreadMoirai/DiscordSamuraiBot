@@ -1,11 +1,10 @@
 package samurai.osu.tracker;
 
-import samurai.osu.entities.Score;
+import samurai.osu.model.Score;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author TonTL

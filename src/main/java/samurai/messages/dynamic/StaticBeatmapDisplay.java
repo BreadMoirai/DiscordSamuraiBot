@@ -5,9 +5,9 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.messages.base.SamuraiMessage;
 import samurai.model.SGuild;
-import samurai.osu.entities.Beatmap;
-import samurai.osu.entities.BeatmapSet;
-import samurai.osu.entities.Score;
+import samurai.osu.model.Beatmap;
+import samurai.osu.model.BeatmapSet;
+import samurai.osu.model.Score;
 import samurai.osu.enums.Mod;
 
 import java.awt.*;

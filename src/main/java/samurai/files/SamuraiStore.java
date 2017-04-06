@@ -1,7 +1,7 @@
 package samurai.files;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.osu.entities.Score;
+import samurai.osu.model.Score;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

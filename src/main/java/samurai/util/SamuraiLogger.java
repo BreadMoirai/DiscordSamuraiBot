@@ -1,4 +1,4 @@
-package samurai.core;
+package samurai.util;
 
 /**
  * @author TonTL

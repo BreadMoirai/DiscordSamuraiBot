@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import samurai.osu.entities.Score;
+import samurai.osu.model.Score;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
 

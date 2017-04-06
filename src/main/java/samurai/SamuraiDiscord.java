@@ -10,7 +10,7 @@ import samurai.command.CommandContext;
 import samurai.command.GenericCommand;
 import samurai.command.annotations.Admin;
 import samurai.command.debug.Groovy;
-import samurai.core.MessageManager;
+import samurai.messages.MessageManager;
 import samurai.discord.listeners.*;
 import samurai.messages.base.FixedMessage;
 

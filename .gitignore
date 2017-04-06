@@ -87,7 +87,5 @@ crashlytics-build.properties
 fabric.properties
 
 
-src/main/groovy/
-src/main/resources/samurai/data/set
-src/test/
 /src/main/resources/application.conf
+.idea/

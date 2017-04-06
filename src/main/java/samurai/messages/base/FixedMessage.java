@@ -3,7 +3,7 @@ package samurai.messages.base;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import samurai.core.MessageManager;
+import samurai.messages.MessageManager;
 
 import java.util.function.Consumer;
 

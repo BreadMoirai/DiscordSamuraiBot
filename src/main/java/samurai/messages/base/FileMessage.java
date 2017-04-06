@@ -1,7 +1,7 @@
 package samurai.messages.base;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.core.MessageManager;
+import samurai.messages.MessageManager;
 
 import java.io.InputStream;
 
