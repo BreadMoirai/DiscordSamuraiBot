@@ -5,9 +5,9 @@ import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.entities.SamuraiGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.model.SGuild;
 import samurai.util.OsuAPI;
 
 import java.awt.*;
@@ -29,13 +29,12 @@ public class Status extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
-        final SamuraiGuild guild = context.getGuild();
+        final SGuild guild = context.getGuild();
         final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)
                 .setFooter("Samurai\u2122", Bot.AVATAR)
-                .addField("Local Status", String.format("**%-19s**`%s`%n**%-20s**`%d`%n**%-20s**`%d`", "current state:", guild.isActive() ? "Active" : "Inactive", "score count:", guild.getScoreCount(), "active users:", guild.getUserCount()), true)
-                //.addField("Global", String.format("**%-14s**`%d`%n**%-14s**`%d`", "Guilds:", Bot.getGuildCount(), "Users:", Bot.getUserCount()), true)
+                .addField("Global", String.format("**%-14s**`%d`%n**%-14s**`%d`", "Guilds:", Bot.getGuildCount(), "Users:", Bot.getPlayerCount()), true)
                 .addField("Time Active", ((FixedMessage) new Uptime().execute(null)).getMessage().getContent(), false)
                 .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", Bot.CALLS.get(), "sent:", Bot.SENT.get(), "cmds/hr:", 360.0 * Bot.CALLS.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 1000.0)), true)
                 .addField("Osu!API", String.format("**%-16s**`%d`%n**%-17s**`%d`", "calls made:", OsuAPI.count.get(), "calls/min:", OsuAPI.count.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 6000)), true)

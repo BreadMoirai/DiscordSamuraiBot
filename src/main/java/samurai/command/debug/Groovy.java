@@ -11,8 +11,7 @@ import samurai.command.Commands;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.data.SamuraiDatabase;
-import samurai.data.SamuraiStore;
+import samurai.database.SamuraiStore;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
@@ -40,7 +39,6 @@ public class Groovy extends Command {
         BINDING.setVariable("CREATOR", "DreadMoirai");
         BINDING.setVariable("BOT", Bot.class);
         BINDING.setVariable("STORE", SamuraiStore.class);
-        BINDING.setVariable("DB", SamuraiDatabase.class);
         BINDING.setVariable("CF", CommandFactory.class);
         BINDING.setVariable("CD", Commands.class);
         BINDING.setVariable("CDP", Commands.CommandCP.class);

@@ -1,7 +1,7 @@
 package samurai.osu.entities;
 
 
-import samurai.data.SamuraiStore;
+import samurai.database.SamuraiStore;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
 import samurai.osu.enums.Mod;

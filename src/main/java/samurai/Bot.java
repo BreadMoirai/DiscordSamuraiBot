@@ -3,15 +3,15 @@ package samurai;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import samurai.command.CommandFactory;
-import samurai.data.SamuraiDatabase;
 import samurai.util.BotUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -64,7 +64,6 @@ public class Bot {
 
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
-        SamuraiDatabase.read();
         BotUtil.initialize(shards);
 
     }
@@ -87,8 +86,11 @@ public class Bot {
         shards.forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event));
     }
 
-    public static void refreshGuilds() {
-        shards.forEach(samuraiDiscord -> samuraiDiscord.getGuildManager().refresh(samuraiDiscord.getClient().getGuilds()));
-        Bot.shutdown();
+    public static int getPlayerCount() {
+        return shards.stream().map(SamuraiDiscord::getClient).map(JDA::getUsers).mapToInt(List::size).reduce(Integer::sum).orElse(0);
+    }
+
+    public static int getGuildCount() {
+        return shards.stream().map(SamuraiDiscord::getClient).map(JDA::getGuilds).mapToInt(List::size).reduce(Integer::sum).orElse(0);
     }
 }

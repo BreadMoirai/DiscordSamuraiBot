@@ -2,7 +2,6 @@ package samurai.osu.entities;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import samurai.data.SamuraiDatabase;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.RankedStatus;
 
@@ -70,8 +69,7 @@ public class BeatmapSet implements Externalizable {
                 beatmap.setMaxCombo(o.getInt("max_combo"));
             else beatmap.setMaxCombo(-1);
             beatmapArrayList.add(beatmap);
-            SamuraiDatabase.put(beatmap.getHash(), beatmap.getMapID());
-            SamuraiDatabase.put(beatmap.getMapID(), setId);
+            //todo add set-map correlation in db
         }
         sort();
         current = -1;
@@ -145,8 +143,8 @@ public class BeatmapSet implements Externalizable {
         return beatmapArrayList.listIterator();
     }
 
-    public Optional<Beatmap> getBeatmapById(int beatmap_id) {
-        return beatmapArrayList.stream().filter(beatmap -> beatmap.getMapID() == beatmap_id).findFirst();
+    public Optional<Beatmap> getBeatmapById(int beatmapId) {
+        return beatmapArrayList.stream().filter(beatmap -> beatmap.getMapID() == beatmapId).findFirst();
     }
 
     @Override

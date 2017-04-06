@@ -2,7 +2,7 @@ package samurai.command.primary;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.json.JSONObject;
 import samurai.command.Command;
@@ -12,7 +12,6 @@ import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.util.OsuAPI;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,27 +31,24 @@ public class Link extends Command {
         if (userJSON == null) {
             return FixedMessage.build("Failed to link account.");
         }
-        Message profileMessage;
+        MessageEmbed profileEmbed;
         List<Member> mentions = context.getMentionedMembers();
         if (context.getMentionedMembers().size() == 0) {
-            context.getGuild().addUser(Long.parseLong(context.getAuthor().getUser().getId()), userJSON);
-            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", context.getAuthor(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
+            //todo add user to guild as player
+            profileEmbed = Profile.buildProfileEmbed(userJSON);
         } else if (context.getMentionedMembers().size() == 1) {
             if (!PermissionUtil.canInteract(context.getAuthor(), context.getMentionedMembers().get(0)))
                 return FixedMessage.build("You do not have sufficient access to manage " + context.getMentionedMembers().get(0).getAsMention());
-            context.getGuild().addUser(Long.parseLong(mentions.get(0).getUser().getId()), userJSON);
-            profileMessage = ((FixedMessage) new Profile().execute(new CommandContext("", mentions.get(0), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), "", Collections.emptyList(), context.getGuildId(), context.getChannelId(), 0L, null, null).setGuild(context.getGuild()))).getMessage();
+            //todo add user to guild as player
+            profileEmbed = Profile.buildProfileEmbed(userJSON);
         } else {
             return FixedMessage.build("Failed to link account.");
-        }
-        if (profileMessage.getEmbeds().size() != 1) {
-            return FixedMessage.build(profileMessage.getContent().replaceAll("<@.*>", profileMessage.getMentionedUsers().get(0).getAsMention()));
         }
         return new FixedMessage().setMessage(new MessageBuilder()
                 .append("Successfully linked **")
                 .append(mentions.size() == 1 ? mentions.get(0).getAsMention() : context.getAuthor().getAsMention())
                 .append("** to osu account")
-                .setEmbed(profileMessage.getEmbeds().get(0))
+                .setEmbed(profileEmbed)
                 .build());
 
 

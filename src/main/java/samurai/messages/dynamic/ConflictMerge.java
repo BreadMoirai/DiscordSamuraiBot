@@ -3,9 +3,9 @@ package samurai.messages.dynamic;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import samurai.entities.SamuraiUser;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ReactionListener;
+import samurai.model.Player;
 import samurai.osu.entities.Score;
 import samurai.util.MessageUtil;
 
@@ -21,7 +21,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
 
     private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("✅", "\uD83C\uDE51", "\uD83D\uDEAE", "❌"));
     private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("✅", "❌"));
-    final SamuraiUser uploader;
+    final Player uploader;
     private final HashMap<String, LinkedList<Score>> annex;
     private final HashMap<String, LinkedList<Score>> base;
     private final ArrayList<Conflict> conflicts;
@@ -33,7 +33,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     private Conflict current;
     private boolean canceled;
 
-    public ConflictMerge(HashMap<String, LinkedList<Score>> annex, HashMap<String, LinkedList<Score>> base, SamuraiUser uploader) {
+    public ConflictMerge(HashMap<String, LinkedList<Score>> annex, HashMap<String, LinkedList<Score>> base, Player uploader) {
         super();
         this.annex = annex;
         this.base = base;

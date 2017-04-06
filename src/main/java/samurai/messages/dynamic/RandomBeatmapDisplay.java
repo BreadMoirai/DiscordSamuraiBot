@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import samurai.data.SamuraiDatabase;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ReactionListener;
 import samurai.osu.entities.Beatmap;
@@ -122,7 +121,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
     }
 
     private void setCurrentSet(Integer idx) {
-        currentSet = SamuraiDatabase.getSet(hashArray.get(idx));
+        //todo set a set
         if (currentSet == null) {
             System.out.println("ERROR: " + scoreMap.get(hashArray.get(idx)).getFirst().toString());
             nextSet();

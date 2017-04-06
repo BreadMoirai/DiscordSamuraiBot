@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.Bot;
+import samurai.Database;
 import samurai.SamuraiDiscord;
 import samurai.command.Command;
 import samurai.command.CommandFactory;
@@ -36,7 +37,7 @@ public class DiscordCommandListener extends ListenerAdapter {
         } else if (event.getAuthor().isBot()) return;
         if (event.getMessage().isPinned()) return;
 
-        final String prefix = samurai.getPrefix(Long.parseLong(event.getGuild().getId()));
+        final String prefix = Database.getDatabase().getPrefix(Long.parseLong(event.getGuild().getId()));
         final Command c = CommandFactory.build(event, prefix);
 
         if (c != null) {

@@ -8,6 +8,7 @@ import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.model.SGuild;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,10 +26,11 @@ public class Enable extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final long enabledCommands = context.getGuild().getEnabledCommands();
+        final SGuild guild = context.getGuild();
+        final long enabledCommands = guild.getEnabledCommands();
         if (context.hasContent()) {
             if (context.getContent().equalsIgnoreCase("byte"))
-                return FixedMessage.build(String.format("`%24s`", Long.toBinaryString(context.getGuild().getEnabledCommands())).replace(' ', '0'));
+                return FixedMessage.build(String.format("`%24s`", Long.toBinaryString(guild.getEnabledCommands())).replace(' ', '0'));
             final Set<Commands> args;
             try {
                 final HashMap<String, Class<? extends Command>> commandMap = CommandFactory.getCommandMap();
@@ -45,11 +47,11 @@ public class Enable extends Command {
                     return FixedMessage.build(args.stream().map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
                 case "enable":
                     String s1 = args.stream().filter(commands -> !commands.isEnabled(enabledCommands)).map(Commands::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
-                    context.getGuild().setEnabledCommands(args.stream().mapToLong(Commands::getValue).reduce(enabledCommands, (left, right) -> left | right));
+                    guild.getManager().setCommands(args.stream().mapToLong(Commands::getValue).reduce(enabledCommands, (left, right) -> left | right));
                     return FixedMessage.build(s1);
                 case "disable":
                     String s2 = args.stream().filter(commands -> commands.isEnabled(enabledCommands)).map(Commands::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
-                    context.getGuild().setEnabledCommands(args.stream().mapToLong(Commands::getValue).map(operand -> ~operand).reduce(enabledCommands, (left, right) -> left & right));
+                    guild.getManager().setCommands(args.stream().mapToLong(Commands::getValue).map(operand -> ~operand).reduce(enabledCommands, (left, right) -> left & right));
                     return FixedMessage.build(s2);
             }
             return null;

@@ -4,8 +4,6 @@ import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import samurai.data.SamuraiDatabase;
-import samurai.osu.entities.Beatmap;
 import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
@@ -19,7 +17,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,17 +56,8 @@ public class OsuAPI {
         Score s = new Score()
                 .setPlayer(player);
         final int beatmap_id = jsonObject.getInt("beatmap_id");
-        String hash = SamuraiDatabase.getHash(beatmap_id);
-        if (hash == null) {
-            final Optional<Beatmap> beatmapOptional = SamuraiDatabase.getSet(beatmap_id).getBeatmapById(beatmap_id);
-            if (beatmapOptional.isPresent()) {
-                hash = beatmapOptional.get().getHash();
-            }
-        }
-        if (hash == null) {
-            new NullPointerException("hash").printStackTrace();
-        }
-        s.setBeatmapHash(hash)
+        //todo get hash lazily
+        s
                 .setScore(jsonObject.getInt("score"))
                 .setMaxCombo((short) jsonObject.getInt("maxcombo"))
                 .setCount0((short) jsonObject.getInt("countmiss"))
@@ -122,11 +110,8 @@ public class OsuAPI {
             JSONArray jsonArray = new JSONArray(sb.toString());
             if (jsonArray.length() == 0) return null;
             return jsonArray;
-        } catch (IOException e) {
-            //todo error
-            return null;
-        } catch (JSONException e) {
-            //todo error
+        } catch (IOException | JSONException e) {
+            //todo log error
             return null;
         }
     }

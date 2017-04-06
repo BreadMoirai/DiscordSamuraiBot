@@ -3,15 +3,15 @@ package samurai.messages.dynamic;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.entities.SamuraiGuild;
 import samurai.messages.base.SamuraiMessage;
+import samurai.model.SGuild;
 import samurai.osu.entities.Beatmap;
 import samurai.osu.entities.BeatmapSet;
 import samurai.osu.entities.Score;
 import samurai.osu.enums.Mod;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,14 +24,15 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
     private final boolean fullScore;
     private final boolean fullMap;
     private final String hash;
-    private final List<Score> scores;
+    private List<Score> scores;
 
-    public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String hash, SamuraiGuild guild) {
+    public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String hash, SGuild guild) {
         this.set = set;
         this.fullScore = fullScore;
         this.fullMap = fullMap;
         this.hash = hash;
-        this.scores = guild.getScoreMap().get(hash);
+        //todo
+        //this.scores = guild.getScoreMap().get(hash);
     }
 
     public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String beatmapHash, Score lastScore) {
@@ -90,6 +91,6 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
 
     @Override
     protected void onReady(Message message) {
-
+            //todo
     }
 }

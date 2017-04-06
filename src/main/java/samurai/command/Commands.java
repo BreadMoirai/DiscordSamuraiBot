@@ -34,7 +34,7 @@ public enum Commands {
     Hangman(1048576L),
     Wasted(2097152L),
     Purge(4194304L),
-    Refresh(8388608L),
+    ________(8388608L),
     Reset(16777216L),
     Shutdown(33554432L),
     Draw(67108864L),

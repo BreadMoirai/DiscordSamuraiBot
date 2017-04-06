@@ -1,8 +1,6 @@
-package samurai.data;
+package samurai.database;
 
 import net.dv8tion.jda.core.entities.Message;
-import samurai.entities.SamuraiGuild;
-import samurai.osu.entities.BeatmapSet;
 import samurai.osu.entities.Score;
 
 import javax.imageio.ImageIO;
@@ -13,8 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,36 +24,6 @@ import java.util.Map;
 public class SamuraiStore {
     public static final int VERSION = 20170103;
 
-
-    public static File getSetFile(int setId) {
-        return new File(SamuraiStore.class.getResource("set").getPath() + "/" + setId + ".ser");
-    }
-
-    public static void writeSet(BeatmapSet set) {
-        File outFile = getSetFile(set.getSetId());
-        try (ObjectOutputStream out = new ObjectOutputStream(
-                new BufferedOutputStream(
-                        new FileOutputStream(outFile)))) {
-            out.writeObject(set);
-            //todo Bot.log("Write Set " + set.getSetId());
-        } catch (IOException e) {
-            //todo Bot.log("Could not write beatmap set: " + set.getSetId());
-        }
-    }
-
-    public static BeatmapSet readSet(int setId) {
-        File inFile = getSetFile(setId);
-        if (inFile == null || !inFile.exists()) return null;
-        try (ObjectInputStream in = new ObjectInputStream(
-                new BufferedInputStream(
-                        new FileInputStream(inFile)))) {
-            //todo Bot.log("Read Set " + setId);
-            return (BeatmapSet) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            //todo Bot.log("Could not read beatmap set: " + setId);
-            return null;
-        }
-    }
 
 
     public static String downloadFile(Message.Attachment attachment) {
@@ -77,38 +43,6 @@ public class SamuraiStore {
         }
         return sb.toString();
     }
-
-    //guild methods
-    public static boolean guildExists(long id) {
-        return getGuildDataPath(id).toFile().exists();
-    }
-
-    private static Path getGuildDataPath(long id) {
-        return Paths.get(String.format("%s/%d.ser", SamuraiStore.class.getResource("guild").getPath(), id).substring(1));
-    }
-
-    public static void writeGuild(SamuraiGuild g) {
-        try {
-            Files.write(getGuildDataPath(g.getGuildId()), g.writeBytes());
-            System.out.println("Successfully wrote guild " + g.getGuildId());
-        } catch (IOException e) {
-            System.err.println("Failed to write " + g.getGuildId());
-        }
-    }
-
-    public static SamuraiGuild readGuild(long guildId) {
-        try {
-            SamuraiGuild g = new SamuraiGuild();
-            if (g.readBytes(Files.readAllBytes(getGuildDataPath(guildId)))) {
-                System.out.println("Successfully read guild " + guildId);
-                return g;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     //score methods
     public static boolean containsScores(long id) {
@@ -192,41 +126,17 @@ public class SamuraiStore {
     public static File saveToFile(BufferedImage img, String filename) throws IOException {
 
         File file = getTempFile(filename);
-
-//        ImageWriter writer = null;
-//
-//        java.util.Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
-//
-//
-//        if (iter.hasNext()) writer = (ImageWriter) iter.next();
-//
-//
-//        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
-//
-//        assert writer != null;
-//        writer.setOutput(ios);
-//
-//
-//        ImageWriteParam param = new JPEGImageWriteParam(java.util.Locale.getDefault());
-//
-//        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-//
-//        param.setCompressionQuality(0.98f);
-//
-//        writer.write(null, new IIOImage(img, null, null), param);
-
         ImageIO.write(img, "jpg", file);
-
         return file;
     }
 
-    public static File getTempFile(String filename) {
-        return new File(SamuraiStore.class.getResource("temp").getPath() + "/" + filename);
+    private static File getTempFile(String filename) {
+        return new File(SamuraiStore.class.getResource("temp").getPath() + '/' + filename);
     }
 
     public static BufferedImage getImage(String s) {
         try {
-            return ImageIO.read(new File(SamuraiStore.class.getResource("images").getPath() + "/" + s));
+            return ImageIO.read(new File(SamuraiStore.class.getResource("images").getPath() + '/' + s));
         } catch (IOException e) {
             e.printStackTrace();
             return null;

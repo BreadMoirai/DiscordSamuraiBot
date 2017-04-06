@@ -10,7 +10,6 @@ import samurai.command.CommandContext;
 import samurai.command.GenericCommand;
 import samurai.command.annotations.Admin;
 import samurai.command.debug.Groovy;
-import samurai.core.GuildManager;
 import samurai.core.MessageManager;
 import samurai.discord.listeners.*;
 import samurai.messages.base.FixedMessage;
@@ -25,7 +24,6 @@ public class SamuraiDiscord {
 
     private final int shardId;
     private JDA client;
-    private GuildManager guildManager;
     private MessageManager messageManager;
 
     SamuraiDiscord(JDABuilder jdaBuilder) {
@@ -44,20 +42,13 @@ public class SamuraiDiscord {
 
         shardId = client.getShardInfo().getShardId();
         client.getPresence().setGame(Game.of("Shard " + client.getShardInfo().getShardString()));
-        guildManager = new GuildManager();
         messageManager = new MessageManager(client);
         if (shardId == 0) {
             client.addEventListener(new DiscordPrivateMessageListener());
-            Groovy.addBinding("gm", guildManager);
             Groovy.addBinding("mm", messageManager);
         }
 
     }
-
-    public String getPrefix(long guildId) {
-        return guildManager.getPrefix(guildId);
-    }
-
 
     public void onCommand(Command c) {
         completeContext(c.getContext());
@@ -77,12 +68,10 @@ public class SamuraiDiscord {
 
     private void completeContext(CommandContext context) {
         context.setShardId(shardId);
-        context.setGuild(guildManager.getGuild(context.getGuildId()));
     }
 
     public void shutdown() {
         client.removeEventListener(client.getRegisteredListeners().toArray());
-        guildManager.shutdown();
         messageManager.shutdown();
         client.shutdown();
     }
@@ -101,8 +90,4 @@ public class SamuraiDiscord {
         messageManager.remove(channelId, messageId);
     }
 
-
-    public GuildManager getGuildManager() {
-        return guildManager;
-    }
 }

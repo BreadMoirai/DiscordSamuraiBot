@@ -22,7 +22,8 @@ public class Prefix extends Command {
         final List<String> args = context.getArgs();
         if (args.size() != 1)
             return FixedMessage.build("Invalid Argument. Please provide a single word");
-        context.getGuild().setPrefix(args.get(0));
-        return FixedMessage.build(String.format("Prefix successfully set to `%s`", args.get(0)));
+        final String newPrefix = args.get(0);
+        context.getGuild().getManager().setPrefix(newPrefix);
+        return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
     }
 }
