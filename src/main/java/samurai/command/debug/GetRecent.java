@@ -10,7 +10,7 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.model.Player;
 import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
-import samurai.util.OsuAPI;
+import samurai.osu.OsuAPI;
 
 import java.util.Optional;
 

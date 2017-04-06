@@ -31,7 +31,7 @@ public class MessageUtil {
         return messageBuilder.setEmbed(embedBuilder.build()).build();
     }
 
-    public static void addReaction(Message message, Collection<String> s) {
+    public static void addReaction(Message message, Iterable<String> s) {
         s.forEach(s1 -> message.addReaction(s1).queue());
     }
 
@@ -44,7 +44,7 @@ public class MessageUtil {
         message.addReaction(iterator.next()).queue(consumer, null);
     }
 
-    public static Message of(String s) {
+    public static Message of(CharSequence s) {
         return new MessageBuilder().append(s).build();
     }
 

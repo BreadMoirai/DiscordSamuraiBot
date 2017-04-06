@@ -1,4 +1,4 @@
-package samurai.database;
+package samurai.files;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.osu.entities.Score;
@@ -23,8 +23,6 @@ import java.util.Map;
  */
 public class SamuraiStore {
     public static final int VERSION = 20170103;
-
-
 
     public static String downloadFile(Message.Attachment attachment) {
         String path = String.format("%s/%s.db", SamuraiStore.class.getResource("temp").getPath(), attachment.getId());
@@ -53,19 +51,19 @@ public class SamuraiStore {
         return String.format("%s/%d.db", SamuraiStore.class.getResource("score").getPath(), id);
     }
 
-    public static boolean writeScoreData(long guildId, HashMap<String, LinkedList<Score>> scoreMap) {
+    public static boolean writeScoreData(long guildId, Map<String, List<Score>> scoreMap) {
         if (scoreMap.isEmpty()) return false;
         try (BufferedOutputStream out = new BufferedOutputStream(
                 new DataOutputStream(
                         new FileOutputStream(getScoreDataPath(guildId).substring(3))))) {
 
-            ByteBuffer scoreDatabase = ByteBuffer.allocate(8);
-            scoreDatabase.order(ByteOrder.LITTLE_ENDIAN);
-            scoreDatabase.putInt(VERSION);
-            scoreDatabase.putInt(scoreMap.keySet().size());
-            out.write(scoreDatabase.array());
+            ByteBuffer scoreBuffer = ByteBuffer.allocate(8);
+            scoreBuffer.order(ByteOrder.LITTLE_ENDIAN);
+            scoreBuffer.putInt(VERSION);
+            scoreBuffer.putInt(scoreMap.keySet().size());
+            out.write(scoreBuffer.array());
             int scoreCount = 0;
-            for (Map.Entry<String, LinkedList<Score>> entry : scoreMap.entrySet()) {
+            for (Map.Entry<String, List<Score>> entry : scoreMap.entrySet()) {
                 String hash = entry.getKey();
                 ByteBuffer beatmap = ByteBuffer.allocate(2 + hash.length() + Integer.BYTES);
                 beatmap.order(ByteOrder.LITTLE_ENDIAN);
@@ -124,7 +122,6 @@ public class SamuraiStore {
     }
 
     public static File saveToFile(BufferedImage img, String filename) throws IOException {
-
         File file = getTempFile(filename);
         ImageIO.write(img, "jpg", file);
         return file;

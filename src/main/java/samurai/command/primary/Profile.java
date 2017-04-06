@@ -12,7 +12,7 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.model.Player;
 import samurai.model.SGuild;
 import samurai.osu.enums.Grade;
-import samurai.util.OsuAPI;
+import samurai.osu.OsuAPI;
 
 import java.awt.*;
 import java.time.OffsetDateTime;

@@ -1,11 +1,11 @@
 package samurai.command.general;
 
+import net.dv8tion.jda.core.requests.RestAction;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.util.wrappers.SamuraiWrapper;
 
 /**
  * @author TonTL
@@ -15,6 +15,6 @@ import samurai.util.wrappers.SamuraiWrapper;
 public class Menu extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return FixedMessage.build("").setConsumer(message -> SamuraiWrapper.wrap(message).addReaction(context.getArgs()));
+        return FixedMessage.build("").setConsumer(message -> context.getArgs().stream().map(message::addReaction).forEach(RestAction::queue));
     }
 }

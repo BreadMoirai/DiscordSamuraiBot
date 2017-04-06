@@ -6,7 +6,7 @@ import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.database.SamuraiStore;
+import samurai.files.SamuraiStore;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 

@@ -10,7 +10,7 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.util.OsuAPI;
+import samurai.osu.OsuAPI;
 
 import java.util.List;
 

@@ -1,0 +1,91 @@
+package samurai.entities.impl;
+
+import samurai.entities.model.Player;
+
+/**
+ * @author TonTL
+ * @version 4.0
+ * @since 2/15/2017
+ */
+public class PlayerImpl implements Player {
+    private final long discordId;
+    private final int osuId;
+    private final String osuName;
+    private final int rankG;
+    private final int rankC;
+    private final long lastUpdated;
+
+    public PlayerImpl(long discordId, int osuId, String osuName, int g, int c, long lastUpdated) {
+        this.discordId = discordId;
+        this.osuId = osuId;
+        this.osuName = osuName;
+        this.rankG = g;
+        this.rankC = c;
+        this.lastUpdated = lastUpdated;
+    }
+
+    @Override
+    public long getDiscordId() {
+        return discordId;
+    }
+
+    @Override
+    public int getOsuId() {
+        return osuId;
+    }
+
+    @Override
+    public String getOsuName() {
+        return osuName;
+    }
+
+    @Override
+    public int getRankG() {
+        return rankG;
+    }
+
+    @Override
+    public int getRankC() {
+        return rankC;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Player{");
+        sb.append("discordId=").append(discordId);
+        sb.append(", osuId=").append(osuId);
+        sb.append(", osuName='").append(osuName).append('\'');
+        sb.append(", rankG=").append(rankG);
+        sb.append(", rankC=").append(rankC);
+        sb.append(", lastUpdated=").append(lastUpdated);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerImpl player = (PlayerImpl) o;
+
+        if (discordId != player.discordId) return false;
+        if (osuId != player.osuId) return false;
+        if (lastUpdated != player.lastUpdated) return false;
+        return osuName != null ? osuName.equals(player.osuName) : player.osuName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (discordId ^ (discordId >>> 32));
+        result = 31 * result + osuId;
+        result = 31 * result + (osuName != null ? osuName.hashCode() : 0);
+        result = 31 * result + (int) (lastUpdated ^ (lastUpdated >>> 32));
+        return result;
+    }
+
+    @Override
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
+}

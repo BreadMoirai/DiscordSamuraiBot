@@ -1,4 +1,4 @@
-package samurai.database;
+package samurai.files;
 
 import samurai.osu.entities.Score;
 import samurai.osu.enums.GameMode;
@@ -13,10 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * static methods meh.
  * @author TonTL
  * @version 4.x - 2/16/2017
  */
 class DbReader {
+
+    private DbReader() {}
 
     static int nextInt(RandomAccessFile input) throws IOException {
         byte[] bytes = new byte[4];
