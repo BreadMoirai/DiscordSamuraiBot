@@ -37,7 +37,7 @@ public class CommandFactory {
             String[] name = action.getName().substring(15).split("\\.");
             for (String key : actionKey.value()) {
                 COMMAND_MAP.put(key, action);
-                System.out.printf("%-11s mapped to %-7s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
+                System.out.printf("%-11s mapped to %-10s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
             }
         }
     }

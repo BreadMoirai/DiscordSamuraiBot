@@ -27,7 +27,7 @@ public class Info extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final List<Member> mentions = context.getMentionedMembers();
-        final SGuild team = context.getTeam();
+        final SGuild team = context.getSGuild();
         Member userD;
         if (mentions.size() == 0) {
             EmbedBuilder eb = new EmbedBuilder()

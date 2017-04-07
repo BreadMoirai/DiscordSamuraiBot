@@ -51,8 +51,7 @@ public class Bot {
         Bot.start();
     }
 
-    private static void start() {
-
+    public static void start() {
         final Config config = ConfigFactory.load();
 
         for (int i = 0; i < SHARD_COUNT; i++)
@@ -66,7 +65,7 @@ public class Bot {
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
         BotUtil.initialize(shards);
-
+        Runtime.getRuntime().addShutdownHook(new Thread(Bot::shutdown));
     }
 
     public static void shutdown() {
@@ -89,5 +88,9 @@ public class Bot {
 
     public static int getGuildCount() {
         return shards.stream().map(SamuraiDiscord::getClient).map(JDA::getGuilds).mapToInt(List::size).reduce(Integer::sum).orElse(0);
+    }
+
+    public static ArrayList<SamuraiDiscord> getShards() {
+        return shards;
     }
 }

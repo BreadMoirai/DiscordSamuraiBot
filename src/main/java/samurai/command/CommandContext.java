@@ -87,7 +87,7 @@ public class CommandContext {
         return messageId;
     }
 
-    public SGuild getTeam() {
+    public SGuild getSGuild() {
         if (team == null) {
             final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).map(User::getId).map(Long::parseLong).collect(Collectors.toList()));
             guildOptional.ifPresent(guild -> this.team = guild);

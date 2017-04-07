@@ -32,6 +32,6 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
     }
 
     public boolean isEnabled() {
-        return Commands.valueOf(this.getClass().getSimpleName()).isEnabled(context.getTeam().getEnabledCommands());
+        return Commands.valueOf(this.getClass().getSimpleName()).isEnabled(context.getSGuild().getEnabledCommands());
     }
 }

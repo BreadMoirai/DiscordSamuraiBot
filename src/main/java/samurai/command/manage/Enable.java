@@ -26,7 +26,7 @@ public class Enable extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild team = context.getTeam();
+        final SGuild team = context.getSGuild();
         final long enabledCommands = team.getEnabledCommands();
         if (context.hasContent()) {
             if (context.getContent().equalsIgnoreCase("byte"))

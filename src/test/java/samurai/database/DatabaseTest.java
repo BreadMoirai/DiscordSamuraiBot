@@ -1,9 +1,7 @@
 package samurai.database;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import samurai.command.Commands;
 import samurai.entities.manager.ChartManager;
 import samurai.entities.manager.GuildManager;
 import samurai.entities.model.Chart;
@@ -11,6 +9,7 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.osu.enums.GameMode;
 
+import javax.xml.crypto.Data;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +18,7 @@ import java.util.Optional;
  * @author TonTL
  * @version 5.x - 3/24/2017
  */
+@Ignore
 public class DatabaseTest {
 
     private static final long GUILD_ID = 123456789L;
@@ -161,6 +161,13 @@ public class DatabaseTest {
         Assert.assertFalse(database.getFilter(CHANNEL_ID).isPresent());
         Assert.assertFalse(database.getFilter(CHANNEL_ID+100).isPresent());
         Assert.assertTrue(database.removeGuild(GUILD_ID));
+    }
+
+    @Ignore
+    @Test
+    public void SamuraiGuildTest() {
+        SDatabase database = Database.getDatabase();
+        Assert.assertTrue(database.createGuild(233097800722808832L, Commands.getEnabledAll()).isPresent());
     }
 
 

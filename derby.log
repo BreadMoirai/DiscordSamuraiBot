@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Wed Apr 05 22:40:20 PDT 2017:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-015b-41c7-20c9-00000d8068f8 
-on database directory C:\Users\TonTL\Desktop\git\DiscordSamuraiBot\SamuraiDerbyDatabase with class loader sun.misc.Launcher$AppClassLoader@73d16e93 
+Thu Apr 06 19:04:15 PDT 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.13.1.1 - (1765088): instance a816c00e-015b-4627-a86c-000008b1f108 
+on database directory C:\Users\TonTL\Desktop\git\DiscordSamuraiBot\SamuraiDerbyDatabase with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
 Loaded from file:/C:/Users/TonTL/.gradle/caches/modules-2/files-2.1/org.apache.derby/derby/10.13.1.1/29c42babe5c5463c6eea45487d3cfbfe8348ccd1/derby-10.13.1.1.jar
 java.vendor=Oracle Corporation
 java.runtime.version=1.8.0_101-b13
@@ -11,6 +11,3 @@ os.arch=amd64
 os.version=10.0
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
-----------------------------------------------------------------
-Wed Apr 05 22:40:21 PDT 2017:
-Shutting down instance a816c00e-015b-41c7-20c9-00000d8068f8 on database directory C:\Users\TonTL\Desktop\git\DiscordSamuraiBot\SamuraiDerbyDatabase with class loader sun.misc.Launcher$AppClassLoader@73d16e93 

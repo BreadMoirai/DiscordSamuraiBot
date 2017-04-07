@@ -7,6 +7,7 @@ import samurai.command.annotations.Source;
 import samurai.files.SamuraiStore;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.util.MyLogger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 
 /**
  * @author TonTL
@@ -36,8 +38,7 @@ public class Flame extends Command {
                 return FixedMessage.build(flameList.get(r.nextInt(flameList.size())).replace("[victim]", context.getMentionedMembers().get(0).getAsMention()));
             }
         } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-            //todo
+            MyLogger.log("File Exception", Level.WARNING, e, context);
             return null;
         }
     }

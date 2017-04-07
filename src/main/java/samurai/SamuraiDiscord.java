@@ -52,7 +52,13 @@ public class SamuraiDiscord {
 
     public void onCommand(Command c) {
         completeContext(c.getContext());
-        if (c.isEnabled()) {
+        if (c.getContext().isSource() && c.getContext().getAuthorId() == 232703415048732672L) {
+            c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
+            if (c instanceof GenericCommand) {
+                messageManager.onCommand((GenericCommand) c);
+            }
+        }
+        else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
                 if (!PermissionUtil.canInteract(c.getContext().getAuthor(), client.getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
                     messageManager.submit(FixedMessage.build("You do not have the appropriate permissions to use this command. Try asking someone of higher status to help you."));

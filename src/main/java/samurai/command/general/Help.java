@@ -30,12 +30,12 @@ public class Help extends Command {
         if (context.getArgs().size() != 1) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("Samurai - help.txt", null, Bot.AVATAR)
-                    .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getTeam().getPrefix())));
+                    .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getSGuild().getPrefix())));
 
             return new FixedMessage()
                     .setMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build());
         } else {
-            return FixedMessage.build(PREFIX_PATTERN.matcher(SamuraiStore.getHelp(context.getArgs().get(0))).replaceAll(Matcher.quoteReplacement(context.getTeam().getPrefix())));
+            return FixedMessage.build(PREFIX_PATTERN.matcher(SamuraiStore.getHelp(context.getArgs().get(0))).replaceAll(Matcher.quoteReplacement(context.getSGuild().getPrefix())));
         }
         //return FixedMessage.build("Yeah I don't think that's a real command.");
     }

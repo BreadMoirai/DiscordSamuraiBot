@@ -32,7 +32,7 @@ public class Profile extends Command {
         JSONObject profile;
         java.util.List<Member> mentions = context.getMentionedMembers();
         Member author = context.getAuthor();
-        SGuild guild = context.getTeam();
+        SGuild guild = context.getSGuild();
         List<String> args = context.getArgs();
         if (context.getArgs().size() == 0 && mentions.size() == 0) {
             long authorId = Long.parseLong(author.getUser().getId());
