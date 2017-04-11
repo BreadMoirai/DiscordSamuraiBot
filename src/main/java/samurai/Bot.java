@@ -58,7 +58,7 @@ public class Bot {
         shards.add(new SamuraiDiscord(
                 new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("samurai.token"))
-                .setAudioEnabled(false)
+                .setAudioEnabled(true)
                 .useSharding(i,SHARD_COUNT)));
 
 

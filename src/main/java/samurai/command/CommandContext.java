@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * @version 3/14/2017
  */
 public class CommandContext {
+    private final String prefix;
     private final String key;
     private final Member author;
     private final List<User> mentionedUsers;
@@ -33,7 +34,8 @@ public class CommandContext {
     private final OffsetDateTime time;
     private int shardId;
 
-    public CommandContext(String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
+    public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
+        this.prefix = prefix;
         this.key = key;
         this.author = author;
         this.mentionedUsers = mentionedUsers;

@@ -54,10 +54,8 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void register(DynamicMessage dynamicMessage) {
-        if (dynamicMessage instanceof SamuraiListener) {
-            listeners.putIfAbsent(dynamicMessage.getChannelId(), new LinkedList<>());
-            listeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
-        }
+        listeners.putIfAbsent(dynamicMessage.getChannelId(), new LinkedList<>());
+        listeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
     }
 
 
