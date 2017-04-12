@@ -16,24 +16,34 @@ import java.util.logging.SimpleFormatter;
 public class MyLogger {
 
     private static final Logger COMMAND_LOGGER;
+    private static final Logger INTERNAL_LOGGER;
 
     static {
-        COMMAND_LOGGER = Logger.getLogger("CommandLogger");
+        COMMAND_LOGGER = Logger.getLogger("Samurai.CommandLogger");
+        INTERNAL_LOGGER = Logger.getLogger("Samurai.InternalLogger");
         final FileHandler handler;
+        final FileHandler handler2;
         try {
             handler = new FileHandler("commands.log");
+            handler2 = new FileHandler("internal.log");
         } catch (IOException e) {
             throw new ExceptionInInitializerError("Could not start commandLogger");
         }
         handler.setFormatter(new SimpleFormatter());
+        handler2.setFormatter(new SimpleFormatter());
         COMMAND_LOGGER.addHandler(handler);
+        INTERNAL_LOGGER.addHandler(handler2);
     }
 
 
     private MyLogger() {}
 
     public static void log(String message, Level level, Exception e, CommandContext context) {
-        final String msg = message + "\n" + context.toString();
+        final String msg = message + "\n" + (context == null ? "" : context.toString());
         COMMAND_LOGGER.log(level, msg + e.toString());
+    }
+
+    public static void log(String message, Level level, Exception e) {
+        INTERNAL_LOGGER.log(level, message, e);
     }
 }

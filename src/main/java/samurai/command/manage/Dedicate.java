@@ -12,7 +12,7 @@ import samurai.osu.enums.GameMode;
  * @author TonTL
  * @version 5.x - 3/18/2017
  */
-@Key({"setchannel", "dedicate"})
+@Key({"setchannel"})
 @Admin
 public class Dedicate extends Command {
     @Override
@@ -21,5 +21,6 @@ public class Dedicate extends Command {
             context.getSGuild().getManager().addChannelFilter(Long.parseLong(context.getMentionedChannels().get(0).getId()), GameMode.OSU);
             return FixedMessage.build("All tracking notifications will be sent to `" + context.getMentionedChannels().get(0).getName() + '`');
         } else return null;
+
     }
 }

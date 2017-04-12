@@ -31,4 +31,9 @@ public class Entry<K, V> implements Map.Entry {
     public Object setValue(Object value) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String toString() {
+        return "(" + key + ", " + value + ')';
+    }
 }

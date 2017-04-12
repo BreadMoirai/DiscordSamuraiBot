@@ -31,6 +31,9 @@ public class Database {
 
     public static void close() {
         if (!open) throw new UnsupportedOperationException("Database is closed");
-        database.close();
+        if (database != null) {
+            open = false;
+            database.close();
+        }
     }
 }

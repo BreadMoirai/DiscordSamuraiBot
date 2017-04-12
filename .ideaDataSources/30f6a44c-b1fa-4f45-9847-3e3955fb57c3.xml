@@ -21,164 +21,188 @@
     <table id="15" parent="2" name="CHARTMAP"/>
     <table id="16" parent="2" name="GUILD"/>
     <table id="17" parent="2" name="GUILDCHART"/>
-    <table id="18" parent="2" name="PLAYER"/>
-    <column id="19" parent="13" name="CHANNELID">
+    <table id="18" parent="2" name="MAPSET"/>
+    <table id="19" parent="2" name="PLAYER"/>
+    <column id="20" parent="13" name="CHANNELID">
       <Position>1</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="20" parent="13" name="GUILDID">
+    <column id="21" parent="13" name="GUILDID">
       <Position>2</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="21" parent="13" name="TYPE">
+    <column id="22" parent="13" name="TYPE">
       <Position>3</Position>
       <DataType>SMALLINT(5)|5</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>0</DefaultExpression>
     </column>
-    <key id="22" parent="13" name="SQL170405224005770">
+    <key id="23" parent="13" name="SQL170405224005770">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>CHANNELID</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="23" parent="13" name="GUILDID_FK3">
+    <foreign-key id="24" parent="13" name="GUILDID_FK3">
       <ColNames>GUILDID</ColNames>
       <RefSchemaName>APP</RefSchemaName>
       <RefTableName>GUILD</RefTableName>
       <RefKeyName>SQL170405224005660</RefKeyName>
       <RefColNames>GUILDID</RefColNames>
     </foreign-key>
-    <column id="24" parent="14" name="CHARTID">
+    <column id="25" parent="14" name="CHARTID">
       <Position>1</Position>
       <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
       <SequenceIdentity>1</SequenceIdentity>
       <DefaultExpression>GENERATED_BY_DEFAULT</DefaultExpression>
     </column>
-    <column id="25" parent="14" name="NAME">
+    <column id="26" parent="14" name="NAME">
       <Position>2</Position>
       <DataType>VARCHAR(32)|12</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="26" parent="14" name="ISSET">
+    <column id="27" parent="14" name="ISSET">
       <Position>3</Position>
       <DataType>BOOLEAN(1)|16</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>TRUE</DefaultExpression>
     </column>
-    <key id="27" parent="14" name="SQL170405224005670">
+    <key id="28" parent="14" name="SQL170405224005670">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>CHARTID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="28" parent="15" name="CHARTID">
+    <column id="29" parent="15" name="CHARTID">
       <Position>1</Position>
       <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="29" parent="15" name="MAPSETID">
+    <column id="30" parent="15" name="MAPSETID">
       <Position>2</Position>
       <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="30" parent="15" name="CHARTMAP_PK">
+    <key id="31" parent="15" name="CHARTMAP_PK">
       <ColNames>CHARTID
 MAPSETID</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="31" parent="15" name="CHARTID_FK">
+    <foreign-key id="32" parent="15" name="CHARTID_FK">
       <ColNames>CHARTID</ColNames>
       <RefSchemaName>APP</RefSchemaName>
       <RefTableName>CHART</RefTableName>
       <RefKeyName>SQL170405224005670</RefKeyName>
       <RefColNames>CHARTID</RefColNames>
     </foreign-key>
-    <column id="32" parent="16" name="GUILDID">
+    <column id="33" parent="16" name="GUILDID">
       <Position>1</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="33" parent="16" name="PREFIX">
+    <column id="34" parent="16" name="PREFIX">
       <Position>2</Position>
       <DataType>VARCHAR(16)|12</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>&apos;&gt;&apos;</DefaultExpression>
     </column>
-    <column id="34" parent="16" name="COMMANDS">
+    <column id="35" parent="16" name="COMMANDS">
       <Position>3</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="35" parent="16" name="SQL170405224005660">
+    <key id="36" parent="16" name="SQL170405224005660">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>GUILDID</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="36" parent="17" name="GUILDID">
+    <column id="37" parent="17" name="GUILDID">
       <Position>1</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="37" parent="17" name="CHARTID">
+    <column id="38" parent="17" name="CHARTID">
       <Position>2</Position>
       <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="38" parent="17" name="GUILDCHARTPK">
+    <key id="39" parent="17" name="GUILDCHARTPK">
       <ColNames>GUILDID
 CHARTID</ColNames>
       <Primary>1</Primary>
     </key>
-    <foreign-key id="39" parent="17" name="GUILDID_FK2">
+    <foreign-key id="40" parent="17" name="GUILDID_FK2">
       <ColNames>GUILDID</ColNames>
       <RefSchemaName>APP</RefSchemaName>
       <RefTableName>GUILD</RefTableName>
       <RefKeyName>SQL170405224005660</RefKeyName>
       <RefColNames>GUILDID</RefColNames>
     </foreign-key>
-    <foreign-key id="40" parent="17" name="CHARTID_FK2">
+    <foreign-key id="41" parent="17" name="CHARTID_FK2">
       <ColNames>CHARTID</ColNames>
       <RefSchemaName>APP</RefSchemaName>
       <RefTableName>CHART</RefTableName>
       <RefKeyName>SQL170405224005670</RefKeyName>
       <RefColNames>CHARTID</RefColNames>
     </foreign-key>
-    <column id="41" parent="18" name="DISCORDID">
+    <column id="42" parent="18" name="MAPID">
       <Position>1</Position>
-      <DataType>BIGINT(19)|-5</DataType>
+      <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="42" parent="18" name="OSUID">
+    <column id="43" parent="18" name="SETID">
       <Position>2</Position>
       <DataType>INTEGER(10)|4</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="43" parent="18" name="OSUNAME">
+    <column id="44" parent="18" name="HASH">
+      <Position>3</Position>
+      <DataType>VARCHAR(36)|12</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <key id="45" parent="18" name="MAPSET_MAPID_PK">
+      <ColNames>MAPID</ColNames>
+      <Primary>1</Primary>
+    </key>
+    <column id="46" parent="19" name="DISCORDID">
+      <Position>1</Position>
+      <DataType>BIGINT(19)|-5</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="47" parent="19" name="OSUID">
+      <Position>2</Position>
+      <DataType>INTEGER(10)|4</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <column id="48" parent="19" name="OSUNAME">
       <Position>3</Position>
       <DataType>VARCHAR(16)|12</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="44" parent="18" name="GLOBALRANK">
+    <column id="49" parent="19" name="GLOBALRANK">
       <Position>4</Position>
       <DataType>INTEGER(10)|4</DataType>
     </column>
-    <column id="45" parent="18" name="COUNTRYRANK">
+    <column id="50" parent="19" name="COUNTRYRANK">
       <Position>5</Position>
       <DataType>INTEGER(10)|4</DataType>
     </column>
-    <column id="46" parent="18" name="LASTUPDATED">
+    <column id="51" parent="19" name="LASTUPDATED">
       <Position>6</Position>
       <DataType>BIGINT(19)|-5</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="47" parent="18" name="SQL170405224005601">
+    <column id="52" parent="19" name="RAWPP">
+      <Position>7</Position>
+      <DataType>DOUBLE(52)|8</DataType>
+    </column>
+    <index id="53" parent="19" name="SQL170405224005601">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>OSUID</ColNames>
       <Unique>1</Unique>
     </index>
-    <key id="48" parent="18" name="SQL170405224005600">
+    <key id="54" parent="19" name="SQL170405224005600">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>DISCORDID</ColNames>
       <Primary>1</Primary>

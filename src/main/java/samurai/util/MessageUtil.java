@@ -23,10 +23,14 @@ public class MessageUtil {
         embedBuilder.setColor(Color.pink);
         StringBuilder sb = embedBuilder.getDescriptionBuilder();
         sb.append("**Player: **").append(s.getPlayer());
-        sb.append("**\nScore: **").append(s.getScore());
-        sb.append("**\nAccuracy: **").append(s.getAccuracy());
-        sb.append("**\nGrade: **").append(s.getGrade());
-        sb.append("**\nMD5: **").append(s.getBeatmapHash());
+        sb.append("\n**Score: **").append(s.getScore());
+        sb.append("\n**Accuracy: **").append(s.getAccuracy());
+        sb.append("\n**Grade: **").append(s.getGrade());
+        sb.append("\n**300: **").append(s.getCount300());
+        sb.append("\n**100: **").append(s.getCount100());
+        sb.append("\n**50: **").append(s.getCount50());
+        sb.append("\n**miss: **").append(s.getCount0());
+        //sb.append("**\nMD5: **").append(s.getBeatmapHash());
         embedBuilder.setTimestamp(Instant.ofEpochSecond(s.getTimestamp()));
         return messageBuilder.setEmbed(embedBuilder.build()).build();
     }

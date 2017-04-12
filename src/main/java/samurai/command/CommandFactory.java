@@ -4,9 +4,11 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import org.reflections.Reflections;
 import samurai.command.annotations.Key;
+import samurai.util.MyLogger;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ public class CommandFactory {
         try {
             return COMMAND_MAP.get(key).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            //todo
+            MyLogger.log("Could not create a new Action", Level.SEVERE, e);
             return null;
         }
     }
@@ -57,7 +59,7 @@ public class CommandFactory {
         //if content does not with token ex. "!"
         final Matcher matcher = SAMURAI_MENTION.matcher(content);
         if (matcher.find() && matcher.start() == 0) {
-            matcher.replaceFirst(token);
+            content = matcher.replaceFirst(token);
         }
         if (!content.startsWith(token) || content.length() <= token.length()) return null;
 
@@ -89,12 +91,12 @@ public class CommandFactory {
     public static Command build(GenericGuildMessageEvent event, String prefix) {
         final Member author = event.getMember();
         final Message message = event.getMessage();
-        final long channelId = Long.parseLong(event.getChannel().getId());
-        final long guildId = Long.parseLong(event.getGuild().getId());
+        final long channelId = event.getChannel().getIdLong();
+        final long guildId = event.getGuild().getIdLong();
         final List<User> mentionedUsers = message.getMentionedUsers();
         final List<Role> mentionedRoles = event.getMessage().getMentionedRoles();
         final List<TextChannel> mentionedChannels = event.getMessage().getMentionedChannels();
-        final long messageId = Long.parseLong(message.getId());
+        final long messageId = message.getIdLong();
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();

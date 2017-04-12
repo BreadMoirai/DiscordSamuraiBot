@@ -2,6 +2,7 @@ package samurai.files;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.osu.model.Score;
+import samurai.util.MyLogger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 
 /**
@@ -37,7 +39,7 @@ public class SamuraiStore {
         try {
             Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
         } catch (URISyntaxException | IOException e) {
-            //todo Bot.logError(e);
+            MyLogger.log("Get Help Exception", Level.SEVERE, e);
         }
         return sb.toString();
     }
@@ -110,13 +112,12 @@ public class SamuraiStore {
                 }
                 beatmapScores.put(hash, scoreList);
             }
-            //Bot.log("Scores successfully read from " + path.substring(path.indexOf("data")));
             return beatmapScores;
         } catch (FileNotFoundException e) {
-            //Bot.log("No Score File Found for ." + path.substring(path.length() - 28));
+            MyLogger.log("No Score File Found for ." + path.substring(path.length() - 28), Level.SEVERE, e);
             return null;
         } catch (IOException e) {
-            //Bot.logError(e);
+            MyLogger.log(null, Level.SEVERE, e);
             return null;
         }
     }

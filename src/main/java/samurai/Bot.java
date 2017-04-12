@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import samurai.command.CommandFactory;
 import samurai.database.Database;
+import samurai.osu.tracker.OsuTracker;
 import samurai.util.BotUtil;
 
 import java.util.ArrayList;
@@ -25,10 +26,10 @@ public class Bot {
     public static final String AVATAR;
     public static final AtomicInteger CALLS;
     public static final AtomicInteger SENT;
-    public static final String ID;
-    public static final String SOURCE_GUILD;
+    public static final long ID;
+    public static final long SOURCE_GUILD;
     public static final String DEFAULT_PREFIX;
-    private static final int SHARD_COUNT = 2;
+    public static final int SHARD_COUNT = 2;
 
     private static TextChannel logChannel;
 
@@ -37,8 +38,8 @@ public class Bot {
     static {
         START_TIME = System.currentTimeMillis();
         final Config config = ConfigFactory.load();
-        SOURCE_GUILD = config.getString("samurai.source_guild");
-        ID = config.getString("samurai.id");
+        SOURCE_GUILD = config.getLong("samurai.source_guild");
+        ID = config.getLong("samurai.id");
         AVATAR = config.getString("samurai.avatar");
         CALLS = new AtomicInteger();
         SENT = new AtomicInteger();
@@ -71,6 +72,7 @@ public class Bot {
     public static void shutdown() {
         System.out.println("Shutting Down");
         Database.close();
+        OsuTracker.close();
         for (SamuraiDiscord samurai : shards) {
             samurai.shutdown();
         }

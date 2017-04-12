@@ -34,14 +34,15 @@ public enum Commands {
     Hangman(1048576L),
     Wasted(2097152L),
     Purge(4194304L),
-    Log(8388608L),
-    Reset(16777216L),
-    Shutdown(33554432L),
-    Draw(67108864L),
-    ExampleCommand(134217728L),
-    GetRecent(268435456L),
-    Groovy(536870912L),
-    ToList(1073741824L);
+    Reset(8388608L),
+    Shutdown(16777216L),
+    Draw(33554432L),
+    ExampleCommand(67108864L),
+    GetRecent(134217728L),
+    Groovy(268435456L),
+    Log(536870912L),
+    ToList(1073741824L),
+    Tracking(2147483648L);
 
 
     private final long value;
@@ -60,7 +61,7 @@ public enum Commands {
     }
 
     public static long getDefaultEnabledCommands() {
-        return getEnabled(GenericCommand, Help, Invite, Join, RandomBeatmap, Info, Link, Profile, Rank, Upload, Enable, Perm, Prefix, Uptime);
+        return getEnabled(GenericCommand, Help, Invite, Join, RandomBeatmap, Info, Link, Profile, Rank, Upload, Enable, Perm, Prefix, Uptime, Tracking);
     }
 
     public static long getEnabledAll() {

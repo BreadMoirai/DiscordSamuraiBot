@@ -71,4 +71,10 @@ public class GuildManagerImpl implements GuildManager {
         return database.putFilter(guild.getGuildId(), channelId, mode)
                 && guild.addDedicatedChannel(channelId, mode);
     }
+
+    @Override
+    public void addPlayer(long discordUserId, String osuName, int osuId, double rawPP, int rankG, int rankC) {
+        final Optional<Player> player = Database.getDatabase().createPlayer(discordUserId, osuId, osuName, rankG, rankC, rawPP);
+        player.ifPresent(this::addPlayer);
+    }
 }

@@ -24,4 +24,6 @@ public interface GuildManager {
     boolean setCommands(long newCommands);
 
     boolean addChannelFilter(long channelId, GameMode mode);
+
+    void addPlayer(long authorId, String username, int user_id, double pp_raw, int pp_rank, int pp_country_rank);
 }

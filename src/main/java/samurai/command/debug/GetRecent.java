@@ -32,7 +32,7 @@ public class GetRecent extends Command {
         if (!userRecent.isPresent()) return FixedMessage.build("Nothing found.");
         final Score lastScore = userRecent.get();
         //return new StaticBeatmapDisplay(SamuraiDatabase.getSet(lastScore.getBeatmapHash()), true, true, lastScore.getBeatmapHash(), lastScore);
-        //todo
+        //fixme
         return FixedMessage.build("Unsupported Operation");
     }
 }

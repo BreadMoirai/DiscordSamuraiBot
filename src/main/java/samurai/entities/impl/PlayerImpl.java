@@ -14,14 +14,16 @@ public class PlayerImpl implements Player {
     private final int rankG;
     private final int rankC;
     private final long lastUpdated;
+    private final int rawPP;
 
-    public PlayerImpl(long discordId, int osuId, String osuName, int g, int c, long lastUpdated) {
+    public PlayerImpl(long discordId, int osuId, String osuName, int g, int c, long lastUpdated, int rawPP) {
         this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
         this.rankG = g;
         this.rankC = c;
         this.lastUpdated = lastUpdated;
+        this.rawPP = rawPP;
     }
 
     @Override
@@ -47,6 +49,11 @@ public class PlayerImpl implements Player {
     @Override
     public int getRankC() {
         return rankC;
+    }
+
+    @Override
+    public int getRawPP() {
+        return rawPP;
     }
 
     @Override

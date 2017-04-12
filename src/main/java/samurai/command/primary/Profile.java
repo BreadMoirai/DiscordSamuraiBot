@@ -66,11 +66,11 @@ public class Profile extends Command {
         return FixedMessage.build(buildProfileEmbed(profile));
     }
 
-    public static MessageEmbed buildProfileEmbed(JSONObject profile) {
+    static MessageEmbed buildProfileEmbed(JSONObject profile) {
         EmbedBuilder eb = new EmbedBuilder()
                 .setTitle(profile.getString("username"), String.format("https://osu.ppy.sh/u/%s", profile.getString("username")))
                 .setColor(Color.PINK)
-                .setThumbnail("http://s.ppy.sh/a/" + profile.get("user_id"))
+                .setThumbnail("http://s.ppy.sh/a/" + profile.getString("user_id"))
                 .addField("Level", profile.getString("level"), true)
                 .addField("Rank", String.format("**#**%s", profile.getString("pp_rank")), true)
                 .addField("Play Count", profile.getString("playcount"), true)

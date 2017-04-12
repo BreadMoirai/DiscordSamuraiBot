@@ -30,9 +30,10 @@ public interface SDatabase {
      * @param discordUserId discord snowflake id of the user
      * @param osuId the osu id of the user
      * @param osuName the osu name of the user
+     * @param rawPP player's pp
      * @return the player if successful else an empty
      */
-    Optional<Player> createPlayer(long discordUserId, int osuId, String osuName, int rankG, int rankC);
+    Optional<Player> createPlayer(long discordUserId, int osuId, String osuName, int rankG, int rankC, double rawPP);
 
     /**
      * Overloads
@@ -147,10 +148,10 @@ public interface SDatabase {
      * Gets guild.
      *
      * @param guildId    the guild id
-     * @param userIDList the user id list
+     * @param userID the user id list
      * @return the guild
      */
-    Optional<SGuild> getGuild(long guildId, List<Long> userIDList);
+    Optional<SGuild> getGuild(long guildId, long... userID);
 
     /**
      * creates a new guild and returns it
@@ -192,6 +193,12 @@ public interface SDatabase {
     List<Entry<Long, GameMode>> getGuildFilters(long guildId);
 
     boolean removeGuild(long guildId);
+
+    boolean putMapSet(int setId, int mapId, String hash);
+
+    Optional<Integer> getSet(int mapId);
+
+    List<Integer> getMaps(int setId);
 
     /**
      * Debugging only

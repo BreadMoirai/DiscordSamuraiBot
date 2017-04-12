@@ -22,12 +22,13 @@ public class DiscordMessageListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        samurai.onMessageDelete(Long.parseLong(event.getChannel().getId()), Long.parseLong(event.getMessageId()));
+        samurai.onMessageDelete(event.getChannel().getIdLong(), Long.parseLong(event.getMessageId()));
+        //todo complain about this
     }
 
     @Override
     public void onPrivateMessageDelete(PrivateMessageDeleteEvent event) {
-        samurai.onMessageDelete(Long.parseLong(event.getChannel().getId()), Long.parseLong(event.getMessageId()));
+        samurai.onMessageDelete(event.getChannel().getIdLong(), Long.parseLong(event.getMessageId()));
     }
 
     @Override

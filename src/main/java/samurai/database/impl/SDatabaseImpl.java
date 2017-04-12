@@ -14,8 +14,8 @@ import samurai.osu.enums.GameMode;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -26,8 +26,9 @@ public class SDatabaseImpl implements SDatabase {
 
     private static final String PROTOCOL = "jdbc:derby:";
 
-    private final Connection connection;
+    private static final String DB_NAME = "SamuraiDerbyDatabase";
 
+    private final Connection connection;
     private final PreparedStatement psPlayerQuery;
     private final PreparedStatement psPlayerExists;
     private final PreparedStatement psPlayerInsert;
@@ -68,12 +69,14 @@ public class SDatabaseImpl implements SDatabase {
     private final PreparedStatement psGuildUpdateCommands;
     private final PreparedStatement psGuildDelete;
 
+    private final PreparedStatement psMapSetInsert;
+    private final PreparedStatement psMapSetQuerySet;
+    private final PreparedStatement psMapSetQueryMap;
+
 
     public SDatabaseImpl() throws SQLException {
-        String dbName = "SamuraiDerbyDatabase";
 
-        connection = DriverManager.getConnection(PROTOCOL + dbName + ';');
-
+        connection = DriverManager.getConnection(PROTOCOL + DB_NAME + ';');
         connection.setAutoCommit(false);
 
         {
@@ -88,7 +91,7 @@ public class SDatabaseImpl implements SDatabase {
                             "WHERE DISCORDID=?");
             psPlayerInsert = connection.prepareStatement(
                     "INSERT INTO PLAYER " +
-                            "VALUES (?, ?, ?, ?, ?, ?)"
+                            "VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
             psPlayerUpdate = connection.prepareStatement(
                     "UPDATE PLAYER " +
@@ -210,7 +213,7 @@ public class SDatabaseImpl implements SDatabase {
             psGuildQuery = connection.prepareStatement(
                     "SELECT * " +
                             "FROM GUILD " +
-                            "WHERE GUILD.GUILDID=?");
+                            "WHERE GUILDID=?");
             psGuildInsert = connection.prepareStatement(
                     "INSERT INTO GUILD(GUILDID, COMMANDS) VALUES (?, ?)"
             );
@@ -223,6 +226,18 @@ public class SDatabaseImpl implements SDatabase {
             psGuildDelete = connection.prepareStatement(
                     "DELETE FROM GUILD WHERE GUILD.GUILDID=?"
             );
+        }
+        {
+            psMapSetInsert = connection.prepareStatement(
+                    "INSERT INTO MAPSET VALUES (?, ?, ?)"
+            );
+            psMapSetQuerySet = connection.prepareStatement(
+                    "SELECT MAPID, HASH FROM MAPSET WHERE SETID=?"
+            );
+            psMapSetQueryMap = connection.prepareStatement(
+                    "SELECT SETID, HASH FROM MAPSET WHERE MAPID=?"
+            );
+
         }
     }
 
@@ -238,9 +253,11 @@ public class SDatabaseImpl implements SDatabase {
                         resultSet.getString("OsuName"),
                         resultSet.getInt("GlobalRank"),
                         resultSet.getInt("CountryRank"),
-                        resultSet.getLong("LastUpdated"));
-                resultSet.close();
+                        resultSet.getLong("LastUpdated"),
+                        resultSet.getInt("RawPP"));
             }
+            resultSet.close();
+            psPlayerQuery.clearParameters();
         } catch (SQLException e) {
             SQLUtil.printSQLException(e);
         }
@@ -248,9 +265,9 @@ public class SDatabaseImpl implements SDatabase {
     }
 
     @Override
-    public Optional<Player> createPlayer(long discordUserId, int osuId, String osuName, int rankG, int rankC) {
+    public Optional<Player> createPlayer(long discordUserId, int osuId, String osuName, int rankG, int rankC, double rawPP) {
         if (!entryExists(psPlayerExists, discordUserId)
-                && (executeUpdate(psPlayerInsert, discordUserId, osuId, osuName, rankG, rankC, Instant.now().getEpochSecond()) == 1)
+                && (executeUpdate(psPlayerInsert, discordUserId, osuId, osuName, rankG, rankC, Instant.now().getEpochSecond(), rawPP) == 1)
                 && (commit() || rollback()))
             return getPlayer(discordUserId);
         return Optional.empty();
@@ -272,6 +289,7 @@ public class SDatabaseImpl implements SDatabase {
                 type = GameMode.get(resultSet.getInt("Type"));
             }
             resultSet.close();
+            psChannelFilterQuery.clearParameters();
         } catch (SQLException e) {
             SQLUtil.printSQLException(e);
         }
@@ -309,6 +327,7 @@ public class SDatabaseImpl implements SDatabase {
                 chart.addMapId(resultSet.getInt("MapSetId"));
             }
             resultSet.close();
+            psGuildChartJoinQuery.clearParameters();
             if (chart != null) chartList.add(chart);
         } catch (SQLException e) {
             SQLUtil.printSQLException(e);
@@ -337,6 +356,7 @@ public class SDatabaseImpl implements SDatabase {
                 chart.addMapId(resultSet.getInt("MapSetID"));
             }
             resultSet.close();
+            psChartQuery.clearParameters();
             return Optional.of(chart);
         } catch (SQLException e) {
             SQLUtil.printSQLException(e);
@@ -353,6 +373,7 @@ public class SDatabaseImpl implements SDatabase {
                 if (resultSet.next()) {
                     final int identity = resultSet.getInt(1);
                     resultSet.close();
+                    psChartIdentityQuery.clearParameters();
                     return Optional.of(new ChartImpl(identity, name, isSet));
                 }
             } catch (SQLException e) {
@@ -386,18 +407,13 @@ public class SDatabaseImpl implements SDatabase {
         return guild.map(SGuild::getPrefix).orElse(">");
     }
 
-    private Optional<SGuild> getGuild(long discordGuildId) {
-        return getGuild(discordGuildId, Collections.emptyList());
-    }
-
-
     @Override
     public boolean putChartMap(int chartId, int mapSetId) {
         return executeUpdate(psChartMapInsert, chartId, mapSetId) == 1 && (commit() || rollback());
     }
 
     @Override
-    public Optional<SGuild> getGuild(long guildId, List<Long> userIDList) {
+    public Optional<SGuild> getGuild(long guildId, long... userIDList) {
         try {
             final ResultSet resultSet = executeQuery(psGuildQuery, guildId);
             if (resultSet.next()) {
@@ -406,6 +422,7 @@ public class SDatabaseImpl implements SDatabase {
                         resultSet.getString("Prefix"), resultSet.getLong("Commands"),
                         userIDList);
                 resultSet.close();
+                psGuildQuery.clearParameters();
                 return Optional.of(guild);
             }
         } catch (SQLException e) {
@@ -417,7 +434,7 @@ public class SDatabaseImpl implements SDatabase {
     @Override
     public Optional<SGuild> createGuild(long guildId, long commands) {
         if (executeUpdate(psGuildInsert, guildId, commands) == 1 && (commit() || rollback())) {
-            return (getGuild(guildId, Collections.emptyList()));
+            return (getGuild(guildId));
         } else return Optional.empty();
     }
 
@@ -444,6 +461,8 @@ public class SDatabaseImpl implements SDatabase {
             while (resultSet.next()) {
                 entryList.add(new Entry<>(resultSet.getLong("ChannelID"), GameMode.get(resultSet.getInt("Type"))));
             }
+            resultSet.close();
+            psGuildFilterQuery.clearParameters();
         } catch (SQLException e) {
             SQLUtil.printSQLException(e);
         }
@@ -452,8 +471,48 @@ public class SDatabaseImpl implements SDatabase {
 
     @Override
     public boolean removeGuild(long guildId) {
-        return executeUpdate(psGuildDelete, guildId) == 1 & (commit() || rollback());
+        return executeUpdate(psGuildDelete, guildId) == 1 && (commit() || rollback());
     }
+
+    @Override
+    public boolean putMapSet(int setId, int mapId, String hash) {
+        return executeUpdate(psMapSetInsert, mapId, setId, hash) == 1 && (commit() || rollback());
+    }
+
+    @Override
+    public Optional<Integer> getSet(int mapId) {
+        int setId = 0;
+        try {
+            final ResultSet resultSet = executeQuery(psMapSetQueryMap, mapId);
+            if (resultSet.next()) {
+                setId = resultSet.getInt("SetID");
+            }
+            resultSet.close();
+            psMapSetQueryMap.clearParameters();
+        } catch (SQLException e) {
+            SQLUtil.printSQLException(e);
+        }
+        return setId == 0 ? Optional.empty() : Optional.of(setId);
+    }
+
+
+    @Override
+    public List<Integer> getMaps(int setId) {
+       ArrayList<Integer> mapList = new ArrayList<>(5);
+        try {
+            final ResultSet resultSet = executeQuery(psMapSetQuerySet, setId);
+            while (resultSet.next()) {
+                mapList.add(resultSet.getInt("MapID"));
+            }
+            resultSet.close();
+            psMapSetQuerySet.clearParameters();
+        } catch (SQLException e) {
+            SQLUtil.printSQLException(e);
+        }
+        return mapList;
+    }
+
+
 
     @Override
     public void reset() {
@@ -537,7 +596,7 @@ public class SDatabaseImpl implements SDatabase {
         try {
             int i = param.length;
             while (i > 0) {
-                ps.setObject(i, param[--i]);
+                ps.setObject(i, Objects.requireNonNull(param[--i]));
             }
             final ResultSet resultSet = ps.executeQuery();
             if (resultSet.next()) {
@@ -555,18 +614,17 @@ public class SDatabaseImpl implements SDatabase {
     }
 
     private static ResultSet executeQuery(PreparedStatement ps, Object... param) throws SQLException {
-        int i = param.length;
-        while (i > 0) ps.setObject(i, param[--i]);
-        final ResultSet resultSet = ps.executeQuery();
-        ps.clearParameters();
-        return resultSet;
+        for (int i = param.length; i > 0; i--) {
+            ps.setObject(i, Objects.requireNonNull(param[i - 1]));
+        }
+        return ps.executeQuery();
     }
 
     private static int executeUpdate(PreparedStatement ps, Object... param) {
         try {
             int i = param.length;
             while (i > 0) {
-                ps.setObject(i, param[--i]);
+                ps.setObject(i, Objects.requireNonNull(param[--i]));
             }
             int valuesChanged = ps.executeUpdate();
             ps.clearParameters();
@@ -580,7 +638,7 @@ public class SDatabaseImpl implements SDatabase {
     @Override
     public void close() {
         try {
-            DriverManager.getConnection("jdbc:derby:SamuraiDerbyDatabase;shutdown=true");
+            DriverManager.getConnection(PROTOCOL + DB_NAME + ";shutdown=true");
 
             psPlayerQuery.close();
             psPlayerExists.close();

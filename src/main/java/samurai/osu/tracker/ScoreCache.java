@@ -1,5 +1,6 @@
 package samurai.osu.tracker;
 
+import net.dv8tion.jda.core.entities.Message;
 import samurai.osu.model.Score;
 
 import java.util.ArrayList;
@@ -26,5 +27,9 @@ public class ScoreCache {
             }
         }
         return newScores;
+    }
+
+    public Message getSessionStats() {
+        return null;
     }
 }

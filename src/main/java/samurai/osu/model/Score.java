@@ -26,6 +26,7 @@ public class Score {
     private int modCombo;
     private long timestamp;
     private long onlineScoreID;
+    private int beatmapId;
 
     public float getAccuracy() {
         float maxHitPoints = (count0 + count50 + count100 + count300) * 300;
@@ -67,70 +68,34 @@ public class Score {
         }
     }
 
-    public Score setGrade(Grade grade) {
-        this.grade = grade;
+    public int getBeatmapId() {
+        return beatmapId;
+    }
+
+    public Score setBeatmapId(int beatmapId) {
+        this.beatmapId = beatmapId;
         return this;
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Score score1 = (Score) o;
-
-        if (count300 != score1.count300) return false;
-        if (count100 != score1.count100) return false;
-        if (count50 != score1.count50) return false;
-        if (geki != score1.geki) return false;
-        if (katu != score1.katu) return false;
-        if (count0 != score1.count0) return false;
-        if (score != score1.score) return false;
-        if (maxCombo != score1.maxCombo) return false;
-        if (modCombo != score1.modCombo) return false;
-        if (mode != score1.mode) return false;
-        if (!beatmapHash.equals(score1.beatmapHash)) return false;
-        return player.equals(score1.player);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mode.hashCode();
-        result = 31 * result + beatmapHash.hashCode();
-        result = 31 * result + player.hashCode();
-        result = 31 * result + (int) count300;
-        result = 31 * result + (int) count100;
-        result = 31 * result + (int) count50;
-        result = 31 * result + (int) geki;
-        result = 31 * result + (int) katu;
-        result = 31 * result + (int) count0;
-        result = 31 * result + score;
-        result = 31 * result + (int) maxCombo;
-        result = 31 * result + modCombo;
-        return result;
-    }
-
-    public String toString() {
-        return "[" + Instant.ofEpochMilli(timestamp).toString() + "] " + player + " " + score;
+    public Score setGrade(Grade grade) {
+        this.grade = grade;
+        return this;
     }
 
     public GameMode getMode() {
         return mode;
     }
 
-
     public Score setMode(GameMode mode) {
         this.mode = mode;
         return this;
     }
 
-    public Score setVersion(int version) {
-
-        return this;
-    }
-
     public String getBeatmapHash() {
+        if (beatmapHash == null) {
+            return "null";
+        }
         return beatmapHash;
     }
 
@@ -305,5 +270,45 @@ public class Score {
 
     public boolean passed() {
         return grade != Grade.F;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Score score1 = (Score) o;
+
+        if (count300 != score1.count300) return false;
+        if (count100 != score1.count100) return false;
+        if (count50 != score1.count50) return false;
+        if (geki != score1.geki) return false;
+        if (katu != score1.katu) return false;
+        if (count0 != score1.count0) return false;
+        if (score != score1.score) return false;
+        if (maxCombo != score1.maxCombo) return false;
+        if (modCombo != score1.modCombo) return false;
+        if (mode != score1.mode) return false;
+        return player.equals(score1.player);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mode.hashCode();
+        result = 31 * result + beatmapHash.hashCode();
+        result = 31 * result + player.hashCode();
+        result = 31 * result + (int) count300;
+        result = 31 * result + (int) count100;
+        result = 31 * result + (int) count50;
+        result = 31 * result + (int) geki;
+        result = 31 * result + (int) katu;
+        result = 31 * result + score;
+        result = 31 * result + (int) maxCombo;
+        result = 31 * result + modCombo;
+        return result;
+    }
+
+    public String toString() {
+        return "[" + Instant.ofEpochMilli(timestamp).toString() + "] " + player + " " + score;
     }
 }

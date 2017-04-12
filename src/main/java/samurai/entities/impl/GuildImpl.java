@@ -10,10 +10,7 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.osu.enums.GameMode;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -24,7 +21,7 @@ public class GuildImpl implements SGuild {
 
     private String prefix;
     private long guildId;
-    private List<Long> userIds;
+    private long[] userIds;
     private List<Player> players;
     private List<Chart> charts;
     private long enabledCommands;
@@ -32,7 +29,7 @@ public class GuildImpl implements SGuild {
     private boolean sorted;
     private GuildManager manager;
 
-    public GuildImpl(long guildId, String prefix, long commands, List<Long> userIds) {
+    public GuildImpl(long guildId, String prefix, long commands, long[] userIds) {
         this.guildId = guildId;
         this.prefix = prefix;
         this.enabledCommands = commands;
@@ -43,7 +40,7 @@ public class GuildImpl implements SGuild {
     private List<Player> getPlayerList() {
         if (players == null) {
             SDatabase database = Database.getDatabase();
-            players = userIds.stream().map(database::getPlayer).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+            players = Arrays.stream(userIds).mapToObj(database::getPlayer).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }
         return players;
     }

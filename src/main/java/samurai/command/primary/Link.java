@@ -32,9 +32,16 @@ public class Link extends Command {
             return FixedMessage.build("Failed to link account.");
         }
         MessageEmbed profileEmbed;
+        System.out.println(userJSON.toString());
         List<Member> mentions = context.getMentionedMembers();
         if (context.getMentionedMembers().size() == 0) {
-            //todo add user to guild as player
+            context.getSGuild().getManager().addPlayer(
+                    context.getAuthorId(),
+                    userJSON.getString("username"),
+                    userJSON.getInt("user_id"),
+                    userJSON.getDouble("pp_raw"),
+                    userJSON.getInt("pp_rank"),
+                    userJSON.getInt("pp_country_rank"));
             profileEmbed = Profile.buildProfileEmbed(userJSON);
         } else if (context.getMentionedMembers().size() == 1) {
             if (!PermissionUtil.canInteract(context.getAuthor(), context.getMentionedMembers().get(0)))

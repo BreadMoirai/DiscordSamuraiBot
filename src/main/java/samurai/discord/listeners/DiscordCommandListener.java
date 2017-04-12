@@ -37,7 +37,7 @@ public class DiscordCommandListener extends ListenerAdapter {
         } else if (event.getAuthor().isBot()) return;
         if (event.getMessage().isPinned()) return;
 
-        final String prefix = Database.getDatabase().getPrefix(Long.parseLong(event.getGuild().getId()));
+        final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());
         final Command c = CommandFactory.build(event, prefix);
 
         if (c != null) {

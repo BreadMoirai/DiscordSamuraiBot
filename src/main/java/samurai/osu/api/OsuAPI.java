@@ -1,4 +1,4 @@
-package samurai.osu;
+package samurai.osu.api;
 
 import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
@@ -56,8 +56,8 @@ public class OsuAPI {
         Score s = new Score()
                 .setPlayer(player);
         final int beatmap_id = jsonObject.getInt("beatmap_id");
-        //todo get hash lazily
         s
+                .setBeatmapId(jsonObject.getInt("beatmap_id"))
                 .setScore(jsonObject.getInt("score"))
                 .setMaxCombo((short) jsonObject.getInt("maxcombo"))
                 .setCount0((short) jsonObject.getInt("countmiss"))

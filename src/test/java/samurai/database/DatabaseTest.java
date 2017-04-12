@@ -9,7 +9,6 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.osu.enums.GameMode;
 
-import javax.xml.crypto.Data;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +64,7 @@ public class DatabaseTest {
     public void playerTest() {
         SDatabase database = Database.getDatabase();
 
-        final Optional<Player> playerOptionalA = database.createPlayer(1337L, 666, "The Test of A", 10, 20);
+        final Optional<Player> playerOptionalA = database.createPlayer(1337L, 666, "The Test of A", 10, 20, rawPP);
         Assert.assertTrue(playerOptionalA.isPresent());
         final Player playerA = playerOptionalA.get();
         Assert.assertEquals(1337L, playerA.getDiscordId());

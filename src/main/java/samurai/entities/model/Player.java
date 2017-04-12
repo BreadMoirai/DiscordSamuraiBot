@@ -15,5 +15,7 @@ public interface Player {
 
     int getRankC();
 
+    int getRawPP();
+
     long getLastUpdated();
 }

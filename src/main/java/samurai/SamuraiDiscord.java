@@ -41,7 +41,7 @@ public class SamuraiDiscord {
             client.addEventListener(new DreadmoiraiSamuraiGuildListener());
 
         shardId = client.getShardInfo().getShardId();
-        client.getPresence().setGame(Game.of("Shard " + client.getShardInfo().getShardString()));
+        client.getPresence().setGame(Game.of(String.format("Shard [%d/%d]", shardId + 1, Bot.SHARD_COUNT)));
         messageManager = new MessageManager(client);
         if (shardId == 0) {
             client.addEventListener(new DiscordPrivateMessageListener());

@@ -89,7 +89,7 @@ public class CommandContext {
 
     public SGuild getSGuild() {
         if (team == null) {
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).map(User::getId).map(Long::parseLong).collect(Collectors.toList()));
+            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray());
             guildOptional.ifPresent(guild -> this.team = guild);
         }
         return team;
@@ -120,7 +120,7 @@ public class CommandContext {
     }
 
     public boolean isSource() {
-        return guildId == Long.parseLong(Bot.SOURCE_GUILD);
+        return guildId == Bot.SOURCE_GUILD;
     }
 
     public List<TextChannel> getMentionedChannels() {
@@ -136,6 +136,6 @@ public class CommandContext {
     }
 
     public long getAuthorId() {
-        return Long.parseLong(author.getUser().getId());
+        return author.getUser().getIdLong();
     }
 }
