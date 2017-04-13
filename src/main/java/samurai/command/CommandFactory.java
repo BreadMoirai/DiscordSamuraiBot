@@ -76,7 +76,7 @@ public class CommandFactory {
         Command command = CommandFactory.newAction(key);
         if (command == null) return null;
 
-        command.setContext(new CommandContext(key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
+        command.setContext(new CommandContext(token, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
 
         //System.out.println("New Command: " + command.getClass().getSimpleName());
         return command;

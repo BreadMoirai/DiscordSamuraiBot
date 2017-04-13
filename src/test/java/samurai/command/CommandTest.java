@@ -40,7 +40,7 @@ public class CommandTest {
         if (guildById == null) {
             throw new NullPointerException("Could not find DreadMoirai'sSamurais");
         }
-        return new CommandContext("", guildById.getMemberById("232703415048732672"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), message, Collections.emptyList(), 233097800722808832L, 285315282560614400L, 299706056739913740L, testingChannel, OffsetDateTime.now());
+        return new CommandContext("", "", guildById.getMemberById("232703415048732672"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), message, Collections.emptyList(), 233097800722808832L, 285315282560614400L, 299706056739913740L, testingChannel, OffsetDateTime.now());
     }
 
     @Test
