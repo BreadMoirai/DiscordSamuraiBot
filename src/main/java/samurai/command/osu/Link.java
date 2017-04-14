@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.osu;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -35,7 +35,7 @@ public class Link extends Command {
         System.out.println(userJSON.toString());
         List<Member> mentions = context.getMentionedMembers();
         if (context.getMentionedMembers().size() == 0) {
-            context.getSGuild().getManager().addPlayer(
+            context.getsGuild().getManager().addPlayer(
                     context.getAuthorId(),
                     userJSON.getString("username"),
                     userJSON.getInt("user_id"),

@@ -1,4 +1,4 @@
-package samurai.command.manage;
+package samurai.command.debug;
 
 import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;

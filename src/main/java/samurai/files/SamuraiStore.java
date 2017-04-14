@@ -8,10 +8,14 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,11 +38,13 @@ public class SamuraiStore {
 
     public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
-        if (SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)) == null)
+        final String path = String.format("%s/%s.txt", SamuraiStore.class.getResource("help").getPath(), fileName);
+        final Path truePath = Paths.get(path.substring(3));
+        if (!Files.exists(truePath))
             return String.format("Nothing found for `%s`. Sorry!", fileName);
         try {
-            Files.readAllLines(new File(SamuraiStore.class.getResource(String.format("./help/%s.txt", fileName)).toURI()).toPath(), StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
-        } catch (URISyntaxException | IOException e) {
+            Files.readAllLines(truePath, StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
+        } catch (IOException e) {
             MyLogger.log("Get Help Exception", Level.SEVERE, e);
         }
         return sb.toString();

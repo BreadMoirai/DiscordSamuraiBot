@@ -1,4 +1,4 @@
-package samurai.command.manage;
+package samurai.command.debug;
 
 import samurai.Bot;
 import samurai.command.Command;

@@ -21,9 +21,9 @@ public class Prefix extends Command {
     public SamuraiMessage execute(CommandContext context) {
         final List<String> args = context.getArgs();
         if (args.size() != 1)
-            return FixedMessage.build("Invalid Argument. Please provide a single word");
+            return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
         final String newPrefix = args.get(0);
-        context.getSGuild().getManager().setPrefix(newPrefix);
+        context.getsGuild().getManager().setPrefix(newPrefix);
         return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
     }
 }

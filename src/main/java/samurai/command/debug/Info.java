@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.debug;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -27,7 +27,7 @@ public class Info extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final List<Member> mentions = context.getMentionedMembers();
-        final SGuild team = context.getSGuild();
+        final SGuild team = context.getsGuild();
         Member userD;
         if (mentions.size() == 0) {
             EmbedBuilder eb = new EmbedBuilder()

@@ -9,7 +9,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.GenericCommand;
 import samurai.command.annotations.Admin;
-import samurai.command.debug.Groovy;
+import samurai.command.restricted.Groovy;
 import samurai.messages.MessageManager;
 import samurai.discord.listeners.*;
 import samurai.messages.base.FixedMessage;
@@ -61,7 +61,7 @@ public class SamuraiDiscord {
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
                 if (!PermissionUtil.canInteract(c.getContext().getAuthor(), client.getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
-                    messageManager.submit(FixedMessage.build("You do not have the appropriate permissions to use this command. Try asking someone of higher status to help you."));
+                    messageManager.submit(FixedMessage.build("You do not have the appropriate permissions to use this command."));
                     return;
                 }
             }

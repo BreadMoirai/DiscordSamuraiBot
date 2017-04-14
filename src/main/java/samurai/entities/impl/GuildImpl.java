@@ -168,4 +168,8 @@ public class GuildImpl implements SGuild {
     public boolean addDedicatedChannel(long channelId, GameMode mode) {
         return getChannelFilterList().add(new Entry<>(channelId, mode));
     }
+
+    public void setUsers(long[] users) {
+        this.userIds = users;
+    }
 }

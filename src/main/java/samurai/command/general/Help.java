@@ -27,15 +27,15 @@ public class Help extends Command {
      */
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        if (context.getArgs().size() != 1) {
+        if (!context.hasContent()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("Samurai - help.txt", null, Bot.AVATAR)
-                    .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getSGuild().getPrefix())));
+                    .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getPrefix())));
 
             return new FixedMessage()
                     .setMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build());
         } else {
-            return FixedMessage.build(PREFIX_PATTERN.matcher(SamuraiStore.getHelp(context.getArgs().get(0))).replaceAll(Matcher.quoteReplacement(context.getSGuild().getPrefix())));
+            return FixedMessage.build(PREFIX_PATTERN.matcher(SamuraiStore.getHelp(context.getContent())).replaceAll(Matcher.quoteReplacement(context.getPrefix())));
         }
         //return FixedMessage.build("Yeah I don't think that's a real command.");
     }

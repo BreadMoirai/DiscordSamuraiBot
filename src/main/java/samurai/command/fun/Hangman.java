@@ -1,4 +1,4 @@
-package samurai.command.hidden;
+package samurai.command.fun;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -14,6 +14,6 @@ import samurai.messages.dynamic.duel.HangmanGame;
 public class Hangman extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return new HangmanGame(context.getAuthor(), context.getSGuild().getPrefix());
+        return new HangmanGame(context.getAuthor(), context.getsGuild().getPrefix());
     }
 }

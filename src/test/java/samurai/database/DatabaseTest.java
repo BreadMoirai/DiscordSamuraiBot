@@ -1,7 +1,7 @@
 package samurai.database;
 
 import org.junit.*;
-import samurai.command.Commands;
+import samurai.command.CommandModule;
 import samurai.entities.manager.ChartManager;
 import samurai.entities.manager.GuildManager;
 import samurai.entities.model.Chart;
@@ -64,7 +64,7 @@ public class DatabaseTest {
     public void playerTest() {
         SDatabase database = Database.getDatabase();
 
-        final Optional<Player> playerOptionalA = database.createPlayer(1337L, 666, "The Test of A", 10, 20, rawPP);
+        final Optional<Player> playerOptionalA = database.createPlayer(1337L, 666, "The Test of A", 10, 20, 100);
         Assert.assertTrue(playerOptionalA.isPresent());
         final Player playerA = playerOptionalA.get();
         Assert.assertEquals(1337L, playerA.getDiscordId());
@@ -166,7 +166,7 @@ public class DatabaseTest {
     @Test
     public void SamuraiGuildTest() {
         SDatabase database = Database.getDatabase();
-        Assert.assertTrue(database.createGuild(233097800722808832L, Commands.getEnabledAll()).isPresent());
+        Assert.assertTrue(database.createGuild(233097800722808832L, CommandModule.getEnabledAll()).isPresent());
     }
 
 

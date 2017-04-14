@@ -31,7 +31,7 @@ public class DiscordCommandListener extends ListenerAdapter {
             return;
         }
         if (event.getAuthor().isFake()) return;
-        if (event.getAuthor().getId().equals(Bot.ID)) {
+        if (event.getAuthor().getIdLong() == Bot.ID) {
             Bot.SENT.incrementAndGet();
             return;
         } else if (event.getAuthor().isBot()) return;

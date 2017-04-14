@@ -1,4 +1,4 @@
-package samurai.command.manage;
+package samurai.command.debug;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import samurai.Bot;
@@ -29,7 +29,7 @@ public class Status extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
-        final SGuild team = context.getSGuild();
+        final SGuild team = context.getsGuild();
         final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)

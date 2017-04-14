@@ -77,4 +77,9 @@ public class GuildManagerImpl implements GuildManager {
         final Optional<Player> player = Database.getDatabase().createPlayer(discordUserId, osuId, osuName, rankG, rankC, rawPP);
         player.ifPresent(this::addPlayer);
     }
+
+    @Override
+    public void setUsers(long... userID) {
+        guild.setUsers(userID);
+    }
 }

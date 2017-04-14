@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.osu;
 
 import net.dv8tion.jda.core.entities.Message;
 import samurai.command.Command;
@@ -25,7 +25,7 @@ public class Upload extends Command {
         } else if (context.getAttaches().get(0).getFileName().equalsIgnoreCase("scores.db")) {
             return null;
             //fixme
-                    //new ConflictMerge(SamuraiStore.readScores(SamuraiStore.downloadFile(attaches.get(0))), context.getSGuild().getScoreMap(), context.getSGuild().getUser(Long.parseLong(context.getAuthor().getUser().getId())));
+                    //new ConflictMerge(SamuraiStore.readScores(SamuraiStore.downloadFile(attaches.get(0))), context.getsGuild().getScoreMap(), context.getsGuild().getUser(Long.parseLong(context.getAuthor().getUser().getId())));
         }
         return null;
     }

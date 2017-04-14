@@ -48,5 +48,6 @@ public class OsuTracker {
     public static void close() {
         tracking.clear();
         service.shutdown();
+        System.out.println("Osu Tracker has shut down");
     }
 }

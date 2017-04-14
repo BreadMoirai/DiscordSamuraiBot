@@ -5,6 +5,7 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.osu.enums.GameMode;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
@@ -203,5 +204,7 @@ public interface SDatabase {
     /**
      * Debugging only
      */
-    void reset();
+
+    void reset(Connection connection);
+
 }

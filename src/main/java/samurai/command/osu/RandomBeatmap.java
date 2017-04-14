@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.osu;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;

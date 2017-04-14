@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.osu;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -32,7 +32,7 @@ public class Profile extends Command {
         JSONObject profile;
         java.util.List<Member> mentions = context.getMentionedMembers();
         Member author = context.getAuthor();
-        SGuild guild = context.getSGuild();
+        SGuild guild = context.getsGuild();
         List<String> args = context.getArgs();
         if (context.getArgs().size() == 0 && mentions.size() == 0) {
             long authorId = Long.parseLong(author.getUser().getId());

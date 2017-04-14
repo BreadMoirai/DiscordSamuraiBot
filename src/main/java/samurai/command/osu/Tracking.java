@@ -1,4 +1,4 @@
-package samurai.command.debug;
+package samurai.command.osu;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.command.Command;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class Tracking extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild sGuild = context.getSGuild();
+        final SGuild sGuild = context.getsGuild();
         final Optional<Entry<Long, GameMode>> channelFilter = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.OSU).findAny();
         if (!channelFilter.isPresent()) {
             return FixedMessage.build("You do not have a channel set. try using `setchannel #myscores`");

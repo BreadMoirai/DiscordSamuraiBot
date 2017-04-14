@@ -1,5 +1,6 @@
 package samurai.database.impl;
 
+import samurai.Bot;
 import samurai.database.Entry;
 import samurai.database.SDatabase;
 import samurai.database.SQLUtil;
@@ -75,8 +76,23 @@ public class SDatabaseImpl implements SDatabase {
 
 
     public SDatabaseImpl() throws SQLException {
-
-        connection = DriverManager.getConnection(PROTOCOL + DB_NAME + ';');
+        Connection initialConnection = null;
+        try {
+            initialConnection = DriverManager.getConnection(PROTOCOL + DB_NAME + ';');
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 40000
+                    && e.getSQLState().equalsIgnoreCase("XJ004")) {
+                initialConnection = DriverManager.getConnection(PROTOCOL + DB_NAME + ";create=true");
+                reset(initialConnection);
+            } else {
+                SQLUtil.printSQLException(e);
+            }
+        } finally {
+            if (initialConnection == null) {
+                throw new SQLException("Could not connect nor create SamuraiDerbyDatabase");
+            }
+        }
+        connection = initialConnection;
         connection.setAutoCommit(false);
 
         {
@@ -404,7 +420,7 @@ public class SDatabaseImpl implements SDatabase {
     @Override
     public String getPrefix(long discordGuildId) {
         final Optional<SGuild> guild = getGuild(discordGuildId);
-        return guild.map(SGuild::getPrefix).orElse(">");
+        return guild.map(SGuild::getPrefix).orElse(Bot.DEFAULT_PREFIX);
     }
 
     @Override
@@ -498,7 +514,7 @@ public class SDatabaseImpl implements SDatabase {
 
     @Override
     public List<Integer> getMaps(int setId) {
-       ArrayList<Integer> mapList = new ArrayList<>(5);
+        ArrayList<Integer> mapList = new ArrayList<>(5);
         try {
             final ResultSet resultSet = executeQuery(psMapSetQuerySet, setId);
             while (resultSet.next()) {
@@ -513,9 +529,7 @@ public class SDatabaseImpl implements SDatabase {
     }
 
 
-
-    @Override
-    public void reset() {
+    public void removeTables() {
         try {
             final Statement statement = connection.createStatement();
             statement.addBatch("DROP TABLE GuildChart");
@@ -524,6 +538,19 @@ public class SDatabaseImpl implements SDatabase {
             statement.addBatch("DROP TABLE ChartMap");
             statement.addBatch("DROP TABLE Chart");
             statement.addBatch("DROP TABLE Player");
+            connection.commit();
+            statement.close();
+            statement.executeLargeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void reset(Connection connection) {
+        try {
+            final Statement statement = connection.createStatement();
 
 
             statement.addBatch("CREATE TABLE Player\n" +
@@ -533,7 +560,8 @@ public class SDatabaseImpl implements SDatabase {
                     "  OsuNAME     VARCHAR(16) NOT NULL,\n" +
                     "  GlobalRank  INT,\n" +
                     "  CountryRank INT,\n" +
-                    "  LastUpdated BIGINT      NOT NULL\n" +
+                    "  LastUpdated BIGINT      NOT NULL,\n" +
+                    "  RawPP FLOAT" +
                     ')');
             statement.addBatch("CREATE TABLE Guild (\n" +
                     "  GuildId  BIGINT      NOT NULL PRIMARY KEY,\n" +
@@ -564,6 +592,12 @@ public class SDatabaseImpl implements SDatabase {
                     "  GuildID   BIGINT   NOT NULL,\n" +
                     "  Type      SMALLINT NOT NULL DEFAULT 0,\n" +
                     "  CONSTRAINT GuildID_FK3 FOREIGN KEY (GuildID) REFERENCES GUILD (GuildID)\n" +
+                    ") ");
+            statement.addBatch("CREATE TABLE MapSet (\n" +
+                    "  MapID INT         NOT NULL,\n" +
+                    "  SetID INT         NOT NULL,\n" +
+                    "  Hash  VARCHAR(36) NOT NULL,\n" +
+                    "  CONSTRAINT MapSet_MapID_PK PRIMARY KEY (MapID)\n" +
                     ") ");
             statement.executeLargeBatch();
             connection.commit();

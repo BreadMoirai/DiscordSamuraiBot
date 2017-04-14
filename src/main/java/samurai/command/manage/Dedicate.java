@@ -18,7 +18,7 @@ public class Dedicate extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         if (context.getMentionedChannels().size() == 1) {
-            context.getSGuild().getManager().addChannelFilter(Long.parseLong(context.getMentionedChannels().get(0).getId()), GameMode.OSU);
+            context.getsGuild().getManager().addChannelFilter(Long.parseLong(context.getMentionedChannels().get(0).getId()), GameMode.OSU);
             return FixedMessage.build("All tracking notifications will be sent to `" + context.getMentionedChannels().get(0).getName() + '`');
         } else return null;
 

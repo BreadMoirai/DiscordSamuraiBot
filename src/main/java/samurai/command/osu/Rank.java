@@ -1,4 +1,4 @@
-package samurai.command.primary;
+package samurai.command.osu;
 
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
@@ -25,7 +25,7 @@ public class Rank extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final SGuild guild = context.getSGuild();
+        final SGuild guild = context.getsGuild();
         final List<Member> mentions = context.getMentionedMembers();
         if (guild.getPlayerCount() == 0) return FixedMessage.build("No users found.");
         long id;

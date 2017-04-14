@@ -31,7 +31,7 @@ public class Database {
 
     public static void close() {
         if (!open) throw new UnsupportedOperationException("Database is already closed");
-        if (database != null) {
+        else {
             open = false;
             database.close();
         }

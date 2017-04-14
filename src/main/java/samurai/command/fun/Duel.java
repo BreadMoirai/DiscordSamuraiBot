@@ -1,4 +1,4 @@
-package samurai.command.hidden;
+package samurai.command.fun;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;

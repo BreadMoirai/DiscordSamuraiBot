@@ -29,7 +29,7 @@ public class CommandContext {
     private final long messageId;
     private List<TextChannel> mentionedChannels;
     private List<String> args;
-    private SGuild team;
+    private SGuild sGuild;
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
@@ -89,12 +89,21 @@ public class CommandContext {
         return messageId;
     }
 
-    public SGuild getSGuild() {
-        if (team == null) {
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray());
-            guildOptional.ifPresent(guild -> this.team = guild);
+    public SGuild getsGuild() {
+        if (sGuild == null) {
+            final long[] userID = channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray();
+            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, userID);
+            if (guildOptional.isPresent())
+                this.sGuild = guildOptional.get();
+            else {
+                final Optional<SGuild> guild = Database.getDatabase().createGuild(guildId, CommandModule.getDefaultEnabledCommands());
+                guild.ifPresent(sGuild -> {
+                    sGuild.getManager().setUsers(userID);
+                    this.sGuild = sGuild;
+                });
+            }
         }
-        return team;
+        return sGuild;
     }
 
     public OffsetDateTime getTime() {

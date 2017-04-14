@@ -1,4 +1,4 @@
-package samurai.command.hidden;
+package samurai.command.fun;
 
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;

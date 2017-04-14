@@ -3,7 +3,7 @@ package samurai.command.manage;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
-import samurai.command.Commands;
+import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.entities.model.SGuild;
@@ -26,18 +26,18 @@ public class Enable extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild team = context.getSGuild();
+        final SGuild team = context.getsGuild();
         final long enabledCommands = team.getEnabledCommands();
         if (context.hasContent()) {
             if (context.getContent().equalsIgnoreCase("byte"))
                 return FixedMessage.build(String.format("`%24s`", Long.toBinaryString(team.getEnabledCommands())).replace(' ', '0'));
-            final Set<Commands> args;
+            final Set<CommandModule> args;
             try {
                 final HashMap<String, Class<? extends Command>> commandMap = CommandFactory.getCommandMap();
                 if (context.getContent().equalsIgnoreCase("all")) {
-                    args = Arrays.stream(Commands.values()).filter(commands -> commands != Commands.Enable).collect(Collectors.toSet());
+                    args = Arrays.stream(CommandModule.values()).filter(commands -> commands != CommandModule.manage).collect(Collectors.toSet());
                 } else {
-                    args = context.getArgs().stream().map(commandMap::get).filter(Objects::nonNull).map(Class::getSimpleName).map(Commands::valueOf).filter(commands -> commands != Commands.Enable).collect(Collectors.toSet());
+                    args = context.getArgs().stream().map(commandMap::get).filter(Objects::nonNull).map(Class::getSimpleName).map(CommandModule::valueOf).collect(Collectors.toSet());
                 }
             } catch (IllegalArgumentException e) {
                 return FixedMessage.build("Could not find specified command");
@@ -46,17 +46,17 @@ public class Enable extends Command {
                 case "enabled":
                     return FixedMessage.build(args.stream().map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
                 case "enable":
-                    String s1 = args.stream().filter(commands -> !commands.isEnabled(enabledCommands)).map(Commands::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
-                    team.getManager().setCommands(args.stream().mapToLong(Commands::getValue).reduce(enabledCommands, (left, right) -> left | right));
+                    String s1 = args.stream().filter(commands -> !commands.isEnabled(enabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
+                    team.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).reduce(enabledCommands, (left, right) -> left | right));
                     return FixedMessage.build(s1);
                 case "disable":
-                    String s2 = args.stream().filter(commands -> commands.isEnabled(enabledCommands)).map(Commands::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
-                    team.getManager().setCommands(args.stream().mapToLong(Commands::getValue).map(operand -> ~operand).reduce(enabledCommands, (left, right) -> left & right));
+                    String s2 = args.stream().filter(commands -> commands.isEnabled(enabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
+                    team.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).map(operand -> ~operand).reduce(enabledCommands, (left, right) -> left & right));
                     return FixedMessage.build(s2);
             }
             return null;
         } else {
-            return FixedMessage.build((context.isSource() ? Arrays.stream(Commands.values()) : Commands.getVisible().stream()).map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
+            return FixedMessage.build((context.isSource() ? Arrays.stream(CommandModule.values()) : CommandModule.getVisible().stream()).map(commands -> (commands.isEnabled(enabledCommands) ? "+ " : "- ") + commands.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
         }
     }
 }

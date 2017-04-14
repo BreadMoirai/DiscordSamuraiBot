@@ -23,7 +23,7 @@ public class CommandFactory {
     private static final Pattern SAMURAI_MENTION = Pattern.compile("<@(!)?270044218167132170>( )?");
     private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
 
-    private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(Commands.values().length);
+    private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(CommandModule.values().length);
 
     private CommandFactory() {
     }

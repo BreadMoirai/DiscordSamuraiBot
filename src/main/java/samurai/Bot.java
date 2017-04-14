@@ -62,11 +62,10 @@ public class Bot {
                 .setAudioEnabled(true)
                 .useSharding(i,SHARD_COUNT)));
 
-
+        Database.getDatabase();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
         BotUtil.initialize(shards);
-        Runtime.getRuntime().addShutdownHook(new Thread(Bot::shutdown));
     }
 
     public static void shutdown() {

@@ -1,4 +1,4 @@
-package samurai.command.debug;
+package samurai.command.restricted;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -7,10 +7,11 @@ import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
-import samurai.command.Commands;
+import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
+import samurai.database.Database;
 import samurai.files.SamuraiStore;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -40,8 +41,7 @@ public class Groovy extends Command {
         BINDING.setVariable("BOT", Bot.class);
         BINDING.setVariable("STORE", SamuraiStore.class);
         BINDING.setVariable("CF", CommandFactory.class);
-        BINDING.setVariable("CD", Commands.class);
-        BINDING.setVariable("CDP", Commands.CommandCP.class);
+        BINDING.setVariable("DB", Database.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 
     }
