@@ -50,7 +50,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void submit(SamuraiMessage samuraiMessage) {
-        samuraiMessage.onReady(this);
+        samuraiMessage.send(this);
     }
 
     public void register(DynamicMessage dynamicMessage) {

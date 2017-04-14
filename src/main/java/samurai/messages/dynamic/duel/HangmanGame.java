@@ -67,7 +67,7 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
         MessageUtil.addReaction(message, reactions.subList(0, 15));
         helper = new HangmanHelper(this, reactions.subList(15, reactions.size()));
         helper.setChannelId(getChannelId());
-        helper.onReady(getManager());
+        helper.send(getManager());
     }
 
     @Override

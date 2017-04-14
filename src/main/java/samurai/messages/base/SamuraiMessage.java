@@ -29,7 +29,7 @@ public abstract class SamuraiMessage {
         this.channelId = channelId;
     }
 
-    public void onReady(MessageManager messageManager) {
+    public void send(MessageManager messageManager) {
         messageManager.getClient().getTextChannelById(String.valueOf(channelId)).sendMessage(initialize()).queue(setId().andThen(this::onReady));
     }
 

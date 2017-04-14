@@ -20,7 +20,7 @@ public class Join extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final List<VoiceChannel> voiceChannelsByName = context.getDiscordGuild().getVoiceChannelsByName(context.getContent(), true);
         if (voiceChannelsByName.isEmpty()) {
-            return FixedMessage.build("The specificed Voice Channel was not found.");
+            return FixedMessage.build("The specified Voice Channel was not found.");
         }
         SamuraiAudioManager.openConnection(voiceChannelsByName.get(0));
         return null;

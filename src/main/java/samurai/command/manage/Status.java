@@ -8,7 +8,7 @@ import samurai.command.annotations.Key;
 import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.OsuAPI;
+import samurai.osu.api.OsuAPI;
 
 import java.awt.*;
 import java.lang.management.ManagementFactory;

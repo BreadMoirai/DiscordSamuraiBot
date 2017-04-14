@@ -29,10 +29,11 @@ public class SamuraiDiscord {
     SamuraiDiscord(JDABuilder jdaBuilder) {
         try {
             this.client = jdaBuilder
-                    .addListener(new DiscordCommandListener(this))
-                    .addListener(new DiscordGameUpdateListener(this))
-                    .addListener(new DiscordMessageListener(this))
-                    .addListener(new DiscordReactionListener(this))
+                    .addEventListener(
+                            new DiscordCommandListener(this),
+                            new DiscordGameUpdateListener(this),
+                            new DiscordMessageListener(this),
+                            new DiscordReactionListener(this))
                     .buildAsync();
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
@@ -57,8 +58,7 @@ public class SamuraiDiscord {
             if (c instanceof GenericCommand) {
                 messageManager.onCommand((GenericCommand) c);
             }
-        }
-        else if (c.isEnabled()) {
+        } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
                 if (!PermissionUtil.canInteract(c.getContext().getAuthor(), client.getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
                     messageManager.submit(FixedMessage.build("You do not have the appropriate permissions to use this command. Try asking someone of higher status to help you."));
@@ -82,7 +82,9 @@ public class SamuraiDiscord {
         client.shutdown();
     }
 
-    public JDA getClient() {return client;}
+    public JDA getClient() {
+        return client;
+    }
 
     public MessageManager getMessageManager() {
         return messageManager;

@@ -140,4 +140,8 @@ public class CommandContext {
     public long getAuthorId() {
         return author.getUser().getIdLong();
     }
+
+    public String getPrefix() {
+        return prefix;
+    }
 }

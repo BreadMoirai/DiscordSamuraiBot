@@ -24,7 +24,7 @@ public class FileMessage extends SamuraiMessage {
     }
 
     @Override
-    public void onReady(MessageManager messageManager) {
+    public void send(MessageManager messageManager) {
         messageManager.getClient().getTextChannelById(String.valueOf(channelId)).sendFile(data, fileName, message).queue();
     }
 

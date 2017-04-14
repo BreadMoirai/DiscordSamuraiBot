@@ -20,7 +20,19 @@ public class Skip extends Command {
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
-            audioManager.scheduler.nextTrack();
+            if (context.hasContent()) {
+                if (context.getContent().equalsIgnoreCase("all")) {
+                    audioManager.scheduler.clear();
+                } else {
+                    try {
+                        final int skipSize = Integer.parseInt(context.getContent());
+                        audioManager.scheduler.skip(skipSize);
+                    } catch (NumberFormatException ignored) {}
+                    audioManager.scheduler.nextTrack();
+                }
+            } else {
+                audioManager.scheduler.nextTrack();
+            }
         }
         return null;
     }

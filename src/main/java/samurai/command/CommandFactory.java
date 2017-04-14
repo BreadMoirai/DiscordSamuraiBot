@@ -19,8 +19,9 @@ import java.util.stream.Collectors;
  */
 public class CommandFactory {
 
-    private static final Pattern ARG_PATTERN = Pattern.compile("[ ](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+    private static final Pattern ARG_PATTERN = Pattern.compile("[\\s+](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private static final Pattern SAMURAI_MENTION = Pattern.compile("<@(!)?270044218167132170>( )?");
+    private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
 
     private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(Commands.values().length);
 
@@ -45,38 +46,40 @@ public class CommandFactory {
     }
 
     private static Command newAction(String key) {
-        if (!COMMAND_MAP.containsKey(key)) return new GenericCommand();
+        String keyL = key.toLowerCase();
+        if (!COMMAND_MAP.containsKey(keyL)) return new GenericCommand();
         try {
-            return COMMAND_MAP.get(key).newInstance();
+            return COMMAND_MAP.get(keyL).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             MyLogger.log("Could not create a new Action", Level.SEVERE, e);
             return null;
         }
     }
 
-    private static Command buildCommand(String token, Member author, String content, long channelId, long guildId, long messageId, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
+    private static Command buildCommand(String prefix, Member author, String content, long channelId, long guildId, long messageId, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
-        //if content does not with token ex. "!"
+        //if content does not with prefix ex. "!"
         final Matcher matcher = SAMURAI_MENTION.matcher(content);
         if (matcher.find() && matcher.start() == 0) {
-            content = matcher.replaceFirst(token);
+            content = matcher.replaceFirst(prefix);
         }
-        if (!content.startsWith(token) || content.length() <= token.length()) return null;
+        if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
 
-        content = content.substring(token.length());
+        content = content.substring(prefix.length());
         String key;
-        if (!content.contains(" ")) {
+        final Matcher whitespace = WHITESPACE_MATCHER.matcher(content);
+        if (!whitespace.find()) {
             key = content;
             content = "";
             if (key.length() > 10) return null;
         } else {
-            key = content.substring(0, content.indexOf(' '));
-            content = content.substring(content.indexOf(' ')).trim();
+            key = content.substring(0, whitespace.start());
+            content = content.substring(whitespace.end()).trim();
         }
         Command command = CommandFactory.newAction(key);
         if (command == null) return null;
 
-        command.setContext(new CommandContext(token, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
+        command.setContext(new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
 
         //System.out.println("New Command: " + command.getClass().getSimpleName());
         return command;
@@ -84,7 +87,7 @@ public class CommandFactory {
 
     public static List<String> parseArgs(String content) {
         if (content != null && !content.isEmpty()) {
-            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("everyone") && !s.equals("@here")).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("@everyone") && !s.equals("@here")).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
         } else return Collections.emptyList();
     }
 

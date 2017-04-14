@@ -5,8 +5,13 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
 /**
  * Taken directly from sedmelluq examples
@@ -15,14 +20,23 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    private final BlockingQueue<AudioTrack> queue;
+    private final BlockingDeque<AudioTrack> queue;
+    private final Deque<AudioTrack> history;
 
     /**
      * @param player The audio player this scheduler uses
      */
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
-        this.queue = new LinkedBlockingQueue<>();
+        this.queue = new LinkedBlockingDeque<>(20);
+        history = new ArrayDeque<AudioTrack>(10) {
+            @Override
+            public void addFirst(AudioTrack audioTrack) {
+                if (this.size() > 9)
+                    super.removeLast();
+                super.addFirst(audioTrack);
+            }
+        };
     }
 
     /**
@@ -45,7 +59,15 @@ public class TrackScheduler extends AudioEventAdapter {
     public void nextTrack() {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
-        player.startTrack(queue.poll(), false);
+        final AudioTrack track = queue.poll();
+        player.startTrack(track, false);
+        history.addFirst(track);
+    }
+
+    public void prevTrack() {
+        final AudioTrack track = history.pollFirst();
+        player.startTrack(track, false);
+        queue.addFirst(track);
     }
 
     @Override
@@ -57,6 +79,20 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void clear() {
+        player.stopTrack();
         queue.clear();
+    }
+
+    public AudioTrack getCurrent() {
+        return player.getPlayingTrack();
+    }
+
+    public Collection<AudioTrack> getQueue() {
+        return Collections.unmodifiableCollection(queue);
+    }
+
+    public void skip(int skipSize) {
+        queue.removeAll(queue.stream().limit(skipSize).collect(Collectors.toList()));
+        //todo ??? maybe inefficient who knows
     }
 }

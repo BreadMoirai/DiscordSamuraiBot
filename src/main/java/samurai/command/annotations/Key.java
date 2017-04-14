@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author TonTL
- * @version 4.2
- * @since 2/15/2017
+ * This annotation marks what classes should be available as a command and defines what key is used to trigger the class.
+ * <p> should only be used on <? extends Command> classes</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

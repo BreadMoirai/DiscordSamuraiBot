@@ -311,4 +311,10 @@ public class Score {
     public String toString() {
         return "[" + Instant.ofEpochMilli(timestamp).toString() + "] " + player + " " + score;
     }
+
+    public Score setVersion(int version) {
+        //todo validate
+        System.out.println("Version: " + version);
+        return this;
+    }
 }

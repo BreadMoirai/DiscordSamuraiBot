@@ -46,10 +46,10 @@ public abstract class DynamicMessage extends SamuraiMessage {
     }
 
     @Override
-    public void onReady(MessageManager messageManager) {
+    public void send(MessageManager messageManager) {
         setActive();
         this.manager = messageManager;
-        super.onReady(messageManager);
+        super.send(messageManager);
         register();
     }
 

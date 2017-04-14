@@ -11,18 +11,14 @@ import java.util.Optional;
 
 /**
  * @author TonTL
- * @version 4/11/2017
+ * @version 4/12/2017
  */
-@Key("leave")
-public class Leave extends Command {
+@Key({"pause", "unpause"})
+public class Pause extends Command{
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.removeManager(context.getGuildId());
-        managerOptional.ifPresent(audioManager -> {
-            audioManager.player.destroy();
-            audioManager.scheduler.clear();
-        });
-        context.getDiscordGuild().getAudioManager().closeAudioConnection();
+        final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
+        managerOptional.ifPresent(audioManager -> audioManager.player.setPaused(!context.getKey().toLowerCase().startsWith("un")));
         return null;
     }
 }

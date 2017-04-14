@@ -25,12 +25,12 @@ public class Database {
 
 
     public static SDatabase getDatabase() {
-        if (!open) throw new UnsupportedOperationException("Database is closed");
+        if (!open) throw new UnsupportedOperationException("Cannot retrieve closed database.");
         return database;
     }
 
     public static void close() {
-        if (!open) throw new UnsupportedOperationException("Database is closed");
+        if (!open) throw new UnsupportedOperationException("Database is already closed");
         if (database != null) {
             open = false;
             database.close();
