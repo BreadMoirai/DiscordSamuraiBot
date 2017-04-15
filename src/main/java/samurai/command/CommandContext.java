@@ -6,10 +6,12 @@ import samurai.database.Database;
 import samurai.entities.model.SGuild;
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author TonTL
@@ -70,7 +72,9 @@ public class CommandContext {
         return mentionedMembers;
     }
 
-    public String getContent() {return content; }
+    public String getContent() {
+        return content;
+    }
 
     public List<String> getArgs() {
         if (args == null) return (args = CommandFactory.parseArgs(content));
@@ -127,7 +131,7 @@ public class CommandContext {
     }
 
     public boolean hasContent() {
-        return content.length() > 0;
+        return content != null && content.length() > 0;
     }
 
     public boolean isSource() {
@@ -152,5 +156,38 @@ public class CommandContext {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public IntStream getIntArgs() {
+        return Arrays.stream(content.split(" ")).flatMapToInt(this::parseIntArg);
+    }
+
+    private IntStream parseIntArg(String s) {
+        final String[] split = s.split("-");
+        if (split.length == 1) {
+            if (isInteger(split[0]))
+                return IntStream.of(Integer.parseInt(split[0]));
+        } else if (split.length == 2) {
+            if (isInteger(split[0]) && isInteger(split[1])) {
+                return IntStream.rangeClosed(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+            }
+        }
+        return IntStream.empty();
+    }
+
+    private static boolean isInteger(String s) {
+        if (s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) return false;
+                else continue;
+            }
+            if (Character.digit(s.charAt(i), 10) < 0) return false;
+        }
+        return true;
+    }
+
+    public CommandContext clone(String key, String content) {
+        return new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attaches, guildId, channelId, messageId, channel, time);
     }
 }

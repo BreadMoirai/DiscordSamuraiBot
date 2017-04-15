@@ -2,16 +2,16 @@ package samurai.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Taken directly from sedmelluq examples
@@ -20,15 +20,15 @@ import java.util.stream.Collectors;
  */
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    private final BlockingDeque<AudioTrack> queue;
+    private final List<AudioTrack> queue;
     private final Deque<AudioTrack> history;
 
     /**
      * @param player The audio player this scheduler uses
      */
-    public TrackScheduler(AudioPlayer player) {
+    TrackScheduler(AudioPlayer player) {
         this.player = player;
-        this.queue = new LinkedBlockingDeque<>(20);
+        this.queue = Collections.synchronizedList(new ArrayList<>(20));
         history = new ArrayDeque<AudioTrack>(10) {
             @Override
             public void addFirst(AudioTrack audioTrack) {
@@ -49,7 +49,7 @@ public class TrackScheduler extends AudioEventAdapter {
         // something is playing, it returns false and does nothing. In that case the player was already playing so this
         // track goes to the queue instead.
         if (!player.startTrack(track, true)) {
-            queue.offer(track);
+            queue.add(track);
         }
     }
 
@@ -59,15 +59,23 @@ public class TrackScheduler extends AudioEventAdapter {
     public void nextTrack() {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
-        final AudioTrack track = queue.poll();
+        if (queue.isEmpty()) {
+            player.stopTrack();
+            return;
+        }
+        final AudioTrack track = queue.remove(0);
         player.startTrack(track, false);
         history.addFirst(track);
     }
 
     public void prevTrack() {
-        final AudioTrack track = history.pollFirst();
-        player.startTrack(track, false);
-        queue.addFirst(track);
+        if (history.isEmpty()) return;
+        final AudioTrack playingTrack = player.getPlayingTrack();
+        if (playingTrack != null) {
+            queue.add(playingTrack.makeClone());
+        }
+        final AudioTrack prevTrack = history.pollFirst();
+        player.startTrack(prevTrack.makeClone(), false);
     }
 
     @Override
@@ -91,8 +99,28 @@ public class TrackScheduler extends AudioEventAdapter {
         return Collections.unmodifiableCollection(queue);
     }
 
-    public void skip(int skipSize) {
-        queue.removeAll(queue.stream().limit(skipSize).collect(Collectors.toList()));
-        //todo ??? maybe inefficient who knows
+    public void skip(Stream<Integer> indexes) {
+        final int size = queue.size();
+        indexes.distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).forEachOrdered(queue::remove);
+    }
+
+    public void queueFirst(AudioTrack track) {
+        if (!player.startTrack(track, true)) {
+            queue.add(0, track);
+        }
+    }
+
+    public void queue(AudioPlaylist playlist) {
+        queue.addAll(playlist.getTracks());
+        if (player.getPlayingTrack() != null) {
+            nextTrack();
+        }
+    }
+
+    public void queueFirst(AudioPlaylist playlist) {
+        queue.addAll(0, playlist.getTracks());
+        if (player.getPlayingTrack() != null) {
+            nextTrack();
+        }
     }
 }

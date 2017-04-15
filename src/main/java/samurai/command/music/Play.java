@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"q", "queue", "p", "play", "playing"})
+@Key({"q", "queue", "p", "play", "playing", "playnext"})
 public class Play extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
@@ -34,7 +34,15 @@ public class Play extends Command {
             if (content.startsWith("<") && content.endsWith(">")) {
                 content = content.substring(1, content.length() - 1);
             }
-            return new TrackLoader(audioManager, content, context.getKey().startsWith("p"));
+            if (content.startsWith("yt ")) {
+                content = "ytsearch:" + content.substring(3);
+            } else if (content.startsWith("sc ")) {
+                content = "scsearch:" + content.substring(3);
+            }
+            if (context.getKey().equalsIgnoreCase("playnext")) {
+                return new TrackLoader(audioManager, content, false , true);
+            }
+            return new TrackLoader(audioManager, content, context.getKey().startsWith("p"), false);
         } else {
             final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
             if (currentTrack == null)

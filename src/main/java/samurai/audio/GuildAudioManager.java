@@ -30,7 +30,7 @@ public class GuildAudioManager {
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
      */
-    public GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager guildAudioManager) {
+    GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager guildAudioManager) {
         player = manager.createPlayer();
         scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
@@ -38,7 +38,7 @@ public class GuildAudioManager {
         guildAudioManager.setSendingHandler(new AudioPlayerSendHandler(player));
     }
 
-    public boolean openAudioConnection(VoiceChannel channel) {
+    boolean openAudioConnection(VoiceChannel channel) {
         try {
             guildAudioManager.openAudioConnection(channel);
             return true;
