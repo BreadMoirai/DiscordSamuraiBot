@@ -146,7 +146,7 @@ public class CommandContext {
         return mentionedRoles;
     }
 
-    public Guild getDiscordGuild() {
+    public Guild getGuild() {
         return channel.getGuild();
     }
 
@@ -175,7 +175,7 @@ public class CommandContext {
         return IntStream.empty();
     }
 
-    private static boolean isInteger(String s) {
+    public static boolean isInteger(String s) {
         if (s.isEmpty()) return false;
         for (int i = 0; i < s.length(); i++) {
             if (i == 0 && s.charAt(i) == '-') {

@@ -27,8 +27,8 @@ public class Tracking extends Command {
         if (!channelFilter.isPresent()) {
             return FixedMessage.build("You do not have a channel set. try using `setchannel #myscores`");
         } else {
-            final TextChannel outputChannel = context.getDiscordGuild().getTextChannelById(String.valueOf(channelFilter.get().getKey()));
-            context.getDiscordGuild().getMembers().stream().filter(member -> member.getGame() != null && member.getGame().getName().equalsIgnoreCase("osu!")).map(value -> value.getUser().getId()).mapToLong(Long::parseLong).filter(value -> !OsuTracker.isTracking(value)).mapToObj(sGuild::getPlayer).filter(Optional::isPresent).map(Optional::get).forEach(player -> OsuTracker.register(player, outputChannel));
+            final TextChannel outputChannel = context.getGuild().getTextChannelById(String.valueOf(channelFilter.get().getKey()));
+            context.getGuild().getMembers().stream().filter(member -> member.getGame() != null && member.getGame().getName().equalsIgnoreCase("osu!")).map(value -> value.getUser().getId()).mapToLong(Long::parseLong).filter(value -> !OsuTracker.isTracking(value)).mapToObj(sGuild::getPlayer).filter(Optional::isPresent).map(Optional::get).forEach(player -> OsuTracker.register(player, outputChannel));
         }
         final String s = sGuild.getPlayers().stream().filter(player -> OsuTracker.isTracking(player.getDiscordId()))
                 .map(player -> player.getDiscordId() + " -> " + player.getOsuId() + "|" + player.getOsuName()).collect(Collectors.joining("\n", "```\n", "\n```"));

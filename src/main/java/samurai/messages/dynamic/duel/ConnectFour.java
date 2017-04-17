@@ -1,14 +1,17 @@
 package samurai.messages.dynamic.duel;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.dynamic.duel.strategy.ConnectFourStrategy;
+import samurai.messages.dynamic.duel.strategy.MiniMaxStrategy;
 import samurai.messages.listeners.ReactionListener;
-import samurai.util.BotUtil;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -35,15 +38,21 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
     private final char[][] board;
 
-    private Long A, B, winner, next;
+    private Long userA, userB, winner, next;
+    private String avatarA, avatarB;
     private String nameA, nameB;
 
     private GameState state;
 
+    private boolean selfOpp;
+
+    private ConnectFourStrategy ai;
+
     public ConnectFour(User seeking) {
-        A = Long.valueOf(seeking.getId());
+        userA = Long.valueOf(seeking.getId());
         nameA = seeking.getName();
-        B = null;
+        avatarA = seeking.getEffectiveAvatarUrl();
+        userB = null;
         nameB = null;
         winner = null;
         board = new char[X_BOUND][Y_BOUND];
@@ -51,13 +60,16 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     }
 
     public ConnectFour(User instigator, User challenged) {
-        A = Long.valueOf(instigator.getId());
+        userA = Long.valueOf(instigator.getId());
         nameA = instigator.getName();
-        B = Long.valueOf(challenged.getId());
+        avatarA = instigator.getEffectiveAvatarUrl();
+        userB = Long.valueOf(challenged.getId());
         nameB = challenged.getName();
-        next = random.nextBoolean() ? A : B;
+        avatarB = challenged.getEffectiveAvatarUrl();
+        next = random.nextBoolean() ? userA : userB;
         board = new char[X_BOUND][Y_BOUND];
-        state = new PlayState(this);
+        state = new BuildState(this);
+        selfOpp = challenged.getIdLong() == Bot.ID;
     }
 
     @Override
@@ -161,7 +173,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
             if (board[x][Y_BOUND - 1] == '\u0000') {
                 break;
             } else if (x == 6) {
-                winner = Long.valueOf(Bot.ID);
+                winner = Bot.ID;
                 return true;
             }
         }
@@ -170,15 +182,15 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
     MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
-        if (next.equals(A)) {
-            mb.append("<@").append(A)
+        if (next.equals(userA)) {
+            mb.append("<@").append(userA)
                     .append("> \uD83C\uDD9A ")
                     .append(nameB)
                     .append("\n");
         } else {
             mb.append(nameA)
                     .append(" \uD83C\uDD9A <@")
-                    .append(B)
+                    .append(userB)
                     .append(">\n");
         }
         return mb;
@@ -187,13 +199,13 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     private void setWinner(char w) {
         switch (w) {
             case 'a':
-                winner = A;
+                winner = userA;
                 break;
             case 'b':
-                winner = B;
+                winner = userB;
                 break;
             default:
-                winner = Long.valueOf(Bot.ID);
+                winner = Bot.ID;
                 break;
         }
     }
@@ -223,13 +235,13 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         @Override
         boolean isValid(MessageReactionAddEvent event) {
             return event.getReaction().getEmote().getName().equals(DUEL_REACTION)
-                    && !game.A.equals(Long.valueOf(event.getUser().getId()));
+                    && !game.userA.equals(event.getUser().getIdLong());
         }
 
         @Override
         Message buildMessage() {
             return new MessageBuilder()
-                    .append(String.format("Who is willing to accept <@%d>'s challenge to a perilous game of **Connect Four**", game.A))
+                    .append(String.format("Who is willing to accept <@%d>'s challenge to a perilous game of **Connect Four**", game.userA))
                     .build();
         }
 
@@ -240,9 +252,12 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
         @Override
         public void onReaction(MessageReactionAddEvent event) {
-            game.B = Long.valueOf(event.getUser().getId());
-            game.nameB = event.getUser().getName();
-            game.next = random.nextBoolean() ? game.A : game.B;
+            final User user = event.getUser();
+            game.userB = user.getIdLong();
+            game.nameB = user.getName();
+            game.avatarB = user.getEffectiveAvatarUrl();
+            game.selfOpp = user.getIdLong() == Bot.ID;
+            game.next = random.nextBoolean() ? game.userA : game.userB;
             final BuildState buildState = new BuildState(game);
             game.state = buildState;
             event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildState.buildMessage()).queue(buildState.buildConsumer()));
@@ -263,7 +278,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         @Override
         Message buildMessage() {
             return new MessageBuilder()
-                    .append(String.format("Building <@%d>'s game against <@%d>.", game.A, game.B))
+                    .append(String.format("Building <@%d>'s game against <@%d>.", game.userA, game.userB))
                     .build();
         }
 
@@ -271,7 +286,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         Consumer<Message> buildConsumer() {
             return newMenu(REACTIONS).andThen(message -> {
                 game.state = new PlayState(game);
-                message.editMessage(game.state.buildMessage()).queue();
+                message.editMessage(game.state.buildMessage()).queue(success -> game.selfMove(success.getJDA(), 0L));
             });
         }
 
@@ -307,17 +322,18 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
         @Override
         public void onReaction(MessageReactionAddEvent event) {
-            event.getReaction().removeReaction(event.getUser()).queue();
+            if (event.getUser().getIdLong() != Bot.ID)
+                event.getReaction().removeReaction(event.getUser()).queue();
             int move = REACTIONS.indexOf(event.getReaction().getEmote().getName());
             for (int y = 0; y < Y_BOUND; y++) {
                 if (game.board[move][y] == '\u0000') {
-                    if (game.A.equals(Long.valueOf(event.getUser().getId()))) {
+                    if (game.userA.equals(event.getUser().getIdLong())) {
                         game.board[move][y] = 'a';
-                        game.next = game.B;
+                        game.next = game.userB;
                         break;
                     } else {
                         game.board[move][y] = 'b';
-                        game.next = game.A;
+                        game.next = game.userA;
                         break;
                     }
                 }
@@ -327,7 +343,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                     message.editMessage(game.buildTitle()
                             .setEmbed(game.buildBoard()
                                     .addField("The Winner is:", String.format("<@%d>", game.winner), false)
-                                    .setImage(BotUtil.retrieveUser(game.winner).getAvatarUrl())
+                                    .setImage(getWinnerAvatar())
                                     .build())
                             .build())
                             .queue();
@@ -336,7 +352,31 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 game.unregister();
             } else
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue());
+
+            if (game.selfOpp && game.next == Bot.ID) {
+                game.selfMove(event.getJDA(), event.getResponseNumber());
+            }
         }
+
+        private String getWinnerAvatar() {
+            if (game.winner.equals(game.userA)) {
+                return game.avatarA;
+            } else if (game.winner.equals(game.userB)) {
+                return game.avatarB;
+            } else {
+                return Bot.AVATAR;
+            }
+        }
+    }
+
+    private void selfMove(JDA jda, long responseNumber) {
+        String move;
+        if (ai == null) {
+            ai = new MiniMaxStrategy(X_BOUND, Y_BOUND, 3);
+        }
+        final int i = ai.makeMove(board);
+        move = REACTIONS.get(i);
+        this.onReaction(new MessageReactionAddEvent(jda, responseNumber, jda.getSelfUser(), new MessageReaction(jda.getTextChannelById(getChannelId()), new MessageReaction.ReactionEmote(move, 0L, jda), this.getMessageId(), true, 2)));
     }
 
 

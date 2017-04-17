@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
  * @version 5.x - 3/18/2017
  */
 public enum CommandModule {
+    generic(0L),
     manage(0L),
     debug(1L),
     general(2L),
@@ -36,7 +37,7 @@ public enum CommandModule {
     }
 
     public static long getDefaultEnabledCommands() {
-        return getEnabled(manage);
+        return 0L;
     }
 
     public static long getEnabledAll() {

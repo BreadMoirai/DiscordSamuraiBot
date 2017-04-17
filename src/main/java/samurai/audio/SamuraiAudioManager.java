@@ -37,6 +37,8 @@ public class SamuraiAudioManager {
     }
 
     public static void loadItem(Object orderingKey, String request, AudioLoadResultHandler resultHandler) {
+        if (orderingKey instanceof GuildAudioManager)
+            orderingKey = ((GuildAudioManager) orderingKey).scheduler;
         playerManager.loadItemOrdered(orderingKey, request, resultHandler);
     }
 

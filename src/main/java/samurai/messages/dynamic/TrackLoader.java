@@ -13,13 +13,17 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandContext;
-import samurai.command.GenericCommand;
+import samurai.command.generic.GenericCommand;
+import samurai.command.music.Play;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.ReactionListener;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author TonTL
@@ -30,20 +34,25 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
     private static final String CANCEL_REACTION = "⏏";
     private static final String CONFIRM_REACTION = "▶";
+    private static final String PAGE_REACTION = "↔";
 
     private final GuildAudioManager audioManager;
     private final String request;
     private boolean playNow;
     private boolean playNext;
+    private boolean lucky;
+    private boolean front;
     private AudioPlaylist playlist;
     private MessageChannel channel;
 
 
-    public TrackLoader(GuildAudioManager audioManager, String content, boolean playNow, boolean playNext) {
+    public TrackLoader(GuildAudioManager audioManager, String content, boolean playNow, boolean playNext, boolean lucky) {
         this.audioManager = audioManager;
         this.request = content;
         this.playNow = playNow;
         this.playNext = playNext;
+        this.lucky = lucky;
+        front = true;
     }
 
     @Override
@@ -66,34 +75,42 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         else this.audioManager.scheduler.queue(track);
 
         final AudioTrackInfo trackInfo = track.getInfo();
-        String trackLengthDisp;
-        if (trackInfo.length == Long.MAX_VALUE) {
-            trackLengthDisp = "∞";
-        } else {
-            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
-        }
-        channel.editMessageById(getMessageId(), String.format("Queued track: **%s** - %s [%s]", trackInfo.title, trackInfo.author, trackLengthDisp)).queue();
+        channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(trackInfo), audioManager.scheduler.getQueue().indexOf(track))).build()).queue();
         unregister();
     }
 
     @Override
     public void playlistLoaded(AudioPlaylist playlist) {
         this.playlist = playlist;
+        if (lucky) {
+            trackLoaded(playlist.getTracks().get(0));
+            return;
+        }
+
         channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
         channel.addReactionById(getMessageId(), SHUFFLE_REACTION).queue();
         channel.addReactionById(getMessageId(), CANCEL_REACTION).queue();
         channel.addReactionById(getMessageId(), CONFIRM_REACTION).queue();
+        if (playlist.getTracks().size() > 10) {
+            channel.addReactionById(getMessageId(), PAGE_REACTION).queue();
+        }
     }
 
     private Message buildPlaylistDisplay() {
         EmbedBuilder eb = new EmbedBuilder();
         final StringBuilder sb = eb.getDescriptionBuilder();
         sb.append("**").append(playlist.getName()).append("**");
-        AtomicInteger i = new AtomicInteger(0);
-        playlist.getTracks().stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` [%s](%s) [%d:%02d]", i.incrementAndGet(), audioTrackInfo.title, audioTrackInfo.uri, audioTrackInfo.length / (60 * 1000), (audioTrackInfo.length / 1000) % 60)).forEachOrdered(sb::append);
-        final int tSize = playlist.getTracks().size();
+        final List<AudioTrack> tracks = playlist.getTracks();
+        final int tSize = tracks.size();
+        AtomicInteger i = new AtomicInteger(front ? 0 : tSize - 10);
+        if (front) {
+            tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+        }
         if (tSize > 10) {
             sb.append("\n... `").append(tSize - 10).append("` more tracks");
+            if (!front) {
+                IntStream.range(tSize - 10, tSize).mapToObj(tracks::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+            }
         }
         return new MessageBuilder().setEmbed(eb.build()).build();
     }
@@ -102,7 +119,6 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     public void noMatches() {
         channel.editMessageById(getMessageId(), "No tracks found").queue();
         unregister();
-
     }
 
     @Override
@@ -115,10 +131,23 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     public void onCommand(GenericCommand command) {
         final CommandContext context = command.getContext();
         final String key = context.getKey();
-        if ((key.equalsIgnoreCase("remove") || key.equalsIgnoreCase("rm")) && context.hasContent()) {
+        if (key.equalsIgnoreCase("select") || key.equalsIgnoreCase("sel")) {
+            final int size = playlist.getTracks().size();
+            final List<Integer> integerList = IntStream.rangeClosed(1, size).map(i -> size - i + 1).boxed().collect(Collectors.toList());
+            integerList.removeAll(context.getIntArgs().boxed().collect(Collectors.toList()));
+            integerList.forEach(integer -> playlist.getTracks().remove(integer - 1));
+            channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+        } else if ((key.equalsIgnoreCase("remove") || key.equalsIgnoreCase("rm")) && context.hasContent()) {
             final int size = playlist.getTracks().size();
             context.getIntArgs().filter(value -> value <= size && value > 0).boxed().distinct().sorted((o1, o2) -> o2 - o1).forEachOrdered(integer -> playlist.getTracks().remove(integer - 1));
             channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+        }
+        if (playlist.getTracks().size() <= 10) {
+            channel.getMessageById(getMessageId()).queue(
+                    message -> message.getReactions().stream().filter(
+                            messageReaction -> messageReaction.getEmote().getName().equals(PAGE_REACTION)).findAny().ifPresent(
+                            pageReaction -> pageReaction.getUsers().queue(users -> users.forEach(
+                                    user -> pageReaction.removeReaction(user).queue()))));
         }
     }
 
@@ -132,9 +161,20 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 event.getReaction().removeReaction(event.getUser()).queue();
                 break;
             case CANCEL_REACTION:
-                channel.editMessageById(getMessageId(), new MessageBuilder().append("Track Loading canceled.").build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder()
+                        .appendDescription("**")
+                        .appendDescription(playlist.getName())
+                        .appendDescription("**\n")
+                        .appendDescription("Track Loading Canceled").build()).queue();
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
+                break;
+            case PAGE_REACTION:
+                if (playlist.getTracks().size() > 10) {
+                    front = !front;
+                    channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+                    event.getReaction().removeReaction(event.getUser()).queue();
+                }
                 break;
             case CONFIRM_REACTION:
                 channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", playlist.getTracks().size())).queue();
@@ -143,7 +183,6 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 if (playNow) audioManager.scheduler.clear();
                 if (playNext) audioManager.scheduler.queueFirst(playlist);
                 else audioManager.scheduler.queue(playlist);
-                unregister();
                 break;
         }
     }

@@ -1,5 +1,7 @@
 package samurai.command.music;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.core.EmbedBuilder;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -21,6 +23,7 @@ public class Skip extends Command {
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
+            AudioTrack current = audioManager.player.getPlayingTrack();
             if (context.hasContent()) {
                 if (context.getContent().equalsIgnoreCase("all")) {
                     audioManager.scheduler.clear();
@@ -30,11 +33,13 @@ public class Skip extends Command {
             } else {
                 audioManager.scheduler.nextTrack();
             }
-
-            if (audioManager.player.getPlayingTrack() != null)
-                return new Play().execute(context.clone("p", null));
-            else
-                return FixedMessage.build("The Queue is empty.");
+            return FixedMessage.build(new EmbedBuilder()
+                    .appendDescription("Skipped:\n")
+                    .appendDescription("[")
+                    .appendDescription(current.getInfo().title)
+                    .appendDescription("](")
+                    .appendDescription(current.getInfo().uri)
+                    .appendDescription(")").build());
         }
         return null;
     }

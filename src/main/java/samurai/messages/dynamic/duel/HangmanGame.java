@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.command.CommandFactory;
-import samurai.command.GenericCommand;
+import samurai.command.generic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.PrivateMessageListener;

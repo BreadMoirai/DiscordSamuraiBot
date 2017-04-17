@@ -49,4 +49,9 @@ public class GuildAudioManager {
     }
 
 
+    public void destroy() {
+        player.destroy();
+        scheduler.clear();
+        guildAudioManager.closeAudioConnection();
+    }
 }

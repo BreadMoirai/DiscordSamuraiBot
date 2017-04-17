@@ -38,7 +38,7 @@ public class OsuAPI {
     static {
         count = new AtomicInteger(0);
         OSU_API = "https://osu.ppy.sh/api/";
-        KEY = "k=" + ConfigFactory.load().getString("api.key");
+        KEY = "k=" + ConfigFactory.load().getString("api.osu");
         GET_USER = "get_user?";
         GET_BEATMAPS = "get_beatmaps?";
         GET_SCORES = "get_scores?";

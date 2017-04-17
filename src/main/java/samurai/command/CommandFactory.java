@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import org.reflections.Reflections;
 import samurai.command.annotations.Key;
+import samurai.command.generic.GenericCommand;
 import samurai.util.MyLogger;
 
 import java.time.OffsetDateTime;

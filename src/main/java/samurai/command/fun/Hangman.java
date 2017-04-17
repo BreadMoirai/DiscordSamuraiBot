@@ -10,7 +10,7 @@ import samurai.messages.dynamic.duel.HangmanGame;
  * @author TonTL
  * @version 3/16/2017
  */
-@Key({"hangman", "hm"})
+@Key({"hangman"})
 public class Hangman extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

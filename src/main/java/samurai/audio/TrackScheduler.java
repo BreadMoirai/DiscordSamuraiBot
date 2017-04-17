@@ -1,16 +1,14 @@
 package samurai.audio;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import java.util.*;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -22,13 +20,14 @@ public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final List<AudioTrack> queue;
     private final Deque<AudioTrack> history;
+    private boolean autoPlay;
 
     /**
      * @param player The audio player this scheduler uses
      */
     TrackScheduler(AudioPlayer player) {
         this.player = player;
-        this.queue = Collections.synchronizedList(new ArrayList<>(20));
+        this.queue = new ArrayList<>(20);
         history = new ArrayDeque<AudioTrack>(10) {
             @Override
             public void addFirst(AudioTrack audioTrack) {
@@ -37,6 +36,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 super.addFirst(audioTrack);
             }
         };
+        autoPlay = true;
     }
 
     /**
@@ -48,9 +48,8 @@ public class TrackScheduler extends AudioEventAdapter {
         // Calling startTrack with the noInterrupt set to true will start the track only if nothing is currently playing. If
         // something is playing, it returns false and does nothing. In that case the player was already playing so this
         // track goes to the queue instead.
-        if (!player.startTrack(track, true)) {
-            queue.add(track);
-        }
+        if (player.startTrack(track, true)) history.addFirst(track);
+        else queue.add(track);
     }
 
     /**
@@ -60,23 +59,43 @@ public class TrackScheduler extends AudioEventAdapter {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
         if (queue.isEmpty()) {
-            player.stopTrack();
-            return;
+            if (autoPlay) {
+                final AudioTrack track = history.peekFirst();
+                if (track == null) {
+                    return;
+                }
+                final String uri = track.getInfo().uri;
+                if (uri.contains("youtube")) {
+                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 30L);
+                    SamuraiAudioManager.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoplayHandler());
+                }
+            } else {
+                player.stopTrack();
+            }
+        } else {
+            AudioTrack track = queue.remove(0);
+            player.startTrack(track, false);
+            history.addFirst(track);
         }
-        final AudioTrack track = queue.remove(0);
-        player.startTrack(track, false);
-        history.addFirst(track);
     }
 
     public void prevTrack() {
         if (history.isEmpty()) return;
         final AudioTrack playingTrack = player.getPlayingTrack();
+
         if (playingTrack != null) {
-            queue.add(playingTrack.makeClone());
+            if (playingTrack.getPosition() < 20) {
+                history.pollFirst();
+            } else {
+                queue.add(playingTrack.makeClone());
+            }
         }
         final AudioTrack prevTrack = history.pollFirst();
-        player.startTrack(prevTrack.makeClone(), false);
+        if (prevTrack != null)
+            player.startTrack(prevTrack.makeClone(), false);
+        else player.stopTrack();
     }
+
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
@@ -95,8 +114,8 @@ public class TrackScheduler extends AudioEventAdapter {
         return player.getPlayingTrack();
     }
 
-    public Collection<AudioTrack> getQueue() {
-        return Collections.unmodifiableCollection(queue);
+    public List<AudioTrack> getQueue() {
+        return Collections.unmodifiableList(queue);
     }
 
     public void skip(Stream<Integer> indexes) {
@@ -112,15 +131,47 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void queue(AudioPlaylist playlist) {
         queue.addAll(playlist.getTracks());
-        if (player.getPlayingTrack() != null) {
+        if (player.getPlayingTrack() == null) {
             nextTrack();
         }
     }
 
     public void queueFirst(AudioPlaylist playlist) {
         queue.addAll(0, playlist.getTracks());
-        if (player.getPlayingTrack() != null) {
+        if (player.getPlayingTrack() == null) {
             nextTrack();
+        }
+    }
+
+    public void setAutoPlay(boolean autoPlay) {
+        this.autoPlay = autoPlay;
+    }
+
+    public boolean isAutoPlay() {
+        return autoPlay;
+    }
+
+    public Deque<AudioTrack> getHistory() {
+        return history;
+    }
+
+    private class AutoplayHandler implements AudioLoadResultHandler {
+        @Override
+        public void trackLoaded(AudioTrack track) {
+            player.startTrack(track, false);
+            history.addFirst(track);
+        }
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist) {
+        }
+
+        @Override
+        public void noMatches() {
+        }
+
+        @Override
+        public void loadFailed(FriendlyException exception) {
         }
     }
 }

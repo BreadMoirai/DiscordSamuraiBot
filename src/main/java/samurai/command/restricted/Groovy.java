@@ -4,6 +4,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
+import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  * @version 5.0
  * @since 2/18/2017
  */
-@Key({"groovy", "g"})
+@Key({"groovy"})
 @Admin
 @Creator
 public class Groovy extends Command {
@@ -42,6 +43,7 @@ public class Groovy extends Command {
         BINDING.setVariable("STORE", SamuraiStore.class);
         BINDING.setVariable("CF", CommandFactory.class);
         BINDING.setVariable("DB", Database.class);
+        BINDING.setVariable("YT", YoutubeAPI.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 
     }

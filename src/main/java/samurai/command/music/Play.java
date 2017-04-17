@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"q", "queue", "p", "play", "playing", "playnext"})
+@Key({"queue", "play", "playing", "queuef"})
 public class Play extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
@@ -30,6 +30,7 @@ public class Play extends Command {
         }
         final GuildAudioManager audioManager = managerOptional.get();
         if (context.hasContent()) {
+            boolean lucky = context.getKey().equalsIgnoreCase("queuef");
             String content = context.getContent();
             if (content.startsWith("<") && content.endsWith(">")) {
                 content = content.substring(1, content.length() - 1);
@@ -39,28 +40,46 @@ public class Play extends Command {
             } else if (content.startsWith("sc ")) {
                 content = "scsearch:" + content.substring(3);
             }
-            if (context.getKey().equalsIgnoreCase("playnext")) {
-                return new TrackLoader(audioManager, content, false , true);
+            if (context.getKey().equalsIgnoreCase("play")) {
+                return new TrackLoader(audioManager, content, true, false, lucky);
             }
-            return new TrackLoader(audioManager, content, context.getKey().startsWith("p"), false);
+            return new TrackLoader(audioManager, content, false, context.getKey().startsWith("p"), lucky);
         } else {
             final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
             if (currentTrack == null)
                 return FixedMessage.build("Nothing is playing right now. Try using `" + context.getPrefix() + "queue ytsearch:???`");
             AudioTrackInfo trackInfo = currentTrack.getInfo();
             EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), currentTrack.getPosition() / 1000, trackInfo.length / (60 * 1000), (trackInfo.length / 1000) % 60));
+            String trackLengthDisp;
+            if (trackInfo.length == Long.MAX_VALUE) {
+                trackLengthDisp = "∞";
+            } else {
+                trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
+            }
+            eb.appendDescription(String.format("Playing [`%02d:%02d`/`%s`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, trackLengthDisp));
             eb.appendDescription("\n[" + trackInfo.title + "](" + trackInfo.uri + ")\n");
-            eb.appendDescription("Up Next:");
-            final AtomicInteger i = new AtomicInteger();
             final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
-            tracks.stream().limit(5).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` [%s](%s) [%d:%02d]", i.incrementAndGet(), audioTrackInfo.title, audioTrackInfo.uri, audioTrackInfo.length / (60 * 1000), (audioTrackInfo.length / 1000) % 60)).forEachOrdered(eb::appendDescription);
-            final int tSize = tracks.size();
-            if (tSize > 5) {
-                eb.appendDescription("\n... `" + (tSize - 5) + "` more tracks");
+            if (!tracks.isEmpty()) {
+                eb.appendDescription("Up Next:");
+                final AtomicInteger i = new AtomicInteger();
+                tracks.stream().limit(5).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+                final int tSize = tracks.size();
+                if (tSize > 5) {
+                    eb.appendDescription("\n... `" + (tSize - 5) + "` more tracks");
+                }
             }
             return FixedMessage.build(eb.build());
         }
+    }
+
+    public static String trackInfoDisplay(AudioTrackInfo trackInfo) {
+        String trackLengthDisp;
+        if (trackInfo.length == Long.MAX_VALUE) {
+            trackLengthDisp = "∞";
+        } else {
+            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
+        }
+        return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
     }
 }
 

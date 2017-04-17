@@ -9,7 +9,6 @@ import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.dynamic.Book;
-import samurai.util.BotUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class Rank extends Command {
         final List<Player> players = guild.getPlayers();
         for (int i = 0; i < listSize; i++) {
             final Player player = players.get(i);
-            final String name = BotUtil.retrieveUser(player.getDiscordId()).getName();
+            final String name = context.getGuild().getMemberById(player.getDiscordId()).getEffectiveName();
             final String osuName = player.getOsuName();
             if (i != target) {
                 nameList.add(String.format("%d. %s : %s (#%d)%n", i, name, osuName, player.getRankG()));

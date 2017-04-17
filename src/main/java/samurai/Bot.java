@@ -7,11 +7,12 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
-import samurai.util.BotUtil;
 
+import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,23 +30,25 @@ public class Bot {
     public static final long ID;
     public static final long SOURCE_GUILD;
     public static final String DEFAULT_PREFIX;
-    public static final int SHARD_COUNT = 2;
+    public static final int SHARD_COUNT = 1;
 
     private static TextChannel logChannel;
 
-    private static ArrayList<SamuraiDiscord> shards;
+    private static ArrayList<JDA> shards;
 
     static {
         START_TIME = System.currentTimeMillis();
+
         final Config config = ConfigFactory.load();
         SOURCE_GUILD = config.getLong("samurai.source_guild");
         ID = config.getLong("samurai.id");
         AVATAR = config.getString("samurai.avatar");
+        DEFAULT_PREFIX = config.getString("samurai.prefix");
+
         CALLS = new AtomicInteger();
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
-        DEFAULT_PREFIX = config.getString("samurai.prefix");
     }
 
     public static void main(String[] args) {
@@ -55,43 +58,53 @@ public class Bot {
     public static void start() {
         final Config config = ConfigFactory.load();
 
-        for (int i = 0; i < SHARD_COUNT; i++)
-        shards.add(new SamuraiDiscord(
-                new JDABuilder(AccountType.BOT)
+        //final SamuraiDiscord samuraiDiscord = new SamuraiDiscord();
+        final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("samurai.token"))
                 .setAudioEnabled(true)
-                .useSharding(i,SHARD_COUNT)));
+                .addEventListener(new SamuraiDiscord());
+        //shards.add(samuraiDiscord);
+
+
+        try {
+            for (int i = 0; i < SHARD_COUNT; i++)
+            shards.add(jdaBuilder
+                    //.useSharding(i, SHARD_COUNT)
+                    .buildAsync());
+        } catch (LoginException | RateLimitedException e) {
+            e.printStackTrace();
+        }
+
 
         Database.getDatabase();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
-        BotUtil.initialize(shards);
     }
 
     public static void shutdown() {
         System.out.println("Shutting Down");
         Database.close();
         OsuTracker.close();
-        for (SamuraiDiscord samurai : shards) {
-            samurai.shutdown();
+        for (JDA jda : shards) {
+            jda.shutdown();
         }
         System.out.println("Complete");
     }
 
 
-    public static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        shards.forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event));
-    }
-
     public static int getPlayerCount() {
-        return shards.stream().map(SamuraiDiscord::getClient).map(JDA::getUsers).mapToInt(List::size).reduce(Integer::sum).orElse(0);
+        return shards.stream().map(JDA::getUsers).flatMap(List::stream).distinct().mapToInt(value -> 1).sum();
     }
 
     public static int getGuildCount() {
-        return shards.stream().map(SamuraiDiscord::getClient).map(JDA::getGuilds).mapToInt(List::size).reduce(Integer::sum).orElse(0);
+        return shards.stream().map(JDA::getGuilds).flatMap(List::stream).distinct().mapToInt(value -> 1).sum();
     }
 
-    public static ArrayList<SamuraiDiscord> getShards() {
+    public static ArrayList<JDA> getShards() {
         return shards;
+    }
+
+    static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
+        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event)));
     }
 }

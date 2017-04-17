@@ -22,7 +22,7 @@ public class Leave extends Command {
             audioManager.player.destroy();
             audioManager.scheduler.clear();
         });
-        context.getDiscordGuild().getAudioManager().closeAudioConnection();
+        context.getGuild().getAudioManager().closeAudioConnection();
         return null;
     }
 }

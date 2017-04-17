@@ -1,6 +1,5 @@
 ﻿# DiscordSamuraiBot
-
-OUTDATED
+Uses [JDA](https://github.com/DV8FromTheWorld/JDA) library
 
 ## About
 Join this guild for help [here](https://discord.gg/yAMdGU9)
@@ -29,7 +28,7 @@ List of functions, available and unavailable
 
 5. Submit a pull request
 
-This project is developed in [IntelliJ](https://www.jetbrains.com/idea/) 
+Recommended IDE: [IntelliJ](https://www.jetbrains.com/idea/) 
 
 
 

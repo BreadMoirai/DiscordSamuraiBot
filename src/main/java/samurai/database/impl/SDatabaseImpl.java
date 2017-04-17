@@ -565,7 +565,7 @@ public class SDatabaseImpl implements SDatabase {
                     ')');
             statement.addBatch("CREATE TABLE Guild (\n" +
                     "  GuildId  BIGINT      NOT NULL PRIMARY KEY,\n" +
-                    "  Prefix   VARCHAR(16) NOT NULL DEFAULT '>',\n" +
+                    "  Prefix   VARCHAR(16) NOT NULL DEFAULT '" + Bot.DEFAULT_PREFIX + "',\n" +
                     "  Commands BIGINT      NOT NULL\n" +
                     ") ");
             statement.addBatch("CREATE TABLE Chart (\n" +

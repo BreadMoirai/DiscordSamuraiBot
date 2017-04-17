@@ -14,21 +14,19 @@ import java.util.Optional;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"v", "volume"})
+@Key({"vol", "volume"})
 public class Volume extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        int temp;
-        try {
-            temp = Integer.parseInt(context.getContent());
-        } catch (NumberFormatException e) {
-            temp = -1;
-        }
-        final int newVol = temp;
-        if (newVol > 200 || newVol < 0)
-            return FixedMessage.build("Not a valid Integer 1-200");
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
-        managerOptional.ifPresent(audioManager -> audioManager.player.setVolume(newVol));
+        if (managerOptional.isPresent()) {
+            final GuildAudioManager audioManager = managerOptional.get();
+            if (CommandContext.isInteger(context.getContent())) {
+                final int newVol = Integer.parseInt(context.getContent());
+                audioManager.player.setVolume(newVol);
+            } else
+                return FixedMessage.build("Volume: `" + audioManager.player.getVolume() + '`');
+        }
         return null;
     }
 }
