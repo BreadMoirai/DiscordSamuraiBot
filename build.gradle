@@ -11,7 +11,7 @@ idea {
     }
 }
 
-version = "4.8-" + file("version.txt").getText()
+version = "4.8." + file("version.txt").getText()
 
 mainClassName = "samurai.Bot"
 
@@ -35,9 +35,6 @@ dependencies {
 compileJava.options.encoding = 'UTF-8'
 
 sourceSets.main.resources.srcDir("srs/main/resources")
-
-import java.util.regex.Pattern
-
 
 tasks.create('incrementVersionCode', {
     println(":incrementVersionCode - Incrementing Version Code...")

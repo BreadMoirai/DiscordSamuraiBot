@@ -211,7 +211,7 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (event.getChannelLeft().getMembers().isEmpty()) {
+        if (event.getChannelLeft().getMembers().size() == 1) {
             SamuraiAudioManager.removeManager(event.getGuild().getIdLong())
                     .ifPresent(GuildAudioManager::destroy);
         }

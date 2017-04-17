@@ -38,15 +38,10 @@ public class SamuraiStore {
 
     public static String getHelp(String fileName) {
         StringBuilder sb = new StringBuilder();
-        final String path = String.format("%s/%s.txt", SamuraiStore.class.getResource("help").getPath(), fileName);
-        final Path truePath = Paths.get(path.substring(3));
-        if (!Files.exists(truePath))
+        final InputStream fileInput = SamuraiStore.class.getResourceAsStream("help/" + fileName + ".txt");
+        if (fileInput == null)
             return String.format("Nothing found for `%s`. Sorry!", fileName);
-        try {
-            Files.readAllLines(truePath, StandardCharsets.UTF_8).forEach(line -> sb.append(line).append("\n"));
-        } catch (IOException e) {
-            MyLogger.log("Get Help Exception", Level.SEVERE, e);
-        }
+        new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8)).lines().map(s -> s + '\n').forEachOrdered(sb::append);
         return sb.toString();
     }
 

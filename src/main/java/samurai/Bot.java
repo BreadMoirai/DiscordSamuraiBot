@@ -15,6 +15,9 @@ import samurai.osu.tracker.OsuTracker;
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -32,9 +35,8 @@ public class Bot {
     public static final String DEFAULT_PREFIX;
     public static final int SHARD_COUNT = 1;
 
-    private static TextChannel logChannel;
+    private static final ArrayList<JDA> shards;
 
-    private static ArrayList<JDA> shards;
 
     static {
         START_TIME = System.currentTimeMillis();
@@ -49,6 +51,7 @@ public class Bot {
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
+        //STATIC_SCHEDULER = Executors.newScheduledThreadPool(3);
     }
 
     public static void main(String[] args) {
@@ -107,4 +110,5 @@ public class Bot {
     static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
         shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event)));
     }
+
 }
