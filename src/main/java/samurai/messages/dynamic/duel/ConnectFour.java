@@ -32,6 +32,9 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
     private static final String DUEL_REACTION = "⚔";
 
+    private static final String EMOTE_A = "\uD83D\uDD34";
+    private static final String EMOTE_B = "\uD83D\uDD35";
+
     private static final int X_BOUND = 7, Y_BOUND = 6;
 
     private static final Random random = new Random();
@@ -95,9 +98,11 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         for (int y = Y_BOUND - 1; y >= 0; y--) {
             for (int x = 0; x < X_BOUND; x++) {
                 if (board[x][y] == 'a') {
-                    sb.append("\uD83D\uDD34");
+
+                    sb.append(EMOTE_A);
                 } else if (board[x][y] == 'b') {
-                    sb.append("\uD83D\uDD35");
+
+                    sb.append(EMOTE_B);
                 } else {
                     sb.append("\u26aa");
                 }
@@ -184,12 +189,12 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         MessageBuilder mb = new MessageBuilder();
         if (next.equals(userA)) {
             mb.append("<@").append(userA)
-                    .append("> \uD83C\uDD9A ")
+                    .append("> ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(' ')
                     .append(nameB)
                     .append("\n");
         } else {
             mb.append(nameA)
-                    .append(" \uD83C\uDD9A <@")
+                    .append(" ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(" <@")
                     .append(userB)
                     .append(">\n");
         }
@@ -284,9 +289,10 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
         @Override
         Consumer<Message> buildConsumer() {
+            final Consumer<Message> after = game.next.equals(Bot.ID) ? success -> game.selfMove(success.getJDA(), 0L) : null;
             return newMenu(REACTIONS).andThen(message -> {
                 game.state = new PlayState(game);
-                message.editMessage(game.state.buildMessage()).queue(success -> game.selfMove(success.getJDA(), 0L));
+                message.editMessage(game.state.buildMessage()).queue(after);
             });
         }
 
@@ -350,11 +356,11 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                     message.clearReactions().queue();
                 });
                 game.unregister();
-            } else
+            } else {
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue());
-
-            if (game.selfOpp && game.next == Bot.ID) {
-                game.selfMove(event.getJDA(), event.getResponseNumber());
+                if (game.selfOpp && game.next.equals(Bot.ID)) {
+                    game.selfMove(event.getJDA(), event.getResponseNumber());
+                }
             }
         }
 

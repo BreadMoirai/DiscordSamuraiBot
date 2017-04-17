@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class CommandFactory {
 
     private static final Pattern ARG_PATTERN = Pattern.compile("[\\s+](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-    private static final Pattern SAMURAI_MENTION = Pattern.compile("<@(!)?270044218167132170>( )?");
+    private static final Pattern SAMURAI_MENTION = Pattern.compile("<@([!&])?270044218167132170>( )?");
     private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
 
     private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(CommandModule.values().length);
@@ -62,7 +62,7 @@ public class CommandFactory {
         //if content does not with prefix ex. "!"
         final Matcher matcher = SAMURAI_MENTION.matcher(content);
         if (matcher.find() && matcher.start() == 0) {
-            content = matcher.replaceFirst(prefix);
+            content = prefix + content.substring(matcher.end());
         }
         if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
 
