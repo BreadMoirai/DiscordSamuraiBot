@@ -9,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -66,7 +67,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 }
                 final String uri = track.getInfo().uri;
                 if (uri.contains("youtube")) {
-                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 30L);
+                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 15L);
                     SamuraiAudioManager.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoplayHandler());
                 }
             } else {
@@ -118,9 +119,9 @@ public class TrackScheduler extends AudioEventAdapter {
         return Collections.unmodifiableList(queue);
     }
 
-    public void skip(Stream<Integer> indexes) {
+    public Stream<AudioTrack> skip(Stream<Integer> indexes) {
         final int size = queue.size();
-        indexes.distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).forEachOrdered(queue::remove);
+        return indexes.distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).mapToObj(queue::remove);
     }
 
     public void queueFirst(AudioTrack track) {

@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"queue", "play", "playing", "queuef"})
+@Key({"queue", "play", "playing", "playnow", "queuef"})
 public class Play extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
@@ -40,8 +40,8 @@ public class Play extends Command {
             } else if (content.startsWith("sc ")) {
                 content = "scsearch:" + content.substring(3);
             }
-            if (context.getKey().equalsIgnoreCase("play")) {
-                return new TrackLoader(audioManager, content, true, false, lucky);
+            if (context.getKey().equalsIgnoreCase("playnow")) {
+                return new TrackLoader(audioManager, content, true, true, lucky);
             }
             return new TrackLoader(audioManager, content, false, context.getKey().startsWith("p"), lucky);
         } else {
@@ -79,7 +79,7 @@ public class Play extends Command {
         } else {
             trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }
-        return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
+        return String.format("[%s](%s) [`%s`]", trackInfo.title, trackInfo.uri, trackLengthDisp);
     }
 }
 

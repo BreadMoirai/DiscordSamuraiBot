@@ -31,7 +31,7 @@ public class History extends Command{
             final StringBuilder sb = eb.getDescriptionBuilder();
             final AtomicInteger i = new AtomicInteger(0);
             sb.append("**History**");
-            history.stream().map(audioTrack -> Play.trackInfoDisplay(audioTrack.getInfo())).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
+            history.stream().limit(10).map(audioTrack -> Play.trackInfoDisplay(audioTrack.getInfo())).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
             return FixedMessage.build(eb.build());
         }
         return null;

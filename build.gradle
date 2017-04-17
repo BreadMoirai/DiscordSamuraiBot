@@ -11,7 +11,7 @@ idea {
     }
 }
 
-version = "4.8"
+version = "4.8-" + file("version.txt").getText()
 
 mainClassName = "samurai.Bot"
 
@@ -34,10 +34,19 @@ dependencies {
 
 compileJava.options.encoding = 'UTF-8'
 
-sourceSets {
-    main {
-        resources {
-            srcDirs "src/main/resources"
-        }
-    }
-}
+sourceSets.main.resources.srcDir("srs/main/resources")
+
+import java.util.regex.Pattern
+
+
+tasks.create('incrementVersionCode', {
+    println(":incrementVersionCode - Incrementing Version Code...")
+    def versionFile = file("version.txt")
+    def mVersionCode = Integer.parseInt(versionFile.getText())
+    def mNextVersionCode = mVersionCode + 1
+    println(":incrementVersionCode - current :" + mVersionCode)
+    println(":incrementVersionCode - next    :" + mNextVersionCode)
+    versionFile.write(mNextVersionCode as String)
+})
+
+shadowJar.dependsOn(tasks['incrementVersionCode'])

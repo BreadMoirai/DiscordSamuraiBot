@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -20,6 +21,7 @@ public class SamuraiAudioManager {
 
     static {
         playerManager = new DefaultAudioPlayerManager();
+        playerManager.setFrameBufferDuration((int) TimeUnit.SECONDS.toMillis(15));
         AudioSourceManagers.registerLocalSource(playerManager);
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
