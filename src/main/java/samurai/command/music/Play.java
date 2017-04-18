@@ -47,7 +47,7 @@ public class Play extends Command {
         } else {
             final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
             if (currentTrack == null)
-                return FixedMessage.build("Nothing is playing right now. Try using `" + context.getPrefix() + "queue ytsearch:???`");
+                return FixedMessage.build("Nothing is playing right now. Look at <#302662195270123520>");
             AudioTrackInfo trackInfo = currentTrack.getInfo();
             EmbedBuilder eb = new EmbedBuilder();
             String trackLengthDisp;
@@ -62,10 +62,10 @@ public class Play extends Command {
             if (!tracks.isEmpty()) {
                 eb.appendDescription("Up Next:");
                 final AtomicInteger i = new AtomicInteger();
-                tracks.stream().limit(5).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+                tracks.stream().limit(8).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
                 final int tSize = tracks.size();
-                if (tSize > 5) {
-                    eb.appendDescription("\n... `" + (tSize - 5) + "` more tracks");
+                if (tSize > 8) {
+                    eb.appendDescription("\n... `" + (tSize - 8) + "` more tracks");
                 }
             }
             return FixedMessage.build(eb.build());

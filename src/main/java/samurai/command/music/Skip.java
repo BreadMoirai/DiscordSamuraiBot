@@ -10,11 +10,11 @@ import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
-import java.util.Collections;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 /**
  * @author TonTL
@@ -38,8 +38,9 @@ public class Skip extends Command {
 
                     final List<Integer> argList = context.getIntArgs().boxed().collect(Collectors.toList());
                     final int size = queue.size();
-                    final List<Integer> integerList = argList.stream().distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).boxed().collect(Collectors.toList());
-                    audioManager.scheduler.skip(argList.stream()).map(audioTrack -> "\n`" + integerList.remove(0) + ".` " + Play.trackInfoDisplay(audioTrack.getInfo())).forEachOrdered(eb::appendDescription);
+                    final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
+                    final ArrayDeque<AudioTrack> skip = audioManager.scheduler.skip(argList.stream()).collect(Collectors.toCollection(ArrayDeque::new));
+                    intStream.mapToObj(value -> String.format("\n`%d.` %s", value + 1, skip.removeLast())).forEachOrdered(eb::appendDescription);
                 }
             } else {
                 AudioTrack current = audioManager.player.getPlayingTrack();
