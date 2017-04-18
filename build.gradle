@@ -35,8 +35,6 @@ dependencies {
 
 compileJava.options.encoding = 'UTF-8'
 
-sourceSets.main.resources.srcDir("srs/main/resources")
-
 tasks.create('incrementVersionCode', {
     println(":incrementVersionCode - Incrementing Version Code...")
     def versionFile = file("version.txt")

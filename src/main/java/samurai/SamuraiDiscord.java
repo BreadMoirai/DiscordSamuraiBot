@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
@@ -24,10 +25,10 @@ import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
+import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Source;
 import samurai.command.generic.GenericCommand;
-import samurai.command.annotations.Admin;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
 import samurai.database.Entry;
@@ -38,6 +39,7 @@ import samurai.osu.enums.GameMode;
 import samurai.osu.tracker.OsuSession;
 import samurai.osu.tracker.OsuTracker;
 
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -48,12 +50,11 @@ import java.util.OptionalLong;
 public class SamuraiDiscord implements EventListener {
 
     private int shardId;
-    private JDA client;
     private MessageManager messageManager;
 
 
-
-    SamuraiDiscord() {}
+    SamuraiDiscord() {
+    }
 
     //    SamuraiDiscord(JDABuilder jdaBuilder) {
 //        try {
@@ -69,7 +70,7 @@ public class SamuraiDiscord implements EventListener {
 // }
 
     private void onReady(ReadyEvent event) {
-        this.client = event.getJDA();
+        JDA client = event.getJDA();
         shardId = 0;
         client.getPresence().setGame(Game.of(String.format("Shard [%d/%d]", shardId + 1, Bot.SHARD_COUNT)));
         messageManager = new MessageManager(client);
@@ -93,6 +94,8 @@ public class SamuraiDiscord implements EventListener {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
+        } else if (event instanceof GuildVoiceJoinEvent) {
+            this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof ReadyEvent) {
             this.onReady((ReadyEvent) event);
         } else if (event instanceof ShutdownEvent) {
@@ -100,7 +103,7 @@ public class SamuraiDiscord implements EventListener {
         }
     }
 
-    public void onCommand(Command c) {
+    private void onCommand(Command c) {
         completeContext(c.getContext());
         if (c.getContext().getAuthorId() == 232703415048732672L) {
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
@@ -112,7 +115,7 @@ public class SamuraiDiscord implements EventListener {
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
-                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), client.getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
+                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), c.getContext().getClient().getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
                     final FixedMessage error = FixedMessage.build("You do not have the appropriate permissions to use this command.");
                     error.setChannelId(c.getContext().getChannelId());
                     messageManager.submit(error);
@@ -126,13 +129,14 @@ public class SamuraiDiscord implements EventListener {
         }
     }
 
-
     private void completeContext(CommandContext context) {
         context.setShardId(shardId);
     }
 
+
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
+        System.out.printf("Shutdown Shard[%d] at %s%n", shardId, event.getShutdownTime().atZoneSameInstant(ZoneId.of("UTC-7")));
     }
 
     MessageManager getMessageManager() {
@@ -191,7 +195,6 @@ public class SamuraiDiscord implements EventListener {
         this.getMessageManager().remove(event.getChannel().getIdLong(), event.getMessageIdLong());
     }
 
-
     private void onTextChannelDelete(TextChannelDeleteEvent event) {
         this.getMessageManager().remove(event.getChannel().getIdLong());
     }
@@ -203,6 +206,7 @@ public class SamuraiDiscord implements EventListener {
                 Bot.onPrivateMessageEvent(event);
         }
     }
+
 
     private void onMessageReactionAddEvent(MessageReactionAddEvent event) {
         if (!event.getUser().isBot()) {
@@ -216,4 +220,11 @@ public class SamuraiDiscord implements EventListener {
                     .ifPresent(GuildAudioManager::destroy);
         }
     }
+
+    private void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        if (event.getChannelJoined().getName().equalsIgnoreCase("music") && !SamuraiAudioManager.retrieveManager(event.getGuild().getIdLong()).isPresent())
+            SamuraiAudioManager.openConnection(event.getChannelJoined());
+    }
+
+
 }

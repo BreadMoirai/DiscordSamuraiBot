@@ -1,5 +1,6 @@
 package samurai.command;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
 import samurai.database.Database;
@@ -35,6 +36,7 @@ public class CommandContext {
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
+    private JDA client;
 
     public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.prefix = prefix;
@@ -189,5 +191,9 @@ public class CommandContext {
 
     public CommandContext clone(String key, String content) {
         return new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attaches, guildId, channelId, messageId, channel, time);
+    }
+
+    public JDA getClient() {
+        return channel.getJDA();
     }
 }
