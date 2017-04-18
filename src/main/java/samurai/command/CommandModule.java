@@ -1,7 +1,6 @@
 package samurai.command;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,14 +10,14 @@ import java.util.stream.Collectors;
  */
 public enum CommandModule {
     generic(0L),
-    manage(0L),
-    debug(1L),
+    manage(1L),
     general(2L),
     osu(4L),
     music(8L),
     fun(16L),
     _____(32L),
-    restricted(64L);
+    restricted(64L),
+    debug(128L);
 
 
     private final long value;

@@ -95,7 +95,7 @@ public class CommandContext {
         return messageId;
     }
 
-    public SGuild getsGuild() {
+    public SGuild getSamuraiGuild() {
         if (sGuild == null) {
             final long[] userID = channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray();
             final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, userID);
@@ -195,5 +195,9 @@ public class CommandContext {
 
     public JDA getClient() {
         return channel.getJDA();
+    }
+
+    public String getStrippedContent() {
+        return getArgs().stream().collect(Collectors.joining(" "));
     }
 }

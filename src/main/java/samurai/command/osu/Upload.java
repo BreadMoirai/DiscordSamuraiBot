@@ -25,7 +25,7 @@ public class Upload extends Command {
         } else if (context.getAttaches().get(0).getFileName().equalsIgnoreCase("scores.db")) {
             return null;
             //fixme
-                    //new ConflictMerge(SamuraiStore.readScores(SamuraiStore.downloadFile(attaches.get(0))), context.getsGuild().getScoreMap(), context.getsGuild().getUser(Long.parseLong(context.getAuthor().getUser().getId())));
+                    //new ConflictMerge(SamuraiStore.readScores(SamuraiStore.downloadFile(attaches.get(0))), context.getSamuraiGuild().getScoreMap(), context.getSamuraiGuild().getUser(Long.parseLong(context.getAuthor().getUser().getId())));
         }
         return null;
     }

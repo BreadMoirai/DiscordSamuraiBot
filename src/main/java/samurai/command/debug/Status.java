@@ -29,7 +29,7 @@ public class Status extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
-        final SGuild team = context.getsGuild();
+        final SGuild team = context.getSamuraiGuild();
         final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)

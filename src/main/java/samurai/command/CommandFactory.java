@@ -88,7 +88,7 @@ public class CommandFactory {
 
     public static List<String> parseArgs(String content) {
         if (content != null && !content.isEmpty()) {
-            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !s.startsWith("<@") && !s.equals("@everyone") && !s.equals("@here")).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !((s.startsWith("<") && s.endsWith(">")) || s.equals("@everyone") || s.equals("@here"))).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
         } else return Collections.emptyList();
     }
 

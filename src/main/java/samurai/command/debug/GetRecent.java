@@ -28,7 +28,7 @@ public class GetRecent extends Command {
             return FixedMessage.build("Please link your osu! profile.");
         }
         final Player player = playerOptional.get();
-        final Optional<Score> userRecent = OsuAPI.getUserRecent(player.getOsuName(), player.getOsuId(), GameMode.OSU, 50).stream().filter(Score::passed).findFirst();
+        final Optional<Score> userRecent = OsuAPI.getUserRecent(player.getOsuName(), player.getOsuId(), GameMode.STANDARD, 50).stream().filter(Score::passed).findFirst();
         if (!userRecent.isPresent()) return FixedMessage.build("Nothing found.");
         final Score lastScore = userRecent.get();
         //return new StaticBeatmapDisplay(SamuraiDatabase.getSet(lastScore.getBeatmapHash()), true, true, lastScore.getBeatmapHash(), lastScore);

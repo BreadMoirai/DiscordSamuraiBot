@@ -22,8 +22,8 @@ public class Prefix extends Command {
         final List<String> args = context.getArgs();
         if (args.size() != 1)
             return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
-        final String newPrefix = args.get(0);
-        context.getsGuild().getManager().setPrefix(newPrefix);
+        final String newPrefix = context.getContent();
+        context.getSamuraiGuild().getManager().setPrefix(newPrefix);
         return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
     }
 }

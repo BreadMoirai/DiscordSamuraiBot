@@ -35,7 +35,7 @@ public class Link extends Command {
         System.out.println(userJSON.toString());
         List<Member> mentions = context.getMentionedMembers();
         if (context.getMentionedMembers().size() == 0) {
-            context.getsGuild().getManager().addPlayer(
+            context.getSamuraiGuild().getManager().addPlayer(
                     context.getAuthorId(),
                     userJSON.getString("username"),
                     userJSON.getInt("user_id"),

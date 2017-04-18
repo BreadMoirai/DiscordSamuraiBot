@@ -39,7 +39,6 @@ import samurai.osu.enums.GameMode;
 import samurai.osu.tracker.OsuSession;
 import samurai.osu.tracker.OsuTracker;
 
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -136,7 +135,7 @@ public class SamuraiDiscord implements EventListener {
 
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
-        System.out.printf("Shutdown Shard[%d] at %s%n", shardId, event.getShutdownTime().atZoneSameInstant(ZoneId.of("UTC-7")));
+        System.out.printf("Shutdown Shard[%d]", shardId);
     }
 
     MessageManager getMessageManager() {
@@ -172,7 +171,7 @@ public class SamuraiDiscord implements EventListener {
             final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(discordGuildId, discordUserId);
             if (guildOptional.isPresent()) {
                 final SGuild sGuild = guildOptional.get();
-                final OptionalLong any = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.OSU).mapToLong(Entry::getKey).findAny();
+                final OptionalLong any = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.STANDARD).mapToLong(Entry::getKey).findAny();
                 if (any.isPresent()) {
                     final long discordOutputChannelId = any.getAsLong();
                     final TextChannel outputChannel = event.getGuild().getTextChannelById(String.valueOf(discordOutputChannelId));
@@ -225,6 +224,5 @@ public class SamuraiDiscord implements EventListener {
         if (event.getChannelJoined().getName().equalsIgnoreCase("music") && !SamuraiAudioManager.retrieveManager(event.getGuild().getIdLong()).isPresent())
             SamuraiAudioManager.openConnection(event.getChannelJoined());
     }
-
 
 }

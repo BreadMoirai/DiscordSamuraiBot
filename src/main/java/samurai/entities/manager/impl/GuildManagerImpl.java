@@ -82,4 +82,9 @@ public class GuildManagerImpl implements GuildManager {
     public void setUsers(long... userID) {
         guild.setUsers(userID);
     }
+
+    @Override
+    public void removeChannelFilter(long channelId) {
+        Database.getDatabase().removeFilter(channelId);
+    }
 }

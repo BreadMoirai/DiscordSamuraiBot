@@ -2,7 +2,6 @@ package samurai.command.manage;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.CommandFactory;
 import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
@@ -11,7 +10,6 @@ import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +24,7 @@ public class Enable extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild sGuild = context.getsGuild();
+        final SGuild sGuild = context.getSamuraiGuild();
         final long guildEnabledCommands = sGuild.getEnabledCommands();
         final CommandModule[] commandModules = CommandModule.values();
         if (context.hasContent()) {

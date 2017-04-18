@@ -33,6 +33,6 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
 
     public boolean isEnabled() {
         final String name = this.getClass().getPackage().getName();
-        return CommandModule.valueOf(name.substring(name.lastIndexOf('.') + 1)).isEnabled(context.getsGuild().getEnabledCommands());
+        return CommandModule.valueOf(name.substring(name.lastIndexOf('.') + 1)).isEnabled(context.getSamuraiGuild().getEnabledCommands());
     }
 }

@@ -146,13 +146,13 @@ public class DatabaseTest {
         SDatabase database = Database.getDatabase();
 
         Assert.assertTrue(database.putFilter(GUILD_ID, CHANNEL_ID, GameMode.MANIA));
-        Assert.assertTrue(database.putFilter(GUILD_ID, CHANNEL_ID+100, GameMode.OSU));
+        Assert.assertTrue(database.putFilter(GUILD_ID, CHANNEL_ID+100, GameMode.STANDARD));
 
         final List<Entry<Long, GameMode>> guildFilters = database.getGuildFilters(GUILD_ID);
         for (Entry<Long, GameMode> entry : guildFilters) {
             if (entry.getValue() == GameMode.MANIA)
                 Assert.assertEquals(CHANNEL_ID, entry.getKey().longValue());
-            if (entry.getValue() == GameMode.OSU)
+            if (entry.getValue() == GameMode.STANDARD)
                 Assert.assertEquals(CHANNEL_ID+100, entry.getKey().longValue());
         }
 

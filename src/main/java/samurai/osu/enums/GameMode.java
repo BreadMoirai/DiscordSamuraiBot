@@ -7,10 +7,10 @@ import org.apache.commons.lang3.text.WordUtils;
  * Created by TonTL on 1/23/2017.
  */
 public enum GameMode {
-    OSU (0),
-    TAIKO (1),
-    CTB (2),
-    MANIA (3);
+    STANDARD(0),
+    TAIKO(1),
+    CTB(2),
+    MANIA(3);
 
 
     private final int value;
@@ -20,12 +20,12 @@ public enum GameMode {
     }
 
     public static GameMode get(int value) {
-        for ( GameMode mode: GameMode.values()) {
+        for (GameMode mode : GameMode.values()) {
             if (mode.value() == value) {
                 return mode;
             }
         }
-        return OSU;
+        return STANDARD;
     }
 
     public int value() {
@@ -35,5 +35,24 @@ public enum GameMode {
     @Override
     public String toString() {
         return WordUtils.capitalizeFully(this.name());
+    }
+
+    public static GameMode find(String s) {
+        switch (s.toLowerCase()) {
+            case "standard":
+            case "std":
+            case "osu":
+                return STANDARD;
+            case "taiko":
+                return TAIKO;
+            case "catch the beat":
+            case "ctb":
+                return CTB;
+            case "osumania":
+            case "mania":
+                return MANIA;
+            default:
+                return null;
+        }
     }
 }

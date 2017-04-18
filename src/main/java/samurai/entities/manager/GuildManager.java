@@ -28,4 +28,6 @@ public interface GuildManager {
     void addPlayer(long authorId, String username, int user_id, double pp_raw, int pp_rank, int pp_country_rank);
 
     void setUsers(long... userID);
+
+    void removeChannelFilter(long idLong);
 }
