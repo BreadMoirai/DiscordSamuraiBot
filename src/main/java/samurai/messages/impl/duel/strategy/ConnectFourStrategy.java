@@ -1,4 +1,4 @@
-package samurai.messages.dynamic.duel.strategy;
+package samurai.messages.impl.duel.strategy;
 
 import org.jetbrains.annotations.Contract;
 

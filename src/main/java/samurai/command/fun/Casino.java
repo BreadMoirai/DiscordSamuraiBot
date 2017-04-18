@@ -4,7 +4,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.black_jack.Poker;
+import samurai.messages.impl.black_jack.Poker;
 
 /**
  * @author TonTL

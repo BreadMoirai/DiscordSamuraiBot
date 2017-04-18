@@ -1,4 +1,4 @@
-package samurai.messages.dynamic;
+package samurai.messages.impl.osu;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;

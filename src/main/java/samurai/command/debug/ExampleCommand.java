@@ -9,7 +9,7 @@ import samurai.command.annotations.Source;
 import samurai.command.general.Invite;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.ExampleMessage;
+import samurai.messages.impl.util.ExampleMessage;
 
 import java.util.List;
 

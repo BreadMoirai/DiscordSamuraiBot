@@ -1,4 +1,4 @@
-package samurai.messages.dynamic.duel;
+package samurai.messages.impl.duel;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -9,8 +9,8 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.messages.base.DynamicMessage;
-import samurai.messages.dynamic.duel.strategy.ConnectFourStrategy;
-import samurai.messages.dynamic.duel.strategy.MiniMaxStrategy;
+import samurai.messages.impl.duel.strategy.ConnectFourStrategy;
+import samurai.messages.impl.duel.strategy.MiniMaxStrategy;
 import samurai.messages.listeners.ReactionListener;
 
 import java.awt.*;

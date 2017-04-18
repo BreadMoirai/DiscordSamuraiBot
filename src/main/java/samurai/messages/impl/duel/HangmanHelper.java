@@ -1,4 +1,4 @@
-package samurai.messages.dynamic.duel;
+package samurai.messages.impl.duel;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;

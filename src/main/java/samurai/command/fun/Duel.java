@@ -4,7 +4,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.duel.ConnectFour;
+import samurai.messages.impl.duel.ConnectFour;
 
 /**
  * @author TonTL

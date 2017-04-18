@@ -38,7 +38,6 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         executorService.scheduleWithFixedDelay(this::clearInactive, 60, 30, TimeUnit.MINUTES);
     }
 
-
     private void clearInactive() {
         final Iterator<Map.Entry<Long, LinkedList<DynamicMessage>>> iterator = listeners.entrySet().iterator();
         while (iterator.hasNext()) {

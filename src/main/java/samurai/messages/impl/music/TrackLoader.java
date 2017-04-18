@@ -1,4 +1,4 @@
-package samurai.messages.dynamic;
+package samurai.messages.impl.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;

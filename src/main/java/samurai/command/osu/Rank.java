@@ -8,7 +8,7 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.Book;
+import samurai.messages.impl.util.Book;
 
 import java.util.ArrayList;
 import java.util.List;

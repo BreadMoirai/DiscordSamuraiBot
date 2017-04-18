@@ -1,4 +1,4 @@
-package samurai.messages.dynamic.black_jack;
+package samurai.messages.impl.black_jack;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

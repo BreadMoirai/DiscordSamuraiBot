@@ -10,7 +10,7 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.dynamic.TrackLoader;
+import samurai.messages.impl.music.TrackLoader;
 
 import java.util.Collection;
 import java.util.Optional;
