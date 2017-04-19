@@ -106,6 +106,18 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        exception.printStackTrace();
+        nextTrack();
+    }
+
+    @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        System.err.println("Track stuck: " + track.getInfo().uri);
+        nextTrack();
+    }
+
     public void clear() {
         player.stopTrack();
         queue.clear();

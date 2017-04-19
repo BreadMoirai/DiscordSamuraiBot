@@ -3,6 +3,7 @@ package samurai.command.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -24,9 +25,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Play extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
+        Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (!managerOptional.isPresent()) {
-            return FixedMessage.build("Samurai has not joined a voice channel yet. Use `" + context.getPrefix() + "join [voice channel name]`.");
+            final VoiceChannel channel = context.getAuthor().getVoiceState().getChannel();
+            if (channel == null)
+                return FixedMessage.build("Samurai has not joined a voice channel yet. Use `" + context.getPrefix() + "join [voice channel name]`.");
+            else if (SamuraiAudioManager.openConnection(channel)) {
+                managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
+            }
+            else {
+                return FixedMessage.build("Could not open voice connection");
+            }
+            if (!managerOptional.isPresent()) {
+                return FixedMessage.build("Could not retrieve voice connection");
+            }
         }
         final GuildAudioManager audioManager = managerOptional.get();
         if (context.hasContent()) {

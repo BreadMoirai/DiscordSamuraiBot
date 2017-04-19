@@ -222,6 +222,13 @@
       </item>
     </group>
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="TonTL">
+      <words>
+        <w>musicwidget</w>
+      </words>
+    </dictionary>
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DiscordSamuraiBot.iml" filepath="$PROJECT_DIR$/.idea/modules/DiscordSamuraiBot.iml" />
