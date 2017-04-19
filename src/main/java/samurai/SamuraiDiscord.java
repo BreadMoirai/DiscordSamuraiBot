@@ -93,8 +93,6 @@ public class SamuraiDiscord implements EventListener {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
-        } else if (event instanceof GuildVoiceJoinEvent) {
-            this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof ReadyEvent) {
             this.onReady((ReadyEvent) event);
         } else if (event instanceof ShutdownEvent) {
@@ -219,10 +217,4 @@ public class SamuraiDiscord implements EventListener {
                     .ifPresent(GuildAudioManager::destroy);
         }
     }
-
-    private void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (event.getChannelJoined().getName().equalsIgnoreCase("music") && !SamuraiAudioManager.retrieveManager(event.getGuild().getIdLong()).isPresent())
-            SamuraiAudioManager.openConnection(event.getChannelJoined());
-    }
-
 }

@@ -142,15 +142,15 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void queue(AudioPlaylist playlist) {
-        queue.addAll(playlist.getTracks());
+    public void queue(List<AudioTrack> playlist) {
+        queue.addAll(playlist);
         if (player.getPlayingTrack() == null) {
             nextTrack();
         }
     }
 
-    public void queueFirst(AudioPlaylist playlist) {
-        queue.addAll(0, playlist.getTracks());
+    public void queueFirst(List<AudioTrack> playlist) {
+        queue.addAll(0, playlist);
         if (player.getPlayingTrack() == null) {
             nextTrack();
         }

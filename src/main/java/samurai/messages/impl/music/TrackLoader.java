@@ -21,6 +21,7 @@ import samurai.messages.listeners.ReactionListener;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -43,6 +44,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     private boolean lucky;
     private boolean front;
     private AudioPlaylist playlist;
+    private List<AudioTrack> tracklist;
     private MessageChannel channel;
 
 
@@ -82,16 +84,16 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     @Override
     public void playlistLoaded(AudioPlaylist playlist) {
         this.playlist = playlist;
+        this.tracklist = Collections.synchronizedList(playlist.getTracks());
         if (lucky) {
-            trackLoaded(playlist.getTracks().get(0));
+            trackLoaded(tracklist.get(0));
             return;
         }
-
         channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
         channel.addReactionById(getMessageId(), SHUFFLE_REACTION).queue();
         channel.addReactionById(getMessageId(), CANCEL_REACTION).queue();
         channel.addReactionById(getMessageId(), CONFIRM_REACTION).queue();
-        if (playlist.getTracks().size() > 10) {
+        if (tracklist.size() > 10) {
             channel.addReactionById(getMessageId(), PAGE_REACTION).queue();
         }
     }
@@ -100,16 +102,15 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         EmbedBuilder eb = new EmbedBuilder();
         final StringBuilder sb = eb.getDescriptionBuilder();
         sb.append("**").append(playlist.getName()).append("**");
-        final List<AudioTrack> tracks = playlist.getTracks();
-        final int tSize = tracks.size();
+        final int tSize = tracklist.size();
         AtomicInteger i = new AtomicInteger(front ? 0 : tSize - 10);
         if (front) {
-            tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+            tracklist.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
         }
         if (tSize > 10) {
             sb.append("\n... `").append(tSize - 10).append("` more tracks");
             if (!front) {
-                IntStream.range(tSize - 10, tSize).mapToObj(tracks::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+                IntStream.range(tSize - 10, tSize).mapToObj(tracklist::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
             }
         }
         return new MessageBuilder().setEmbed(eb.build()).build();
@@ -130,19 +131,44 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     @Override
     public void onCommand(GenericCommand command) {
         final CommandContext context = command.getContext();
-        final String key = context.getKey();
-        if (key.equalsIgnoreCase("select") || key.equalsIgnoreCase("sel")) {
-            final int size = playlist.getTracks().size();
+        if (!context.hasContent()) return;
+        final String key = context.getKey().toLowerCase();
+        final int size = tracklist.size();
+        if (key.startsWith("select") || key.startsWith("sel")) {
             final List<Integer> integerList = IntStream.rangeClosed(1, size).map(i -> size - i + 1).boxed().collect(Collectors.toList());
             integerList.removeAll(context.getIntArgs().boxed().collect(Collectors.toList()));
-            integerList.forEach(integer -> playlist.getTracks().remove(integer - 1));
-            channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
-        } else if ((key.equalsIgnoreCase("remove") || key.equalsIgnoreCase("rm")) && context.hasContent()) {
-            final int size = playlist.getTracks().size();
-            context.getIntArgs().filter(value -> value <= size && value > 0).boxed().distinct().sorted((o1, o2) -> o2 - o1).forEachOrdered(integer -> playlist.getTracks().remove(integer - 1));
-            channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+            integerList.forEach(integer -> tracklist.remove(integer - 1));
+        } else if ((key.startsWith("remove") || key.startsWith("rm")) && context.hasContent()) {
+            context.getIntArgs().filter(value -> value <= size && value > 0).boxed().distinct().sorted((o1, o2) -> o2 - o1).forEachOrdered(integer -> tracklist.remove(integer - 1));
+        } else if (key.startsWith("filter")) {
+            final ListIterator<AudioTrack> itr = tracklist.listIterator();
+            final List<String> args = context.getArgs();
+            while (itr.hasNext()) {
+                final AudioTrack track = itr.next();
+                final String title = track.getInfo().title.toLowerCase();
+                if (key.contains("out")) {
+                    if (args.stream().anyMatch(title::contains)) {
+                        itr.remove();
+                    }
+                } else {
+                    if (args.stream().noneMatch(title::contains)) {
+                        itr.remove();
+                    }
+                }
+            }
         }
-        if (playlist.getTracks().size() <= 10) {
+        if (key.endsWith("p")) {
+            channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+            channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", tracklist.size())).queue();
+            channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
+            unregister();
+            if (playNow) audioManager.scheduler.clear();
+            if (playNext) audioManager.scheduler.queueFirst(tracklist);
+            else audioManager.scheduler.queue(tracklist);
+            return;
+        }
+        channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+        if (tracklist.size() <= 10) {
             channel.getMessageById(getMessageId()).queue(
                     message -> message.getReactions().stream().filter(
                             messageReaction -> messageReaction.getEmote().getName().equals(PAGE_REACTION)).findAny().ifPresent(
@@ -156,7 +182,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         final String name = event.getReactionEmote().getName();
         switch (name) {
             case SHUFFLE_REACTION:
-                Collections.shuffle(playlist.getTracks());
+                Collections.shuffle(tracklist);
                 channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                 event.getReaction().removeReaction(event.getUser()).queue();
                 break;
@@ -170,19 +196,19 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 unregister();
                 break;
             case PAGE_REACTION:
-                if (playlist.getTracks().size() > 10) {
+                if (tracklist.size() > 10) {
                     front = !front;
                     channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                     event.getReaction().removeReaction(event.getUser()).queue();
                 }
                 break;
             case CONFIRM_REACTION:
-                channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", playlist.getTracks().size())).queue();
+                channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", tracklist.size())).queue();
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
                 if (playNow) audioManager.scheduler.clear();
-                if (playNext) audioManager.scheduler.queueFirst(playlist);
-                else audioManager.scheduler.queue(playlist);
+                if (playNext) audioManager.scheduler.queueFirst(tracklist);
+                else audioManager.scheduler.queue(tracklist);
                 break;
         }
     }

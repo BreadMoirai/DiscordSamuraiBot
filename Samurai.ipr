@@ -226,6 +226,7 @@
     <dictionary name="TonTL">
       <words>
         <w>musicwidget</w>
+        <w>tracklist</w>
       </words>
     </dictionary>
   </component>
