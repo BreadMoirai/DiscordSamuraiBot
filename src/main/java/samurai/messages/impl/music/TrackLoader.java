@@ -15,6 +15,7 @@ import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandContext;
 import samurai.command.generic.GenericCommand;
 import samurai.command.music.Play;
+import samurai.messages.annotations.Unique;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.ReactionListener;
@@ -29,6 +30,7 @@ import java.util.stream.IntStream;
  * @author TonTL
  * @version 4/11/2017
  */
+@Unique(shouldPrompt = false)
 public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, GenericCommandListener, ReactionListener {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
@@ -129,6 +131,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     public void onCommand(GenericCommand command) {
+        if (command.getContext().getAuthorId() != this.getAuthorId()) return;
         final CommandContext context = command.getContext();
         final String key = context.getKey();
         if (key.equalsIgnoreCase("select") || key.equalsIgnoreCase("sel")) {
@@ -156,11 +159,13 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         final String name = event.getReactionEmote().getName();
         switch (name) {
             case SHUFFLE_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 Collections.shuffle(playlist.getTracks());
                 channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                 event.getReaction().removeReaction(event.getUser()).queue();
                 break;
             case CANCEL_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 channel.editMessageById(getMessageId(), new EmbedBuilder()
                         .appendDescription("**")
                         .appendDescription(playlist.getName())
@@ -177,6 +182,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 }
                 break;
             case CONFIRM_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", playlist.getTracks().size())).queue();
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();

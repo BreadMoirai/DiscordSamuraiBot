@@ -16,7 +16,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 public abstract class DynamicMessage extends SamuraiMessage {
 
 
-    private static final int TIMEOUT = 30;
+    private static final int TIMEOUT = 120;
 
     private OffsetDateTime lastActive;
     private MessageManager manager;
@@ -31,7 +31,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
 
     /**
      * Unregisters this object with the messageManager.
-     * This object will close receiving any events and should fall to garbage collection
+     * This object will stop receiving events and should fall to garbage collection
      */
     protected void unregister() {
         manager.unregister(this);
@@ -53,8 +53,24 @@ public abstract class DynamicMessage extends SamuraiMessage {
         register();
     }
 
+    @Override
+    public void replace(MessageManager messageManager, long messageId) {
+        setActive();
+        this.manager = messageManager;
+        super.replace(messageManager, messageId);
+        register();
+    }
+
+    @Override
+    public void replace(MessageManager messageManager, Message message) {
+        setActive();
+        this.manager = messageManager;
+        super.replace(messageManager, message);
+        register();
+    }
+
     /**
-     * use this to refresh the timeout of your message. By default, dynamic message are automaticall unregistered at 30 minutes after initialization.
+     * use this to refresh the timeout of your message. By default, dynamic message are automatically unregistered at 120 minutes after initialization.
      */
     public void setActive() {
         lastActive = OffsetDateTime.now();

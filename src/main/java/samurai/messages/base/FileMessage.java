@@ -17,6 +17,7 @@ public class FileMessage extends SamuraiMessage {
     private String fileName;
 
     public FileMessage(long channelId, InputStream data, String fileName, Message message) {
+        super(requesterId);
         this.channelId = channelId;
         this.data = data;
         this.fileName = fileName;

@@ -17,7 +17,10 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
 
     public Optional<SamuraiMessage> call() {
         Optional<SamuraiMessage> messageOptional = Optional.ofNullable(execute(context));
-        messageOptional.ifPresent(samuraiMessage -> samuraiMessage.setChannelId(context.getChannelId()));
+        messageOptional.ifPresent(samuraiMessage -> {
+            samuraiMessage.setChannelId(context.getChannelId());
+            samuraiMessage.setAuthorId(context.getAuthorId());
+        });
         return messageOptional;
     }
 

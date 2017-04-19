@@ -11,9 +11,9 @@ import java.util.function.Consumer;
  */
 public abstract class SamuraiMessage {
 
-
     private long channelId;
     private long messageId;
+    private long authorId;
 
     /**
      * This is the method that retrieves the messages to be sent/updated to.
@@ -30,7 +30,15 @@ public abstract class SamuraiMessage {
     }
 
     public void send(MessageManager messageManager) {
-        messageManager.getClient().getTextChannelById(String.valueOf(channelId)).sendMessage(initialize()).queue(setId().andThen(this::onReady));
+        messageManager.getClient().getTextChannelById(channelId).sendMessage(initialize()).queue(setId().andThen(this::onReady));
+    }
+
+    public void replace(MessageManager messageManager, long messageId) {
+        messageManager.getClient().getTextChannelById(channelId).getMessageById(messageId).queue(message -> message.editMessage(initialize()).queue(setId().andThen(this::onReady)));
+    }
+
+    public void replace(MessageManager messageManager, Message message) {
+        message.editMessage(initialize()).queue(setId().andThen(this::onReady));
     }
 
     /**
@@ -55,5 +63,13 @@ public abstract class SamuraiMessage {
 
     private void setMessageId(String messageId) {
         this.messageId = Long.parseLong(messageId);
+    }
+
+    public long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(long authorId) {
+        this.authorId = authorId;
     }
 }

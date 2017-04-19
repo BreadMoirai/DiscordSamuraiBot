@@ -27,6 +27,7 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
     private List<Score> scores;
 
     public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String hash, SGuild guild) {
+        super(requesterId);
         this.set = set;
         this.fullScore = fullScore;
         this.fullMap = fullMap;
@@ -37,6 +38,7 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
 
     public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String beatmapHash, Score lastScore) {
 
+        super(requesterId);
         this.set = set;
         this.fullScore = fullScore;
         this.fullMap = fullMap;
