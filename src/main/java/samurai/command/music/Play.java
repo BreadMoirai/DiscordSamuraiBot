@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"queue", "play", "playing", "playnow", "queuef"})
+@Key({"queue", "play", "playing", "playnow"})
 public class Play extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
@@ -32,8 +32,7 @@ public class Play extends Command {
                 return FixedMessage.build("Samurai has not joined a voice channel yet. Use `" + context.getPrefix() + "join [voice channel name]`.");
             else if (SamuraiAudioManager.openConnection(channel)) {
                 managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
-            }
-            else {
+            } else {
                 return FixedMessage.build("Could not open voice connection");
             }
             if (!managerOptional.isPresent()) {
@@ -42,7 +41,7 @@ public class Play extends Command {
         }
         final GuildAudioManager audioManager = managerOptional.get();
         if (context.hasContent()) {
-            boolean lucky = context.getKey().equalsIgnoreCase("queuef");
+            boolean lucky = context.getKey().equalsIgnoreCase("play");
             String content = context.getContent();
             if (content.startsWith("<") && content.endsWith(">")) {
                 content = content.substring(1, content.length() - 1);
@@ -53,9 +52,9 @@ public class Play extends Command {
                 content = "scsearch:" + content.substring(3);
             }
             if (context.getKey().equalsIgnoreCase("playnow")) {
-                return new TrackLoader(audioManager, content, true, true, lucky);
+                return new TrackLoader(audioManager, true, lucky, content);
             }
-            return new TrackLoader(audioManager, content, false, context.getKey().startsWith("p"), lucky);
+            return new TrackLoader(audioManager, false, lucky, content);
         } else {
             final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
             if (currentTrack == null)
@@ -74,7 +73,7 @@ public class Play extends Command {
             if (!tracks.isEmpty()) {
                 eb.appendDescription("Up Next:");
                 final AtomicInteger i = new AtomicInteger();
-                tracks.stream().limit(8).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+                tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
                 final int tSize = tracks.size();
                 if (tSize > 8) {
                     eb.appendDescription("\n... `" + (tSize - 8) + "` more tracks");
