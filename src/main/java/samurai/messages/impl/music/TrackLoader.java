@@ -10,17 +10,19 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandContext;
 import samurai.command.generic.GenericCommand;
 import samurai.command.music.Play;
+import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.base.UniqueMessage;
 import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.ReactionListener;
 
-import javax.sound.midi.Track;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -31,7 +33,7 @@ import java.util.stream.IntStream;
  * @author TonTL
  * @version 4/11/2017
  */
-public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, GenericCommandListener, ReactionListener {
+public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, GenericCommandListener, ReactionListener, UniqueMessage {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
     private static final String CANCEL_REACTION = "⏏";
@@ -154,6 +156,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     public void onCommand(GenericCommand command) {
+        if (command.getContext().getAuthorId() != this.getAuthorId()) return;
         final CommandContext context = command.getContext();
         if (!context.hasContent()) return;
         final String key = context.getKey().toLowerCase();
@@ -198,17 +201,19 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         final String name = event.getReactionEmote().getName();
         switch (name) {
             case SHUFFLE_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 Collections.shuffle(tracklist);
                 channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                 event.getReaction().removeReaction(event.getUser()).queue();
                 break;
             case CANCEL_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 channel.editMessageById(getMessageId(), new EmbedBuilder()
                         .appendDescription("**")
                         .appendDescription(playlist.getName())
                         .appendDescription("**\n")
-                        .appendDescription("Track Loading Canceled").build()).queue();
-                channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
+                        .appendDescription("Track Loading Canceled").build())
+                        .queue(message -> message.clearReactions().queue());
                 unregister();
                 break;
             case PAGE_REACTION:
@@ -219,6 +224,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 }
                 break;
             case CONFIRM_REACTION:
+                if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", tracklist.size())).queue();
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
@@ -226,5 +232,21 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 audioManager.scheduler.queue(tracklist);
                 break;
         }
+    }
+
+    @Override
+    public MessageScope scope() {
+        return MessageScope.Author;
+    }
+
+    @Override
+    public void close(TextChannel channel) {
+        channel.editMessageById(getMessageId(), new EmbedBuilder()
+                .appendDescription("**")
+                .appendDescription(playlist.getName())
+                .appendDescription("**\n")
+                .appendDescription("Track Loading Canceled").build())
+                .queue(message -> message.clearReactions().queue());
+        unregister();
     }
 }

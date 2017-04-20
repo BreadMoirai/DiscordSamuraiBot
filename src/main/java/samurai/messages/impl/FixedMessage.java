@@ -17,6 +17,7 @@ public class FixedMessage extends SamuraiMessage {
     private Message message;
     private Consumer<Message> consumer;
 
+
     public static FixedMessage build(String s) {
         return new FixedMessage().setMessage(new MessageBuilder().append(s).build());
     }
