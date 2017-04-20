@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.messages.base.FixedMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 /**

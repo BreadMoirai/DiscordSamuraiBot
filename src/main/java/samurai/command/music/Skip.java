@@ -7,7 +7,7 @@ import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.messages.base.FixedMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.ArrayDeque;

@@ -7,7 +7,7 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.command.general.Invite;
-import samurai.messages.base.FixedMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.util.ExampleMessage;
 
