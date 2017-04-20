@@ -7,13 +7,12 @@ import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.messages.base.FixedMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * @author TonTL

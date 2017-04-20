@@ -8,13 +8,12 @@ import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
-import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.database.Database;
 import samurai.files.SamuraiStore;
-import samurai.messages.base.FixedMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Arrays;

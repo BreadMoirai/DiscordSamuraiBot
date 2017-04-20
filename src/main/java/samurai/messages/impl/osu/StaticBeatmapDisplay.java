@@ -36,7 +36,6 @@ public class StaticBeatmapDisplay extends SamuraiMessage {
     }
 
     public StaticBeatmapDisplay(BeatmapSet set, boolean fullScore, boolean fullMap, String beatmapHash, Score lastScore) {
-
         this.set = set;
         this.fullScore = fullScore;
         this.fullMap = fullMap;
