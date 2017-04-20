@@ -31,7 +31,7 @@ public class AutoPlay extends Command {
                     return FixedMessage.build("AutoPlay set to `false`");
                 }
             } else {
-                return FixedMessage.build("AutoPlay is `" + (audioManager.scheduler.isAutoPlay() ? "enabled`" : "disabled`"));
+                return FixedMessage.build("AutoPlay is currently `" + (audioManager.scheduler.isAutoPlay() ? "enabled`" : "disabled`"));
             }
         }
         return null;

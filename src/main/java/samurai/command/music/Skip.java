@@ -31,16 +31,17 @@ public class Skip extends Command {
             final List<AudioTrack> queue = audioManager.scheduler.getQueue();
             if (context.hasContent()) {
                 if (context.getContent().equalsIgnoreCase("all")) {
+                    int size = queue.size();
                     audioManager.scheduler.clear();
-                    FixedMessage.build(eb
-                            .appendDescription("`all`").build());
+                    final StringBuilder db = eb.getDescriptionBuilder();
+                    db.append('`').append(size).append(" songs`");
+                    return FixedMessage.build(eb.build());
                 } else {
-
                     final List<Integer> argList = context.getIntArgs().boxed().collect(Collectors.toList());
                     final int size = queue.size();
                     final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
                     final ArrayDeque<AudioTrack> skip = audioManager.scheduler.skip(argList.stream()).collect(Collectors.toCollection(ArrayDeque::new));
-                    intStream.mapToObj(value -> String.format("\n`%d.` %s", value + 1, skip.removeLast())).forEachOrdered(eb::appendDescription);
+                    intStream.mapToObj(value -> String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast().getInfo()))).forEachOrdered(eb::appendDescription);
                 }
             } else {
                 AudioTrack current = audioManager.player.getPlayingTrack();

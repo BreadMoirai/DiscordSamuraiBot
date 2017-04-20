@@ -66,7 +66,7 @@ public class TrackScheduler extends AudioEventAdapter {
                     return;
                 }
                 final String uri = track.getInfo().uri;
-                if (uri.contains("youtube")) {
+                if (uri.toLowerCase().contains("youtube")) {
                     final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 15L);
                     SamuraiAudioManager.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoplayHandler());
                 }
@@ -106,6 +106,18 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        exception.printStackTrace();
+        nextTrack();
+    }
+
+    @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        System.err.println("Track stuck: " + track.getInfo().uri);
+        nextTrack();
+    }
+
     public void clear() {
         player.stopTrack();
         queue.clear();
@@ -119,6 +131,11 @@ public class TrackScheduler extends AudioEventAdapter {
         return Collections.unmodifiableList(queue);
     }
 
+    public int shuffleQueue(){
+        Collections.shuffle(queue);
+        return queue.size();
+    }
+
     public Stream<AudioTrack> skip(Stream<Integer> indexes) {
         final int size = queue.size();
         return indexes.distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).mapToObj(queue::remove);
@@ -130,15 +147,15 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public void queue(AudioPlaylist playlist) {
-        queue.addAll(playlist.getTracks());
+    public void queue(List<AudioTrack> playlist) {
+        queue.addAll(playlist);
         if (player.getPlayingTrack() == null) {
             nextTrack();
         }
     }
 
-    public void queueFirst(AudioPlaylist playlist) {
-        queue.addAll(0, playlist.getTracks());
+    public void queueFirst(List<AudioTrack> playlist) {
+        queue.addAll(0, playlist);
         if (player.getPlayingTrack() == null) {
             nextTrack();
         }

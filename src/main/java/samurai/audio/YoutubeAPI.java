@@ -43,9 +43,9 @@ public class YoutubeAPI {
         try {
             YouTube.Search.List search = youtube.search().list("id");
 
+
             search.setKey(key);
             search.setRelatedToVideoId(videoID);
-
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
             search.setType("video");
