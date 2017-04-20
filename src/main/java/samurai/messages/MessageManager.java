@@ -7,19 +7,16 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.command.generic.GenericCommand;
-import samurai.messages.annotations.Unique;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.base.UniqueMessage;
 import samurai.messages.impl.util.Prompt;
 import samurai.messages.listeners.ChannelMessageListener;
 import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.PrivateMessageListener;
 import samurai.messages.listeners.ReactionListener;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,7 +51,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         this.client = client;
         listeners = new ConcurrentHashMap<>();
         executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleWithFixedDelay(this::clearInactive, 60, 30, TimeUnit.MINUTES);
+        executorService.scheduleWithFixedDelay(this::clearInactive, 2, 2, TimeUnit.HOURS);
     }
 
     private void clearInactive() {
@@ -68,31 +65,54 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void submit(SamuraiMessage samuraiMessage) {
-        final Class<? extends SamuraiMessage> aClass = samuraiMessage.getClass();
-        final Unique annotation = aClass.getAnnotation(Unique.class);
-        if (annotation != null) {
+        if (samuraiMessage instanceof UniqueMessage) {
+            final Class<? extends SamuraiMessage> aClass = samuraiMessage.getClass();
+            final UniqueMessage uniqueMessage = (UniqueMessage) samuraiMessage;
+            final TextChannel textChannel = client.getTextChannelById(samuraiMessage.getChannelId());
             final long authorId = samuraiMessage.getAuthorId();
-            switch (annotation.scope()) {
+            final Optional<DynamicMessage> optionalPrevious;
+            switch (uniqueMessage.scope()) {
                 case Author:
-                    final Optional<DynamicMessage> any = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass && dynamicMessage.getAuthorId() == authorId).findAny();
-                    if (any.isPresent()) {
-                        final DynamicMessage previousMessage = any.get();
-                        SamuraiMessage prompt = new Prompt(annotation.prompt(), message -> {
-                            samuraiMessage.replace(this, message);
-                            unregister(previousMessage);
-                        },null);
-                        prompt.setAuthorId(samuraiMessage.getAuthorId());
-                        prompt.setChannelId(samuraiMessage.getChannelId());
-                    }
+                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass && dynamicMessage.getAuthorId() == authorId).findAny();
+                    break;
+                case Channel:
+                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
+                    break;
+                case Guild:
+                    if (textChannel == null) return;
+                    optionalPrevious = textChannel.getGuild().getTextChannels().stream().mapToLong(ISnowflake::getIdLong).mapToObj(listeners::get).filter(Objects::nonNull).flatMap(ArrayDeque::stream).filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Scope not found");
             }
-        } else
-            samuraiMessage.send(this);
 
+            if (optionalPrevious.isPresent()) {
+                final DynamicMessage previousMessage = optionalPrevious.get();
+                final UniqueMessage previousUnique = (UniqueMessage) previousMessage;
+                if (uniqueMessage.shouldPrompt()) {
+                    SamuraiMessage prompt = new Prompt(uniqueMessage.prompt(),
+                            message -> {
+                                previousUnique.close(client.getTextChannelById(previousMessage.getChannelId()));
+                                message.clearReactions().queue();
+                                samuraiMessage.replace(this, message);
+                            },
+                            message -> message.delete().queue());
+                    prompt.setAuthorId(samuraiMessage.getAuthorId());
+                    prompt.setChannelId(samuraiMessage.getChannelId());
+                    prompt.send(this);
+                } else {
+                    unregister(previousMessage);
+                    previousUnique.close(textChannel);
+                }
+                return;
+            }
+        }
+        samuraiMessage.send(this);
     }
 
     public void register(DynamicMessage dynamicMessage) {
         listeners.putIfAbsent(dynamicMessage.getChannelId(), new ArrayDeque<>());
-        listeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
+        listeners.get(dynamicMessage.getChannelId()).addLast(dynamicMessage);
     }
 
 
