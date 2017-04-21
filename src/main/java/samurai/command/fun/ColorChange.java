@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.managers.GuildController;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -30,18 +31,33 @@ public class ColorChange extends Command {
         if (members.size() == 1) {
             final Member member = members.get(0);
             final Color color = member.getColor();
-            return FixedMessage.build(new EmbedBuilder().setColor(color).appendDescription(member.getEffectiveName() + "'s color is `0x" + Integer.toHexString(color.getRGB() & 0xFFFFFF).toUpperCase() + "`\n" + color.toString()).build());
+            final EmbedBuilder eb = new EmbedBuilder();
+            final StringBuilder sb = eb.getDescriptionBuilder();
+            sb.append(member.getEffectiveName())
+                    .append("'s color is `")
+                    .append(colorHex(color))
+                    .append("`\n")
+                    .append(color.toString());
+            eb.setColor(color);
+            return FixedMessage.build(eb.build());
         }
         final Member author = context.getAuthor();
         if (!context.hasContent()) {
             final Color color = author.getColor();
-            return FixedMessage.build(new EmbedBuilder().setColor(color).appendDescription("Your color is `0x" + Integer.toHexString(color.getRGB() & 0xFFFFFF).toUpperCase() + "`\n" + color.toString()).build());
+            final EmbedBuilder eb = new EmbedBuilder();
+            final StringBuilder sb = eb.getDescriptionBuilder();
+            sb.append("Your color is `")
+                    .append(colorHex(color))
+                    .append("`\n")
+                    .append(color.toString());
+            eb.setColor(color);
+            return FixedMessage.build(eb.build());
         }
         String strColor = context.getContent();
         Color newColor;
         try {
             Field field = Color.class.getField(strColor);
-            newColor = (Color)field.get(null);
+            newColor = (Color) field.get(null);
         } catch (Exception ignored) {
             newColor = null; // Not defined
         }
@@ -61,27 +77,41 @@ public class ColorChange extends Command {
                 }
             } else return FixedMessage.build("Color not found");
         }
-        final String colorHex = Integer.toHexString(newColor.getRGB() & 0xFFFFFF).toUpperCase();
+        if ((newColor.getRGB() & 0xFFFFFF) == 0) {
+            newColor = new Color(0, 0, 1);
+        }
+
+        final String colorHex = colorHex(newColor);
         final String name = "Color: " + colorHex;
         final Guild guild = context.getGuild();
-        final java.util.List<Role> existingColorRole = guild.getRolesByName(name, false);
-        final List<Role> colorRolesToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ") && !role.getName().equals(name)).collect(Collectors.toList());
-        if (!existingColorRole.isEmpty()) {
-            guild.getController().modifyMemberRoles(author, existingColorRole, colorRolesToRemove).queue();
-            guild.getController().modifyRolePositions(false).selectPosition(existingColorRole.get(0)).moveTo(2).queue();
+        final List<Role> colorRoleToAdd = guild.getRolesByName(name, false);
+        final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
+        if (!colorRoleToAdd.isEmpty() && colorRoleToRemove.containsAll(colorRoleToAdd)) {
+            return FixedMessage.build("You already have this color!");
+        }
+        final GuildController guildController = guild.getController();
+        if (!colorRoleToAdd.isEmpty()) {
+            guildController.modifyMemberRoles(author, colorRoleToAdd, colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
         } else {
-            guild.getController().createRole().setName(name).setColor(newColor).queue(role -> {
-                guild.getController().modifyMemberRoles(author, Collections.singletonList(role), colorRolesToRemove).queue();
-                guild.getController().modifyRolePositions(false).selectPosition(role).moveTo(2).queue(aVoid -> {
-                    colorRolesToRemove.forEach(role2 -> {
-                        final List<Member> membersWithRole = role.getGuild().getMembersWithRoles(role2);
-                        if ((membersWithRole.size() == 1 && membersWithRole.contains(author)) || membersWithRole.isEmpty()) {
-                            role2.delete().queue();
-                        }
-                    });
-                });
+            guildController.createRole().setName(name).setColor(newColor).queue(role -> {
+                guildController.modifyRolePositions(false).selectPosition(role).moveTo(2).queue();
+                guildController.modifyMemberRoles(author, Collections.singletonList(role), colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
             });
         }
-        return FixedMessage.build("Your color has been successfully set to `Ox" + colorHex + "`");
+
+        return FixedMessage.build("Your color has been successfully set to `" + colorHex + "`");
+    }
+
+    private void deleteEmptyRoles(Member member, List<Role> rolesRemovedFromMember) {
+        for (Role role : rolesRemovedFromMember) {
+            final List<Member> membersWithRole = member.getGuild().getMembersWithRoles(role);
+            if (membersWithRole.size() == 1 && membersWithRole.contains(member)) {
+                role.delete().queue();
+            }
+        }
+    }
+
+    public static String colorHex(Color color) {
+        return String.format("0x%6s", Integer.toHexString(color.getRGB() & 0xFFFFFF).toUpperCase()).replace(' ', '0');
     }
 }
