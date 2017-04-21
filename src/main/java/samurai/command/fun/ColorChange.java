@@ -68,13 +68,20 @@ public class ColorChange extends Command {
         final List<Role> colorRolesToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ") && !role.getName().equals(name)).collect(Collectors.toList());
         if (!existingColorRole.isEmpty()) {
             guild.getController().modifyMemberRoles(author, existingColorRole, colorRolesToRemove).queue();
+            guild.getController().modifyRolePositions(false).selectPosition(existingColorRole.get(0)).moveTo(2).queue();
         } else {
             guild.getController().createRole().setName(name).setColor(newColor).queue(role -> {
                 guild.getController().modifyMemberRoles(author, Collections.singletonList(role), colorRolesToRemove).queue();
-                guild.getController().modifyRolePositions(false).selectPosition(role).moveTo(2).queue();
+                guild.getController().modifyRolePositions(false).selectPosition(role).moveTo(2).queue(aVoid -> {
+                    colorRolesToRemove.forEach(role2 -> {
+                        final List<Member> membersWithRole = role.getGuild().getMembersWithRoles(role2);
+                        if ((membersWithRole.size() == 1 && membersWithRole.contains(author)) || membersWithRole.isEmpty()) {
+                            role2.delete().queue();
+                        }
+                    });
+                });
             });
         }
-        colorRolesToRemove.stream().filter(role -> guild.getMembersWithRoles(role).isEmpty()).forEach(role -> role.delete().queue());
         return FixedMessage.build("Your color has been successfully set to `Ox" + colorHex + "`");
     }
 }
