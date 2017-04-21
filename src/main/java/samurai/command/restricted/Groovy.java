@@ -11,7 +11,7 @@ import samurai.command.CommandFactory;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.files.SamuraiStore;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -41,7 +41,7 @@ public class Groovy extends Command {
         BINDING.setVariable("BOT", Bot.class);
         BINDING.setVariable("STORE", SamuraiStore.class);
         BINDING.setVariable("CF", CommandFactory.class);
-        BINDING.setVariable("DB", Database.class);
+        BINDING.setVariable("DB", DatabaseSingleton.class);
         BINDING.setVariable("YT", YoutubeAPI.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 

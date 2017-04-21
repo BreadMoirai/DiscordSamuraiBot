@@ -3,7 +3,7 @@ package samurai.command;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.entities.model.SGuild;
 
 import java.time.OffsetDateTime;
@@ -98,11 +98,11 @@ public class CommandContext {
     public SGuild getSamuraiGuild() {
         if (sGuild == null) {
             final long[] userID = channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray();
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, userID);
+            final Optional<SGuild> guildOptional = DatabaseSingleton.getDatabase().getGuild(guildId, userID);
             if (guildOptional.isPresent())
                 this.sGuild = guildOptional.get();
             else {
-                final Optional<SGuild> guild = Database.getDatabase().createGuild(guildId, CommandModule.getDefaultEnabledCommands());
+                final Optional<SGuild> guild = DatabaseSingleton.getDatabase().createGuild(guildId, CommandModule.getDefaultEnabledCommands());
                 guild.ifPresent(sGuild -> {
                     sGuild.getManager().setUsers(userID);
                     this.sGuild = sGuild;

@@ -1,6 +1,6 @@
 package samurai.entities.impl;
 
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.database.Entry;
 import samurai.database.SDatabase;
 import samurai.entities.manager.GuildManager;
@@ -39,7 +39,7 @@ public class GuildImpl implements SGuild {
 
     private List<Player> getPlayerList() {
         if (players == null) {
-            SDatabase database = Database.getDatabase();
+            SDatabase database = DatabaseSingleton.getDatabase();
             players = Arrays.stream(userIds).mapToObj(database::getPlayer).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
         }
         return players;
@@ -67,7 +67,7 @@ public class GuildImpl implements SGuild {
 
     private List<Chart> getChartList() {
         if (charts == null) {
-            charts = Database.getDatabase().getGuildCharts(guildId);
+            charts = DatabaseSingleton.getDatabase().getGuildCharts(guildId);
         }
         return charts;
     }
@@ -119,7 +119,7 @@ public class GuildImpl implements SGuild {
 
     private List<Entry<Long, GameMode>> getChannelFilterList() {
         if (channelFilters == null) {
-            channelFilters = Database.getDatabase().getGuildFilters(guildId);
+            channelFilters = DatabaseSingleton.getDatabase().getGuildFilters(guildId);
         }
         return channelFilters;
     }

@@ -1,6 +1,6 @@
 package samurai.entities.manager.impl;
 
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.database.SDatabase;
 import samurai.entities.manager.ChartManager;
 import samurai.entities.model.Chart;
@@ -17,7 +17,7 @@ public class ChartManagerImpl implements ChartManager {
 
     public ChartManagerImpl(ChartImpl chart) {
         this.chart = chart;
-        database = Database.getDatabase();
+        database = DatabaseSingleton.getDatabase();
     }
 
     @Override

@@ -29,7 +29,7 @@ import samurai.command.annotations.Creator;
 import samurai.command.annotations.Source;
 import samurai.command.generic.GenericCommand;
 import samurai.command.restricted.Groovy;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.database.Entry;
 import samurai.entities.model.SGuild;
 import samurai.messages.MessageManager;
@@ -151,7 +151,7 @@ public class SamuraiDiscord implements EventListener {
         if (event.getMessage().isPinned()) return;
 
         this.getMessageManager().onGuildMessageEvent(event);
-        final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());
+        final String prefix = DatabaseSingleton.getDatabase().getPrefix(event.getGuild().getIdLong());
         final Command c = CommandFactory.build(event, prefix);
 
         if (c != null) {
@@ -165,7 +165,7 @@ public class SamuraiDiscord implements EventListener {
             final long discordUserId = event.getUser().getIdLong();
             final long discordGuildId = event.getGuild().getIdLong();
             final Optional<OsuSession> sessionOptional = OsuTracker.retrieveSession(discordUserId);
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(discordGuildId, discordUserId);
+            final Optional<SGuild> guildOptional = DatabaseSingleton.getDatabase().getGuild(discordGuildId, discordUserId);
             if (guildOptional.isPresent()) {
                 final SGuild sGuild = guildOptional.get();
                 final OptionalLong any = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.STANDARD).mapToLong(Entry::getKey).findAny();
@@ -180,7 +180,7 @@ public class SamuraiDiscord implements EventListener {
                         }
                     } //if the channel Exists
                     else {
-                        Database.getDatabase().removeFilter(discordOutputChannelId);
+                        DatabaseSingleton.getDatabase().removeFilter(discordOutputChannelId);
                     }
                 } //if they have a channel filter
             } //if there is a sGuild

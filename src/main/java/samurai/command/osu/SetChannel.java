@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.entities.model.SGuild;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -30,7 +30,7 @@ public class SetChannel extends Command {
             targetChannel = context.getChannel();
         }
         final GameMode gameMode = GameMode.find(context.getStrippedContent());
-        final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(context.getGuildId());
+        final Optional<SGuild> guildOptional = DatabaseSingleton.getDatabase().getGuild(context.getGuildId());
         if (guildOptional.isPresent()) {
             final SGuild sGuild = guildOptional.get();
             if (gameMode != null) {

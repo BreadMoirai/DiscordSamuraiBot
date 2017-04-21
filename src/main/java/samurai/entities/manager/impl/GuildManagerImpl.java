@@ -1,6 +1,6 @@
 package samurai.entities.manager.impl;
 
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.database.SDatabase;
 import samurai.entities.manager.GuildManager;
 import samurai.entities.model.Chart;
@@ -22,7 +22,7 @@ public class GuildManagerImpl implements GuildManager {
 
     public GuildManagerImpl(GuildImpl guild) {
         this.guild = guild;
-        database = Database.getDatabase();
+        database = DatabaseSingleton.getDatabase();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class GuildManagerImpl implements GuildManager {
 
     @Override
     public void addPlayer(long discordUserId, String osuName, int osuId, double rawPP, int rankG, int rankC) {
-        final Optional<Player> player = Database.getDatabase().createPlayer(discordUserId, osuId, osuName, rankG, rankC, rawPP);
+        final Optional<Player> player = DatabaseSingleton.getDatabase().createPlayer(discordUserId, osuId, osuName, rankG, rankC, rawPP);
         player.ifPresent(this::addPlayer);
     }
 
@@ -85,6 +85,6 @@ public class GuildManagerImpl implements GuildManager {
 
     @Override
     public void removeChannelFilter(long channelId) {
-        Database.getDatabase().removeFilter(channelId);
+        DatabaseSingleton.getDatabase().removeFilter(channelId);
     }
 }

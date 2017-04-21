@@ -5,19 +5,15 @@ import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.command.CommandFactory;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.osu.tracker.OsuTracker;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -79,14 +75,14 @@ public class Bot {
         }
 
 
-        Database.getDatabase();
+        DatabaseSingleton.getDatabase();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
     }
 
     public static void shutdown() {
         System.out.println("Shutting Down");
-        Database.close();
+        DatabaseSingleton.close();
         OsuTracker.close();
         for (JDA jda : shards) {
             jda.shutdown();

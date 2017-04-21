@@ -4,7 +4,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
-import samurai.database.Database;
+import samurai.database.DatabaseSingleton;
 import samurai.entities.model.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class GetRecent extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final Optional<Player> playerOptional = Database.getDatabase().getPlayer(context.getAuthorId());
+        final Optional<Player> playerOptional = DatabaseSingleton.getDatabase().getPlayer(context.getAuthorId());
         if (!playerOptional.isPresent()) {
             return FixedMessage.build("Please link your osu! profile.");
         }
