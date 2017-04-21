@@ -2,6 +2,7 @@ package samurai.command;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
+import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
 import samurai.database.Database;
 import samurai.entities.model.SGuild;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -188,6 +190,13 @@ public class CommandContext {
         }
         return true;
     }
+
+    private static final Pattern HEX = Pattern.compile("^(0x|#)?[0-9A-Fa-f]+$");
+
+    public boolean isHex() {
+        return HEX.matcher(content).matches();
+    }
+
 
     public CommandContext clone(String key, String content) {
         return new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attaches, guildId, channelId, messageId, channel, time);
