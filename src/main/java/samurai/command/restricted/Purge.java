@@ -30,7 +30,7 @@ public class Purge extends Command {
                 history.retrievePast(100).queue(messages -> channel.deleteMessages(messages).queue());
                 i -= 100;
             }
-            history.retrievePast(i).queue(messages -> messages.forEach(message -> message.delete().queue()));
+            history.retrievePast(i).queue(messages -> channel.deleteMessages(messages).queue());
         } else {
             history.retrievePast(100).queue(messages -> {
                 if (messages.size() < 3)
