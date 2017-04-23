@@ -2,11 +2,13 @@ package samurai;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
@@ -27,7 +29,7 @@ import samurai.command.CommandFactory;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Source;
-import samurai.command.generic.GenericCommand;
+import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
 import samurai.database.Entry;
@@ -92,6 +94,8 @@ public class SamuraiDiscord implements EventListener {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
+        } else if (event instanceof GuildMemberJoinEvent) {
+            this.onGuildMemberJoin((GuildMemberJoinEvent) event);
         } else if (event instanceof ReadyEvent) {
             this.onReady((ReadyEvent) event);
         } else if (event instanceof ShutdownEvent) {
@@ -129,11 +133,11 @@ public class SamuraiDiscord implements EventListener {
         context.setShardId(shardId);
     }
 
-
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
+
 
     MessageManager getMessageManager() {
         return messageManager;
@@ -195,7 +199,6 @@ public class SamuraiDiscord implements EventListener {
         this.getMessageManager().remove(event.getChannel().getIdLong());
     }
 
-
     private void onGenericPrivateMessageEvent(GenericPrivateMessageEvent event) {
         if (event instanceof PrivateMessageReceivedEvent || event instanceof PrivateMessageUpdateEvent) {
             if (!event.getAuthor().isBot() && !event.getAuthor().isFake())
@@ -210,10 +213,18 @@ public class SamuraiDiscord implements EventListener {
         }
     }
 
+
     private void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         if (event.getChannelLeft().getMembers().size() == 1) {
             SamuraiAudioManager.removeManager(event.getGuild().getIdLong())
                     .ifPresent(GuildAudioManager::destroy);
+        }
+    }
+
+    private void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        final Guild guild = event.getGuild();
+        if (guild.getIdLong() == Bot.SOURCE_GUILD) {
+            guild.getController().addRolesToMember(event.getMember(), guild.getRoleById(305584709436702730L)).queue();
         }
     }
 }
