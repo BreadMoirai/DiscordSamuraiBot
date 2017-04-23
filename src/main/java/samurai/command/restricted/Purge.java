@@ -1,6 +1,7 @@
 package samurai.command.restricted;
 
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.RestAction;
 import samurai.command.Command;
@@ -22,12 +23,22 @@ public class Purge extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final TextChannel channel = context.getChannel();
-        channel.getHistory().retrievePast(100).queue(messages -> {
-            if (messages.size() < 3)
-                messages.stream().mapToLong(Message::getIdLong).mapToObj(channel::deleteMessageById).forEach(RestAction::queue);
-            else
-                channel.deleteMessages(messages).queue();
-        });
+        final MessageHistory history = channel.getHistory();
+        if (context.isInt()) {
+            int i = Integer.parseInt(context.getContent());
+            while (i > 100) {
+                history.retrievePast(100).queue(messages -> channel.deleteMessages(messages).queue());
+                i -= 100;
+            }
+            history.retrievePast(i).queue(messages -> messages.forEach(message -> message.delete().queue()));
+        } else {
+            history.retrievePast(100).queue(messages -> {
+                if (messages.size() < 3)
+                    messages.stream().mapToLong(Message::getIdLong).mapToObj(channel::deleteMessageById).forEach(RestAction::queue);
+                else
+                    channel.deleteMessages(messages).queue();
+            });
+        }
         return null;
     }
 }

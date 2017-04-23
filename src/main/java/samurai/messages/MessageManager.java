@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import samurai.command.generic.GenericCommand;
+import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.base.UniqueMessage;

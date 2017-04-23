@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * @version 5.x - 3/18/2017
  */
 public enum CommandModule {
-    generic(0L),
+    basic(0L),
     manage(1L),
     general(2L),
     osu(4L),

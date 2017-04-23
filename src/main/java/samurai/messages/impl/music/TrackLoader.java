@@ -15,7 +15,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandContext;
-import samurai.command.generic.GenericCommand;
+import samurai.command.basic.GenericCommand;
 import samurai.command.music.Play;
 import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.DynamicMessage;

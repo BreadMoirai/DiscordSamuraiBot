@@ -1,6 +1,6 @@
 package samurai.messages.listeners;
 
-import samurai.command.generic.GenericCommand;
+import samurai.command.basic.GenericCommand;
 
 /**
  * @author TonTL

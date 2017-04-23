@@ -19,10 +19,12 @@ public class FixedMessage extends SamuraiMessage {
 
 
     public static FixedMessage build(String s) {
+        if (s == null) return null;
         return new FixedMessage().setMessage(new MessageBuilder().append(s).build());
     }
 
     public static FixedMessage build(MessageEmbed e) {
+        if (e == null) return null;
         return new FixedMessage().setMessage(new MessageBuilder().setEmbed(e).build());
     }
 

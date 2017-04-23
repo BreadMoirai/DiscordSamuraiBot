@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import org.reflections.Reflections;
 import samurai.command.annotations.Key;
-import samurai.command.generic.GenericCommand;
+import samurai.command.basic.GenericCommand;
 import samurai.util.MyLogger;
 
 import java.time.OffsetDateTime;
@@ -107,8 +107,5 @@ public class CommandFactory {
         return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentionedUsers, mentionedRoles, mentionedChannels, attachments, event.getChannel(), time);
     }
 
-    public static HashMap<String, Class<? extends Command>> getCommandMap() {
-        return COMMAND_MAP;
-    }
 }
 

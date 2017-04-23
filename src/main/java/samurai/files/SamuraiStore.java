@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 
 /**
@@ -140,5 +141,18 @@ public class SamuraiStore {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String getModuleInfo(String filename) {
+        final InputStream fileInput = SamuraiStore.class.getResourceAsStream("module/" + filename + ".txt");
+        if (fileInput == null) {
+            return "No info found";
+        }
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput))) {
+            return br.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

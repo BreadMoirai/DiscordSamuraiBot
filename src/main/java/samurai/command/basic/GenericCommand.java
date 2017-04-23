@@ -1,4 +1,4 @@
-package samurai.command.generic;
+package samurai.command.basic;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;

@@ -2,7 +2,6 @@ package samurai.command;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
 import samurai.database.Database;
 import samurai.entities.model.SGuild;
@@ -177,6 +176,10 @@ public class CommandContext {
             }
         }
         return IntStream.empty();
+    }
+
+    public boolean isInt() {
+        return isInteger(content);
     }
 
     public static boolean isInteger(String s) {

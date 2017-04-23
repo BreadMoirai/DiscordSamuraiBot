@@ -1,0 +1,61 @@
+package samurai.command.basic;
+
+import samurai.command.Command;
+import samurai.command.CommandContext;
+import samurai.command.CommandModule;
+import samurai.command.annotations.Admin;
+import samurai.command.annotations.Key;
+import samurai.entities.model.SGuild;
+import samurai.files.SamuraiStore;
+import samurai.messages.impl.FixedMessage;
+import samurai.messages.base.SamuraiMessage;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * @author TonTL
+ * @version 5.x - 3/18/2017
+ */
+@Key({"module", "enable", "disable"})
+@Admin
+public class Module extends Command {
+
+    @Override
+    protected SamuraiMessage execute(CommandContext context) {
+        final SGuild sGuild = context.getSamuraiGuild();
+        final long guildEnabledCommands = sGuild.getEnabledCommands();
+        final CommandModule[] commandModules = CommandModule.values();
+        if (context.getKey().equalsIgnoreCase("module")) {
+            if (!context.hasContent()) {
+                return FixedMessage.build(Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule != CommandModule.basic).map(commandModule -> (commandModule.isEnabled(guildEnabledCommands) ? "+ " : "- ") + commandModule.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
+            } else {
+                return FixedMessage.build(SamuraiStore.getModuleInfo(context.getContent()));
+            }
+        } else {
+            if (context.hasContent()) {
+                final Set<CommandModule> args;
+                if (context.getContent().equalsIgnoreCase("all")) {
+                    args = (Arrays.stream(commandModules).filter(commandModule -> !commandModule.equals(CommandModule.manage))).collect(Collectors.toSet());
+                } else {
+                    args = context.getArgs().stream().map(String::toLowerCase).filter(s -> Arrays.stream(commandModules).map(Enum::name).anyMatch(s::equals)).map(CommandModule::valueOf).filter(Objects::nonNull).collect(Collectors.toSet());
+                }
+                if (args.isEmpty())
+                    return FixedMessage.build("Could not find specified command");
+                switch (context.getKey()) {
+                    case "enable":
+                        String s1 = args.stream().filter(commands -> !commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
+                        sGuild.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
+                        return FixedMessage.build(s1);
+                    case "disable":
+                        String s2 = args.stream().filter(commands -> commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
+                        sGuild.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).map(operand -> ~operand).reduce(guildEnabledCommands, (left, right) -> left & right));
+                        return FixedMessage.build(s2);
+                }
+            }
+        }
+        return null;
+    }
+}
