@@ -12,6 +12,7 @@ import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
 
 /**
+ * Will delete this command upon public release
  * @author TonTL
  * @version 3/16/2017
  */

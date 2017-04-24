@@ -3,12 +3,14 @@ package samurai;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
@@ -20,6 +22,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
@@ -40,8 +43,11 @@ import samurai.osu.enums.GameMode;
 import samurai.osu.tracker.OsuSession;
 import samurai.osu.tracker.OsuTracker;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -94,6 +100,8 @@ public class SamuraiDiscord implements EventListener {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
+        } else if (event instanceof GuildVoiceJoinEvent) {
+            this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof GuildMemberJoinEvent) {
             this.onGuildMemberJoin((GuildMemberJoinEvent) event);
         } else if (event instanceof ReadyEvent) {
@@ -138,10 +146,10 @@ public class SamuraiDiscord implements EventListener {
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 
-
     MessageManager getMessageManager() {
         return messageManager;
     }
+
 
     private void onGenericGuildMessage(GenericGuildMessageEvent event) {
         if (!(event instanceof GuildMessageReceivedEvent || event instanceof GuildMessageUpdateEvent)) {
@@ -206,7 +214,6 @@ public class SamuraiDiscord implements EventListener {
         }
     }
 
-
     private void onMessageReactionAddEvent(MessageReactionAddEvent event) {
         if (!event.getUser().isBot()) {
             this.getMessageManager().onReaction(event);
@@ -215,9 +222,20 @@ public class SamuraiDiscord implements EventListener {
 
 
     private void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (event.getChannelLeft().getMembers().size() == 1) {
-            SamuraiAudioManager.removeManager(event.getGuild().getIdLong())
-                    .ifPresent(GuildAudioManager::destroy);
+        final List<Member> members = event.getChannelLeft().getMembers();
+        final Guild guild = event.getGuild();
+        if (members.size() == 1 && members.contains(guild.getSelfMember())) {
+            SamuraiAudioManager.scheduleLeave(guild.getIdLong());
+        }
+    }
+
+
+    private void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        final Guild guild = event.getGuild();
+        if (event.getMember().equals(guild.getSelfMember())) {return;}
+        final List<Member> members = event.getChannelJoined().getMembers();
+        if (members.size() == 2 && members.contains(guild.getSelfMember()) && members.contains(event.getMember())) {
+            SamuraiAudioManager.cancelLeave(guild.getIdLong());
         }
     }
 

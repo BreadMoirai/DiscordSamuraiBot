@@ -39,9 +39,9 @@ public class Skip extends Command {
                 } else {
                     final List<Integer> argList = context.getIntArgs().boxed().collect(Collectors.toList());
                     final int size = queue.size();
-                    final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
                     final ArrayDeque<AudioTrack> skip = audioManager.scheduler.skip(argList.stream()).collect(Collectors.toCollection(ArrayDeque::new));
-                    intStream.mapToObj(value -> String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast().getInfo()))).forEachOrdered(eb::appendDescription);
+                    final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
+                    intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast().getInfo()))));
                 }
             } else {
                 AudioTrack current = audioManager.player.getPlayingTrack();

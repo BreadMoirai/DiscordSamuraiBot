@@ -5,9 +5,12 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.requests.RestAction;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,6 +21,7 @@ public class SamuraiAudioManager {
 
     private static final AudioPlayerManager playerManager;
     private static final ConcurrentHashMap<Long, GuildAudioManager> audioManagers;
+    private static final ConcurrentHashMap<Long, ScheduledFuture> terminationTask;
 
     static {
         playerManager = new DefaultAudioPlayerManager();
@@ -25,6 +29,7 @@ public class SamuraiAudioManager {
         AudioSourceManagers.registerLocalSource(playerManager);
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
+        terminationTask = new ConcurrentHashMap<>();
     }
 
     private SamuraiAudioManager() {
@@ -50,5 +55,21 @@ public class SamuraiAudioManager {
 
     public static Optional<GuildAudioManager> removeManager(long guildId) {
         return Optional.ofNullable(audioManagers.remove(guildId));
+    }
+
+    public static void scheduleLeave(long idLong) {
+        final ScheduledFuture<?> scheduledFuture = new RestAction.EmptyRestAction<Void>(null).queueAfter(5, TimeUnit.MINUTES, aVoid -> {
+            removeManager(idLong).ifPresent(GuildAudioManager::destroy);
+            terminationTask.remove(idLong);
+        });
+        terminationTask.put(idLong, scheduledFuture);
+    }
+
+    public static void cancelLeave(long idLong) {
+        final ScheduledFuture leaveFuture = terminationTask.get(idLong);
+        if (leaveFuture != null) {
+            terminationTask.remove(idLong);
+            leaveFuture.cancel(false);
+        }
     }
 }

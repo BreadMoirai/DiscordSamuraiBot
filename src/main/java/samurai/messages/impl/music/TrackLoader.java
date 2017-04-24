@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.audio.GuildAudioManager;
@@ -44,10 +45,11 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     private final List<String> request;
     private boolean playNow;
     private boolean lucky;
-    private boolean front;
+    private int page;
     private boolean loadAsPlaylist;
     private AudioPlaylist playlist;
     private List<AudioTrack> tracklist;
+    private final List<Message> pages;
     private MessageChannel channel;
 
     public TrackLoader(GuildAudioManager audioManager, boolean playNow, boolean lucky, String... content) {
@@ -66,8 +68,9 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         this.request = content;
         this.playNow = playNow;
         this.lucky = lucky;
-        front = true;
+        page = 0;
         loadAsPlaylist = false;
+        pages = new ArrayList<>();
     }
 
     @Override
@@ -125,21 +128,23 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     }
 
     private Message buildPlaylistDisplay() {
-        EmbedBuilder eb = new EmbedBuilder();
-        final StringBuilder sb = eb.getDescriptionBuilder();
-        sb.append("**").append(playlist.getName()).append("**");
-        final int tSize = tracklist.size();
-        AtomicInteger i = new AtomicInteger(front ? 0 : tSize - 10);
-        if (front) {
-            tracklist.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
-        }
-        if (tSize > 10) {
-            sb.append("\n... `").append(tSize - 10).append("` more tracks");
-            if (!front) {
-                IntStream.range(tSize - 10, tSize).mapToObj(tracklist::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+        if (pages.size() <= page) {
+            EmbedBuilder eb = new EmbedBuilder();
+            final StringBuilder sb = eb.getDescriptionBuilder();
+            sb.append("**").append(playlist.getName()).append("**");
+            final int tSize = tracklist.size();
+            final int start = page * 10;
+            if (page != 0) {
+                sb.append("\n... `").append(start).append("` more tracks");
             }
+            AtomicInteger i = new AtomicInteger(start);
+            final int end = start + 10;
+            IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+            if (end < tSize)
+                sb.append("\n... `").append(tSize - end).append("` more tracks");
+            pages.add(new MessageBuilder().setEmbed(eb.build()).build());
         }
-        return new MessageBuilder().setEmbed(eb.build()).build();
+        return pages.get(page);
     }
 
     @Override
@@ -199,6 +204,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     @Override
     public void onReaction(MessageReactionAddEvent event) {
         final String name = event.getReactionEmote().getName();
+        final int tSize = tracklist.size();
         switch (name) {
             case SHUFFLE_REACTION:
                 if (event.getUser().getIdLong() != this.getAuthorId()) break;
@@ -217,15 +223,15 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 unregister();
                 break;
             case PAGE_REACTION:
-                if (tracklist.size() > 10) {
-                    front = !front;
+                if (tSize > 10) {
+                    page = (page + 1) % ((tSize / 10) + 1);
                     channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                     event.getReaction().removeReaction(event.getUser()).queue();
                 }
                 break;
             case CONFIRM_REACTION:
                 if (event.getUser().getIdLong() != this.getAuthorId()) break;
-                channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", tracklist.size())).queue();
+                channel.editMessageById(getMessageId(), String.format("`%d` tracks loaded", tSize)).queue();
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
                 if (playNow) audioManager.scheduler.clear();
