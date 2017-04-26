@@ -70,7 +70,7 @@ public class SamuraiDiscord implements EventListener {
     private void onReady(ReadyEvent event) {
         JDA client = event.getJDA();
         shardId = 0;
-        client.getPresence().setGame(Game.of(String.format("Shard [%d/%d]", shardId + 1, Bot.SHARD_COUNT)));
+        client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
         messageManager = new MessageManager(client);
         Groovy.addBinding("mm", messageManager);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");

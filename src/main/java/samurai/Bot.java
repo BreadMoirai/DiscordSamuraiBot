@@ -32,6 +32,7 @@ public class Bot {
     public static final int SHARD_COUNT = 1;
 
     private static final ArrayList<JDA> shards;
+    public static final String VERSION;
 
 
     static {
@@ -47,6 +48,8 @@ public class Bot {
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
+
+        VERSION = "@buildVersion@";
         //STATIC_SCHEDULER = Executors.newScheduledThreadPool(3);
     }
 

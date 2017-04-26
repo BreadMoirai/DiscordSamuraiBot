@@ -1,5 +1,7 @@
 package samurai.entities.model;
 
+import samurai.entities.manager.PlayerManager;
+
 /**
  * @author TonTL
  * @version 4/3/2017
@@ -11,11 +13,13 @@ public interface Player {
 
     String getOsuName();
 
-    int getRankG();
+    int getRankGlobal();
 
-    int getRankC();
+    int getRankCountry();
 
-    int getRawPP();
+    double getRawPP();
 
     long getLastUpdated();
+
+    PlayerManager getManager();
 }

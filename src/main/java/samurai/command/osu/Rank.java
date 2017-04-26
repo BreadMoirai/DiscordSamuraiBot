@@ -52,9 +52,9 @@ public class Rank extends Command {
             final String name = context.getGuild().getMemberById(player.getDiscordId()).getEffectiveName();
             final String osuName = player.getOsuName();
             if (i != target) {
-                nameList.add(String.format("%d. %s : %s (#%d)%n", i, name, osuName, player.getRankG()));
+                nameList.add(String.format("%d. %s : %s (#%d)%n", i, name, osuName, player.getRankGlobal()));
             } else {
-                nameList.add(String.format("#%d %s : %s (#%d)%n", i, name, osuName, player.getRankG()));
+                nameList.add(String.format("#%d %s : %s (#%d)%n", i, name, osuName, player.getRankGlobal()));
             }
         }
 

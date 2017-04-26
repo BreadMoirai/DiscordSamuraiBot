@@ -8,21 +8,39 @@ import samurai.entities.model.Player;
  * @since 2/15/2017
  */
 public class PlayerImpl implements Player {
-    private final long discordId;
-    private final int osuId;
-    private final String osuName;
-    private final int rankG;
-    private final int rankC;
-    private final long lastUpdated;
-    private final int rawPP;
+    private long discordId;
+    private int osuId;
+    private String osuName;
+    private int rankGlobal;
+    private int rankCountry;
+    private long lastUpdated;
+    private double rawPP;
 
-    public PlayerImpl(long discordId, int osuId, String osuName, int g, int c, long lastUpdated, int rawPP) {
+    public void setDiscordId(long discordId) {
         this.discordId = discordId;
+    }
+
+    public void setOsuId(int osuId) {
         this.osuId = osuId;
+    }
+
+    public void setOsuName(String osuName) {
         this.osuName = osuName;
-        this.rankG = g;
-        this.rankC = c;
+    }
+
+    public void setRankGlobal(int rankGlobal) {
+        this.rankGlobal = rankGlobal;
+    }
+
+    public void setRankCountry(int rankCountry) {
+        this.rankCountry = rankCountry;
+    }
+
+    public void setLastUpdated(long lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public void setRawPP(double rawPP) {
         this.rawPP = rawPP;
     }
 
@@ -42,18 +60,23 @@ public class PlayerImpl implements Player {
     }
 
     @Override
-    public int getRankG() {
-        return rankG;
+    public int getRankGlobal() {
+        return rankGlobal;
     }
 
     @Override
-    public int getRankC() {
-        return rankC;
+    public int getRankCountry() {
+        return rankCountry;
     }
 
     @Override
-    public int getRawPP() {
+    public double getRawPP() {
         return rawPP;
+    }
+
+    @Override
+    public long getLastUpdated() {
+        return lastUpdated;
     }
 
     @Override
@@ -62,8 +85,8 @@ public class PlayerImpl implements Player {
         sb.append("discordId=").append(discordId);
         sb.append(", osuId=").append(osuId);
         sb.append(", osuName='").append(osuName).append('\'');
-        sb.append(", rankG=").append(rankG);
-        sb.append(", rankC=").append(rankC);
+        sb.append(", rankGlobal=").append(rankGlobal);
+        sb.append(", rankCountry=").append(rankCountry);
         sb.append(", lastUpdated=").append(lastUpdated);
         sb.append('}');
         return sb.toString();
@@ -89,10 +112,5 @@ public class PlayerImpl implements Player {
         result = 31 * result + (osuName != null ? osuName.hashCode() : 0);
         result = 31 * result + (int) (lastUpdated ^ (lastUpdated >>> 32));
         return result;
-    }
-
-    @Override
-    public long getLastUpdated() {
-        return lastUpdated;
     }
 }

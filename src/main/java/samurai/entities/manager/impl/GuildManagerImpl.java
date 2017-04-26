@@ -6,7 +6,7 @@ import samurai.entities.manager.GuildManager;
 import samurai.entities.model.Chart;
 import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
-import samurai.entities.impl.GuildImpl;
+import samurai.entities.impl.SGuildImpl;
 import samurai.osu.enums.GameMode;
 
 import java.util.Optional;
@@ -17,10 +17,10 @@ import java.util.Optional;
  */
 public class GuildManagerImpl implements GuildManager {
 
-    private GuildImpl guild;
+    private SGuildImpl guild;
     private SDatabase database;
 
-    public GuildManagerImpl(GuildImpl guild) {
+    public GuildManagerImpl(SGuildImpl guild) {
         this.guild = guild;
         database = DatabaseSingleton.getDatabase();
     }

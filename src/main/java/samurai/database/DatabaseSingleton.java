@@ -1,7 +1,5 @@
 package samurai.database;
 
-import java.sql.SQLException;
-
 /**
  * @author TonTL
  * @version 3/23/2017
@@ -12,13 +10,13 @@ public class DatabaseSingleton {
     private static boolean open;
 
     static {
-        try {
-            database = new SDatabaseImpl();
+//        try {
+            database = null;
             open = true;
-        } catch (SQLException e) {
-            SQLUtil.printSQLException(e);
-            throw new ExceptionInInitializerError("Failed to initialize database");
-        }
+//        } catch (SQLException e) {
+//            SQLUtil.printSQLException(e);
+//            throw new ExceptionInInitializerError("Failed to initialize database");
+//        }
     }
 
 

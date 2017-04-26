@@ -5,6 +5,7 @@ CREATE TABLE Player
   OsuName     VARCHAR(16) NOT NULL,
   GlobalRank  INT         NOT NULL,
   CountryRank INT         NOT NULL,
+  RawPP       FLOAT       NOT NULL,
   LastUpdated BIGINT      NOT NULL
 );
 

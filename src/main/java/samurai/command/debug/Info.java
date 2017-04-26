@@ -46,7 +46,7 @@ public class Info extends Command {
                     .setAuthor(userD.getEffectiveName(), null, userD.getUser().getEffectiveAvatarUrl())
                     .setColor(userD.getColor())
                     .setTimestamp(OffsetDateTime.now())
-                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n**Last Updated: **%.2f days ago.", player.getDiscordId(), player.getOsuId(), player.getOsuName(), player.getRankG(), player.getRankC(), team.getRankL(player), team.getPlayerCount(), Instant.ofEpochSecond(player.getLastUpdated()).until(Instant.now(), ChronoUnit.HOURS)/24.00))
+                    .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n**Last Updated: **%.2f days ago.", player.getDiscordId(), player.getOsuId(), player.getOsuName(), player.getRankGlobal(), player.getRankCountry(), team.getRankL(player), team.getPlayerCount(), Instant.ofEpochSecond(player.getLastUpdated()).until(Instant.now(), ChronoUnit.HOURS)/24.00))
                     .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         }

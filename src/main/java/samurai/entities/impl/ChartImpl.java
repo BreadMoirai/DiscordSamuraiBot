@@ -1,29 +1,34 @@
 package samurai.entities.impl;
 
 import samurai.entities.manager.ChartManager;
-import samurai.entities.manager.impl.ChartManagerImpl;
 import samurai.entities.model.Chart;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author TonTL
  * @version 4.x - 2/16/2017
  */
 public class ChartImpl implements Chart {
-
     private int chartId;
     private String chartName;
+    private List<Integer> maps;
     private boolean isSet;
-    private ArrayList<Integer> beatmapIds;
-    private ChartManager manager;
 
-    public ChartImpl(int chartId, String chartName, boolean isSet) {
+    public void setChartId(int chartId) {
         this.chartId = chartId;
+    }
+
+    public void setChartName(String chartName) {
         this.chartName = chartName;
-        this.isSet = isSet;
-        this.beatmapIds = new ArrayList<>(6);
-        this.manager = null;
+    }
+
+    public void setMaps(List<Integer> maps) {
+        this.maps = maps;
+    }
+
+    public void setSet(boolean set) {
+        isSet = set;
     }
 
     @Override
@@ -37,12 +42,8 @@ public class ChartImpl implements Chart {
     }
 
     @Override
-    public ArrayList<Integer> getBeatmapIds() {
-        return beatmapIds;
-    }
-
-    public boolean addMapId(int i) {
-        return beatmapIds.add(i);
+    public List<Integer> getMaps() {
+        return maps;
     }
 
     @Override
@@ -52,27 +53,8 @@ public class ChartImpl implements Chart {
 
     @Override
     public ChartManager getManager() {
-        return manager == null ? (manager = new ChartManagerImpl(this)) : manager;
+        return null;
     }
 
-    public void setName(String name) {
-        this.chartName = name;
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ChartImpl chart = (ChartImpl) o;
-
-        return chartId == chart.chartId && chartName.equals(chart.chartName);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = chartId;
-        result = 31 * result + (chartName != null ? chartName.hashCode() : 0);
-        return result;
-    }
 }

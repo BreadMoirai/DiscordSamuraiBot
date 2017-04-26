@@ -13,7 +13,7 @@ public interface Chart {
 
     String getChartName();
 
-    List<Integer> getBeatmapIds();
+    List<Integer> getMaps();
 
     boolean isSet();
 
