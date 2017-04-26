@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.command.CommandFactory;
@@ -15,9 +14,6 @@ import samurai.osu.tracker.OsuTracker;
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -36,6 +32,7 @@ public class Bot {
     public static final int SHARD_COUNT = 1;
 
     private static final ArrayList<JDA> shards;
+    public static final String VERSION;
 
 
     static {
@@ -51,6 +48,8 @@ public class Bot {
         SENT = new AtomicInteger();
 
         shards = new ArrayList<>(1);
+
+        VERSION = "@buildVersion@";
         //STATIC_SCHEDULER = Executors.newScheduledThreadPool(3);
     }
 

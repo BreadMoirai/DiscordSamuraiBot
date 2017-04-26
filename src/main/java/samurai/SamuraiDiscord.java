@@ -22,9 +22,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
-import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -46,8 +44,6 @@ import samurai.osu.tracker.OsuTracker;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -62,23 +58,10 @@ public class SamuraiDiscord implements EventListener {
     SamuraiDiscord() {
     }
 
-    //    SamuraiDiscord(JDABuilder jdaBuilder) {
-//        try {
-//            this.client = jdaBuilder
-//        } catch (LoginException | RateLimitedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        shardId = client.getShardInfo().getShardId();
-//        client.getPresence().setGame(Game.of(String.format("Shard [%d/%d]", shardId + 1, Bot.SHARD_COUNT)));
-//        messageManager = new MessageManager(client);
-//        Groovy.addBinding("mm", messageManager);
-// }
-
     private void onReady(ReadyEvent event) {
         JDA client = event.getJDA();
         shardId = 0;
-        client.getPresence().setGame(Game.of(String.format("Shard [%d/%d]", shardId + 1, Bot.SHARD_COUNT)));
+        client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
         messageManager = new MessageManager(client);
         Groovy.addBinding("mm", messageManager);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
