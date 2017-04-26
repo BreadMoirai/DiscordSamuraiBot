@@ -109,7 +109,12 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             this.audioManager.scheduler.queue(track);
 
             final AudioTrackInfo trackInfo = track.getInfo();
-            channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(trackInfo), audioManager.scheduler.getQueue().indexOf(track))).build()).queue();
+            final int i = audioManager.scheduler.getQueue().indexOf(track);
+            if (i != -1) {
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(trackInfo), i+1)).build()).queue();
+            } else {
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(trackInfo)).build()).queue();
+            }
             unregister();
         } else {
             tracklist.add(track);
