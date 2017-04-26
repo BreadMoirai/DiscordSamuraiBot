@@ -53,24 +53,6 @@ sourcesForRelease.with {
     ])
 }
 
-def filterSpec = copySpec {
-    from('src/main/java')
-}
-
-tasks.create('appendLiscense', Copy.class)
-appendLiscense.with(filterSpec)
-appendLiscense.setDestinationDir(file('build/withLiscense'))
-def header = file('header.txt').getText()
-def prependHeader = new Action<FileCopyDetails>() {
-    @Override
-    void execute(FileCopyDetails fileCopyDetails) {
-        def file = fileCopyDetails.getFile()
-        def content = file.getText()
-        file.setText(header + content)
-    }
-}
-appendLiscense.eachFile(prependHeader)
-
 compileJava {
     source = sourcesForRelease.destinationDir
     classpath = sourceSets.main.compileClasspath

@@ -1,3 +1,17 @@
+/*    Copyright 2017 Ton Ly
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package samurai.command.debug;
 
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -34,7 +48,7 @@ public class Info extends Command {
                     .setAuthor("Info", null, null)
                     .setColor(context.getAuthor().getColor())
                     .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Dedicated Channels:** `%s`", team.getGuildId(), team.getPrefix(), team.getPlayerCount(), team.getChannelFilters().toString()))
-                    .setFooter("SamuraiStatsâ„¢", Bot.AVATAR);
+                    .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);
         final Optional<Player> guildPlayer = team.getPlayer(Long.parseLong(userD.getUser().getId()));
@@ -47,7 +61,7 @@ public class Info extends Command {
                     .setColor(userD.getColor())
                     .setTimestamp(OffsetDateTime.now())
                     .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n**Last Updated: **%.2f days ago.", player.getDiscordId(), player.getOsuId(), player.getOsuName(), player.getRankG(), player.getRankC(), team.getRankL(player), team.getPlayerCount(), Instant.ofEpochSecond(player.getLastUpdated()).until(Instant.now(), ChronoUnit.HOURS)/24.00))
-                    .setFooter("SamuraiStatsâ„¢", Bot.AVATAR);
+                    .setFooter("SamuraiStats™", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         }
     }

@@ -1,3 +1,17 @@
+/*    Copyright 2017 Ton Ly
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package samurai.messages.impl.osu;
 
 import net.dv8tion.jda.core.MessageBuilder;
@@ -104,11 +118,11 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                     .build();
         } else if (stage == 2 && conflicts.size() == 0) {
             return new MessageBuilder()
-                    .append(String.format("Found `%d` scores for User: `%s`%nDuplicate scores found: `%d`%nNew scores found: `%d`%nMerge?  **Yes:** ✅, **Cancel: **❌", totalScores, uploader.getOsuName(), duplicateScores, newScores))
+                    .append(String.format("Found `%d` scores for User: `%s`%nDuplicate scores found: `%d`%nNew scores found: `%d`%nMerge?  **Yes:** ?, **Cancel: **?", totalScores, uploader.getOsuName(), duplicateScores, newScores))
                     .build();
         } else if (stage < getLastStage() - 1) {
             return new MessageBuilder()
-                    .append(String.format("**CONFLICT %d/%d**%n**%d** scores found for `%s`%n%n✅ Merge and rename as `%s`.%n\uD83C\uDE51 Accept and merge as-is.%n\uD83D\uDEAE Do not merge.%n❌ Cancel operation. No data will be modified", conflictPos++, totalConflicts, current.scoreCount, current.name, uploader.getOsuName())).build();
+                    .append(String.format("**CONFLICT %d/%d**%n**%d** scores found for `%s`%n%n? Merge and rename as `%s`.%n\uD83C\uDE51 Accept and merge as-is.%n\uD83D\uDEAE Do not merge.%n? Cancel operation. No data will be modified", conflictPos++, totalConflicts, current.scoreCount, current.name, uploader.getOsuName())).build();
         } else if (stage == getLastStage() - 1) {
             MessageBuilder mb = new MessageBuilder();
             mb.append("Found `").append(newScores).append("` scores for User: `")
@@ -117,7 +131,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                 if (!c.renamed)
                     mb.append("\nFound `").append(c.scoreCount).append("` scores for player `")
                             .append(c.scores.getFirst().getPlayer()).append("`");
-            mb.append("\nMerge?  **Yes:** ✅, **No: **❌");
+            mb.append("\nMerge?  **Yes:** ?, **No: **?");
             return mb.build();
         } else if (stage == getLastStage()) {
             if (canceled) {
