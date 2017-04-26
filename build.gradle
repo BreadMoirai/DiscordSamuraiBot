@@ -40,8 +40,6 @@ tasks.create('incrementVersionCode', {
     versionFile.write(mNextVersionCode as String)
 })
 
-shadowJar.dependsOn(tasks['incrementVersionCode'])
-
 import org.apache.tools.ant.filters.ReplaceTokens
 
 tasks.create('sourcesForRelease', Copy.class)
@@ -52,10 +50,12 @@ sourcesForRelease.with {
             buildVersion : version
     ])
 }
+sourcesForRelease.doLast {incrementVersionCode}
 
 compileJava {
     source = sourcesForRelease.destinationDir
     classpath = sourceSets.main.compileClasspath
+    options.encoding = 'UTF-8'
     dependsOn sourcesForRelease
 }
 

@@ -16,14 +16,19 @@ package samurai.command.manage;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Source
 @Key("unlock")
@@ -32,15 +37,28 @@ public class Unlock extends Command{
     protected SamuraiMessage execute(CommandContext context) {
         //add database entries to restrict channels
         final Guild guild = context.getGuild();
-        List<TextChannel> hiddenChannels;
-        if (context.getContent().equalsIgnoreCase("nsfw")) {
-            hiddenChannels = guild.getTextChannelsByName("nsfw", true);
-        } else if (context.getContent().equalsIgnoreCase("testing")) {
-            hiddenChannels = guild.getTextChannelsByName("bottesting", true);
-        } else return null;
-        if (hiddenChannels.isEmpty()) return null;
+        final Member author = context.getAuthor();
+        if (!context.hasContent()) {
+            final String collect = guild.getTextChannels().stream().map(textChannel -> {
+                if (author.hasPermission(textChannel, Permission.MESSAGE_READ)) {
+                    return "+ " + textChannel.getName();
+                } else {
+                    return "- " + textChannel.getName();
+                }
+            }).sorted(Comparator.comparingInt(o -> o.codePointAt(0))).collect(Collectors.joining("\n", "```diff\n", "\n```"));
+            return FixedMessage.build(collect);
+        }
+        List<TextChannel> hiddenChannels = guild.getTextChannelsByName(context.getContent(), true);
+        if (hiddenChannels.isEmpty()) return FixedMessage.build("Channel not found");
         final TextChannel thatChannel = hiddenChannels.get(0);
-        thatChannel.createPermissionOverride(context.getAuthor()).setAllow(Permission.MESSAGE_READ, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
-        return null;
+        final PermissionOverride permissionOverride = thatChannel.getPermissionOverride(author);
+        if (permissionOverride == null) {
+            thatChannel.createPermissionOverride(author).setAllow(Permission.MESSAGE_READ, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY).queue();
+            return FixedMessage.build("Access granted");
+        } else {
+            if (permissionOverride.getAllowed().contains(Permission.MESSAGE_READ))
+                return FixedMessage.build("Access has already been granted.");
+            else return FixedMessage.build("Permission Override Denied");
+        }
     }
 }

@@ -48,7 +48,7 @@ public class Info extends Command {
                     .setAuthor("Info", null, null)
                     .setColor(context.getAuthor().getColor())
                     .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Dedicated Channels:** `%s`", team.getGuildId(), team.getPrefix(), team.getPlayerCount(), team.getChannelFilters().toString()))
-                    .setFooter("SamuraiStats™", Bot.AVATAR);
+                    .setFooter("SamuraiStats\u2122", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);
         final Optional<Player> guildPlayer = team.getPlayer(Long.parseLong(userD.getUser().getId()));
@@ -61,7 +61,7 @@ public class Info extends Command {
                     .setColor(userD.getColor())
                     .setTimestamp(OffsetDateTime.now())
                     .setDescription(String.format("**DiscordID: **%d%n**OsuID: **%d%n**Osu Name: **%s%n**Global Rank: **#%d%n**Country Rank: **#%d%n**Guild Rank: **#%d of %d%n**Last Updated: **%.2f days ago.", player.getDiscordId(), player.getOsuId(), player.getOsuName(), player.getRankG(), player.getRankC(), team.getRankL(player), team.getPlayerCount(), Instant.ofEpochSecond(player.getLastUpdated()).until(Instant.now(), ChronoUnit.HOURS)/24.00))
-                    .setFooter("SamuraiStats™", Bot.AVATAR);
+                    .setFooter("SamuraiStatsï¿½", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         }
     }

@@ -66,7 +66,8 @@ public enum CommandModule {
     }
 
     public boolean isEnabled(long byteCombo) {
-        return (byteCombo & this.value) == this.value;
+        return true;
+//        return (byteCombo & this.value) == this.value;
     }
 
 

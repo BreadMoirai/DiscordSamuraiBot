@@ -1,0 +1,65 @@
+[12:55:13] [Info] [JDA]: Login Successful!
+[12:55:13] [Info] [JDASocket]: Connected to WebSocket
+[12:55:13] [Info] [JDA]: Finished Loading!
+SamuraiDiscord [0] is ready!
+Initializing CommandFactory
+"status"    mapped to debug     .Status
+"prev"      mapped to music     .Previous
+"previous"  mapped to music     .Previous
+"ping"      mapped to general   .Ping
+"reset"     mapped to restricted.Reset
+"skip"      mapped to music     .Skip
+"prefix"    mapped to manage    .Prefix
+"help"      mapped to general   .Help
+"join"      mapped to music     .Join
+"related"   mapped to music     .Related
+"module"    mapped to basic     .Module
+"enable"    mapped to basic     .Module
+"disable"   mapped to basic     .Module
+"unlock"    mapped to manage    .Unlock
+"canplay"   mapped to music     .CanPlay
+"beatmap"   mapped to osu       .RandomBeatmap
+"recent"    mapped to debug     .GetRecent
+"flame"     mapped to fun       .Flame
+"info"      mapped to debug     .Info
+"pause"     mapped to music     .Pause
+"unpause"   mapped to music     .Pause
+"history"   mapped to music     .History
+"rank"      mapped to osu       .Rank
+"link"      mapped to osu       .Link
+"tracking"  mapped to osu       .Tracking
+"profile"   mapped to osu       .Profile
+"draw"      mapped to debug     .Draw
+"hangman"   mapped to fun       .Hangman
+"groovy"    mapped to restricted.Groovy
+"unique"    mapped to debug     .UniqueTest
+"shuffle"   mapped to music     .Shuffle
+"duel"      mapped to fun       .Duel
+"setchannel" mapped to osu       .SetChannel
+"menu"      mapped to general   .Menu
+"purge"     mapped to restricted.Purge
+"upload"    mapped to osu       .Upload
+"color"     mapped to fun       .ColorChange
+"ex"        mapped to debug     .ExampleCommand
+"example"   mapped to debug     .ExampleCommand
+"leave"     mapped to music     .Leave
+"autoplay"  mapped to music     .AutoPlay
+"wasted"    mapped to fun       .Wasted
+"casino"    mapped to fun       .Casino
+"close"     mapped to restricted.Shutdown
+"tolist"    mapped to debug     .ToList
+"vol"       mapped to music     .Volume
+"volume"    mapped to music     .Volume
+"queue"     mapped to music     .Play
+"play"      mapped to music     .Play
+"playing"   mapped to music     .Play
+"playnow"   mapped to music     .Play
+"perm"      mapped to debug     .Perm
+"log"       mapped to debug     .Log
+"invite"    mapped to general   .Invite
+"uptime"    mapped to debug     .Uptime
+Shutting Down
+Derby shut down normally
+Osu Tracker has shut down
+Complete
+Shutdown Shard[0]

@@ -53,9 +53,9 @@ import java.util.stream.IntStream;
 public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, GenericCommandListener, ReactionListener, UniqueMessage {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
-    private static final String CANCEL_REACTION = "⏏";
-    private static final String CONFIRM_REACTION = "▶";
-    private static final String PAGE_REACTION = "↔";
+    private static final String CANCEL_REACTION = "\u23cf";
+    private static final String CONFIRM_REACTION = "\u25b6";
+    private static final String PAGE_REACTION = "\u2194";
 
     private final GuildAudioManager audioManager;
     private final List<String> request;

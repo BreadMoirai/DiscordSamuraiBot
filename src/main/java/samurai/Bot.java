@@ -26,6 +26,9 @@ import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
 
 import javax.security.auth.login.LoginException;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,10 +71,21 @@ public class Bot {
     }
 
     public static void main(String[] args) {
-        Bot.start();
+        Bot.start(args);
     }
 
-    public static void start() {
+    private static void start(String[] args) {
+        if (args.length != 0)
+            try {
+                PrintStream out = new PrintStream(new FileOutputStream("out.txt"));
+                System.setOut(out);
+                PrintStream err = new PrintStream(new FileOutputStream("err.txt"));
+                System.setErr(err);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
         final Config config = ConfigFactory.load();
 
         //final SamuraiDiscord samuraiDiscord = new SamuraiDiscord();
@@ -84,9 +98,9 @@ public class Bot {
 
         try {
             for (int i = 0; i < SHARD_COUNT; i++)
-            shards.add(jdaBuilder
-                    //.useSharding(i, SHARD_COUNT)
-                    .buildAsync());
+                shards.add(jdaBuilder
+                        //.useSharding(i, SHARD_COUNT)
+                        .buildAsync());
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }

@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  */
 public class Prompt extends DynamicMessage implements ReactionListener, UniqueMessage {
 
-    private static final String YES = "✅", NO = "❎";
+    private static final String YES = "\u2705", NO = "\u274e";
 
     private final Message prompt;
     private final Consumer<Message> onYes, onNo;

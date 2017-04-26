@@ -33,8 +33,8 @@ import java.util.function.Consumer;
  */
 public class ConflictMerge extends DynamicMessage implements ReactionListener {
 
-    private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("✅", "\uD83C\uDE51", "\uD83D\uDEAE", "❌"));
-    private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("✅", "❌"));
+    private final static List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("\u2705", "\uD83C\uDE51", "\uD83D\uDEAE", "\u274c"));
+    private final static List<String> CONFIRM = Collections.unmodifiableList(Arrays.asList("\u2705", "\u274c"));
     final Player uploader;
     private final HashMap<String, LinkedList<Score>> annex;
     private final HashMap<String, LinkedList<Score>> base;
@@ -131,7 +131,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                 if (!c.renamed)
                     mb.append("\nFound `").append(c.scoreCount).append("` scores for player `")
                             .append(c.scores.getFirst().getPlayer()).append("`");
-            mb.append("\nMerge?  **Yes:** ?, **No: **?");
+            mb.append("\nMerge?  **Yes:** \u2705, **No: **\u274c");
             return mb.build();
         } else if (stage == getLastStage()) {
             if (canceled) {
@@ -173,11 +173,11 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
     private void execute(String name) {
         if (stage == getLastStage() - 1) {
             switch (name) {
-                case "✅":
+                case "\u2705":
                     stage++;
                     merge();
                     return;
-                case "❌":
+                case "\u274c":
                     canceled = true;
                     stage = getLastStage();
                     break;
@@ -186,7 +186,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
             }
         } else if (stage < getLastStage() - 1)
             switch (name) {
-                case "✅":
+                case "\u2705":
                     current.approve();
                     if (itr.hasNext())
                         current = itr.next();
@@ -207,7 +207,7 @@ public class ConflictMerge extends DynamicMessage implements ReactionListener {
                     else current = null;
                     stage++;
                     return;
-                case "❌":
+                case "\u274c":
                     canceled = true;
                     stage = getLastStage();
                     return;

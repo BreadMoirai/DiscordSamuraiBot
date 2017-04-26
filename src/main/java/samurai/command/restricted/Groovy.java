@@ -19,7 +19,7 @@ import groovy.lang.GroovyShell;
 import net.dv8tion.jda.core.entities.Game;
 import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
-import samurai.audio.YoutubeAPI;
+import samurai.api.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
@@ -28,8 +28,8 @@ import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.database.Database;
 import samurai.files.SamuraiStore;
-import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
 import java.util.Arrays;
 import java.util.Map;

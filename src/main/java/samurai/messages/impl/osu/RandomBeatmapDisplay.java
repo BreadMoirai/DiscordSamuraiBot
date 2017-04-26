@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class RandomBeatmapDisplay extends DynamicMessage implements ReactionListener {
 
-    private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("🔙", "\uD83D\uDD12", "🛂", "🛃", "📈", "📉", "🔁"));
+    private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("\ud83d\udd19", "\uD83D\uDD12", "\ud83d\udec2", "\ud83d\udec3", "\ud83d\udcc8", "\ud83d\udcc9", "\ud83d\udd01"));
 
     private final ArrayList<String> hashArray;
     private final Stack<Integer> history = new Stack<>();
@@ -101,25 +101,25 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
 
     private boolean execute(String reactionName) {
         switch (reactionName) {
-            case "🔁":
+            case "\ud83d\udd01":
                 nextSet();
                 break;
-            case "🔙":
+            case "\ud83d\udd19":
                 if (!history.isEmpty())
                     setCurrentSet(currentIdx = history.pop());
                 break;
             case "\uD83D\uDD12":
                 return false;
-            case "🛂":
+            case "\ud83d\udec2":
                 fullMap = !fullMap;
                 break;
-            case "🛃":
+            case "\ud83d\udec3":
                 fullScore = !fullScore;
                 break;
-            case "📈":
+            case "\ud83d\udcc8":
                 currentSet.forward();
                 break;
-            case "📉":
+            case "\ud83d\udcc9":
                 currentSet.back();
                 break;
             default:
