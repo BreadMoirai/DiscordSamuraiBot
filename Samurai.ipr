@@ -222,6 +222,11 @@
       </item>
     </group>
   </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings load_method="CUSTOM_LOADER" />
+    </phpunit_settings>
+  </component>
   <component name="ProjectDictionaryState">
     <dictionary name="TonTL">
       <words>
