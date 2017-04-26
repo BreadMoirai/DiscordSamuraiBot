@@ -5,11 +5,7 @@ plugins {
     id 'idea'
 }
 
-idea {
-    module {
-        downloadJavadoc = true
-    }
-}
+idea.module.downloadJavadoc = true
 
 version = "4.8." + file("version.txt").getText()
 
@@ -48,13 +44,32 @@ shadowJar.dependsOn(tasks['incrementVersionCode'])
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-tasks.create('sourcesForRelease', Copy.class).configure {
+tasks.create('sourcesForRelease', Copy.class)
+sourcesForRelease.with {
     from 'src/main/java'
     into 'build/filteredSrc'
     filter(ReplaceTokens, tokens: [
             buildVersion : version
     ])
 }
+
+def filterSpec = copySpec {
+    from('src/main/java')
+}
+
+tasks.create('appendLiscense', Copy.class)
+appendLiscense.with(filterSpec)
+appendLiscense.setDestinationDir(file('build/withLiscense'))
+def header = file('header.txt').getText()
+def prependHeader = new Action<FileCopyDetails>() {
+    @Override
+    void execute(FileCopyDetails fileCopyDetails) {
+        def file = fileCopyDetails.getFile()
+        def content = file.getText()
+        file.setText(header + content)
+    }
+}
+appendLiscense.eachFile(prependHeader)
 
 compileJava {
     source = sourcesForRelease.destinationDir

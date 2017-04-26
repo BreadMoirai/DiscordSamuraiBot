@@ -1,4 +1,43 @@
-package samurai.audio;
+/*    Copyright 2017 Ton Ly
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ *//*    Copyright 2017 Ton Ly
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ *//*    Copyright 2017 Ton Ly
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */package samurai.api;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -14,7 +53,6 @@ import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -22,8 +60,8 @@ import java.util.stream.Collectors;
  * @version 4/15/2017
  */
 public class YoutubeAPI {
-    private static final AtomicInteger calls;
-    private static final String key;
+    private static int calls;
+    private static final String KEY;
 
     private static YouTube youtube;
 
@@ -31,8 +69,8 @@ public class YoutubeAPI {
     private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
     static {
-        calls = new AtomicInteger(0);
-        key = ConfigFactory.load().getString("api.youtube");
+        calls = 0;
+        KEY = ConfigFactory.load().getString("api.google");
 
         youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, request -> {
         }).setApplicationName("DiscordSamuraiBot").build();
@@ -44,7 +82,7 @@ public class YoutubeAPI {
             YouTube.Search.List search = youtube.search().list("id");
 
 
-            search.setKey(key);
+            search.setKey(KEY);
             search.setRelatedToVideoId(videoID);
             // Restrict the search results to only include videos. See:
             // https://developers.google.com/youtube/v3/docs/search/list#type
@@ -55,9 +93,10 @@ public class YoutubeAPI {
             //search.setPart("id");
             search.setMaxResults(size);
 
-            // Call the API and print results.
+            // Call the API.
             SearchListResponse searchResponse = search.execute();
 
+            calls++;
             List<SearchResult> searchResultList = searchResponse.getItems();
             return searchResultList.stream().map(SearchResult::getId).map(ResourceId::getVideoId).map(s -> "https://www.youtube.com/watch?v=" + s).collect(Collectors.toList());
         } catch (GoogleJsonResponseException e) {
