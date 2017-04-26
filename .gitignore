@@ -91,3 +91,4 @@ fabric.properties
 .idea/
 /SamuraiDerbyDatabase
 derby.log
+/.shelf

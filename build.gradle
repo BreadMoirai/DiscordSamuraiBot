@@ -34,8 +34,6 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-compileJava.options.encoding = 'UTF-8'
-
 tasks.create('incrementVersionCode', {
     println(":incrementVersionCode - Incrementing Version Code...")
     def versionFile = file("version.txt")
@@ -49,9 +47,18 @@ tasks.create('incrementVersionCode', {
 shadowJar.dependsOn(tasks['incrementVersionCode'])
 
 import org.apache.tools.ant.filters.ReplaceTokens
-shadowJar {
-    filter(ReplaceTokens, tokens:[
-            'buildVersion': version
+
+tasks.create('sourcesForRelease', Copy.class).configure {
+    from 'src/main/java'
+    into 'build/filteredSrc'
+    filter(ReplaceTokens, tokens: [
+            buildVersion : version
     ])
+}
+
+compileJava {
+    source = sourcesForRelease.destinationDir
+    classpath = sourceSets.main.compileClasspath
+    dependsOn sourcesForRelease
 }
 

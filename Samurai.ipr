@@ -263,6 +263,13 @@
     </data-source>
   </component>
   <component name="libraryTable">
+    <library name="Gradle: antlr:antlr:2.7.7">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/antlr/antlr/2.7.7/83cd2cd674a217ade95a4bb83a8a14f351f48bd0/antlr-2.7.7.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.8.0">
       <CLASSES>
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.8.0/45b426f7796b741035581a176744d91090e2e6fb/jackson-annotations-2.8.0.jar!/" />
@@ -318,19 +325,27 @@
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.apis/google-api-services-youtube/v3-rev183-1.22.0/b7af3a2e6d2bbec7612a7e44fbb43afe7b2a4a62/google-api-services-youtube-v3-rev183-1.22.0-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Gradle: com.google.code.findbugs:annotations:2.0.1">
+    <library name="Gradle: com.google.code.findbugs:annotations:3.0.1">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/2.0.1/9ef6656259841cebfb9fb0697bb122ada4485498/annotations-2.0.1.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/3.0.1/fc019a2216218990d64dfe756e7aa20f0069dea2/annotations-3.0.1.jar!/" />
       </CLASSES>
-      <JAVADOC />
-      <SOURCES />
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/3.0.1/d8582b14a17ab27966d9c5de719ceba8770c8273/annotations-3.0.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/annotations/3.0.1/e6a834472bdb9f5c9b8ec64d05c3ae2cb6a03cec/annotations-3.0.1-sources.jar!/" />
+      </SOURCES>
     </library>
-    <library name="Gradle: com.google.code.findbugs:jsr305:1.3.9">
+    <library name="Gradle: com.google.code.findbugs:jsr305:3.0.1">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/1.3.9/40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf/jsr305-1.3.9.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar!/" />
       </CLASSES>
-      <JAVADOC />
-      <SOURCES />
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/3d7ec36bbfbf5d7259356a6b8fec0ce4f96e3f47/jsr305-3.0.1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/a2926c057ca3b662b9db194c869bdbe7d3bb8aef/jsr305-3.0.1-sources.jar!/" />
+      </SOURCES>
     </library>
     <library name="Gradle: com.google.guava:guava-jdk5:17.0">
       <CLASSES>
@@ -343,15 +358,15 @@
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava-jdk5/17.0/cc6729ce0bc6cc29441cb3a04acad02aeeebb26e/guava-jdk5-17.0-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Gradle: com.google.guava:guava:18.0">
+    <library name="Gradle: com.google.guava:guava:21.0">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/cce0823396aa693798f8882e64213b1772032b09/guava-18.0.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/21.0/3a3d111be1be1b745edfa7d91678a12d7ed38709/guava-21.0.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/418be347c254422b51adee3cacb10e3f69e279ec/guava-18.0-javadoc.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/21.0/7d48c9b5304b8bab31d1ed7c9ef9670b646866c0/guava-21.0-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/18.0/ad97fe8faaf01a3d3faacecd58e8fa6e78a973ca/guava-18.0-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/21.0/b9ed26b8c23fe7cd3e6b463b34e54e5c6d9536d5/guava-21.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: com.google.http-client:google-http-client-jackson2:1.22.0">
@@ -515,6 +530,24 @@
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/4.4.0/9d45d3dc35711eef7267d8b4fc2c0dc482ef9fd2/jna-4.4.0-sources.jar!/" />
       </SOURCES>
     </library>
+    <library name="Gradle: net.jcip:jcip-annotations:1.0">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.jcip/jcip-annotations/1.0/afba4942caaeaf46aab0b976afd57cc7c181467e/jcip-annotations-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.jcip/jcip-annotations/1.0/d853625d8001c00d40abed553e670279504699f9/jcip-annotations-1.0-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: net.jodah:expiringmap:0.5.6">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.jodah/expiringmap/0.5.6/11833abbdd64050d455187f374dc096944f9ffb0/expiringmap-0.5.6.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.jodah/expiringmap/0.5.6/7a0322a73e71f3a594f28992a1b8c627b66de17d/expiringmap-0.5.6-sources.jar!/" />
+      </SOURCES>
+    </library>
     <library name="Gradle: net.sf.trove4j:trove4j:3.0.3">
       <CLASSES>
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.trove4j/trove4j/3.0.3/42ccaf4761f0dfdfa805c9e340d99a755907e2dd/trove4j-3.0.3.jar!/" />
@@ -524,6 +557,26 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.sf.trove4j/trove4j/3.0.3/109c5be93362e6e651e417c51d1863477a22969c/trove4j-3.0.3-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.antlr:antlr-runtime:3.4">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.antlr/antlr-runtime/3.4/8f011408269a8e42b8548687e137d8eeb56df4b4/antlr-runtime-3.4.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.antlr/antlr-runtime/3.4/4268fda95c82798881a1b03319ee592e9787a0ea/antlr-runtime-3.4-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.antlr/antlr-runtime/3.4/57a73190ad97f56c0cb83a6a5b6c08d5d428319b/antlr-runtime-3.4-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.antlr:stringtemplate:3.2.1">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.antlr/stringtemplate/3.2.1/59ec8083721eae215c6f3caee944c410d2be34de/stringtemplate-3.2.1.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.antlr/stringtemplate/3.2.1/105785687b0c85a7f70cddfdc3a391bcab121872/stringtemplate-3.2.1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: org.apache.commons:commons-collections4:4.1">
@@ -639,6 +692,17 @@
       </JAVADOC>
       <SOURCES>
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.javassist/javassist/3.18.2-GA/7163084913aa7399e4ce2cbc3ee5c00ac2b1f35f/javassist-3.18.2-GA-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.jdbi:jdbi3:3.0.0-beta1">
+      <CLASSES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jdbi/jdbi3/3.0.0-beta1/ace52b7cb9ed5b73e8d5dad6bc2be5c8da351149/jdbi3-3.0.0-beta1.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jdbi/jdbi3/3.0.0-beta1/d77cfdbb212dcfe20acb34e3646c065ad16c1673/jdbi3-3.0.0-beta1-javadoc.jar!/" />
+      </JAVADOC>
+      <SOURCES>
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jdbi/jdbi3/3.0.0-beta1/dbe55c45df2daed9f37d94b19e6b2644dfc8e24/jdbi3-3.0.0-beta1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: org.jetbrains:annotations:13.0">

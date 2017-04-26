@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
@@ -22,7 +23,10 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.managers.AudioManager;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
+import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -44,6 +48,8 @@ import samurai.osu.tracker.OsuTracker;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -87,6 +93,8 @@ public class SamuraiDiscord implements EventListener {
             this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof GuildMemberJoinEvent) {
             this.onGuildMemberJoin((GuildMemberJoinEvent) event);
+        } else if (event instanceof GuildLeaveEvent) {
+            this.onGuildLeave((GuildLeaveEvent) event);
         } else if (event instanceof ReadyEvent) {
             this.onReady((ReadyEvent) event);
         } else if (event instanceof ShutdownEvent) {
@@ -225,7 +233,11 @@ public class SamuraiDiscord implements EventListener {
     private void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild();
         if (guild.getIdLong() == Bot.SOURCE_GUILD) {
-            guild.getController().addRolesToMember(event.getMember(), guild.getRoleById(305584709436702730L)).queue();
+            guild.getController().addRolesToMember(event.getMember(), guild.getRolesByName("Peasant", false)).queue();
         }
+    }
+
+    private void onGuildLeave(GuildLeaveEvent event) {
+        SamuraiAudioManager.retrieveManager(event.getGuild().getIdLong()).ifPresent(GuildAudioManager::destroy);
     }
 }

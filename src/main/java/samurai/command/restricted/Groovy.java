@@ -2,6 +2,7 @@ package samurai.command.restricted;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import net.dv8tion.jda.core.entities.Game;
 import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
 import samurai.audio.YoutubeAPI;
@@ -43,6 +44,7 @@ public class Groovy extends Command {
         BINDING.setVariable("CF", CommandFactory.class);
         BINDING.setVariable("DB", Database.class);
         BINDING.setVariable("YT", YoutubeAPI.class);
+        BINDING.setVariable("Game", Game.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 
     }
