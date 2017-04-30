@@ -23,10 +23,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.4 - 2/16/2017
- */
 @Key("prefix")
 @Admin
 public class Prefix extends Command {

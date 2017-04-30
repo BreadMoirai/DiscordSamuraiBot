@@ -230,6 +230,8 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             case SHUFFLE_REACTION:
                 if (event.getUser().getIdLong() != this.getAuthorId()) break;
                 Collections.shuffle(tracklist);
+                page = 0;
+                pages.clear();
                 channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
                 event.getReaction().removeReaction(event.getUser()).queue();
                 break;

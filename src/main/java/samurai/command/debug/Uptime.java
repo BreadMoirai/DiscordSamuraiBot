@@ -21,11 +21,6 @@ import samurai.command.annotations.Key;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/15/2017
- */
 @Key("uptime")
 public class Uptime extends Command {
 

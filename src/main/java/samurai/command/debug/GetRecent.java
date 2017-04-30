@@ -22,16 +22,12 @@ import samurai.database.Database;
 import samurai.entities.model.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.api.OsuAPI;
+import samurai.osu.OsuAPI;
 import samurai.osu.enums.GameMode;
 import samurai.osu.model.Score;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 3/21/2017
- */
 @Key("recent")
 @Source
 public class GetRecent extends Command {

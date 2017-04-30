@@ -25,7 +25,7 @@ import samurai.entities.model.Player;
 import samurai.entities.model.SGuild;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.api.OsuAPI;
+import samurai.osu.OsuAPI;
 import samurai.osu.enums.Grade;
 
 import java.awt.*;
@@ -33,11 +33,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/20/2017
- */
 @Key("profile")
 public class Profile extends Command {
 

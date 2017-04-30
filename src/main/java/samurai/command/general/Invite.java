@@ -22,10 +22,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.2
- */
 @Key("invite")
 public class Invite extends Command {
 

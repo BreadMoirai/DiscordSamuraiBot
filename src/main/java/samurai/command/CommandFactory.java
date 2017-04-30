@@ -109,7 +109,8 @@ public class CommandFactory {
     public static Command build(GenericGuildMessageEvent event, String prefix) {
         final Member author = event.getMember();
         final Message message = event.getMessage();
-        final long channelId = event.getChannel().getIdLong();
+        final TextChannel channel = event.getChannel();
+        final long channelId = channel.getIdLong();
         final long guildId = event.getGuild().getIdLong();
         final List<User> mentionedUsers = message.getMentionedUsers();
         final List<Role> mentionedRoles = event.getMessage().getMentionedRoles();
@@ -118,7 +119,7 @@ public class CommandFactory {
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
-        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentionedUsers, mentionedRoles, mentionedChannels, attachments, event.getChannel(), time);
+        return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentionedUsers, mentionedRoles, mentionedChannels, attachments, channel, time);
     }
 
 }

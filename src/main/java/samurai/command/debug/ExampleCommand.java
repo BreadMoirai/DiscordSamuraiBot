@@ -15,6 +15,7 @@
 package samurai.command.debug;
 
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -23,6 +24,7 @@ import samurai.command.annotations.Source;
 import samurai.command.general.Invite;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.util.ExampleMessage;
 
 import java.util.List;
@@ -42,6 +44,8 @@ import java.util.List;
 @Source // can only be used in DreadMoirai's Samurais;
 public class ExampleCommand extends Command {
 
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE};
+
     /**
      * build your messages here. This is the only method that this class requires.
      *
@@ -52,6 +56,9 @@ public class ExampleCommand extends Command {
     @Override
     public SamuraiMessage execute(CommandContext context) {
         final List<String> args = context.getArgs();
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         if (args.contains("simple"))
             //returns a simple text messages
             //use FixedMessage.build("success"); if you just want to acknowledge the user.

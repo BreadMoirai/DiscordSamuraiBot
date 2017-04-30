@@ -24,10 +24,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/11/2017
- */
 @Key({"vol", "volume"})
 public class Volume extends Command {
     @Override

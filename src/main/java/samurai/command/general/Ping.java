@@ -22,12 +22,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 
-
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/21/2017
- */
 @Key("ping")
 public class Ping extends Command {
 

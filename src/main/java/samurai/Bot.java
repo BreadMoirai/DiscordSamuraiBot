@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
@@ -113,6 +114,7 @@ public class Bot {
 
     public static void shutdown() {
         System.out.println("Shutting Down");
+        SamuraiAudioManager.close();
         Database.close();
         OsuTracker.close();
         for (JDA jda : shards) {

@@ -17,6 +17,7 @@ package samurai.command.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
@@ -25,6 +26,7 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.music.TrackLoader;
 
 import java.util.Collection;
@@ -37,8 +39,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Key({"queue", "play", "playing", "playnow"})
 public class Play extends Command {
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (!managerOptional.isPresent()) {
             final VoiceChannel channel = context.getAuthor().getVoiceState().getChannel();

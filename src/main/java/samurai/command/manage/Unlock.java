@@ -25,6 +25,7 @@ import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -51,6 +52,10 @@ public class Unlock extends Command{
         List<TextChannel> hiddenChannels = guild.getTextChannelsByName(context.getContent(), true);
         if (hiddenChannels.isEmpty()) return FixedMessage.build("Channel not found");
         final TextChannel thatChannel = hiddenChannels.get(0);
+        final Member selfMember = context.getSelfMember();
+        if (!selfMember.hasPermission(thatChannel, Permission.MANAGE_PERMISSIONS)) {
+            return new PermissionFailureMessage(selfMember, thatChannel, Permission.MANAGE_PERMISSIONS);
+        }
         final PermissionOverride permissionOverride = thatChannel.getPermissionOverride(author);
         if (permissionOverride == null) {
             thatChannel.createPermissionOverride(author).setAllow(Permission.MESSAGE_READ, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY).queue();

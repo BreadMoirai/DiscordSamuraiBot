@@ -161,11 +161,9 @@ public class SamuraiDiscord implements EventListener {
             return;
         }
         if (event.getAuthor().isFake()) return;
-        if (event.getAuthor().getIdLong() == Bot.ID) {
-            Bot.SENT.incrementAndGet();
-            return;
-        } else if (event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot()) return;
         if (event.getMessage().isPinned()) return;
+        if (!event.getChannel().canTalk()) return;
 
         this.getMessageManager().onGuildMessageEvent(event);
         final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());

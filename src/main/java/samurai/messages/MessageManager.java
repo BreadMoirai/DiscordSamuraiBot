@@ -105,12 +105,12 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
                 final UniqueMessage previousUnique = (UniqueMessage) previousMessage;
                 if (uniqueMessage.shouldPrompt()) {
                     SamuraiMessage prompt = new Prompt(uniqueMessage.prompt(),
-                            message -> {
+                            yesPrompt -> {
                                 previousUnique.close(client.getTextChannelById(previousMessage.getChannelId()));
-                                message.clearReactions().queue();
-                                samuraiMessage.replace(this, message);
+                                yesPrompt.getMessage().clearReactions().queue();
+                                samuraiMessage.replace(this, yesPrompt.getMessage());
                             },
-                            message -> message.delete().queue());
+                            noPrompt -> noPrompt.getMessage().delete().queue());
                     prompt.setAuthorId(samuraiMessage.getAuthorId());
                     prompt.setChannelId(samuraiMessage.getChannelId());
                     prompt.send(this);

@@ -29,10 +29,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4.x - 2/17/2017
- */
 @Key("rank")
 public class Rank extends Command {
 
