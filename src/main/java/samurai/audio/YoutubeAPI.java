@@ -109,7 +109,7 @@ public class YoutubeAPI {
 
             // Call the API.
             SearchListResponse searchResponse = search.execute();
-
+            //System.out.println(searchResponse.toPrettyString());
             calls++;
             List<SearchResult> searchResultList = searchResponse.getItems();
             return searchResultList.stream().map(SearchResult::getId).map(ResourceId::getVideoId).map(s -> "https://www.youtube.com/watch?v=" + s).collect(Collectors.toList());

@@ -26,6 +26,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.music.TrackLoader;
 
@@ -46,6 +47,10 @@ public class Related extends Command {
         if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
         }
+        long size = 10L;
+        if (context.hasContent() && context.isInt()) {
+            size = Long.parseLong(context.getContent());
+        }
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
@@ -53,9 +58,10 @@ public class Related extends Command {
             if (playingTrack != null) {
                 final String uri = playingTrack.getInfo().uri;
                 if (uri.toLowerCase().contains("youtube")) {
-                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 20L);
+                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), size);
                     return new TrackLoader(audioManager, related, String.format("Tracks related to [%s](%s)", playingTrack.getInfo().title, uri));
                 }
+                else return FixedMessage.build("Related tracks are not available for sources other than youtube");
             }
         }
         return null;

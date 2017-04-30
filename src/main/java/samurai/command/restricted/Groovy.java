@@ -19,6 +19,7 @@ import groovy.lang.GroovyShell;
 import net.dv8tion.jda.core.entities.Game;
 import org.apache.commons.codec.binary.Hex;
 import samurai.Bot;
+import samurai.audio.SamuraiAudioManager;
 import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -69,6 +70,7 @@ public class Groovy extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        SamuraiAudioManager.retrieveManager(context.getGuildId()).ifPresent(audioManager -> BINDING.setVariable("audio", audioManager));
         final String content = context.getContent().replaceAll("`", "");
         if (content.length() <= 1) return null;
         BINDING.setVariable("context", context);

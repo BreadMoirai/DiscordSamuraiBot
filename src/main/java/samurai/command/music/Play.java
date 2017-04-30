@@ -18,6 +18,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
@@ -77,37 +78,45 @@ public class Play extends Command {
             }
             return new TrackLoader(audioManager, false, lucky, content);
         } else {
-            final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
-            if (currentTrack == null)
+            final MessageEmbed embed = nowPlaying(audioManager);
+            if (embed == null) {
                 return FixedMessage.build("Nothing is playing right now. Look at <#302662195270123520>");
-            AudioTrackInfo trackInfo = currentTrack.getInfo();
-            EmbedBuilder eb = new EmbedBuilder();
-            String trackLengthDisp;
-            if (trackInfo.length == Long.MAX_VALUE) {
-                trackLengthDisp = "?";
-            } else {
-                trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
             }
-            eb.appendDescription(String.format("Playing [`%02d:%02d`/`%s`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, trackLengthDisp));
-            eb.appendDescription("\n[" + trackInfo.title + "](" + trackInfo.uri + ")\n");
-            final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
-            if (!tracks.isEmpty()) {
-                eb.appendDescription("Up Next:");
-                final AtomicInteger i = new AtomicInteger();
-                tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
-                final int tSize = tracks.size();
-                if (tSize > 8) {
-                    eb.appendDescription("\n... `" + (tSize - 8) + "` more tracks");
-                }
-            }
-            return FixedMessage.build(eb.build());
+            return FixedMessage.build(embed);
         }
+    }
+
+    private MessageEmbed nowPlaying(GuildAudioManager audioManager) {
+        final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
+        if (currentTrack == null)
+            return null;
+        AudioTrackInfo trackInfo = currentTrack.getInfo();
+        EmbedBuilder eb = new EmbedBuilder();
+        String trackLengthDisp;
+        if (trackInfo.length == Long.MAX_VALUE) {
+            trackLengthDisp = "\u221e";
+        } else {
+            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
+        }
+        eb.appendDescription(String.format("Playing [`%02d:%02d`/`%s`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, trackLengthDisp));
+        eb.appendDescription("\n[" + trackInfo.title + "](" + trackInfo.uri + ")\n");
+        final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
+        if (!tracks.isEmpty()) {
+            eb.appendDescription("Up Next:");
+            final AtomicInteger i = new AtomicInteger();
+            tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+            final int tSize = tracks.size();
+            if (tSize > 8) {
+                eb.appendDescription("\n... `" + (tSize - 8) + "` more tracks");
+            }
+        }
+        return eb.build();
     }
 
     public static String trackInfoDisplay(AudioTrackInfo trackInfo) {
         String trackLengthDisp;
         if (trackInfo.length == Long.MAX_VALUE) {
-            trackLengthDisp = "?";
+            trackLengthDisp = "\u221e";
         } else {
             trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }

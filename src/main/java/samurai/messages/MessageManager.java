@@ -93,7 +93,6 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
                     optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
                     break;
                 case Guild:
-                    if (textChannel == null) return;
                     optionalPrevious = textChannel.getGuild().getTextChannels().stream().mapToLong(ISnowflake::getIdLong).mapToObj(listeners::get).filter(Objects::nonNull).flatMap(ArrayDeque::stream).filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
                     break;
                 default:
@@ -114,11 +113,11 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
                     prompt.setAuthorId(samuraiMessage.getAuthorId());
                     prompt.setChannelId(samuraiMessage.getChannelId());
                     prompt.send(this);
+                    return;
                 } else {
                     unregister(previousMessage);
                     previousUnique.close(textChannel);
                 }
-                return;
             }
         }
         samuraiMessage.send(this);
