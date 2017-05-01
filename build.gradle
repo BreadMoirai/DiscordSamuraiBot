@@ -52,10 +52,13 @@ sourcesForRelease.with {
 }
 sourcesForRelease.doLast {incrementVersionCode}
 
-compileJava {
-    source = sourcesForRelease.destinationDir
-    classpath = sourceSets.main.compileClasspath
-    options.encoding = 'UTF-8'
+shadowJar.doFirst {
+    compileJava.source = sourcesForRelease.destinationDir
+    compileJava.classpath = sourceSets.main.compileClasspath
     dependsOn sourcesForRelease
 }
 
+compileJava {
+    source = sourcesForRelease.source
+    options.encoding = 'UTF-8'
+}

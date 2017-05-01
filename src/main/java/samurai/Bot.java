@@ -48,7 +48,7 @@ public class Bot {
     public static final long SOURCE_GUILD;
     public static final String DEFAULT_PREFIX;
     public static final int SHARD_COUNT = 1;
-    public static final String VERSION;
+    public static String VERSION;
 
     private static final ArrayList<JDA> shards;
 
@@ -86,6 +86,9 @@ public class Bot {
                 e.printStackTrace();
             }
 
+            if (VERSION.contains("buildVersion")) {
+            VERSION = "Development";
+            }
 
         final Config config = ConfigFactory.load();
 

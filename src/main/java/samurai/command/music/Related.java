@@ -14,13 +14,10 @@
 */
 package samurai.command.music;
 
-import com.google.api.services.youtube.model.Playlist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import net.dv8tion.jda.core.Permission;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
-import samurai.audio.TrackScheduler;
 import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -33,10 +30,6 @@ import samurai.messages.impl.music.TrackLoader;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/19/2017
- */
 @Key("related")
 public class Related extends Command {
 
