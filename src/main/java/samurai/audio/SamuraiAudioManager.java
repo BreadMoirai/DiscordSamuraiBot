@@ -72,11 +72,17 @@ public class SamuraiAudioManager {
     }
 
     public static void scheduleLeave(long idLong) {
-        final ScheduledFuture<?> scheduledFuture = terminationExecutor.schedule(() -> {
-            removeManager(idLong).ifPresent(GuildAudioManager::destroy);
-            terminationTask.remove(idLong);
-        }, 5, TimeUnit.MINUTES);
-        terminationTask.put(idLong, scheduledFuture);
+        final Optional<GuildAudioManager> managerOptional = retrieveManager(idLong);
+        if (managerOptional.isPresent()) {
+            if (managerOptional.get().player.isPaused()) {
+                return;
+            }
+            final ScheduledFuture<?> scheduledFuture = terminationExecutor.schedule(() -> {
+                removeManager(idLong).ifPresent(GuildAudioManager::destroy);
+                terminationTask.remove(idLong);
+            }, 5, TimeUnit.MINUTES);
+            terminationTask.put(idLong, scheduledFuture);
+        }
     }
 
     public static void cancelLeave(long idLong) {

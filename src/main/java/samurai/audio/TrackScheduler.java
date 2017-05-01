@@ -78,9 +78,8 @@ public class TrackScheduler extends AudioEventAdapter {
                 if (track == null) {
                     return;
                 }
-                final String uri = track.getInfo().uri;
-                if (uri.toLowerCase().contains("youtube")) {
-                    final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), 15L);
+                if (track.getSourceManager().getSourceName().equalsIgnoreCase("youtube")) {
+                    final List<String> related = YoutubeAPI.getRelated(track.getIdentifier(), 15L);
                     SamuraiAudioManager.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoplayHandler());
                 }
             } else {
