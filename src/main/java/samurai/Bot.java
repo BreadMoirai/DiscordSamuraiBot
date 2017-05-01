@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandFactory;
@@ -139,8 +140,8 @@ public class Bot {
         return shards;
     }
 
-    static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event)));
+    static void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
     }
 
 }

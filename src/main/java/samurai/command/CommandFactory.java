@@ -16,6 +16,8 @@ package samurai.command;
 
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import org.reflections.Reflections;
 import samurai.command.annotations.Key;
 import samurai.command.basic.GenericCommand;
@@ -106,15 +108,26 @@ public class CommandFactory {
         } else return Collections.emptyList();
     }
 
-    public static Command build(GenericGuildMessageEvent event, String prefix) {
+    public static Command build(GuildMessageReceivedEvent event, String prefix) {
         final Member author = event.getMember();
         final Message message = event.getMessage();
+        return build(event, prefix, author, message);
+    }
+
+    public static Command build(GuildMessageUpdateEvent event, String prefix) {
+        final Member author = event.getMember();
+        final Message message = event.getMessage();
+        return build(event, prefix, author, message);
+    }
+
+
+    public static Command build(GenericGuildMessageEvent event, String prefix, Member author, Message message) {
         final TextChannel channel = event.getChannel();
         final long channelId = channel.getIdLong();
         final long guildId = event.getGuild().getIdLong();
         final List<User> mentionedUsers = message.getMentionedUsers();
-        final List<Role> mentionedRoles = event.getMessage().getMentionedRoles();
-        final List<TextChannel> mentionedChannels = event.getMessage().getMentionedChannels();
+        final List<Role> mentionedRoles = message.getMentionedRoles();
+        final List<TextChannel> mentionedChannels = message.getMentionedChannels();
         final long messageId = message.getIdLong();
         final List<Message.Attachment> attachments = message.getAttachments();
         final String content = message.getRawContent().trim();

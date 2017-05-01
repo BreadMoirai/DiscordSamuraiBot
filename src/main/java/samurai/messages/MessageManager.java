@@ -17,8 +17,13 @@ package samurai.messages;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
@@ -134,16 +139,25 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     @Override
-    public void onGuildMessageEvent(GenericGuildMessageEvent event) {
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), EMPTY_DEQUE).forEach(dynamicMessage -> {
             if (dynamicMessage instanceof ChannelMessageListener)
-                ((ChannelMessageListener) dynamicMessage).onGuildMessageEvent(event);
+                ((ChannelMessageListener) dynamicMessage).onGuildMessageReceived(event);
+        });
+    }
+
+    @Override
+    public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), EMPTY_DEQUE).forEach(dynamicMessage -> {
+            if (dynamicMessage instanceof ChannelMessageListener)
+                ((ChannelMessageListener) dynamicMessage).onGuildMessageUpdate(event);
         });
     }
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
-        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == Long.parseLong(event.getMessageId())).findFirst().ifPresent(dynamicMessage -> {
+        System.out.println("event = " + event.getReactionEmote().getName() + event.getUser().getName());
+        listeners.getOrDefault(event.getChannel().getIdLong(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == event.getMessageIdLong()).findFirst().ifPresent(dynamicMessage -> {
             if (dynamicMessage instanceof ReactionListener)
                 ((ReactionListener) dynamicMessage).onReaction(event);
         });
@@ -158,8 +172,8 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     @Override
-    public void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        event.getAuthor().getMutualGuilds().stream().flatMap(guild -> guild.getTextChannels().stream()).filter(TextChannel::canTalk).map(ISnowflake::getId).map(Long::parseLong).filter(listeners::containsKey).flatMap(aLong -> listeners.get(aLong).stream()).filter(dynamicMessage -> dynamicMessage instanceof PrivateMessageListener).forEach(dynamicMessage -> ((PrivateMessageListener) dynamicMessage).onPrivateMessageEvent(event));
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        event.getAuthor().getMutualGuilds().stream().flatMap(guild -> guild.getTextChannels().stream()).filter(TextChannel::canTalk).map(ISnowflake::getId).map(Long::parseLong).filter(listeners::containsKey).flatMap(aLong -> listeners.get(aLong).stream()).filter(dynamicMessage -> dynamicMessage instanceof PrivateMessageListener).forEach(dynamicMessage -> ((PrivateMessageListener) dynamicMessage).onPrivateMessageReceived(event));
     }
 
     public void remove(long channelId) {

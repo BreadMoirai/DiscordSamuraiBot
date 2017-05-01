@@ -39,7 +39,7 @@ public class Purge extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final TextChannel channel = context.getChannel();
         final MessageHistory history = channel.getHistory();
-        if (context.isInt()) {
+        if (context.isNumeric()) {
             int i = Integer.parseInt(context.getContent());
             while (i > 100) {
                 history.retrievePast(100).queue(messages -> channel.deleteMessages(messages).queue());

@@ -22,10 +22,6 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.duel.ConnectFour;
 
-/**
- * @author TonTL
- * @version 4.2
- */
 @Key("duel")
 public class Duel extends Command {
 

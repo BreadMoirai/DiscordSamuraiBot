@@ -418,15 +418,15 @@
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mashape.unirest/unirest-java/1.4.9/fc3504b646ef187849da8caa2e4e9c1b962b5caf/unirest-java-1.4.9-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Gradle: com.neovisionaries:nv-websocket-client:1.31">
+    <library name="Gradle: com.neovisionaries:nv-websocket-client:2.0">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.31/e101d5221d6315ba4165193e912c0cebe5ef50d5/nv-websocket-client-1.31.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/2.0/350bb252e0ecab5dd55ca2b032dbf969a8cd2553/nv-websocket-client-2.0.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.31/bc28b0834d1b8c94a30b4d11effeff5a001b1eaf/nv-websocket-client-1.31-javadoc.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/2.0/86b71e5a1899408e1903649111d59f49cf43c82/nv-websocket-client-2.0-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/1.31/b3db534349f7c5dfa83003436795f7a66cb90376/nv-websocket-client-1.31-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.neovisionaries/nv-websocket-client/2.0/9d84093a02dc8e782417935dc12bb3bd85fa2fb3/nv-websocket-client-2.0-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: com.sedmelluq:lavaplayer-common:1.0.4">
@@ -502,15 +502,15 @@
         <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.11/28e0ad201304e4a4abf999ca0570b7cffc352c3c/junit-4.11-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Gradle: net.dv8tion:JDA:3.0.0_175">
+    <library name="Gradle: net.dv8tion:JDA:3.0.0_188">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_175/4b51f55e8c1d23a85bac727294dd6362a80cf03d/JDA-3.0.0_175.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_188/1c31263dd89eba708a9b8327b8cec7adab6717b/JDA-3.0.0_188.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_175/7da350a62f3972e6911ebfc001f69bb0be9f03bb/JDA-3.0.0_175-javadoc.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_188/80f7693510bcab3690c5ab2f51084415845d8a77/JDA-3.0.0_188-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_175/48b01a5c66b6525c39f812c46100cae2888bd23b/JDA-3.0.0_175-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.dv8tion/JDA/3.0.0_188/800b5282b5e671e2ed79208537f73b4cbb83a3e8/JDA-3.0.0_188-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Gradle: net.iharder:base64:2.3.9">

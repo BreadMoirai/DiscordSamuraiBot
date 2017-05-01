@@ -186,21 +186,21 @@ public class CommandContext {
     private IntStream parseIntArg(String s) {
         final String[] split = s.split("-");
         if (split.length == 1) {
-            if (isInteger(split[0]))
+            if (isNumber(split[0]))
                 return IntStream.of(Integer.parseInt(split[0]));
         } else if (split.length == 2) {
-            if (isInteger(split[0]) && isInteger(split[1])) {
+            if (isNumber(split[0]) && isNumber(split[1])) {
                 return IntStream.rangeClosed(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
             }
         }
         return IntStream.empty();
     }
 
-    public boolean isInt() {
-        return isInteger(content);
+    public boolean isNumeric() {
+        return isNumber(content);
     }
 
-    public static boolean isInteger(String s) {
+    public static boolean isNumber(String s) {
         if (s.isEmpty()) return false;
         for (int i = 0; i < s.length(); i++) {
             if (i == 0 && s.charAt(i) == '-') {

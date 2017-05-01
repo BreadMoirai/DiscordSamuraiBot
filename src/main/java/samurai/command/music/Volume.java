@@ -31,7 +31,7 @@ public class Volume extends Command {
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
-            if (CommandContext.isInteger(context.getContent())) {
+            if (CommandContext.isNumber(context.getContent())) {
                 final int newVol = Integer.parseInt(context.getContent());
                 audioManager.player.setVolume(newVol);
             } else

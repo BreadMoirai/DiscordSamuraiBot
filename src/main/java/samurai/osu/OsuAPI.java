@@ -58,7 +58,7 @@ public class OsuAPI {
         String url = String.format("%s%s%s&u=%d&m=%d&limit=%d&type=id", OSU_API, GET_RECENT, KEY, userId, m.value(), limit);
         final JSONArray jsonArray = readJsonFromUrl(url);
         if (jsonArray == null) return Collections.emptyList();
-        return IntStream.range(0, limit).mapToObj(jsonArray::optJSONObject).filter(Objects::nonNull).map(jsonObject -> scoreFromJson(jsonObject, player)).collect(Collectors.toList());
+        return IntStream.range(0, limit).mapToObj(jsonArray::optJSONObject).filter(Objects::nonNull).map(jsonObject -> scoreFromJson(jsonObject, player)).peek(score -> score.setPlayerId(userId)).collect(Collectors.toList());
     }
 
     private static Score scoreFromJson(JSONObject jsonObject, String player) {
@@ -88,23 +88,23 @@ public class OsuAPI {
         return json.getJSONObject(0);
     }
 
-    public static JSONArray getBeatmapSetArrayFromMap(String hash) {
+    public static JSONArray getSetByHash(String hash) {
         JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&h=%s", OSU_API, GET_BEATMAPS, KEY, hash));
         if (jsonArray != null) {
-            return getBeatmapSetArray(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
+            return getSet(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
         }
         return null;
     }
 
-    public static JSONArray getBeatmapSetArrayFromMap(int mapId) {
+    public static JSONArray getSetByMap(int mapId) {
         JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&b=%d", OSU_API, GET_BEATMAPS, KEY, mapId));
         if (jsonArray != null) {
-            return getBeatmapSetArray(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
+            return getSet(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
         }
         return null;
     }
 
-    public static JSONArray getBeatmapSetArray(int setId) {
+    public static JSONArray getSet(int setId) {
         return readJsonFromUrl(String.format("%s%s%s&s=%d", OSU_API, GET_BEATMAPS, KEY, setId));
     }
 
@@ -116,6 +116,7 @@ public class OsuAPI {
             while ((cp = rd.read()) != -1) {
                 sb.append((char) cp);
             }
+            System.out.println(sb.toString());
             JSONArray jsonArray = new JSONArray(sb.toString());
             if (jsonArray.length() == 0) return null;
             return jsonArray;

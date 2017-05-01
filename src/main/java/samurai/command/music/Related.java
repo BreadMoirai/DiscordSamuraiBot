@@ -41,7 +41,7 @@ public class Related extends Command {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
         }
         long size = 10L;
-        if (context.hasContent() && context.isInt()) {
+        if (context.hasContent() && context.isNumeric()) {
             size = Long.parseLong(context.getContent());
         }
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
