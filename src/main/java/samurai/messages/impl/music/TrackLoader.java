@@ -92,6 +92,13 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     protected Message initialize() {
+        if (!request.isEmpty()) {
+            if (request.get(0).startsWith("ytsearch:")) {
+                return new MessageBuilder().append("Searching Youtube...").build();
+            } else if (request.get(0).startsWith("scsearch:")) {
+                return new MessageBuilder().append("Searching SoundCloud...").build();
+            }
+        }
         return new MessageBuilder().append("Loading tracks...").build();
     }
 

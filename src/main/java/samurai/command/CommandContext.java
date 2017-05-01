@@ -242,4 +242,17 @@ public class CommandContext {
     public Member getSelfMember() {
         return channel.getGuild().getSelfMember();
     }
+
+    private static final Pattern URL = Pattern.compile("(?:<)?((?:http(s)?://.)?(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*))(?:>)?");
+
+    /**
+     * @return the url if found, null if content is not a url.
+     */
+    public String getAsUrl() {
+        final Matcher matcher = URL.matcher(content);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        else return null;
+    }
 }

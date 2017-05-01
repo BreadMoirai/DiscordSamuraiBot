@@ -64,14 +64,17 @@ public class Play extends Command {
         final GuildAudioManager audioManager = managerOptional.get();
         if (context.hasContent()) {
             boolean lucky = context.getKey().equalsIgnoreCase("play");
-            String content = context.getContent();
-            if (content.startsWith("<") && content.endsWith(">")) {
-                content = content.substring(1, content.length() - 1);
+            final String asUrl = context.getAsUrl();
+            if (asUrl != null) {
+                return new TrackLoader(audioManager, true, lucky, asUrl);
             }
+            String content = context.getContent();
             if (content.startsWith("yt ")) {
                 content = "ytsearch:" + content.substring(3);
             } else if (content.startsWith("sc ")) {
                 content = "scsearch:" + content.substring(3);
+            } else {
+                content = "ytsearch: " + content;
             }
             if (context.getKey().equalsIgnoreCase("playnow")) {
                 return new TrackLoader(audioManager, true, lucky, content);
