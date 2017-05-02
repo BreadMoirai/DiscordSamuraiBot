@@ -90,7 +90,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
         lastActive = OffsetDateTime.now();
     }
 
-    protected MessageManager getManager() {
+    public MessageManager getManager() {
         return manager;
     }
 }

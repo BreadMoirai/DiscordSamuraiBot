@@ -12,9 +12,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.command.fun;
+package samurai.command.manage;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -25,6 +26,7 @@ import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -38,9 +40,14 @@ import java.util.stream.Collectors;
  */
 @Source
 @Key("color")
-public class ColorChange extends Command {
+public class ColorRole extends Command {
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MANAGE_ROLES};
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         final java.util.List<Member> members = context.getMentionedMembers();
         if (members.size() == 1) {
             final Member member = members.get(0);

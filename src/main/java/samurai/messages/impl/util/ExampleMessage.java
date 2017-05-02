@@ -17,6 +17,8 @@ package samurai.messages.impl.util;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import org.apache.commons.lang3.StringUtils;
 import samurai.command.debug.ExampleCommand;
@@ -102,8 +104,8 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     }
 
     @Override
-    public void onGuildMessageEvent(GenericGuildMessageEvent event) {
-        states.current().onGuildMessageEvent(event);
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        states.current().onGuildMessageReceived(event);
     }
 
     //state pattern classes
@@ -115,7 +117,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     private class CopyState extends TemplateState {
 
         @Override
-        public void onGuildMessageEvent(GenericGuildMessageEvent event) {
+        public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
             event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**COPY STATE**\n" + event.getMessage().getContent()).queue());
         }
     }
@@ -124,7 +126,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     private class ReverseState extends TemplateState {
 
         @Override
-        public void onGuildMessageEvent(GenericGuildMessageEvent event) {
+        public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
             event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**REVERSE STATE**\n" + StringUtils.reverse(message.getContent())).queue());
         }
 
@@ -134,7 +136,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
     private class AppendState extends TemplateState {
 
         @Override
-        public void onGuildMessageEvent(GenericGuildMessageEvent event) {
+        public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
             event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(message.getContent().contains("APPEND STATE") ? "" : "**APPEND STATE**\n" + message.getContent() + '\n' + event.getMessage().getContent()).queue());
         }
 

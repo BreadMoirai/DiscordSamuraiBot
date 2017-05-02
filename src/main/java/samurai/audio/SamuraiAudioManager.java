@@ -20,12 +20,11 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author TonTL
@@ -36,13 +35,14 @@ public class SamuraiAudioManager {
     private static final AudioPlayerManager playerManager;
     private static final ConcurrentHashMap<Long, GuildAudioManager> audioManagers;
     private static final ConcurrentHashMap<Long, ScheduledFuture> terminationTask;
+    private static final ScheduledExecutorService terminationExecutor;
 
     static {
         playerManager = new DefaultAudioPlayerManager();
         playerManager.setFrameBufferDuration((int) TimeUnit.SECONDS.toMillis(15));
-        AudioSourceManagers.registerLocalSource(playerManager);
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
+        terminationExecutor = Executors.newSingleThreadScheduledExecutor();
         terminationTask = new ConcurrentHashMap<>();
     }
 
@@ -72,11 +72,17 @@ public class SamuraiAudioManager {
     }
 
     public static void scheduleLeave(long idLong) {
-        final ScheduledFuture<?> scheduledFuture = new RestAction.EmptyRestAction<Void>(null).queueAfter(5, TimeUnit.MINUTES, aVoid -> {
-            removeManager(idLong).ifPresent(GuildAudioManager::destroy);
-            terminationTask.remove(idLong);
-        });
-        terminationTask.put(idLong, scheduledFuture);
+        final Optional<GuildAudioManager> managerOptional = retrieveManager(idLong);
+        if (managerOptional.isPresent()) {
+            if (managerOptional.get().player.isPaused()) {
+                return;
+            }
+            final ScheduledFuture<?> scheduledFuture = terminationExecutor.schedule(() -> {
+                removeManager(idLong).ifPresent(GuildAudioManager::destroy);
+                terminationTask.remove(idLong);
+            }, 5, TimeUnit.MINUTES);
+            terminationTask.put(idLong, scheduledFuture);
+        }
     }
 
     public static void cancelLeave(long idLong) {
@@ -85,5 +91,13 @@ public class SamuraiAudioManager {
             terminationTask.remove(idLong);
             leaveFuture.cancel(false);
         }
+    }
+
+    public static void close() {
+        terminationTask.clear();
+        terminationExecutor.shutdown();
+        audioManagers.forEachValue(1000L, GuildAudioManager::destroy);
+        audioManagers.clear();
+        playerManager.shutdown();
     }
 }

@@ -31,10 +31,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4.x - 2/17/2017
- */
 @Key("info")
 public class Info extends Command {
 

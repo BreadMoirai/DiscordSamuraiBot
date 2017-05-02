@@ -17,6 +17,7 @@ package samurai.command.osu;
 import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.command.Command;
 import samurai.command.CommandContext;
+import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.database.Database;
 import samurai.entities.model.SGuild;
@@ -26,11 +27,8 @@ import samurai.osu.enums.GameMode;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/17/2017
- */
-@Key("setchannel")
+@Key("setmode")
+@Admin
 public class SetChannel extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

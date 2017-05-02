@@ -23,11 +23,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/20/2017
- */
 @Key("upload")
 public class Upload extends Command {
 

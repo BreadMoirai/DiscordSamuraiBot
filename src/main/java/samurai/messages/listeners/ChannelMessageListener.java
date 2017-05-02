@@ -14,12 +14,14 @@
 */
 package samurai.messages.listeners;
 
-import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 
 /**
  * @author TonTL
  * @version 3/15/2017
  */
 public interface ChannelMessageListener extends SamuraiListener {
-    void onGuildMessageEvent(GenericGuildMessageEvent event);
+    void onGuildMessageReceived(GuildMessageReceivedEvent event);
+    default void onGuildMessageUpdate(GuildMessageUpdateEvent event) {}
 }

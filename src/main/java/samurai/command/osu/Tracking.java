@@ -28,10 +28,6 @@ import samurai.osu.tracker.OsuTracker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4/7/2017
- */
 @Key("tracking")
 public class Tracking extends Command {
     @Override

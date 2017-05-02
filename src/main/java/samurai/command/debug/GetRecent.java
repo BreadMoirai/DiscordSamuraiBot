@@ -22,16 +22,14 @@ import samurai.database.Database;
 import samurai.entities.model.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.api.OsuAPI;
+import samurai.messages.impl.osu.ScoreDisplay;
+import samurai.messages.impl.osu.StaticBeatmapDisplay;
+import samurai.osu.OsuAPI;
 import samurai.osu.enums.GameMode;
 import samurai.osu.model.Score;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 3/21/2017
- */
 @Key("recent")
 @Source
 public class GetRecent extends Command {
@@ -45,8 +43,6 @@ public class GetRecent extends Command {
         final Optional<Score> userRecent = OsuAPI.getUserRecent(player.getOsuName(), player.getOsuId(), GameMode.STANDARD, 50).stream().filter(Score::passed).findFirst();
         if (!userRecent.isPresent()) return FixedMessage.build("Nothing found.");
         final Score lastScore = userRecent.get();
-        //return new StaticBeatmapDisplay(SamuraiDatabase.getSet(lastScore.getBeatmapHash()), true, true, lastScore.getBeatmapHash(), lastScore);
-        //fixme
-        return FixedMessage.build("Unsupported Operation");
+        return new ScoreDisplay(lastScore);
     }
 }

@@ -32,21 +32,13 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
     private static final String YES = "\u2705", NO = "\u274e";
 
     private final Message prompt;
-    private final Consumer<Message> onYes, onNo;
+    private final Consumer<Prompt> onYes, onNo;
     private Message message;
 
-    public Prompt(Message prompt, Consumer<Message> onYes, Consumer<Message> onNo) {
+    public Prompt(Message prompt, Consumer<Prompt> onYes, Consumer<Prompt> onNo) {
         this.prompt = prompt;
-        if (onYes == null) {
-            this.onYes = message -> {
-            };
-        } else
-            this.onYes = onYes;
-        if (onNo == null) {
-            this.onNo = message -> {
-            };
-        } else
-            this.onNo = onNo;
+        this.onYes = onYes;
+        this.onNo = onNo;
     }
 
 
@@ -69,11 +61,13 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
         final String name = event.getReaction().getEmote().getName();
         switch (name) {
             case YES:
-                onYes.accept(message);
+                if (onYes != null)
+                    onYes.accept(this);
                 unregister();
                 break;
             case NO:
-                onNo.accept(message);
+                if (onNo != null)
+                    onNo.accept(this);
                 unregister();
                 break;
             default:
@@ -89,5 +83,9 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
     @Override
     public void close(TextChannel channel) {
         channel.deleteMessageById(getMessageId()).queue();
+    }
+
+    public Message getMessage() {
+        return message;
     }
 }

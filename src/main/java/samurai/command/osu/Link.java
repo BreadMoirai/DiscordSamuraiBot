@@ -24,15 +24,10 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.api.OsuAPI;
+import samurai.osu.OsuAPI;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/20/2017
- */
 @Key("link")
 public class Link extends Command {
 

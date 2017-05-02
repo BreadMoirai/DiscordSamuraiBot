@@ -24,10 +24,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/15/2017
- */
 @Key("autoplay")
 public class AutoPlay extends Command {
     @Override

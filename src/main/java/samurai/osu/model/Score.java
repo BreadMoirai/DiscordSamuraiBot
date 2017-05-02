@@ -32,6 +32,7 @@ import java.util.List;
 public class Score {
     private GameMode mode;
     private String beatmapHash, player, replayHash;
+    private transient int playerId;
     private Grade grade;
     private short count300, count100, count50, geki, katu, count0;
     private int score;
@@ -41,6 +42,7 @@ public class Score {
     private long timestamp;
     private long onlineScoreID;
     private int beatmapId;
+    private int userId;
 
     public float getAccuracy() {
         float maxHitPoints = (count0 + count50 + count100 + count300) * 300;
@@ -331,4 +333,13 @@ public class Score {
         System.out.println("Version: " + version);
         return this;
     }
+
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
 }

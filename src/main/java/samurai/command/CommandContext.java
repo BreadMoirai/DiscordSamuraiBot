@@ -21,18 +21,12 @@ import samurai.database.Database;
 import samurai.entities.model.SGuild;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * @author TonTL
- * @version 3/14/2017
- */
 public class CommandContext {
     private final String prefix;
     private final String key;
@@ -51,7 +45,6 @@ public class CommandContext {
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
-    private JDA client;
 
     public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.prefix = prefix;
@@ -96,6 +89,17 @@ public class CommandContext {
     public List<String> getArgs() {
         if (args == null) return (args = CommandFactory.parseArgs(content));
         else return args;
+    }
+
+    private static final Pattern EMOTE_PATTERN = Pattern.compile("<:(.*):([0-9]*)>");
+
+    public List<Emote> getEmotes() {
+        final List<Emote> emotes = new ArrayList<>();
+        final Matcher emoteMatcher = EMOTE_PATTERN.matcher(content);
+        while (emoteMatcher.find()) {
+            emotes.add(getGuild().getEmoteById(emoteMatcher.group(2)));
+        }
+        return emotes;
     }
 
     public List<Message.Attachment> getAttaches() {
@@ -182,21 +186,21 @@ public class CommandContext {
     private IntStream parseIntArg(String s) {
         final String[] split = s.split("-");
         if (split.length == 1) {
-            if (isInteger(split[0]))
+            if (isNumber(split[0]))
                 return IntStream.of(Integer.parseInt(split[0]));
         } else if (split.length == 2) {
-            if (isInteger(split[0]) && isInteger(split[1])) {
+            if (isNumber(split[0]) && isNumber(split[1])) {
                 return IntStream.rangeClosed(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
             }
         }
         return IntStream.empty();
     }
 
-    public boolean isInt() {
-        return isInteger(content);
+    public boolean isNumeric() {
+        return isNumber(content);
     }
 
-    public static boolean isInteger(String s) {
+    public static boolean isNumber(String s) {
         if (s.isEmpty()) return false;
         for (int i = 0; i < s.length(); i++) {
             if (i == 0 && s.charAt(i) == '-') {
@@ -225,5 +229,30 @@ public class CommandContext {
 
     public String getStrippedContent() {
         return getArgs().stream().collect(Collectors.joining(" "));
+    }
+
+    public JDA getJDA() {
+        return channel.getJDA();
+    }
+
+    public SelfUser getSelfUser() {
+        return channel.getJDA().getSelfUser();
+    }
+
+    public Member getSelfMember() {
+        return channel.getGuild().getSelfMember();
+    }
+
+    private static final Pattern URL = Pattern.compile("(?:<)?((?:http(s)?://.)?(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*))(?:>)?");
+
+    /**
+     * @return the url if found, null if content is not a url.
+     */
+    public String getAsUrl() {
+        final Matcher matcher = URL.matcher(content);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        else return null;
     }
 }

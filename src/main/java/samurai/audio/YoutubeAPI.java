@@ -51,7 +51,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
- */package samurai.api;
+ */package samurai.audio;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -109,7 +109,7 @@ public class YoutubeAPI {
 
             // Call the API.
             SearchListResponse searchResponse = search.execute();
-
+            //System.out.println(searchResponse.toPrettyString());
             calls++;
             List<SearchResult> searchResultList = searchResponse.getItems();
             return searchResultList.stream().map(SearchResult::getId).map(ResourceId::getVideoId).map(s -> "https://www.youtube.com/watch?v=" + s).collect(Collectors.toList());

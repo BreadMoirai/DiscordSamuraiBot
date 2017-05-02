@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.listeners.ChannelMessageListener;
@@ -48,7 +49,7 @@ public class Poker extends DynamicMessage implements ChannelMessageListener, Rea
     }
 
     @Override
-    public void onGuildMessageEvent(GenericGuildMessageEvent event) {
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 
     }
 

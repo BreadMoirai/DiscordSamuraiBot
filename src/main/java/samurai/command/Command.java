@@ -14,6 +14,8 @@
 */
 package samurai.command;
 
+import net.dv8tion.jda.core.Permission;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
