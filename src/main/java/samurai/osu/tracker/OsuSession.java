@@ -15,7 +15,6 @@
 package samurai.osu.tracker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.entities.model.Player;
 import samurai.osu.api.OsuAPI;
 import samurai.osu.enums.GameMode;
 import samurai.osu.model.Score;

@@ -34,12 +34,13 @@ public enum GameMode {
     }
 
     public static GameMode get(int value) {
-        for (GameMode mode : GameMode.values()) {
-            if (mode.value() == value) {
-                return mode;
-            }
+        switch (value) {
+            case 0: return STANDARD;
+            case 1: return TAIKO;
+            case 2: return CTB;
+            case 3: return MANIA;
+            default: return null;
         }
-        return STANDARD;
     }
 
     public int value() {
@@ -49,6 +50,10 @@ public enum GameMode {
     @Override
     public String toString() {
         return WordUtils.capitalizeFully(this.name());
+    }
+
+    public byte toByte() {
+        return (byte) value;
     }
 
     public static GameMode find(String s) {

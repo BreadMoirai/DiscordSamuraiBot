@@ -19,7 +19,6 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.database.Database;
-import samurai.entities.model.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.osu.api.OsuAPI;

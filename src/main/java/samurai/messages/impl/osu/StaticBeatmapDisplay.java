@@ -17,7 +17,6 @@ package samurai.messages.impl.osu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.entities.model.SGuild;
 import samurai.messages.base.SamuraiMessage;
 import samurai.osu.enums.Mod;
 import samurai.osu.model.Beatmap;

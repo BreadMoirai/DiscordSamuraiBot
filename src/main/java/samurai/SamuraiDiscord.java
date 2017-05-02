@@ -37,8 +37,6 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
-import net.dv8tion.jda.core.managers.AudioManager;
-import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
@@ -51,8 +49,6 @@ import samurai.command.annotations.Source;
 import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
-import samurai.database.Entry;
-import samurai.entities.model.SGuild;
 import samurai.messages.MessageManager;
 import samurai.messages.impl.FixedMessage;
 import samurai.osu.enums.GameMode;
@@ -62,8 +58,6 @@ import samurai.osu.tracker.OsuTracker;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL

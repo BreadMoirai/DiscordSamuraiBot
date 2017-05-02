@@ -15,7 +15,6 @@
 package samurai.osu.tracker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.entities.model.Player;
 
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
