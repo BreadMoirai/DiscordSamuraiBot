@@ -19,7 +19,7 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
-import samurai.messages.impl.RollMenu;
+import samurai.messages.impl.RollPoll;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -40,25 +40,25 @@ public class Roll extends Command {
                         case "min":
                         case "minute":
                         case "minutes":
-                            return new RollMenu(time, TimeUnit.MINUTES);
+                            return new RollPoll(time, TimeUnit.MINUTES);
                         case "s":
                         case "second":
                         case "seconds":
-                            return new RollMenu(time, TimeUnit.SECONDS);
+                            return new RollPoll(time, TimeUnit.SECONDS);
                         case "h":
                         case "hour":
                         case "hours":
-                            return new RollMenu(time, TimeUnit.HOURS);
+                            return new RollPoll(time, TimeUnit.HOURS);
                         case "d":
                         case "day":
                         case "days":
-                            return new RollMenu(time, TimeUnit.DAYS);
+                            return new RollPoll(time, TimeUnit.DAYS);
                         default:break;
                     }
                 }
-                return new RollMenu(time, TimeUnit.MINUTES);
+                return new RollPoll(time, TimeUnit.MINUTES);
             }
-            return new RollMenu();
+            return new RollPoll();
         }
         if (context.hasContent()) {
             long limit;

@@ -1,6 +1,6 @@
 !```cs
 Purpose: What does Samurai knows about you?
-Restrictions: userId has linked their osu profile
+Restrictions: discordId has linked their osu profile
 Arguments:  '' your info
             '{@mention}' @mention's info
 --------------------------------------------------------

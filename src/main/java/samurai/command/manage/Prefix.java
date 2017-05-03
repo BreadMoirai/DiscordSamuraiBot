@@ -18,6 +18,7 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
+import samurai.database.objects.GuildUpdater;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
@@ -33,7 +34,7 @@ public class Prefix extends Command {
         if (args.size() != 1)
             return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
         final String newPrefix = context.getContent();
-        context.getSamuraiGuild().getManager().setPrefix(newPrefix);
+        context.getSamuraiGuildUpdater().updatePrefix(newPrefix);
         return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
     }
 }

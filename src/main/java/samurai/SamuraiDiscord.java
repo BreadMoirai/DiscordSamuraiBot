@@ -27,13 +27,12 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.utils.PermissionUtil;
+import org.apache.commons.lang3.tuple.Pair;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -45,8 +44,9 @@ import samurai.command.annotations.Source;
 import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
-import samurai.database.Entry;
-import samurai.entities.model.SGuild;
+import samurai.database.dao.ChannelDao;
+import samurai.database.dao.GuildDao;
+import samurai.database.objects.GuildBean;
 import samurai.messages.MessageManager;
 import samurai.messages.impl.FixedMessage;
 import samurai.osu.enums.GameMode;
@@ -152,7 +152,7 @@ public class SamuraiDiscord implements EventListener {
     private void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (checkMessage(event.getAuthor(), event.getChannel(), event.getMessage())) {
             this.getMessageManager().onGuildMessageReceived(event);
-            final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());
+            final String prefix = Database.get().<GuildDao, String>openDao(GuildDao.class, guildDao -> guildDao.getPrefix(event.getGuild().getIdLong()));
             final Command c = CommandFactory.build(event, prefix);
 
             if (c != null) {
@@ -164,7 +164,7 @@ public class SamuraiDiscord implements EventListener {
     private void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
         if (checkMessage(event.getAuthor(), event.getChannel(), event.getMessage())) {
             this.getMessageManager().onGuildMessageUpdate(event);
-            final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());
+            final String prefix = Database.get().<GuildDao, String>openDao(GuildDao.class, guildDao -> guildDao.getPrefix(event.getGuild().getIdLong()));
             final Command c = CommandFactory.build(event, prefix);
 
             if (c != null) {
@@ -183,22 +183,22 @@ public class SamuraiDiscord implements EventListener {
             final long discordUserId = event.getUser().getIdLong();
             final long discordGuildId = event.getGuild().getIdLong();
             final Optional<OsuSession> sessionOptional = OsuTracker.retrieveSession(discordUserId);
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(discordGuildId, discordUserId);
-            if (guildOptional.isPresent()) {
-                final SGuild sGuild = guildOptional.get();
-                final OptionalLong any = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.STANDARD).mapToLong(Entry::getKey).findAny();
+            final GuildBean guild = Database.get().<GuildDao, GuildBean>openDao(GuildDao.class, guildDao -> guildDao.getGuild(discordGuildId));
+            if (guild != null) {
+                //fix me
+                final OptionalLong any = guild.getChannelModes().stream().filter(longGameModeEntry -> (GameMode.STANDARD.bit() & longGameModeEntry.getValue()) == GameMode.STANDARD.bit()).mapToLong(Pair::getKey).findAny();
                 if (any.isPresent()) {
                     final long discordOutputChannelId = any.getAsLong();
-                    final TextChannel outputChannel = event.getGuild().getTextChannelById(String.valueOf(discordOutputChannelId));
+                    final TextChannel outputChannel = event.getGuild().getTextChannelById(discordOutputChannelId);
                     if (outputChannel != null) {
                         if (sessionOptional.isPresent()) {
                             sessionOptional.get().addChannel(outputChannel);
                         } else {
-                            sGuild.getPlayer(discordUserId).ifPresent(player -> OsuTracker.register(player, outputChannel));
+                            guild.getPlayer(discordUserId).ifPresent(player -> OsuTracker.register(player, outputChannel));
                         }
                     } //if the channel Exists
                     else {
-                        Database.getDatabase().removeFilter(discordOutputChannelId);
+                        Database.get().<ChannelDao>openDao(ChannelDao.class, channelDao -> channelDao.deleteChannelMode(discordOutputChannelId));
                     }
                 } //if they have a channel filter
             } //if there is a sGuild

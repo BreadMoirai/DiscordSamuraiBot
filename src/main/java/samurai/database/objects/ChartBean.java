@@ -12,65 +12,42 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.entities.impl;
+package samurai.database.objects;
 
-import samurai.entities.manager.ChartManager;
-import samurai.entities.manager.impl.ChartManagerImpl;
-import samurai.entities.model.Chart;
-
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author TonTL
  * @version 4.x - 2/16/2017
  */
-public class ChartImpl implements Chart {
-
+public class ChartBean {
     private int chartId;
     private String chartName;
     private boolean isSet;
-    private ArrayList<Integer> beatmapIds;
-    private ChartManager manager;
+    private List<Integer> beatmapIds;
 
-    public ChartImpl(int chartId, String chartName, boolean isSet) {
+
+    ChartBean(int chartId, String chartName, boolean isSet, List<Integer> beatmapIds) {
         this.chartId = chartId;
         this.chartName = chartName;
         this.isSet = isSet;
-        this.beatmapIds = new ArrayList<>(6);
-        this.manager = null;
+        this.beatmapIds = beatmapIds;
     }
 
-    @Override
     public int getChartId() {
         return chartId;
     }
 
-    @Override
     public String getChartName() {
         return chartName;
     }
 
-    @Override
-    public ArrayList<Integer> getBeatmapIds() {
-        return beatmapIds;
-    }
-
-    public boolean addMapId(int i) {
-        return beatmapIds.add(i);
-    }
-
-    @Override
     public boolean isSet() {
         return isSet;
     }
 
-    @Override
-    public ChartManager getManager() {
-        return manager == null ? (manager = new ChartManagerImpl(this)) : manager;
-    }
-
-    public void setName(String name) {
-        this.chartName = name;
+    public List<Integer> getBeatmapIds() {
+        return beatmapIds;
     }
 
     @Override
@@ -78,15 +55,31 @@ public class ChartImpl implements Chart {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ChartImpl chart = (ChartImpl) o;
+        ChartBean chartBean = (ChartBean) o;
 
-        return chartId == chart.chartId && chartName.equals(chart.chartName);
+        if (chartId != chartBean.chartId) return false;
+        if (isSet != chartBean.isSet) return false;
+        if (!chartName.equals(chartBean.chartName)) return false;
+        return beatmapIds != null ? beatmapIds.equals(chartBean.beatmapIds) : chartBean.beatmapIds == null;
     }
 
     @Override
     public int hashCode() {
         int result = chartId;
-        result = 31 * result + (chartName != null ? chartName.hashCode() : 0);
+        result = 31 * result + chartName.hashCode();
+        result = 31 * result + (isSet ? 1 : 0);
+        result = 31 * result + (beatmapIds != null ? beatmapIds.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ChartBean{");
+        sb.append("chartId=").append(chartId);
+        sb.append(", chartName='").append(chartName).append('\'');
+        sb.append(", isSet=").append(isSet);
+        sb.append(", beatmapIds=").append(beatmapIds);
+        sb.append('}');
+        return sb.toString();
     }
 }

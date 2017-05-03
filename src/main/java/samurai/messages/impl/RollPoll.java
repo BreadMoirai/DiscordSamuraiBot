@@ -21,14 +21,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.ToIntFunction;
 
-public class RollMenu extends DynamicMessage implements ReactionListener {
+public class RollPoll extends DynamicMessage implements ReactionListener {
 
     private static final String DICE = "\uD83C\uDFB2", END = "\uD83C\uDFC1";
     private static final String[] MEDAL = {"\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"};
 
     private final Map<Member, Integer> rolls;
     private final int time;
-    private final TimeUnit unit;
+    private TimeUnit unit;
     private OffsetDateTime endTime;
 
     {
@@ -36,13 +36,12 @@ public class RollMenu extends DynamicMessage implements ReactionListener {
         endTime = null;
     }
 
-    public RollMenu() {
+    public RollPoll() {
         time = 0;
         unit = null;
     }
 
-    public RollMenu(int time, TimeUnit unit) {
-
+    public RollPoll(int time, TimeUnit unit) {
         this.time = time;
         this.unit = unit;
     }
@@ -55,7 +54,7 @@ public class RollMenu extends DynamicMessage implements ReactionListener {
     @Override
     protected void onReady(Message message) {
         message.addReaction(DICE).queue();
-        if (unit != null) {
+        if (time != 0) {
             message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
                 message1.editMessage("Winner is: \uD83C\uDF8A" + rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey().getAsMention() + "\uD83C\uDF8A").queue();
                 message1.clearReactions().queue();
@@ -66,6 +65,8 @@ public class RollMenu extends DynamicMessage implements ReactionListener {
             message.addReaction(END).queue();
         }
         message.editMessage(buildScoreBoard()).queue();
+
+        unit = null;
     }
 
     private Message buildScoreBoard() {
@@ -105,5 +106,10 @@ public class RollMenu extends DynamicMessage implements ReactionListener {
             }
             unregister();
         }
+    }
+
+    @Override
+    public boolean isExpired() {
+        return false;
     }
 }

@@ -18,6 +18,8 @@ import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import samurai.command.music.Play;
+import samurai.database.objects.PlayerBuilder;
 import samurai.osu.model.Score;
 import samurai.osu.enums.GameMode;
 import samurai.osu.enums.Grade;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -82,10 +85,32 @@ public class OsuAPI {
         return s;
     }
 
-    public static JSONObject getUserJSON(String identity) {
-        JSONArray json = readJsonFromUrl(String.format("%s%s%s&u=%s", OSU_API, GET_USER, KEY, identity));
+    public static PlayerBuilder getPlayer(int osuId) {
+        JSONArray json = readJsonFromUrl(String.format("%s%s%s&type=id&u=%d", OSU_API, GET_USER, KEY, osuId));
         if (json == null || json.length() != 1) return null;
-        return json.getJSONObject(0);
+        return playerFromJson(json.getJSONObject(0));
+    }
+
+    public static PlayerBuilder getPlayer(String osuName) {
+        JSONArray json = readJsonFromUrl(String.format("%s%s%s&u=%s", OSU_API, GET_USER, KEY, osuName));
+        if (json == null || json.length() != 1) return null;
+        return playerFromJson(json.getJSONObject(0));
+    }
+
+    public static PlayerBuilder playerFromJson(JSONObject userJSON) {
+        return new PlayerBuilder()
+                .setOsuName(userJSON.getString("username"))
+                .setOsuId(userJSON.getInt("user_id"))
+                .setGlobalRank(userJSON.getInt("pp_rank"))
+                .setCountryRank(userJSON.getInt("pp_country_rank"))
+                .setLevel(userJSON.getDouble("level"))
+                .setRawPP(userJSON.getDouble("pp_raw"))
+                .setAccuracy(userJSON.getDouble("accuracy"))
+                .setCountX(userJSON.getInt("count_rank_ss"))
+                .setCountS(userJSON.getInt("count_rank_s"))
+                .setCountA(userJSON.getInt("count_rank_a"))
+                .setPlayCount(userJSON.getInt("playcount"))
+                .setLastUpdated(Instant.now().getEpochSecond());
     }
 
     public static JSONArray getSetByHash(String hash) {

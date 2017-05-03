@@ -18,12 +18,14 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.entities.model.Player;
-import samurai.entities.model.SGuild;
+import samurai.database.objects.GuildBean;
+import samurai.database.objects.PlayerBean;
+import samurai.database.objects.PlayerBuilder;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.util.Book;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -34,37 +36,34 @@ public class Rank extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final SGuild guild = context.getSamuraiGuild();
+        final GuildBean guild = context.getSamuraiGuild();
         final List<Member> mentions = context.getMentionedMembers();
-        if (guild.getPlayerCount() == 0) return FixedMessage.build("No users found.");
-        long id;
-        final Optional<Player> playerOptional;
+        final List<PlayerBean> players = guild.getPlayers();
+        if (players.size() == 0) return FixedMessage.build("No users found.");
+        Optional<PlayerBean> playerOptional;
         if (mentions.size() == 0) {
-            id = Long.parseLong(context.getAuthor().getUser().getId());
-            playerOptional = guild.getPlayer(id);
+            playerOptional = guild.getPlayer(context.getAuthorId());
             if (!playerOptional.isPresent())
                 return FixedMessage.build("You have not linked an osu account to yourself yet.");
         } else if (mentions.size() == 1) {
-            id = Long.parseLong(mentions.get(0).getUser().getId());
-            playerOptional = guild.getPlayer(id);
+            playerOptional = guild.getPlayer(mentions.get(0).getUser().getIdLong());
             if (!playerOptional.isPresent())
                 return FixedMessage.build(String.format("**%s** does not have an osu account linked.", mentions.get(0).getEffectiveName()));
         } else {
-            return FixedMessage.build("Too many mentions");
+            return null;
         }
-        int listSize = guild.getPlayerCount();
-        final Player targetPlayer = playerOptional.get();
-        int target = guild.getRankL(targetPlayer);
+        int listSize = players.size();
+        final PlayerBean targetPlayer = playerOptional.get();
+        int target = guild.getRankLocal(targetPlayer);
         List<String> nameList = new ArrayList<>(listSize);
-        final List<Player> players = guild.getPlayers();
         for (int i = 0; i < listSize; i++) {
-            final Player player = players.get(i);
+            final PlayerBean player = players.get(i);
             final String name = context.getGuild().getMemberById(player.getDiscordId()).getEffectiveName();
             final String osuName = player.getOsuName();
             if (i != target) {
-                nameList.add(String.format("%d. %s : %s (#%d)%n", i, name, osuName, player.getRankG()));
+                nameList.add(String.format("%d. %s : %s (#%d)%n", i, name, osuName, player.getGlobalRank()));
             } else {
-                nameList.add(String.format("#%d %s : %s (#%d)%n", i, name, osuName, player.getRankG()));
+                nameList.add(String.format("#%d %s : %s (#%d)%n", i, name, osuName, player.getGlobalRank()));
             }
         }
 

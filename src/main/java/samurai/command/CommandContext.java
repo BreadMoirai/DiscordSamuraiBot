@@ -18,7 +18,9 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
 import samurai.database.Database;
-import samurai.entities.model.SGuild;
+import samurai.database.dao.GuildDao;
+import samurai.database.objects.GuildBean;
+import samurai.database.objects.GuildUpdater;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -41,7 +43,7 @@ public class CommandContext {
     private final long messageId;
     private List<TextChannel> mentionedChannels;
     private List<String> args;
-    private SGuild sGuild;
+    private GuildBean samuraiGuild;
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
@@ -114,21 +116,15 @@ public class CommandContext {
         return messageId;
     }
 
-    public SGuild getSamuraiGuild() {
-        if (sGuild == null) {
-            final long[] userID = channel.getGuild().getMembers().stream().map(Member::getUser).mapToLong(User::getIdLong).toArray();
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(guildId, userID);
-            if (guildOptional.isPresent())
-                this.sGuild = guildOptional.get();
-            else {
-                final Optional<SGuild> guild = Database.getDatabase().createGuild(guildId, CommandModule.getDefaultEnabledCommands());
-                guild.ifPresent(sGuild -> {
-                    sGuild.getManager().setUsers(userID);
-                    this.sGuild = sGuild;
-                });
-            }
+    public GuildBean getSamuraiGuild() {
+        if (samuraiGuild == null) {
+            samuraiGuild = Database.get().<GuildDao, GuildBean>openDao(GuildDao.class, guildDao -> guildDao.getGuild(getGuildId()));
         }
-        return sGuild;
+        return samuraiGuild;
+    }
+
+    public GuildUpdater getSamuraiGuildUpdater() {
+        return GuildUpdater.of(getGuildId());
     }
 
     public OffsetDateTime getTime() {
@@ -227,8 +223,13 @@ public class CommandContext {
         return channel.getJDA();
     }
 
+    private static final Pattern FORMATTED = Pattern.compile("<.*>");
+
+    /**
+     * @return only plain text and default emojis
+     */
     public String getStrippedContent() {
-        return getArgs().stream().collect(Collectors.joining(" "));
+        return getArgs().stream().filter(s -> !FORMATTED.matcher(s).matches()).collect(Collectors.joining(" "));
     }
 
     public JDA getJDA() {
