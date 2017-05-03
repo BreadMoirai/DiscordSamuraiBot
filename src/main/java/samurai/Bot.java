@@ -19,7 +19,6 @@ import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.audio.SamuraiAudioManager;
@@ -110,6 +109,7 @@ public class Bot {
             e.printStackTrace();
         }
 
+        Database.get();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
     }
