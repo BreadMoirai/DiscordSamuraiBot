@@ -17,55 +17,102 @@ package samurai.database.objects;
 import org.apache.commons.lang3.tuple.Pair;
 import samurai.database.Database;
 import samurai.database.dao.GuildDao;
-import samurai.osu.enums.GameMode;
 
 import java.util.List;
 
 public class GuildBuilder {
     private long guildId;
     private String prefix;
-    private List<PlayerBean> players = null;
-    private List<ChartBean> charts = null;
+    private List<Player> players = null;
+    private List<Chart> charts = null;
     private List<Pair<Long, Short>> channelModes = null;
     private long modules;
 
-    public GuildBuilder setGuildId(long guildId) {
+    public void setGuildId(long guildId) {
+        this.guildId = guildId;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
+    public void setCharts(List<Chart> charts) {
+        this.charts = charts;
+    }
+
+    public void setChannelModes(List<Pair<Long, Short>> channelModes) {
+        this.channelModes = channelModes;
+    }
+
+    public void setModules(long modules) {
+        this.modules = modules;
+    }
+
+    public GuildBuilder putGuildId(long guildId) {
         this.guildId = guildId;
         return this;
     }
 
-    public GuildBuilder setPrefix(String prefix) {
+    public GuildBuilder putPrefix(String prefix) {
         this.prefix = prefix;
         return this;
     }
 
-    public GuildBuilder setPlayers(List<PlayerBean> players) {
+    public GuildBuilder putPlayers(List<Player> players) {
         this.players = players;
         return this;
     }
 
-    public GuildBuilder setCharts(List<ChartBean> charts) {
+    public GuildBuilder putCharts(List<Chart> charts) {
         this.charts = charts;
         return this;
     }
 
-    public GuildBuilder setChannelModes(List<Pair<Long, Short>> channelModes) {
+    public GuildBuilder putChannelModes(List<Pair<Long, Short>> channelModes) {
         this.channelModes = channelModes;
         return this;
     }
 
-    public GuildBuilder setModules(long modules) {
+    public GuildBuilder putModules(long modules) {
         this.modules = modules;
         return this;
     }
 
-    public GuildBean build() {
-        return new GuildBean(guildId, prefix, players, charts, channelModes, modules);
+    public SamuraiGuild build() {
+        return new SamuraiGuild(guildId, prefix, players, charts, channelModes, modules);
     }
 
-    public GuildBean create() {
-        final GuildBean build = build();
+    public SamuraiGuild create() {
+        final SamuraiGuild build = build();
         Database.get().<GuildDao>openDao(GuildDao.class, guildDao -> guildDao.insertGuild(build));
         return build;
+    }
+
+    public long getGuildId() {
+        return guildId;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public List<Chart> getCharts() {
+        return charts;
+    }
+
+    public List<Pair<Long, Short>> getChannelModes() {
+        return channelModes;
+    }
+
+    public long getModules() {
+        return modules;
     }
 }

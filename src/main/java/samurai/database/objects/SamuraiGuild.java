@@ -19,7 +19,6 @@ import samurai.database.Database;
 import samurai.database.dao.ChartDao;
 import samurai.database.dao.GuildDao;
 import samurai.database.dao.PlayerDao;
-import samurai.osu.enums.GameMode;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,15 +28,15 @@ import java.util.Optional;
  * manages primary specific osu data!
  * Created by TonTL on 2/3/2017.
  */
-public class GuildBean {
+public class SamuraiGuild {
     private long guildId;
     private String prefix;
-    private List<PlayerBean> players;
-    private List<ChartBean> charts;
+    private List<Player> players;
+    private List<Chart> charts;
     private List<Pair<Long, Short>> channelModes;
     private long modules;
 
-    GuildBean(long guildId, String prefix, List<PlayerBean> players, List<ChartBean> charts, List<Pair<Long, Short>> channelModes, long modules) {
+    SamuraiGuild(long guildId, String prefix, List<Player> players, List<Chart> charts, List<Pair<Long, Short>> channelModes, long modules) {
         this.guildId = guildId;
         this.prefix = prefix;
         this.players = players;
@@ -54,16 +53,16 @@ public class GuildBean {
         return prefix;
     }
 
-    public List<PlayerBean> getPlayers() {
+    public List<Player> getPlayers() {
         if (players == null) {
-            players = Database.get().<GuildDao, List<PlayerBean>>openDao(GuildDao.class, guildDao -> guildDao.getPlayers(getGuildId()));
+            players = Database.get().<GuildDao, List<Player>>openDao(GuildDao.class, guildDao -> guildDao.getPlayers(getGuildId()));
         }
         return Collections.unmodifiableList(players);
     }
 
-    public List<ChartBean> getCharts() {
+    public List<Chart> getCharts() {
         if (charts == null) {
-            charts = Database.get().<ChartDao, List<ChartBean>>openDao(ChartDao.class, chartDao -> chartDao.getGuildCharts(getGuildId()));
+            charts = Database.get().<ChartDao, List<Chart>>openDao(ChartDao.class, chartDao -> chartDao.getGuildCharts(getGuildId()));
         }
         return Collections.unmodifiableList(charts);
     }
@@ -79,17 +78,49 @@ public class GuildBean {
         return modules;
     }
 
-    public Optional<PlayerBean> getPlayer(long discordUserId) {
-        if (players == null) {
-            return Optional.ofNullable(Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(discordUserId)));
-        } else return players.stream().filter(playerBean -> playerBean.getDiscordId() == discordUserId).findAny();
+    public Optional<Player> getPlayer(long discordUserId) {
+        return getPlayers().stream().filter(playerBean -> playerBean.getDiscordId() == discordUserId).findAny();
     }
 
-    public int getRankLocal(PlayerBean player) {
-        return players.indexOf(player);
+    public int getRankLocal(Player player) {
+        return getPlayers().indexOf(player);
     }
 
     public GuildUpdater getUpdater() {
         return new GuildUpdater(guildId);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SamuraiGuild that = (SamuraiGuild) o;
+
+        if (guildId != that.guildId) return false;
+        if (modules != that.modules) return false;
+        return prefix.equals(that.prefix);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (guildId ^ (guildId >>> 32));
+        result = 31 * result + prefix.hashCode();
+        result = 31 * result + (int) (modules ^ (modules >>> 32));
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SamuraiGuild{");
+        sb.append("guildId=").append(guildId);
+        sb.append(", prefix='").append(prefix).append('\'');
+        sb.append(", players=").append(players);
+        sb.append(", charts=").append(charts);
+        sb.append(", channelModes=").append(channelModes);
+        sb.append(", modules=").append(modules);
+        sb.append('}');
+        return sb.toString();
     }
 }

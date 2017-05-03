@@ -45,11 +45,11 @@ public class ChartBuilder {
         return this;
     }
 
-    public ChartBean build() {
-        return new ChartBean(chartId, chartName, isSet, beatmapIds);
+    public Chart build() {
+        return new Chart(chartId, chartName, isSet, beatmapIds);
     }
 
-    public ChartBean create() {
+    public Chart create() {
         Database.get().<ChartDao>openDao(ChartDao.class, chartDao -> chartDao.insertChart(chartName, isSet));
         return build();
     }

@@ -15,7 +15,7 @@
 package samurai.osu.tracker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.Player;
 import samurai.osu.OsuAPI;
 import samurai.osu.enums.GameMode;
 import samurai.osu.model.Score;
@@ -26,17 +26,17 @@ import java.util.List;
 
 public class OsuSession {
 
-    private final PlayerBean playerStart;
+    private final Player playerStart;
     private final List<TextChannel> channels;
     private final ScoreCache scoresFound;
 
-    OsuSession(PlayerBean playerStart) {
+    OsuSession(Player playerStart) {
         this.playerStart = playerStart;
         channels = new ArrayList<>(5);
         scoresFound = new ScoreCache();
     }
 
-    public PlayerBean getPlayer() {
+    public Player getPlayer() {
         return playerStart;
     }
 

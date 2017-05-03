@@ -17,13 +17,12 @@ package samurai.command.osu;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import org.json.JSONObject;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.database.Database;
 import samurai.database.dao.PlayerDao;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.Player;
 import samurai.database.objects.PlayerBuilder;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -32,9 +31,7 @@ import samurai.osu.enums.Grade;
 
 import java.awt.*;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Key("profile")
 public class Profile extends Command {
@@ -46,7 +43,7 @@ public class Profile extends Command {
         Member author = context.getAuthor();
         List<String> args = context.getArgs();
         if (context.getArgs().size() == 0 && mentions.size() == 0) {
-            final PlayerBean playerBean = Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(author.getUser().getIdLong()));
+            final Player playerBean = Database.get().<PlayerDao, Player>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(author.getUser().getIdLong()));
             if (playerBean != null) {
                 player = OsuAPI.getPlayer(playerBean.getOsuId());
                 if (player == null)
@@ -60,7 +57,7 @@ public class Profile extends Command {
                 return FixedMessage.build(String.format("Could not find Osu!User **%s**", args.get(0)));
             }
         } else if (mentions.size() == 1) {
-            final PlayerBean playerBean = Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(mentions.get(0).getUser().getIdLong()));
+            final Player playerBean = Database.get().<PlayerDao, Player>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(mentions.get(0).getUser().getIdLong()));
             if (playerBean != null) {
                 player = OsuAPI.getPlayer(playerBean.getOsuId());
                 if (player == null) {
@@ -75,7 +72,7 @@ public class Profile extends Command {
         return FixedMessage.build(buildProfileEmbed(player.build()));
     }
 
-    static MessageEmbed buildProfileEmbed(PlayerBean player) {
+    static MessageEmbed buildProfileEmbed(Player player) {
         final String accuracy = String.valueOf(player.getAccuracy());
         EmbedBuilder eb = new EmbedBuilder()
                 .setTitle(player.getOsuName(), String.format("https://osu.ppy.sh/u/%s", player.getOsuName()))

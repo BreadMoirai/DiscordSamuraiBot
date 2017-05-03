@@ -15,28 +15,40 @@
 package samurai.database.dao;
 
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.Player;
 import samurai.database.objects.PlayerBuilder;
 
 public interface PlayerDao {
 
-    @SqlUpdate("INSERT INTO Player VALUES (:discordID, :osuId, :osuName, :globalRank, :countryRank, :level, :rawPP, :accuracy, :playCount, :countX, :countS, :countA, :count300, :count100, :count50, :modes, :lastUpdated)")
-    void insertPlayer(@BindBean PlayerBean player);
+    @SqlUpdate("INSERT INTO Player VALUES (:discordId, :osuId, :osuName, :globalRank, :countryRank, :level, :rawPP, :accuracy, :playCount, :countX, :countS, :countA, :count300, :count100, :count50, :modes, :lastUpdated)")
+    void insertPlayer(@BindBean Player player);
 
-    @SqlUpdate("UPDATE Player SET GlobalRank = :globalRank, CountryRank = :countryRank, RawPP = :rawPP, Accuracy = :accuracy, PlayCount = :playCount, CountX = :countX, CountS = :countS, CountA = :countA, :count300, :count100, :count50, Modes = :modes, LastUpdated = :lastUpdated WHERE discordID = :discordId")
-    boolean update(@BindBean PlayerBean player);
+    @SqlUpdate("UPDATE Player SET OsuName = :osuName, GlobalRank = :globalRank, CountryRank = :countryRank, RawPP = :rawPP, Accuracy = :accuracy, PlayCount = :playCount, CountX = :countX, CountS = :countS, CountA = :countA, :count300, :count100, :count50, Modes = :modes, LastUpdated = :lastUpdated WHERE discordID = :id")
+    void updatePlayer(@Bind("id") long discordId, @BindBean Player player);
 
-    @SqlQuery("SELECT * FROM Player WHERE discordID = ?")
+    @SqlQuery("SELECT * FROM Player WHERE discordId = :id")
     @RegisterBeanMapper(PlayerBuilder.class)
-    PlayerBuilder selectPlayer(long discordID);
+    PlayerBuilder selectPlayer(@Bind("id") long discordId);
     
-    default PlayerBean getPlayer(long discordId) {
-        return selectPlayer(discordId).build();
+    default Player getPlayer(long discordId) {
+        PlayerBuilder playerBuilder = selectPlayer(discordId);
+        if (playerBuilder == null) return null;
+        return playerBuilder.build();
     }
 
-    @SqlUpdate("DELETE FROM Player WHERE discordID = ?")
-    void delete(long discordId);
+
+    @SqlUpdate("DELETE FROM Player WHERE discordId = :id")
+    void deletePlayer(@Bind("id")long discordId);
+
+    @SqlUpdate("DELETE FROM GuildPlayer WHERE discordId = :id")
+    void deletePlayerAssociations(@Bind("id")long discordId);
+
+    default void destroyPlayer(long discordId) {
+        deletePlayerAssociations(discordId);
+        deletePlayer(discordId);
+    }
 }

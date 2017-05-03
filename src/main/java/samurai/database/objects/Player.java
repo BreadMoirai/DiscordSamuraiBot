@@ -14,7 +14,7 @@
 */
 package samurai.database.objects;
 
-public class PlayerBean {
+public class Player {
     private long discordId;
     private int osuId;
     private String osuName;
@@ -31,7 +31,7 @@ public class PlayerBean {
     private short modes;
     private long lastUpdated;
 
-    public PlayerBean(long discordId, int osuId, String osuName, int globalRank, int countryRank, double level, double rawPP, double accuracy, int playCount, int countX, int countS, int countA, int count300, int count100, int count50, short modes, long lastUpdated) {
+    public Player(long discordId, int osuId, String osuName, int globalRank, int countryRank, double level, double rawPP, double accuracy, int playCount, int countX, int countS, int countA, int count300, int count100, int count50, short modes, long lastUpdated) {
         this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
@@ -124,7 +124,7 @@ public class PlayerBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PlayerBean player = (PlayerBean) o;
+        Player player = (Player) o;
 
         if (discordId != player.discordId) return false;
         return osuId == player.osuId;
@@ -139,17 +139,15 @@ public class PlayerBean {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PlayerBean{");
+        final StringBuilder sb = new StringBuilder("Player{");
         sb.append("discordId=").append(discordId);
         sb.append(", osuId=").append(osuId);
         sb.append(", osuName='").append(osuName).append('\'');
-        sb.append(", globalRank=").append(globalRank);
-        sb.append(", countryRank=").append(countryRank);
-        sb.append(", rawPP=").append(rawPP);
-        sb.append(", accuracy=").append(accuracy);
-        sb.append(", playCount=").append(playCount);
-        sb.append(", lastUpdated=").append(lastUpdated);
         sb.append('}');
         return sb.toString();
+    }
+
+    public PlayerUpdater getUpdater() {
+        return new PlayerUpdater(this.getDiscordId());
     }
 }

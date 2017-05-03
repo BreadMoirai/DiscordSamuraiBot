@@ -18,14 +18,12 @@ import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.database.objects.GuildBean;
-import samurai.database.objects.PlayerBean;
-import samurai.database.objects.PlayerBuilder;
+import samurai.database.objects.SamuraiGuild;
+import samurai.database.objects.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.util.Book;
 
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,11 +34,11 @@ public class Rank extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final GuildBean guild = context.getSamuraiGuild();
+        final SamuraiGuild guild = context.getSamuraiGuild();
         final List<Member> mentions = context.getMentionedMembers();
-        final List<PlayerBean> players = guild.getPlayers();
+        final List<Player> players = guild.getPlayers();
         if (players.size() == 0) return FixedMessage.build("No users found.");
-        Optional<PlayerBean> playerOptional;
+        Optional<Player> playerOptional;
         if (mentions.size() == 0) {
             playerOptional = guild.getPlayer(context.getAuthorId());
             if (!playerOptional.isPresent())
@@ -53,11 +51,11 @@ public class Rank extends Command {
             return null;
         }
         int listSize = players.size();
-        final PlayerBean targetPlayer = playerOptional.get();
+        final Player targetPlayer = playerOptional.get();
         int target = guild.getRankLocal(targetPlayer);
         List<String> nameList = new ArrayList<>(listSize);
         for (int i = 0; i < listSize; i++) {
-            final PlayerBean player = players.get(i);
+            final Player player = players.get(i);
             final String name = context.getGuild().getMemberById(player.getDiscordId()).getEffectiveName();
             final String osuName = player.getOsuName();
             if (i != target) {

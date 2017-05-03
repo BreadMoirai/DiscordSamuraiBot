@@ -61,4 +61,12 @@ public class GuildUpdater {
             }
         });
     }
+
+    public void destroy() {
+        Database.get().<GuildDao>openDao(GuildDao.class, guildDao -> guildDao.destroyGuild(guildId));
+    }
+
+    public void addPlayer(Player playerCreated, short mode) {
+        Database.get().<GuildDao>openDao(GuildDao.class, guildDao -> guildDao.insertPlayerAssociation(guildId, playerCreated.getDiscordId(), mode));
+    }
 }

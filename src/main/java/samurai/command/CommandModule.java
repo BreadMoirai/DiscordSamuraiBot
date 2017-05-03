@@ -49,16 +49,16 @@ public enum CommandModule {
         return byteCombo;
     }
 
-    public static long getDefaultEnabledCommands() {
-        return 0L;
-    }
-
     public static long getEnabledAll() {
         return getEnabled(CommandModule.values());
     }
 
     public static List<CommandModule> getVisible() {
         return Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule != restricted).collect(Collectors.toList());
+    }
+
+    public static long getDefault() {
+        return 0L;
     }
 
     public long getValue() {

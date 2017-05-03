@@ -15,7 +15,7 @@
 package samurai.osu.enums;
 
 import org.apache.commons.lang3.text.WordUtils;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.Player;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,7 +80,7 @@ public enum GameMode {
         }
     }
 
-    public boolean tracks(PlayerBean player) {
+    public boolean tracks(Player player) {
         return (player.getModes() & bit()) == bit();
     }
 

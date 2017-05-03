@@ -21,11 +21,13 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.RollPoll;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-@Key({"roll", "rollpoll"})
+@Key({"roll", "rollpoll", "rollpoll"})
 public class Roll extends Command {
 
     @Override
@@ -53,7 +55,12 @@ public class Roll extends Command {
                         case "day":
                         case "days":
                             return new RollPoll(time, TimeUnit.DAYS);
-                        default:break;
+                        case "wk":
+                        case "week":
+                        case "weeks":
+                            return new RollPoll(time * 7, TimeUnit.DAYS);
+                        default:
+                            break;
                     }
                 }
                 return new RollPoll(time, TimeUnit.MINUTES);

@@ -31,6 +31,7 @@ import samurai.database.Database;
 import samurai.files.SamuraiStore;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
+import samurai.osu.tracker.OsuTracker;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -59,6 +60,7 @@ public class Groovy extends Command {
         BINDING.setVariable("CF", CommandFactory.class);
         BINDING.setVariable("DB", Database.class);
         BINDING.setVariable("YT", YoutubeAPI.class);
+        BINDING.setVariable("tracker", OsuTracker.class);
         BINDING.setVariable("Game", Game.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 
@@ -91,7 +93,7 @@ public class Groovy extends Command {
                     }
                     return FixedMessage.build(Hex.encodeHexString((byte[]) result));
                 }
-                return FixedMessage.build(result.toString());
+                return FixedMessage.build("`" + result.toString() + "`");
             } else return FixedMessage.build("Null");
         } catch (Exception e) {
             return FixedMessage.build(e.getMessage());

@@ -16,18 +16,14 @@ package samurai.database.objects;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.x - 2/16/2017
- */
-public class ChartBean {
+public class Chart {
     private int chartId;
     private String chartName;
     private boolean isSet;
     private List<Integer> beatmapIds;
 
 
-    ChartBean(int chartId, String chartName, boolean isSet, List<Integer> beatmapIds) {
+    Chart(int chartId, String chartName, boolean isSet, List<Integer> beatmapIds) {
         this.chartId = chartId;
         this.chartName = chartName;
         this.isSet = isSet;
@@ -55,7 +51,7 @@ public class ChartBean {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ChartBean chartBean = (ChartBean) o;
+        Chart chartBean = (Chart) o;
 
         if (chartId != chartBean.chartId) return false;
         if (isSet != chartBean.isSet) return false;

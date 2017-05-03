@@ -19,7 +19,7 @@ import samurai.command.CommandContext;
 import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
-import samurai.database.objects.GuildBean;
+import samurai.database.objects.SamuraiGuild;
 import samurai.files.SamuraiStore;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -39,7 +39,7 @@ public class Module extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final GuildBean samuraiGuild = context.getSamuraiGuild();
+        final SamuraiGuild samuraiGuild = context.getSamuraiGuild();
         final long guildEnabledCommands = samuraiGuild.getModules();
         final CommandModule[] commandModules = CommandModule.values();
         if (context.getKey().equalsIgnoreCase("module")) {

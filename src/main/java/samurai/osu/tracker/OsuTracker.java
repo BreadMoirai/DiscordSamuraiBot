@@ -15,7 +15,7 @@
 package samurai.osu.tracker;
 
 import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.Player;
 
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,7 +45,7 @@ public class OsuTracker {
 
     public static boolean isTracking(long discordUserId) {
         LongPredicate idMatch = value -> discordUserId == value;
-        return tracking.stream().map(OsuSession::getPlayer).mapToLong(PlayerBean::getDiscordId).anyMatch(idMatch);
+        return tracking.stream().map(OsuSession::getPlayer).mapToLong(Player::getDiscordId).anyMatch(idMatch);
     }
 
     public static Optional<OsuSession> retrieveSession(long discordUserId) {
@@ -53,7 +53,7 @@ public class OsuTracker {
     }
 
 
-    public static boolean register(PlayerBean player, TextChannel channel) {
+    public static boolean register(Player player, TextChannel channel) {
         final OsuSession osuSession = new OsuSession(player);
         osuSession.addChannel(channel);
         return tracking.add(osuSession);

@@ -20,15 +20,11 @@ import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.command.osu.Profile;
-import samurai.database.objects.GuildBean;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.SamuraiGuild;
+import samurai.database.objects.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +34,7 @@ public class Info extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final List<Member> mentions = context.getMentionedMembers();
-        final GuildBean guild = context.getSamuraiGuild();
+        final SamuraiGuild guild = context.getSamuraiGuild();
         Member userD;
         if (mentions.size() == 0) {
             EmbedBuilder eb = new EmbedBuilder()
@@ -48,11 +44,11 @@ public class Info extends Command {
                     .setFooter("SamuraiStats\u2122", Bot.AVATAR);
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);
-        final Optional<PlayerBean> guildPlayer = context.getSamuraiGuild().getPlayer(context.getAuthorId());
+        final Optional<Player> guildPlayer = context.getSamuraiGuild().getPlayer(context.getAuthorId());
         if (!guildPlayer.isPresent()) {
             return FixedMessage.build(String.format("No info found for **%s**.", userD.getEffectiveName()));
         } else {
-            PlayerBean player = guildPlayer.get();
+            Player player = guildPlayer.get();
             return FixedMessage.build(Profile.buildProfileEmbed(player));
         }
     }

@@ -17,7 +17,7 @@ package samurai.database.dao;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import samurai.database.objects.ChartBean;
+import samurai.database.objects.Chart;
 import samurai.database.objects.ChartBuilder;
 
 import java.util.ArrayList;
@@ -36,14 +36,14 @@ public interface ChartDao {
     @SqlQuery("SELECT MapSetId FROM ChartMap WHERE ChartId = ?")
     List<Integer> selectChartMaps(int chartId);
 
-    default ChartBean getChart(int chartId) {
+    default Chart getChart(int chartId) {
         return selectChart(chartId).setBeatmapIds(selectChartMaps(chartId)).build();
     }
 
     @SqlQuery("SELECT Chart.* FROM GuildChart JOIN Chart ON Chart.ChartID = GuildChart.ChartID WHERE Chart.GuildID = ?")
     List<ChartBuilder> selectGuildCharts(long guildId);
 
-    default List<ChartBean> getGuildCharts(long guildId) {
+    default List<Chart> getGuildCharts(long guildId) {
         return selectGuildCharts(guildId).stream().map(ChartBuilder::build).collect(Collectors.toCollection(ArrayList::new));
     }
 }

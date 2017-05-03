@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.entities.*;
 import samurai.Bot;
 import samurai.database.Database;
 import samurai.database.dao.GuildDao;
-import samurai.database.objects.GuildBean;
+import samurai.database.objects.SamuraiGuild;
 import samurai.database.objects.GuildUpdater;
 
 import java.time.OffsetDateTime;
@@ -43,7 +43,7 @@ public class CommandContext {
     private final long messageId;
     private List<TextChannel> mentionedChannels;
     private List<String> args;
-    private GuildBean samuraiGuild;
+    private SamuraiGuild samuraiGuild;
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
@@ -116,9 +116,9 @@ public class CommandContext {
         return messageId;
     }
 
-    public GuildBean getSamuraiGuild() {
+    public SamuraiGuild getSamuraiGuild() {
         if (samuraiGuild == null) {
-            samuraiGuild = Database.get().<GuildDao, GuildBean>openDao(GuildDao.class, guildDao -> guildDao.getGuild(getGuildId()));
+            samuraiGuild = Database.get().<GuildDao, SamuraiGuild>openDao(GuildDao.class, guildDao -> guildDao.getGuild(getGuildId()));
         }
         return samuraiGuild;
     }

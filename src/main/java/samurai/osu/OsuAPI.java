@@ -98,19 +98,20 @@ public class OsuAPI {
     }
 
     public static PlayerBuilder playerFromJson(JSONObject userJSON) {
-        return new PlayerBuilder()
-                .setOsuName(userJSON.getString("username"))
-                .setOsuId(userJSON.getInt("user_id"))
-                .setGlobalRank(userJSON.getInt("pp_rank"))
-                .setCountryRank(userJSON.getInt("pp_country_rank"))
-                .setLevel(userJSON.getDouble("level"))
-                .setRawPP(userJSON.getDouble("pp_raw"))
-                .setAccuracy(userJSON.getDouble("accuracy"))
-                .setCountX(userJSON.getInt("count_rank_ss"))
-                .setCountS(userJSON.getInt("count_rank_s"))
-                .setCountA(userJSON.getInt("count_rank_a"))
-                .setPlayCount(userJSON.getInt("playcount"))
-                .setLastUpdated(Instant.now().getEpochSecond());
+        PlayerBuilder p = new PlayerBuilder();
+        p.setOsuName(userJSON.getString("username"));
+        p.setOsuId(userJSON.getInt("user_id"));
+        p.setGlobalRank(userJSON.getInt("pp_rank"));
+        p.setCountryRank(userJSON.getInt("pp_country_rank"));
+        p.setLevel(userJSON.getDouble("level"));
+        p.setRawPP(userJSON.getDouble("pp_raw"));
+        p.setAccuracy(userJSON.getDouble("accuracy"));
+        p.setCountX(userJSON.getInt("count_rank_ss"));
+        p.setCountS(userJSON.getInt("count_rank_s"));
+        p.setCountA(userJSON.getInt("count_rank_a"));
+        p.setPlayCount(userJSON.getInt("playcount"));
+        p.setLastUpdated(Instant.now().getEpochSecond());
+        return p;
     }
 
     public static JSONArray getSetByHash(String hash) {
@@ -141,7 +142,7 @@ public class OsuAPI {
             while ((cp = rd.read()) != -1) {
                 sb.append((char) cp);
             }
-            System.out.println(sb.toString());
+            //System.out.println(sb.toString());
             JSONArray jsonArray = new JSONArray(sb.toString());
             if (jsonArray.length() == 0) return null;
             return jsonArray;

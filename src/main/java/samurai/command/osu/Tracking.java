@@ -20,25 +20,21 @@ import org.apache.commons.lang3.tuple.Pair;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.database.Database;
-import samurai.database.objects.GuildBean;
-import samurai.database.objects.PlayerBean;
+import samurai.database.objects.SamuraiGuild;
+import samurai.database.objects.Player;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.osu.enums.GameMode;
-import samurai.osu.tracker.OsuTracker;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Key("tracking")
 public class Tracking extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final GuildBean samuraiGuild = context.getSamuraiGuild();
-        final List<PlayerBean> players = samuraiGuild.getPlayers();
+        final SamuraiGuild samuraiGuild = context.getSamuraiGuild();
+        final List<Player> players = samuraiGuild.getPlayers();
         final List<Pair<Long, Short>> channelModes = samuraiGuild.getChannelModes();
         final Guild guild = context.getGuild();
         if (channelModes.isEmpty()) {
@@ -50,7 +46,7 @@ public class Tracking extends Command {
                 if (textChannel != null) {
                     final List<GameMode> modes = GameMode.getModes(channelMode.getValue());
                     stringBuilder.append("\n#").append(textChannel.getName()).append(" - ").append(Arrays.toString(modes.toArray()));
-                    for (PlayerBean player : players) {
+                    for (Player player : players) {
                         if (modes.stream().anyMatch(gameMode -> gameMode.tracks(player))) {
                             stringBuilder.append("\n").append(guild.getMemberById(player.getDiscordId()).getEffectiveName()).append(" - ").append(player.getOsuName());
                         }

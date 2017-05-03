@@ -18,6 +18,13 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import samurai.Bot;
+import samurai.command.CommandModule;
+import samurai.database.dao.GuildDao;
+import samurai.database.dao.PlayerDao;
+import samurai.database.objects.GuildBuilder;
+import samurai.database.objects.Player;
+import samurai.database.objects.SamuraiGuild;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +35,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,6 +85,21 @@ public class Database {
         jdbi.useExtension(tClass, consumer::accept);
     }
 
+    public Optional<SamuraiGuild> getGuild(long guildId) {
+        return Optional.ofNullable(jdbi.withExtension(GuildDao.class, extension -> extension.getGuild(guildId)));
+    }
+
+    public Optional<Player> getPlayer(long discordId) {
+        return Optional.ofNullable(jdbi.withExtension(PlayerDao.class, extension -> extension.getPlayer(discordId)));
+    }
+
+    public String getPrefix(long guildId) {
+        String s = jdbi.withExtension(GuildDao.class, extension -> extension.getPrefix(guildId));
+        if (s == null) {
+            new GuildBuilder().putPrefix(Bot.DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
+        } else return s;
+        return Bot.DEFAULT_PREFIX;
+    }
 
     private void testConnection() throws SQLException {
         Connection initialConnection = null;
@@ -101,6 +124,7 @@ public class Database {
         }
     }
 
+
     private void initializeTables(Connection connection) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Database.class.getResourceAsStream("databaseInitializer.sql")))) {
             final Statement statement = connection.createStatement();
@@ -116,6 +140,4 @@ public class Database {
             e.printStackTrace();
         }
     }
-
-
 }
