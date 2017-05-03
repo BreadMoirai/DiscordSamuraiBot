@@ -18,18 +18,26 @@ import samurai.database.Database;
 import samurai.database.dao.PlayerDao;
 
 public class PlayerBuilder {
-    private long userId;
+    private long discordId;
     private int osuId;
     private String osuName;
     private int globalRank;
     private int countryRank;
+    private double level;
     private double rawPP;
     private double accuracy;
     private int playCount;
+    private short modes;
     private long lastUpdated;
+    private int countX;
+    private int countS;
+    private int countA;
+    private int count300;
+    private int count100;
+    private int count50;
 
-    public PlayerBuilder setUserId(long userId) {
-        this.userId = userId;
+    public PlayerBuilder setDiscordId(long discordId) {
+        this.discordId = discordId;
         return this;
     }
 
@@ -53,6 +61,11 @@ public class PlayerBuilder {
         return this;
     }
 
+    public PlayerBuilder setLevel(double level) {
+        this.level = level;
+        return this;
+    }
+
     public PlayerBuilder setRawPP(double rawPP) {
         this.rawPP = rawPP;
         return this;
@@ -68,6 +81,41 @@ public class PlayerBuilder {
         return this;
     }
 
+    public PlayerBuilder setCountX(int countX) {
+        this.countX = countX;
+        return this;
+    }
+
+    public PlayerBuilder setCountS(int countS) {
+        this.countS = countS;
+        return this;
+    }
+
+    public PlayerBuilder setCountA(int countA) {
+        this.countA = countA;
+        return this;
+    }
+
+    public PlayerBuilder setCount300(int count300) {
+        this.count300 = count300;
+        return this;
+    }
+
+    public PlayerBuilder setCount100(int count100) {
+        this.count100 = count100;
+        return this;
+    }
+
+    public PlayerBuilder setCount50(int count50) {
+        this.count50 = count50;
+        return this;
+    }
+
+    public PlayerBuilder setModes(short modes) {
+        this.modes = modes;
+        return this;
+    }
+
     public PlayerBuilder setLastUpdated(long lastUpdated) {
         this.lastUpdated = lastUpdated;
         return this;
@@ -78,7 +126,7 @@ public class PlayerBuilder {
      * @return a new player
      */
     public PlayerBean build() {
-        return new PlayerBean(userId, osuId, osuName, globalRank, countryRank, rawPP, accuracy, playCount, lastUpdated);
+        return new PlayerBean(discordId, osuId, osuName, globalRank, countryRank, level, rawPP, accuracy, playCount, countX, countS, countA, count300, count100, count50, modes, lastUpdated);
     }
 
     /**

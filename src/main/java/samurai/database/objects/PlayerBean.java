@@ -15,30 +15,44 @@
 package samurai.database.objects;
 
 public class PlayerBean {
-    private long userId;
+    private long discordId;
     private int osuId;
     private String osuName;
     private int globalRank;
     private int countryRank;
+    private double level;
     private double rawPP;
     private double accuracy;
     private int playCount;
+
+    private int countX, countS, countA;
+    private int count300, count100, count50;
+
+    private short modes;
     private long lastUpdated;
 
-    PlayerBean(long userId, int osuId, String osuName, int globalRank, int countryRank, double rawPP, double accuracy, int playCount, long lastUpdated) {
-        this.userId = userId;
+    public PlayerBean(long discordId, int osuId, String osuName, int globalRank, int countryRank, double level, double rawPP, double accuracy, int playCount, int countX, int countS, int countA, int count300, int count100, int count50, short modes, long lastUpdated) {
+        this.discordId = discordId;
         this.osuId = osuId;
         this.osuName = osuName;
         this.globalRank = globalRank;
         this.countryRank = countryRank;
+        this.level = level;
         this.rawPP = rawPP;
         this.accuracy = accuracy;
         this.playCount = playCount;
+        this.countX = countX;
+        this.countS = countS;
+        this.countA = countA;
+        this.count300 = count300;
+        this.count100 = count100;
+        this.count50 = count50;
+        this.modes = modes;
         this.lastUpdated = lastUpdated;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getDiscordId() {
+        return discordId;
     }
 
     public int getOsuId() {
@@ -57,6 +71,10 @@ public class PlayerBean {
         return countryRank;
     }
 
+    public double getLevel() {
+        return level;
+    }
+
     public double getRawPP() {
         return rawPP;
     }
@@ -67,6 +85,34 @@ public class PlayerBean {
 
     public int getPlayCount() {
         return playCount;
+    }
+
+    public int getCountX() {
+        return countX;
+    }
+
+    public int getCountS() {
+        return countS;
+    }
+
+    public int getCountA() {
+        return countA;
+    }
+
+    public int getCount300() {
+        return count300;
+    }
+
+    public int getCount100() {
+        return count100;
+    }
+
+    public int getCount50() {
+        return count50;
+    }
+
+    public short getModes() {
+        return modes;
     }
 
     public long getLastUpdated() {
@@ -80,13 +126,13 @@ public class PlayerBean {
 
         PlayerBean player = (PlayerBean) o;
 
-        if (userId != player.userId) return false;
+        if (discordId != player.discordId) return false;
         return osuId == player.osuId;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (userId ^ (userId >>> 32));
+        int result = (int) (discordId ^ (discordId >>> 32));
         result = 31 * result + osuId;
         return result;
     }
@@ -94,7 +140,7 @@ public class PlayerBean {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("PlayerBean{");
-        sb.append("userId=").append(userId);
+        sb.append("discordId=").append(discordId);
         sb.append(", osuId=").append(osuId);
         sb.append(", osuName='").append(osuName).append('\'');
         sb.append(", globalRank=").append(globalRank);

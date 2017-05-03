@@ -14,36 +14,50 @@
 */
 package samurai.command.osu;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.apache.commons.lang3.tuple.Pair;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.database.Database;
+import samurai.database.objects.GuildBean;
+import samurai.database.objects.PlayerBean;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.osu.enums.GameMode;
 import samurai.osu.tracker.OsuTracker;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4/7/2017
- */
 @Key("tracking")
 public class Tracking extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild sGuild = context.getSamuraiGuild();
-        final Optional<Entry<Long, GameMode>> channelFilter = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.STANDARD).findAny();
-        if (!channelFilter.isPresent()) {
-            return FixedMessage.build("You do not have a channel set. try using `setchannel #myscores`");
+        final GuildBean samuraiGuild = context.getSamuraiGuild();
+        final List<PlayerBean> players = samuraiGuild.getPlayers();
+        final List<Pair<Long, Short>> channelModes = samuraiGuild.getChannelModes();
+        final Guild guild = context.getGuild();
+        if (channelModes.isEmpty()) {
+            return FixedMessage.build("You do not have a channel set. try using `setchannel standard`");
         } else {
-            final TextChannel outputChannel = context.getGuild().getTextChannelById(String.valueOf(channelFilter.get().getKey()));
-            context.getGuild().getMembers().stream().filter(member -> member.getGame() != null && member.getGame().getName().equalsIgnoreCase("osu!")).map(value -> value.getUser().getId()).mapToLong(Long::parseLong).filter(value -> !OsuTracker.isTracking(value)).mapToObj(sGuild::getPlayer).filter(Optional::isPresent).map(Optional::get).forEach(player -> OsuTracker.register(player, outputChannel));
+            StringBuilder stringBuilder = new StringBuilder().append("```glsl");
+            for (Pair<Long, Short> channelMode : channelModes) {
+                final TextChannel textChannel = guild.getTextChannelById(channelMode.getKey());
+                if (textChannel != null) {
+                    final List<GameMode> modes = GameMode.getModes(channelMode.getValue());
+                    stringBuilder.append("\n#").append(textChannel.getName()).append(" - ").append(Arrays.toString(modes.toArray()));
+                    for (PlayerBean player : players) {
+                        if (modes.stream().anyMatch(gameMode -> gameMode.tracks(player))) {
+                            stringBuilder.append("\n").append(guild.getMemberById(player.getDiscordId()).getEffectiveName()).append(" - ").append(player.getOsuName());
+                        }
+                    }
+                }
+            }
+            return (FixedMessage.build(stringBuilder.append("\n```").toString()));
         }
-        final String s = sGuild.getPlayers().stream().filter(player -> OsuTracker.isTracking(player.getDiscordId()))
-                .map(player -> player.getDiscordId() + " -> " + player.getOsuId() + "|" + player.getOsuName()).collect(Collectors.joining("\n", "```\n", "\n```"));
-        return FixedMessage.build(s);
     }
 }

@@ -19,6 +19,7 @@ import samurai.command.CommandContext;
 import samurai.command.CommandModule;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
+import samurai.database.objects.GuildBean;
 import samurai.files.SamuraiStore;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
@@ -38,8 +39,8 @@ public class Module extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final SGuild sGuild = context.getSamuraiGuild();
-        final long guildEnabledCommands = sGuild.getEnabledCommands();
+        final GuildBean samuraiGuild = context.getSamuraiGuild();
+        final long guildEnabledCommands = samuraiGuild.getModules();
         final CommandModule[] commandModules = CommandModule.values();
         if (context.getKey().equalsIgnoreCase("module")) {
             if (!context.hasContent()) {
@@ -60,11 +61,11 @@ public class Module extends Command {
                 switch (context.getKey()) {
                     case "enable":
                         String s1 = args.stream().filter(commands -> !commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
-                        sGuild.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
+                        samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
                         return FixedMessage.build(s1);
                     case "disable":
                         String s2 = args.stream().filter(commands -> commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
-                        sGuild.getManager().setCommands(args.stream().mapToLong(CommandModule::getValue).map(operand -> ~operand).reduce(guildEnabledCommands, (left, right) -> left & right));
+                        samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).map(operand -> ~operand).reduce(guildEnabledCommands, (left, right) -> left & right));
                         return FixedMessage.build(s2);
                 }
             }

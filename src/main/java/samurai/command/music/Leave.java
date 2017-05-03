@@ -24,10 +24,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/11/2017
- */
 @Admin
 @Key("leave")
 public class Leave extends Command {

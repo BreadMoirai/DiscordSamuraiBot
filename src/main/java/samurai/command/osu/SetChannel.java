@@ -17,19 +17,18 @@ package samurai.command.osu;
 import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.command.Command;
 import samurai.command.CommandContext;
+import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai.database.Database;
+import samurai.database.objects.GuildUpdater;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.osu.enums.GameMode;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/17/2017
- */
-@Key("setchannel")
+@Key("setmode")
+@Admin
 public class SetChannel extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
@@ -43,18 +42,14 @@ public class SetChannel extends Command {
             targetChannel = context.getChannel();
         }
         final GameMode gameMode = GameMode.find(context.getStrippedContent());
-        final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(context.getGuildId());
-        if (guildOptional.isPresent()) {
-            final SGuild sGuild = guildOptional.get();
-            if (gameMode != null) {
-                sGuild.getManager().addChannelFilter(targetChannel.getIdLong(), gameMode);
-                return FixedMessage.build("Tracking notifications will be sent to <#" + targetChannel.getId() + "> for `" + gameMode.toString() + "`");
-            }
-            else {
-                sGuild.getManager().removeChannelFilter(targetChannel.getIdLong());
-                return FixedMessage.build("<#" + targetChannel.getId() + "> will no longer receive tracking notifications");
-            }
+
+        if (gameMode != null) {
+            context.getSamuraiGuildUpdater().setChannelMode(targetChannel.getIdLong(), gameMode);
+            return FixedMessage.build("Tracking notifications will be sent to <#" + targetChannel.getId() + "> for `" + gameMode.toString() + "`");
+        } else {
+            context.getSamuraiGuildUpdater().removeChannelMode(targetChannel.getIdLong());
+            return FixedMessage.build("<#" + targetChannel.getId() + "> will no longer receive tracking notifications");
         }
-        return null;
     }
+
 }

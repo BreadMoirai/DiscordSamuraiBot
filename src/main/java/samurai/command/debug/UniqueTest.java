@@ -14,22 +14,25 @@
 */
 package samurai.command.debug;
 
+import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.test.UniqueTestMessage;
 
-/**
- * @author TonTL
- * @version 4/19/2017
- */
 @Key("unique")
 public class UniqueTest extends Command {
 
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE};
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         switch (context.getContent().toLowerCase()) {
             case "author":
                 return new UniqueTestMessage(MessageScope.Author);

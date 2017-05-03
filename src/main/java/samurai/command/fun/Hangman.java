@@ -14,10 +14,12 @@
 */
 package samurai.command.fun;
 
+import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.duel.HangmanGame;
 
 /**
@@ -26,8 +28,13 @@ import samurai.messages.impl.duel.HangmanGame;
  */
 @Key({"hangman"})
 public class Hangman extends Command {
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE};
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         return new HangmanGame(context.getAuthor(), context.getSamuraiGuild().getPrefix());
     }
 }

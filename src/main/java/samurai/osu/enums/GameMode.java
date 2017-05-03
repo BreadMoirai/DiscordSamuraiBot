@@ -15,6 +15,11 @@
 package samurai.osu.enums;
 
 import org.apache.commons.lang3.text.WordUtils;
+import samurai.database.objects.PlayerBean;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Osu Game Mode from Osu!API
@@ -73,5 +78,17 @@ public enum GameMode {
             default:
                 return null;
         }
+    }
+
+    public boolean tracks(PlayerBean player) {
+        return (player.getModes() & bit()) == bit();
+    }
+
+    public short bit() {
+        return (short) (0b0001 << value);
+    }
+
+    public static List<GameMode> getModes(short value) {
+        return Arrays.stream(values()).filter(gameMode -> (value & gameMode.bit()) == gameMode.bit()).collect(Collectors.toList());
     }
 }

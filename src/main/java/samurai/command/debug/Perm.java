@@ -21,6 +21,7 @@ import samurai.command.annotations.Key;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class Perm extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        List<Permission> permsNotFound = new LinkedList<>();
+        List<Permission> permsNotFound = new ArrayList<>();
         List<Permission> permsFound = context.getGuild().getSelfMember().getPermissions(context.getChannel());
         for (Permission p : required)
             if (!permsFound.contains(p))

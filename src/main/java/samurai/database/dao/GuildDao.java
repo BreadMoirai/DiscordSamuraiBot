@@ -40,12 +40,9 @@ public interface GuildDao {
     void insertChartAssociation(long guildId, int chartId);
 
     @SqlUpdate("INSERT INTO GuildPlayer VALUES (?, ?, ?)")
-    void insertPlayerAssociation(long guildId, long userId, byte mode);
+    void insertPlayerAssociation(long guildId, long userId, short mode);
 
-    @SqlUpdate("INSERT INTO ChannelMode VALUES (?, ?, ?)")
-    void insertChannelMode(long guildId, long channelId, byte mode);
-
-    @SqlUpdate("SELECT Player.* FROM GuildPlayer JOIN Player ON GuildPlayer.UserID = Player.UserID WHERE GuildID = ?")
+    @SqlQuery("SELECT Player.* FROM GuildPlayer JOIN Player ON GuildPlayer.UserID = Player.UserID WHERE GuildID = ?")
     @RegisterBeanMapper(PlayerBuilder.class)
     List<PlayerBuilder> selectPlayers(long guildId);
 
@@ -55,14 +52,23 @@ public interface GuildDao {
 
     @SqlQuery("SELECT ChannelID, Mode FROM ChannelMode WHERE GuildID = ?")
     @RegisterRowMapper(ChannelModeMapper.class)
-    List<Pair<Long, GameMode>> getChannelModes(long guildId);
-
-    @SqlQuery("SELECT ChannelID, Mode FROM ChannelMode WHERE GuildID = ? AND ChannelID = ?")
-    @RegisterRowMapper(ChannelModeMapper.class)
-    Pair<Long, GameMode> getChannelMode(long guildId, long channelId);
+    List<Pair<Long, Short>> getChannelModes(long guildId);
 
     @SqlQuery("SELECT * FROM Guild WHERE GuildID = ?")
     @RegisterBeanMapper(GuildBuilder.class)
     GuildBuilder selectGuild(long guildId);
+
+    @SqlQuery("SELECT Guild.Prefix FROM Guild WHERE GuildID = :id")
+    String getPrefix(@Bind("id") long guildId);
+
+    default GuildBean getGuild(long guildId) {
+        return selectGuild(guildId).build();
+    }
+
+    @SqlUpdate("UPDATE Guild SET Prefix = :prefix WHERE GuildID = :guildId")
+    void updatePrefix(@Bind("guildId") long guildId, @Bind("prefix") String prefix);
+
+    @SqlUpdate("UPDATE Guild SET Modules = :modules WHERE GuildID = :guildId")
+    void updateModules(@Bind("guildId") long guildId, @Bind("modules") long modules);
 
 }

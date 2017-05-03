@@ -14,6 +14,7 @@
 */
 package samurai.command.fun;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -23,6 +24,7 @@ import samurai.files.SamuraiStore;
 import samurai.messages.impl.FileMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.util.GifGenerator;
 import samurai.util.ImageUtils;
 
@@ -45,9 +47,13 @@ import java.util.List;
 @Key("wasted")
 @Source
 public class Wasted extends Command {
+    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES};
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
         final java.util.List<Member> mentions = context.getMentionedMembers();
         final List<String> args = context.getArgs();
         if (mentions.size() != 1) return null;
@@ -116,5 +122,6 @@ public class Wasted extends Command {
         gg.generate(frames, spin, rave, grey);
         return gg.getInputStream();
     }
+
 }
 

@@ -23,10 +23,6 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
-/**
- * @author TonTL
- * @version 4/12/2017
- */
 @Key({"pause", "unpause"})
 public class Pause extends Command{
     @Override

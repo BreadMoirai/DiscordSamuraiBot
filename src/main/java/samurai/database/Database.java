@@ -21,7 +21,9 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 
 public class Database {
 
-    private static final String PROTOCOL = "jbdc:derby:";
+    private static final String PROTOCOL = "jdbc:derby:";
     private static final String DB_NAME;
 
     private static Database self;
@@ -49,7 +51,8 @@ public class Database {
             try {
                 self = new Database();
             } catch (SQLException e) {
-                throw new ExceptionInInitializerError();
+                SQLUtil.printSQLException(e);
+                throw new ExceptionInInitializerError("Connection could not be opened");
             }
         }
         return self;
@@ -61,7 +64,7 @@ public class Database {
 
     private Database() throws SQLException {
         testConnection();
-        jdbi = Jdbi.create(PROTOCOL + DB_NAME);
+        jdbi = Jdbi.create(PROTOCOL + DB_NAME + ";");
         jdbi.installPlugin(new SqlObjectPlugin());
     }
 
@@ -78,7 +81,9 @@ public class Database {
     private void testConnection() throws SQLException {
         Connection initialConnection = null;
         try {
-            initialConnection = DriverManager.getConnection(PROTOCOL + DB_NAME + ';');
+            DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
+            final String url = PROTOCOL + DB_NAME + ";";
+            initialConnection = DriverManager.getConnection(url);
         } catch (SQLException e) {
             if (e.getErrorCode() == 40000
                     && e.getSQLState().equalsIgnoreCase("XJ004")) {
@@ -97,7 +102,7 @@ public class Database {
     }
 
     private void initializeTables(Connection connection) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.getClass().getResource("databaseInitializer.sql").openStream()))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Database.class.getResourceAsStream("databaseInitializer.sql")))) {
             final Statement statement = connection.createStatement();
             for (String s : br.lines().collect(Collectors.joining()).split(";")) {
                 statement.addBatch(s);

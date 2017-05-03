@@ -20,7 +20,9 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
@@ -47,7 +49,7 @@ public class Bot {
     public static final long SOURCE_GUILD;
     public static final String DEFAULT_PREFIX;
     public static final int SHARD_COUNT = 1;
-    public static final String VERSION;
+    public static String VERSION;
 
     private static final ArrayList<JDA> shards;
 
@@ -85,6 +87,9 @@ public class Bot {
                 e.printStackTrace();
             }
 
+            if (VERSION.contains("buildVersion")) {
+            VERSION = "Development";
+            }
 
         final Config config = ConfigFactory.load();
 
@@ -105,14 +110,13 @@ public class Bot {
             e.printStackTrace();
         }
 
-
-        Database.getDatabase();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
     }
 
     public static void shutdown() {
         System.out.println("Shutting Down");
+        SamuraiAudioManager.close();
         Database.close();
         OsuTracker.close();
         for (JDA jda : shards) {
@@ -134,8 +138,8 @@ public class Bot {
         return shards;
     }
 
-    static void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageEvent(event)));
+    static void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
     }
 
 }

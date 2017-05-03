@@ -26,7 +26,7 @@ public class GuildBuilder {
     private String prefix;
     private List<PlayerBean> players = null;
     private List<ChartBean> charts = null;
-    private List<Pair<Long, GameMode>> channelModes = null;
+    private List<Pair<Long, Short>> channelModes = null;
     private long modules;
 
     public GuildBuilder setGuildId(long guildId) {
@@ -49,7 +49,7 @@ public class GuildBuilder {
         return this;
     }
 
-    public GuildBuilder setChannelModes(List<Pair<Long, GameMode>> channelModes) {
+    public GuildBuilder setChannelModes(List<Pair<Long, Short>> channelModes) {
         this.channelModes = channelModes;
         return this;
     }

@@ -18,9 +18,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import samurai.database.Database;
 import samurai.database.dao.ChartDao;
 import samurai.database.dao.GuildDao;
+import samurai.database.dao.PlayerDao;
 import samurai.osu.enums.GameMode;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * manages primary specific osu data!
@@ -31,10 +34,10 @@ public class GuildBean {
     private String prefix;
     private List<PlayerBean> players;
     private List<ChartBean> charts;
-    private List<Pair<Long, GameMode>> channelModes;
+    private List<Pair<Long, Short>> channelModes;
     private long modules;
 
-    GuildBean(long guildId, String prefix, List<PlayerBean> players, List<ChartBean> charts, List<Pair<Long, GameMode>> channelModes, long modules) {
+    GuildBean(long guildId, String prefix, List<PlayerBean> players, List<ChartBean> charts, List<Pair<Long, Short>> channelModes, long modules) {
         this.guildId = guildId;
         this.prefix = prefix;
         this.players = players;
@@ -55,24 +58,38 @@ public class GuildBean {
         if (players == null) {
             players = Database.get().<GuildDao, List<PlayerBean>>openDao(GuildDao.class, guildDao -> guildDao.getPlayers(getGuildId()));
         }
-        return players;
+        return Collections.unmodifiableList(players);
     }
 
     public List<ChartBean> getCharts() {
         if (charts == null) {
             charts = Database.get().<ChartDao, List<ChartBean>>openDao(ChartDao.class, chartDao -> chartDao.getGuildCharts(getGuildId()));
         }
-        return charts;
+        return Collections.unmodifiableList(charts);
     }
 
-    public List<Pair<Long, GameMode>> getChannelModes() {
+    public List<Pair<Long, Short>> getChannelModes() {
         if (channelModes == null) {
-            channelModes = Database.get().<GuildDao, List<Pair<Long, GameMode>>>openDao(GuildDao.class, guildDao -> guildDao.getChannelModes(getGuildId()));
+            channelModes = Database.get().<GuildDao, List<Pair<Long, Short>>>openDao(GuildDao.class, guildDao -> guildDao.getChannelModes(getGuildId()));
         }
-        return channelModes;
+        return Collections.unmodifiableList(channelModes);
     }
 
     public long getModules() {
         return modules;
+    }
+
+    public Optional<PlayerBean> getPlayer(long discordUserId) {
+        if (players == null) {
+            return Optional.ofNullable(Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, playerDao -> playerDao.getPlayer(discordUserId)));
+        } else return players.stream().filter(playerBean -> playerBean.getDiscordId() == discordUserId).findAny();
+    }
+
+    public int getRankLocal(PlayerBean player) {
+        return players.indexOf(player);
+    }
+
+    public GuildUpdater getUpdater() {
+        return new GuildUpdater(guildId);
     }
 }

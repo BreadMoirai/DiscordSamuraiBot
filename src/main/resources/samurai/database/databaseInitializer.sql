@@ -1,12 +1,23 @@
 CREATE TABLE Player (
-  UserID      BIGINT      NOT NULL PRIMARY KEY,
+  DiscordID   BIGINT      NOT NULL PRIMARY KEY,
   OsuID       INT         NOT NULL UNIQUE,
   OsuName     VARCHAR(16) NOT NULL,
   GlobalRank  INT         NOT NULL,
   CountryRank INT         NOT NULL,
+  Level       FLOAT       NOT NULL,
   RawPP       FLOAT       NOT NULL,
   Accuracy    FLOAT       NOT NULL,
   PlayCount   INT         NOT NULL,
+
+  CountX      INT,
+  CountS      INT,
+  CountA      INT,
+
+  Count300    INT,
+  Count100    INT,
+  Count50     INT,
+
+  Modes       SMALLINT    NOT NULL DEFAULT 1,
 
   LastUpdated BIGINT      NOT NULL
 );
@@ -40,20 +51,20 @@ CREATE TABLE GuildChart (
 );
 
 CREATE TABLE GuildPlayer (
-  GuildID BIGINT    NOT NULL,
-  UserID  BIGINT    NOT NULL,
-  Mode    SMALLINT  NOT NULL,
-  CONSTRAINT GuildPlayer PRIMARY KEY (UserID, GuildID, Mode),
-  CONSTRAINT UserID_FK FOREIGN KEY (UserID) REFERENCES Player (UserID),
+  GuildID   BIGINT   NOT NULL,
+  DiscordID BIGINT   NOT NULL,
+  Mode      SMALLINT NOT NULL,
+  CONSTRAINT GuildPlayer PRIMARY KEY (DiscordID, GuildID, Mode),
+  CONSTRAINT DiscordID_FK FOREIGN KEY (DiscordID) REFERENCES Player (DiscordID),
   CONSTRAINT GuildID_FK2 FOREIGN KEY (GuildID) REFERENCES GUILD (GuildID)
 );
 
 
 CREATE TABLE ChannelMode (
-  GuildID   BIGINT    NOT NULL,
-  ChannelID BIGINT    NOT NULL,
-  Mode      SMALLINT  NOT NULL,
-  CONSTRAINT ChannelMode PRIMARY KEY (GuildID, ChannelID, Mode),
+  ChannelID BIGINT   NOT NULL,
+  GuildID   BIGINT   NOT NULL,
+  Mode      SMALLINT NOT NULL,
+  CONSTRAINT ChannelMode PRIMARY KEY (ChannelID),
   CONSTRAINT GuildID_FK3 FOREIGN KEY (GuildID) REFERENCES Guild (GuildID)
 );
 
@@ -69,4 +80,3 @@ CREATE TABLE MapSet (
   SetID INT NOT NULL,
   CONSTRAINT MapSet_PK PRIMARY KEY (MapID)
 );
-

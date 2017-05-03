@@ -27,10 +27,6 @@ import samurai.messages.base.SamuraiMessage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author TonTL
- * @version 4.2
- */
 @Key("help")
 public class Help extends Command {
 

@@ -92,3 +92,4 @@ fabric.properties
 /SamuraiDerbyDatabase
 derby.log
 /.shelf
+/SamuraiDatabase

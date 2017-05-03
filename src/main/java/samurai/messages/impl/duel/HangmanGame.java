@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.command.CommandFactory;
@@ -175,7 +176,7 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
 
 
     @Override
-    public void onPrivateMessageEvent(GenericPrivateMessageEvent event) {
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
         if (word != null) return;
         if (!event.getAuthor().getId().equals(authorId)) return;
 

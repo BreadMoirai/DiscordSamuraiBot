@@ -23,16 +23,20 @@ import samurai.database.objects.PlayerBuilder;
 
 public interface PlayerDao {
 
-    @SqlUpdate("INSERT INTO Player VALUES (:userId, :osuId, :osuName, :globalRank, :countryRank, :rawPP, :accuracy, :playCount, :lastUpdated)")
+    @SqlUpdate("INSERT INTO Player VALUES (:discordID, :osuId, :osuName, :globalRank, :countryRank, :level, :rawPP, :accuracy, :playCount, :countX, :countS, :countA, :count300, :count100, :count50, :modes, :lastUpdated)")
     void insertPlayer(@BindBean PlayerBean player);
 
-    @SqlUpdate("UPDATE Player SET GlobalRank = :globalRank, CountryRank = :countryRank, RawPP = :rawPP, Accuracy = :accuracy, PlayCount = :playCount, LastUpdated = :lastUpdated WHERE userID = :userId")
+    @SqlUpdate("UPDATE Player SET GlobalRank = :globalRank, CountryRank = :countryRank, RawPP = :rawPP, Accuracy = :accuracy, PlayCount = :playCount, CountX = :countX, CountS = :countS, CountA = :countA, :count300, :count100, :count50, Modes = :modes, LastUpdated = :lastUpdated WHERE discordID = :discordId")
     boolean update(@BindBean PlayerBean player);
 
-    @SqlQuery("SELECT * FROM Player WHERE UserId = ?")
+    @SqlQuery("SELECT * FROM Player WHERE discordID = ?")
     @RegisterBeanMapper(PlayerBuilder.class)
-    PlayerBuilder getById(long userId);
+    PlayerBuilder selectPlayer(long discordID);
+    
+    default PlayerBean getPlayer(long discordId) {
+        return selectPlayer(discordId).build();
+    }
 
-    @SqlUpdate("DELETE FROM Player WHERE userId = ?")
-    void delete(long userId);
+    @SqlUpdate("DELETE FROM Player WHERE discordID = ?")
+    void delete(long discordId);
 }

@@ -1,19 +1,15 @@
 package samurai.database;
 
-import org.json.JSONObject;
 import org.junit.*;
-import samurai.api.OsuAPI;
-import samurai.command.music.Play;
 import samurai.database.dao.PlayerDao;
 import samurai.database.objects.PlayerBean;
 import samurai.database.objects.PlayerBuilder;
+import samurai.osu.OsuAPI;
 
-import java.time.Instant;
+import java.io.InputStream;
 
-/**
- * @author TonTL
- * @version 5.x - 3/24/2017
- */
+import static org.junit.Assert.*;
+
 @Ignore
 public class DatabaseTest {
 
@@ -30,27 +26,18 @@ public class DatabaseTest {
         Database.close();
     }
 
+
     @Test
-    public static void testPlayer() {
-        final JSONObject dreadMoirai = OsuAPI.getUserJSON("DreadMoirai");
+    public void testPlayer() {
+        final PlayerBuilder dreadMoirai = OsuAPI.getPlayer("DreadMoirai");
         Assert.assertNotNull(dreadMoirai);
-        final PlayerBean playerBean = new PlayerBuilder()
-                .setUserId(12345678L)
-                .setOsuId(dreadMoirai.getInt("user_id"))
-                .setOsuName(dreadMoirai.getString("username"))
-                .setAccuracy(dreadMoirai.getDouble("accuracy"))
-                .setRawPP(dreadMoirai.getDouble("pp_raw"))
-                .setCountryRank(dreadMoirai.getInt("pp_country_rank"))
-                .setGlobalRank(dreadMoirai.getInt("pp_rank"))
-                .setPlayCount(dreadMoirai.getInt("playcount"))
-                .setLastUpdated(Instant.now().getEpochSecond())
-                .create();
 
-        final PlayerBean playerBean1 = Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, dao -> dao.getById(12345678L).build());
+        dreadMoirai.setDiscordId(123456789L);
 
-        System.out.println(playerBean);
-        System.out.println(playerBean1);
-        Assert.assertEquals(playerBean, playerBean1);
+        final PlayerBean playerCreated = dreadMoirai.create();
 
+        final PlayerBean playerQueried = Database.get().<PlayerDao, PlayerBean>openDao(PlayerDao.class, dao -> dao.getPlayer(123456789L));
+
+        assertEquals(playerCreated, playerQueried);
     }
 }

@@ -15,10 +15,7 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
@@ -28,16 +25,14 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
-import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.utils.PermissionUtil;
+import org.apache.commons.lang3.tuple.Pair;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -49,6 +44,9 @@ import samurai.command.annotations.Source;
 import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
+import samurai.database.dao.ChannelDao;
+import samurai.database.dao.GuildDao;
+import samurai.database.objects.GuildBean;
 import samurai.messages.MessageManager;
 import samurai.messages.impl.FixedMessage;
 import samurai.osu.enums.GameMode;
@@ -83,16 +81,18 @@ public class SamuraiDiscord implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof GenericGuildMessageEvent) {
-            this.onGenericGuildMessage((GenericGuildMessageEvent) event);
+        if (event instanceof GuildMessageReceivedEvent) {
+            this.onGuildMessageReceived((GuildMessageReceivedEvent) event);
+        } else if (event instanceof GuildMessageUpdateEvent) {
+            this.onGuildMessageUpdate((GuildMessageUpdateEvent) event);
         } else if (event instanceof MessageDeleteEvent) {
             this.onMessageDelete((MessageDeleteEvent) event);
         } else if (event instanceof TextChannelDeleteEvent) {
             this.onTextChannelDelete((TextChannelDeleteEvent) event);
         } else if (event instanceof UserGameUpdateEvent) {
             this.onUserGameUpdate((UserGameUpdateEvent) event);
-        } else if (event instanceof GenericPrivateMessageEvent) {
-            this.onGenericPrivateMessageEvent((GenericPrivateMessageEvent) event);
+        } else if (event instanceof PrivateMessageReceivedEvent) {
+            this.onPrivateMessageReceived((PrivateMessageReceivedEvent) event);
         } else if (event instanceof MessageReactionAddEvent) {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
@@ -149,25 +149,32 @@ public class SamuraiDiscord implements EventListener {
         return messageManager;
     }
 
+    private void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        if (checkMessage(event.getAuthor(), event.getChannel(), event.getMessage())) {
+            this.getMessageManager().onGuildMessageReceived(event);
+            final String prefix = Database.get().<GuildDao, String>openDao(GuildDao.class, guildDao -> guildDao.getPrefix(event.getGuild().getIdLong()));
+            final Command c = CommandFactory.build(event, prefix);
 
-    private void onGenericGuildMessage(GenericGuildMessageEvent event) {
-        if (!(event instanceof GuildMessageReceivedEvent || event instanceof GuildMessageUpdateEvent)) {
-            return;
+            if (c != null) {
+                this.onCommand(c);
+            }
         }
-        if (event.getAuthor().isFake()) return;
-        if (event.getAuthor().getIdLong() == Bot.ID) {
-            Bot.SENT.incrementAndGet();
-            return;
-        } else if (event.getAuthor().isBot()) return;
-        if (event.getMessage().isPinned()) return;
+    }
 
-        this.getMessageManager().onGuildMessageEvent(event);
-        final String prefix = Database.getDatabase().getPrefix(event.getGuild().getIdLong());
-        final Command c = CommandFactory.build(event, prefix);
+    private void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        if (checkMessage(event.getAuthor(), event.getChannel(), event.getMessage())) {
+            this.getMessageManager().onGuildMessageUpdate(event);
+            final String prefix = Database.get().<GuildDao, String>openDao(GuildDao.class, guildDao -> guildDao.getPrefix(event.getGuild().getIdLong()));
+            final Command c = CommandFactory.build(event, prefix);
 
-        if (c != null) {
-            this.onCommand(c);
+            if (c != null) {
+                this.onCommand(c);
+            }
         }
+    }
+
+    private boolean checkMessage(User author, TextChannel channel, Message message) {
+        return !author.isFake() && !author.isBot() && !message.isPinned() && channel.canTalk();
     }
 
     private void onUserGameUpdate(UserGameUpdateEvent event) {
@@ -176,22 +183,22 @@ public class SamuraiDiscord implements EventListener {
             final long discordUserId = event.getUser().getIdLong();
             final long discordGuildId = event.getGuild().getIdLong();
             final Optional<OsuSession> sessionOptional = OsuTracker.retrieveSession(discordUserId);
-            final Optional<SGuild> guildOptional = Database.getDatabase().getGuild(discordGuildId, discordUserId);
-            if (guildOptional.isPresent()) {
-                final SGuild sGuild = guildOptional.get();
-                final OptionalLong any = sGuild.getChannelFilters().stream().filter(longGameModeEntry -> longGameModeEntry.getValue() == GameMode.STANDARD).mapToLong(Entry::getKey).findAny();
+            final GuildBean guild = Database.get().<GuildDao, GuildBean>openDao(GuildDao.class, guildDao -> guildDao.getGuild(discordGuildId));
+            if (guild != null) {
+                //fix me
+                final OptionalLong any = guild.getChannelModes().stream().filter(longGameModeEntry -> (GameMode.STANDARD.bit() & longGameModeEntry.getValue()) == GameMode.STANDARD.bit()).mapToLong(Pair::getKey).findAny();
                 if (any.isPresent()) {
                     final long discordOutputChannelId = any.getAsLong();
-                    final TextChannel outputChannel = event.getGuild().getTextChannelById(String.valueOf(discordOutputChannelId));
+                    final TextChannel outputChannel = event.getGuild().getTextChannelById(discordOutputChannelId);
                     if (outputChannel != null) {
                         if (sessionOptional.isPresent()) {
                             sessionOptional.get().addChannel(outputChannel);
                         } else {
-                            sGuild.getPlayer(discordUserId).ifPresent(player -> OsuTracker.register(player, outputChannel));
+                            guild.getPlayer(discordUserId).ifPresent(player -> OsuTracker.register(player, outputChannel));
                         }
                     } //if the channel Exists
                     else {
-                        Database.getDatabase().removeFilter(discordOutputChannelId);
+                        Database.get().<ChannelDao>openDao(ChannelDao.class, channelDao -> channelDao.deleteChannelMode(discordOutputChannelId));
                     }
                 } //if they have a channel filter
             } //if there is a sGuild
@@ -206,11 +213,9 @@ public class SamuraiDiscord implements EventListener {
         this.getMessageManager().remove(event.getChannel().getIdLong());
     }
 
-    private void onGenericPrivateMessageEvent(GenericPrivateMessageEvent event) {
-        if (event instanceof PrivateMessageReceivedEvent || event instanceof PrivateMessageUpdateEvent) {
-            if (!event.getAuthor().isBot() && !event.getAuthor().isFake())
-                Bot.onPrivateMessageEvent(event);
-        }
+    private void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        if (event.getAuthor().isFake() || event.getAuthor().isBot()) return;
+        this.getMessageManager().onPrivateMessageReceived(event);
     }
 
     private void onMessageReactionAddEvent(MessageReactionAddEvent event) {
@@ -231,7 +236,9 @@ public class SamuraiDiscord implements EventListener {
 
     private void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
-        if (event.getMember().equals(guild.getSelfMember())) {return;}
+        if (event.getMember().equals(guild.getSelfMember())) {
+            return;
+        }
         final List<Member> members = event.getChannelJoined().getMembers();
         if (members.size() == 2 && members.contains(guild.getSelfMember()) && members.contains(event.getMember())) {
             SamuraiAudioManager.cancelLeave(guild.getIdLong());

@@ -23,10 +23,10 @@ import samurai.osu.enums.GameMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ChannelModeMapper implements RowMapper<Pair<Long, GameMode>> {
+public class ChannelModeMapper implements RowMapper<Pair<Long, Short>> {
 
     @Override
-    public Pair<Long, GameMode> map(ResultSet rs, StatementContext ctx) throws SQLException {
-        return new ImmutablePair<>(rs.getLong("ChannelID"), GameMode.get(rs.getInt("Mode")));
+    public Pair<Long, Short> map(ResultSet rs, StatementContext ctx) throws SQLException {
+        return new ImmutablePair<>(rs.getLong("ChannelID"), rs.getShort("Mode"));
     }
 }

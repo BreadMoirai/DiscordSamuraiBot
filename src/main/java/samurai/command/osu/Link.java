@@ -22,17 +22,13 @@ import org.json.JSONObject;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.database.objects.PlayerBuilder;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
-import samurai.osu.api.OsuAPI;
+import samurai.osu.OsuAPI;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.0
- * @since 2/20/2017
- */
 @Key("link")
 public class Link extends Command {
 
@@ -41,27 +37,19 @@ public class Link extends Command {
         if (context.getArgs().size() == 0 || context.getArgs().get(0).length() > 16) {
             return FixedMessage.build("Invalid Username");
         }
-        JSONObject userJSON = OsuAPI.getUserJSON(context.getArgs().get(0));
-        if (userJSON == null) {
+        final PlayerBuilder player = OsuAPI.getPlayer(context.getStrippedContent());
+        if (player == null) {
             return FixedMessage.build("Failed to link account.");
         }
         MessageEmbed profileEmbed;
-        System.out.println(userJSON.toString());
         List<Member> mentions = context.getMentionedMembers();
         if (context.getMentionedMembers().size() == 0) {
-            context.getSamuraiGuild().getManager().addPlayer(
-                    context.getAuthorId(),
-                    userJSON.getString("username"),
-                    userJSON.getInt("user_id"),
-                    userJSON.getDouble("pp_raw"),
-                    userJSON.getInt("pp_rank"),
-                    userJSON.getInt("pp_country_rank"));
-            profileEmbed = Profile.buildProfileEmbed(userJSON);
+            profileEmbed = Profile.buildProfileEmbed(player.build());
         } else if (context.getMentionedMembers().size() == 1) {
             if (!PermissionUtil.canInteract(context.getAuthor(), context.getMentionedMembers().get(0)))
                 return FixedMessage.build("You do not have sufficient access to manage " + context.getMentionedMembers().get(0).getAsMention());
             //todo add user to guild as player
-            profileEmbed = Profile.buildProfileEmbed(userJSON);
+            profileEmbed = Profile.buildProfileEmbed(player.build());
         } else {
             return FixedMessage.build("Failed to link account.");
         }

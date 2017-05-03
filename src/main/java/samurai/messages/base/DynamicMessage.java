@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 /**
@@ -30,7 +31,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 public abstract class DynamicMessage extends SamuraiMessage {
 
 
-    private static final int TIMEOUT = 120;
+    private static final int TIMEOUT = 2;
 
     private OffsetDateTime lastActive;
     private MessageManager manager;
@@ -40,7 +41,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
     }
 
     public boolean isExpired() {
-        return MINUTES.between(lastActive, OffsetDateTime.now()) > TIMEOUT;
+        return HOURS.between(lastActive, OffsetDateTime.now()) > TIMEOUT;
     }
 
     /**
@@ -90,7 +91,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
         lastActive = OffsetDateTime.now();
     }
 
-    protected MessageManager getManager() {
+    public MessageManager getManager() {
         return manager;
     }
 }

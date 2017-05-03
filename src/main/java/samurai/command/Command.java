@@ -14,6 +14,8 @@
 */
 package samurai.command;
 
+import net.dv8tion.jda.core.Permission;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
@@ -50,6 +52,6 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
 
     public boolean isEnabled() {
         final String name = this.getClass().getPackage().getName();
-        return CommandModule.valueOf(name.substring(name.lastIndexOf('.') + 1)).isEnabled(context.getSamuraiGuild().getEnabledCommands());
+        return CommandModule.valueOf(name.substring(name.lastIndexOf('.') + 1)).isEnabled(context.getSamuraiGuild().getModules());
     }
 }

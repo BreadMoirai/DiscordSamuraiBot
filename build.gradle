@@ -17,18 +17,18 @@ repositories {
 }
 
 dependencies {
-    compile 'net.dv8tion:JDA:3.0.0_175'
+    compile 'net.dv8tion:JDA:3.0.0_188'
     compile 'org.codehaus.groovy:groovy:2.4.8'
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
     compile 'com.sedmelluq:lavaplayer:1.2.36'
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
+    compile group: 'org.apache.derby', name: 'derby', version: '10.13.1.1'
     compile 'org.jdbi:jdbi3:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-parent:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-sqlobject:3.0.0-beta1'
     compile 'org.jetbrains:annotations:13.0'
-    compile group: 'org.apache.derby', name: 'derby', version: '10.13.1.1'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
@@ -47,12 +47,14 @@ import org.apache.tools.ant.filters.ReplaceTokens
 tasks.create('sourcesForRelease', Copy.class)
 sourcesForRelease.with {
     from 'src/main/java'
+    from 'src/main/resources'
     into 'build/filteredSrc'
     filter(ReplaceTokens, tokens: [
             buildVersion : version
     ])
 }
 sourcesForRelease.doLast {incrementVersionCode}
+
 
 compileJava {
     source = sourcesForRelease.destinationDir

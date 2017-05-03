@@ -14,20 +14,19 @@
 */
 package samurai.command.music;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4/11/2017
- */
 @Key("join")
 public class Join extends Command {
     @Override
@@ -36,7 +35,10 @@ public class Join extends Command {
         if (voiceChannelsByName.isEmpty()) {
             return FixedMessage.build("The specified Voice Channel was not found.");
         }
-        SamuraiAudioManager.openConnection(voiceChannelsByName.get(0));
+        final VoiceChannel channel = voiceChannelsByName.get(0);
+        final Member selfMember = context.getSelfMember();
+        if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK)) return new PermissionFailureMessage(selfMember, channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK);
+        SamuraiAudioManager.openConnection(channel);
         return null;
     }
 }

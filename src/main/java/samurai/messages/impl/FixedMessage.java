@@ -60,6 +60,11 @@ public class FixedMessage extends SamuraiMessage {
         return this;
     }
 
+    public FixedMessage appendConsumer(Consumer<Message> consumer) {
+        this.consumer = this.consumer.andThen(consumer);
+        return this;
+    }
+
     @Override
     public void send(MessageManager messageManager) {
         messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queue(consumer, null);

@@ -14,6 +14,7 @@
 */
 package samurai.command.debug;
 
+import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -21,6 +22,7 @@ import samurai.command.annotations.Source;
 import samurai.messages.impl.FileMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.black_jack.Card;
 import samurai.messages.impl.black_jack.CardFactory;
 
@@ -36,16 +38,15 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 3/7/2017
- */
 @Key("draw")
 @Source
 public class Draw extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
+        if (!context.getSelfMember().hasPermission(context.getChannel(), Permission.MESSAGE_ATTACH_FILES)) {
+            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), Permission.MESSAGE_ATTACH_FILES);
+        }
         final List<String> args = context.getArgs();
         if (args.size() == 0) return null;
         if (args.get(0).equals("stack")) {
