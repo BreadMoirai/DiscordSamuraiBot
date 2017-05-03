@@ -7,7 +7,6 @@ plugins {
 
 idea.module.downloadJavadoc = true
 
-version = "4.8." + file("version.txt").getText()
 
 mainClassName = "samurai.Bot"
 
@@ -33,8 +32,13 @@ dependencies {
 }
 
 tasks.create('incrementVersionCode', {
+    def file = file("version.txt")
+    if (!file.exists()) {
+        file.createNewFile()
+        file.write('0')
+    }
     println(":incrementVersionCode - Incrementing Version Code...")
-    def versionFile = file("version.txt")
+    def versionFile = file
     def mVersionCode = Integer.parseInt(versionFile.getText())
     def mNextVersionCode = mVersionCode + 1
     println(":incrementVersionCode - current :" + mVersionCode)
@@ -42,8 +46,9 @@ tasks.create('incrementVersionCode', {
     versionFile.write(mNextVersionCode as String)
 })
 
-import org.apache.tools.ant.filters.ReplaceTokens
+version = "4.8." + file("version.txt").getText()
 
+import org.apache.tools.ant.filters.ReplaceTokens
 tasks.create('sourcesForRelease', Copy.class)
 sourcesForRelease.with {
     from 'src/main/java'

@@ -92,4 +92,5 @@ fabric.properties
 /SamuraiDerbyDatabase
 derby.log
 /.shelf
+version.txt
 /SamuraiDatabase
