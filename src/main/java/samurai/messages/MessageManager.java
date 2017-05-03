@@ -156,7 +156,6 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
-        System.out.println("event = " + event.getReactionEmote().getName() + event.getUser().getName());
         listeners.getOrDefault(event.getChannel().getIdLong(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == event.getMessageIdLong()).findFirst().ifPresent(dynamicMessage -> {
             if (dynamicMessage instanceof ReactionListener)
                 ((ReactionListener) dynamicMessage).onReaction(event);

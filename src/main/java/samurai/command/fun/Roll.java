@@ -21,49 +21,62 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.RollPoll;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-@Key({"roll", "rollpoll", "rollpoll"})
+@Key({"roll", "rollpoll", "rollypolly"})
 public class Roll extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        if (context.getKey().equalsIgnoreCase("rollpoll")) {
+        if (context.getKey().equalsIgnoreCase("rollpoll") || context.getKey().equalsIgnoreCase("rollypolly")) {
             final List<String> args = context.getArgs();
-            if (!args.isEmpty() && CommandContext.isNumber(args.get(0))) {
-                int time = Integer.parseInt(args.get(0));
-                if (args.size() == 2) {
-                    switch (args.get(1).toLowerCase()) {
+            if (!args.isEmpty() && args.size() % 2 == 0) {
+                int totalTime = 0;
+                int i = 0;
+                while (i < args.size()) {
+                    int time;
+                    if (CommandContext.isNumber(args.get(i))) {
+                        time = Integer.parseInt(args.get(i));
+                    } else {
+                        totalTime = -1;
+                        break;
+                    }
+                    switch (args.get(++i).toLowerCase()) {
+                        case "s":
+                        case "second":
+                        case "seconds":
+                            totalTime += time;
+                            break;
                         case "m":
                         case "min":
                         case "minute":
                         case "minutes":
-                            return new RollPoll(time, TimeUnit.MINUTES);
-                        case "s":
-                        case "second":
-                        case "seconds":
-                            return new RollPoll(time, TimeUnit.SECONDS);
+                            totalTime += time * 60;
+                            break;
                         case "h":
                         case "hour":
                         case "hours":
-                            return new RollPoll(time, TimeUnit.HOURS);
+                            totalTime += time * 60 * 60;
+                            break;
                         case "d":
                         case "day":
                         case "days":
-                            return new RollPoll(time, TimeUnit.DAYS);
+                            totalTime += time * 60 * 60 * 24;
+                            break;
                         case "wk":
                         case "week":
                         case "weeks":
-                            return new RollPoll(time * 7, TimeUnit.DAYS);
-                        default:
+                            totalTime += time * 60 * 60 * 24 * 7;
                             break;
+                        default:
+                            time = -1;
                     }
+                    i++;
                 }
-                return new RollPoll(time, TimeUnit.MINUTES);
+                if (totalTime > 0)
+                    return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"));
             }
             return new RollPoll();
         }

@@ -30,20 +30,23 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
     private final int time;
     private TimeUnit unit;
     private OffsetDateTime endTime;
+    private boolean rollypolly;
 
     {
         rolls = new HashMap<>(50);
         endTime = null;
     }
 
-    public RollPoll() {
-        time = 0;
-        unit = null;
-    }
-
-    public RollPoll(int time, TimeUnit unit) {
+    public RollPoll(int time, TimeUnit unit, boolean rollypolly) {
         this.time = time;
         this.unit = unit;
+        this.rollypolly = rollypolly;
+    }
+
+    public RollPoll() {
+        this.time = 0;
+        this.unit = null;
+        rollypolly = false;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
     @Override
     protected void onReady(Message message) {
         message.addReaction(DICE).queue();
-        if (time != 0) {
+        if (time > 0) {
             message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
                 message1.editMessage("Winner is: \uD83C\uDF8A" + rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey().getAsMention() + "\uD83C\uDF8A").queue();
                 message1.clearReactions().queue();
@@ -65,7 +68,6 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             message.addReaction(END).queue();
         }
         message.editMessage(buildScoreBoard()).queue();
-
         unit = null;
     }
 
@@ -79,12 +81,12 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         rolls.entrySet().stream().sorted(Comparator.comparingInt((ToIntFunction<Map.Entry<Member, Integer>>) Map.Entry::getValue).reversed()).forEachOrdered(memberIntegerEntry -> {
             final int pos = i.getAndIncrement();
             if (pos <= 3) {
-                description.append(MEDAL[pos-1]).append(' ');
+                description.append(MEDAL[pos - 1]).append(' ');
             } else {
                 description.append('`').append(pos).append(".` ");
             }
             description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a ").append(memberIntegerEntry.getValue())
-            .append('\n');
+                    .append('\n');
         });
         return new MessageBuilder().append("Click " + DICE + " to roll!\n").setEmbed(embedBuilder.build()).build();
     }
@@ -93,11 +95,14 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
     public void onReaction(MessageReactionAddEvent event) {
         if (event.getReaction().getEmote().getName().equals(DICE)) {
             final Member member = event.getMember();
-            System.out.println("member = " + member);
-            if (!rolls.containsKey(member)) {
+            if (!rollypolly)
                 rolls.putIfAbsent(member, ThreadLocalRandom.current().nextInt(101));
-                event.getTextChannel().editMessageById(getMessageId(), buildScoreBoard()).queue();
+            else {
+
+
+                rolls.put(member, ThreadLocalRandom.current().nextInt(101));
             }
+            event.getTextChannel().editMessageById(getMessageId(), buildScoreBoard()).queue();
         } else if (event.getUser().getIdLong() == getAuthorId() && event.getReactionEmote().getName().equals(END)) {
             TextChannel textChannel = event.getTextChannel();
             if (textChannel != null) {

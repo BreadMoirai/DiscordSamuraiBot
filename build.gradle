@@ -41,8 +41,8 @@ tasks.create('incrementVersionCode', {
     def versionFile = file
     def mVersionCode = Integer.parseInt(versionFile.getText())
     def mNextVersionCode = mVersionCode + 1
-    println(":incrementVersionCode - current :" + mVersionCode)
-    println(":incrementVersionCode - next    :" + mNextVersionCode)
+    println(":incrementVersionCode - previous:" + mVersionCode)
+    println(":incrementVersionCode - current :" + mNextVersionCode)
     versionFile.write(mNextVersionCode as String)
 })
 
