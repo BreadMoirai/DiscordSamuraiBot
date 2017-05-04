@@ -65,4 +65,7 @@ public class PointSession {
         Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.update(userId, guildId, points));
     }
 
+    public void offsetPoints(int offset) {
+        points += offset;
+    }
 }

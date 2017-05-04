@@ -14,9 +14,11 @@
 */
 package samurai.points;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
@@ -25,23 +27,37 @@ import samurai.database.Database;
 import samurai.database.dao.GuildDao;
 import samurai.database.objects.SamuraiGuild;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class PointTracker {
-    HashMap<Long, HashMap<Long, PointSession>> pointSessions;
+
+    public static final int MESSAGE_POINT = 25;
+    public static final int MINUTE_POINT = 2;
+    public static final float DUEL_POINT_RATIO = .18f;
+
+    public static final ScheduledExecutorService pool;
+
+    static {
+        pool = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    private ConcurrentHashMap<Long, ConcurrentHashMap<Long, PointSession>> pointSessions;
 
     public void load(ReadyEvent event) {
         final List<Guild> guilds = event.getJDA().getGuilds();
-        pointSessions = new HashMap<>(guilds.size());
+        pointSessions = new ConcurrentHashMap<>(guilds.size());
         for (Guild guild : guilds) {
             final long guildId = guild.getIdLong();
             Function<GuildDao, SamuraiGuild> guildGet = guildDao -> guildDao.getGuild(guildId);
             final SamuraiGuild samuraiGuild = Database.get().openDao(GuildDao.class, guildGet);
             if (CommandModule.points.isEnabled(samuraiGuild.getModules())) {
-                final HashMap<Long, PointSession> sessions = new HashMap<>(guild.getMembers().size());
+                final ConcurrentHashMap<Long, PointSession> sessions = new ConcurrentHashMap<>(guild.getMembers().size());
                 pointSessions.put(guildId, sessions);
                 for (Member member : guild.getMembers()) {
                     final OnlineStatus onlineStatus = member.getOnlineStatus();
@@ -52,22 +68,49 @@ public class PointTracker {
                 }
             }
         }
+
+        pool.scheduleAtFixedRate(this::addPointsToAll, 2, 1, TimeUnit.MINUTES);
     }
 
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
-        System.out.println(event.getPreviousOnlineStatus());
-        System.out.println(event.getGuild().getMember(event.getUser()).getOnlineStatus());
+        final JDA jda = event.getJDA();
+        final User user = event.getUser();
+        long userId = user.getIdLong();
+        final OnlineStatus onlineStatus = event.getGuild().getMember(user).getOnlineStatus();
         final OnlineStatus previousOnlineStatus = event.getPreviousOnlineStatus();
-        switch(event.getGuild().getMember(event.getUser()).getOnlineStatus()) {
+        switch (onlineStatus) {
             case OFFLINE:
             case UNKNOWN:
-                    pointSessions.values().stream().map(longPointSessionHashMap -> longPointSessionHashMap.remove(event.getUser().getIdLong())).forEach(PointSession::destroy);
-                    break;
-                    default:
+                pointSessions.values().stream().map(guildPoints -> guildPoints.remove(userId)).filter(Objects::nonNull).forEach(PointSession::commit);
+                break;
+            default:
+                pointSessions.values().stream().map(guildPoints -> guildPoints.get(userId)).filter(Objects::nonNull).forEach(pointSession -> pointSession.setStatus(onlineStatus));
         }
     }
 
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-
+        ConcurrentHashMap<Long, PointSession> guildSessions = pointSessions.get(event.getGuild().getIdLong());
+        if (guildSessions != null) {
+            PointSession pointSession = guildSessions.get(event.getAuthor().getIdLong());
+            if (pointSession != null) {
+                pointSession.offsetPoints(MESSAGE_POINT);
+            }
+        }
     }
+
+    private void addPointsToAll() {
+        pointSessions.forEachValue(100L, guildSessions -> guildSessions.forEachValue(100L, pointSession -> pointSession.offsetPoints(MINUTE_POINT)));
+    }
+
+    public long getPoints(long guildId, long userId) {
+        ConcurrentHashMap<Long, PointSession> guildSession = pointSessions.get(guildId);
+        if (guildSession != null) {
+            PointSession pointSession = guildSession.get(userId);
+            if (pointSession != null) {
+                return pointSession.getPoints();
+            }
+        }
+        return -1;
+    }
+
 }

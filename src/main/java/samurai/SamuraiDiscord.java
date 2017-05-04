@@ -79,11 +79,12 @@ public class SamuraiDiscord implements EventListener {
         shardId = 0;
         client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
         messageManager = new MessageManager(client);
-        Groovy.addBinding("mm", messageManager);
-        System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Database.get().load(event);
         this.pointTracker = new PointTracker();
         pointTracker.load(event);
+        System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
+        Groovy.addBinding("mm", messageManager);
+        Groovy.addBinding("points", pointTracker);
     }
 
     @Override
