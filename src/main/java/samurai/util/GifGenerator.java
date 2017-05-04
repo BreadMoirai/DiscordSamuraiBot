@@ -92,7 +92,6 @@ public class GifGenerator {
 
             queue.add(bi);
         }
-
         imageQueue = queue;
     }
 }

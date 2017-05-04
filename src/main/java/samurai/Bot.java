@@ -109,7 +109,6 @@ public class Bot {
             e.printStackTrace();
         }
 
-        Database.get();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
     }

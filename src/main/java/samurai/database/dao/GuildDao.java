@@ -86,4 +86,7 @@ public interface GuildDao {
         deleteGuildPlayers(guildId);
         deleteGuild(guildId);
     }
+
+    @SqlQuery("SELECT Guild.GuildId FROM Guild")
+    List<Long> getGuilds();
 }
