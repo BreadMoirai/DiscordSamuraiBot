@@ -88,7 +88,11 @@ public class ExampleCommand extends Command {
         mb.append("```\n");
         //This Action object has several fields that you can access
         mb.append(String.format("%-10s| %s%n", "author", context.getAuthor().getUser().getName()))
-                .append(String.format("%-10s| %s%n", "channelId", context.getChannelId()));
+                .append(String.format("%-10s| %s%n", "channelId", context.getChannelId()))
+                .append(String.format("%-10s| %s%n", "content", "----"))
+                .append(context.getContent())
+                .append(String.format("%-10s| %s%n", "stripped", "----"))
+                .append(context.getStrippedContent());
         //get the mentions
         if (!context.getMentionedMembers().isEmpty()) {
             int i = 0;

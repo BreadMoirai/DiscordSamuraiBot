@@ -17,6 +17,7 @@ package samurai.command.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -50,7 +51,7 @@ public class Skip extends Command {
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
             final EmbedBuilder eb = new EmbedBuilder().appendDescription("Skipped: ");
-            final List<AudioTrack> queue = audioManager.scheduler.getQueue();
+            final List<AudioTrackR> queue = audioManager.scheduler.getQueue();
             if (context.hasContent()) {
                 if (context.getContent().equalsIgnoreCase("all")) {
                     int size = queue.size();
@@ -63,13 +64,13 @@ public class Skip extends Command {
                     final int size = queue.size();
                     final ArrayDeque<AudioTrack> skip = audioManager.scheduler.skip(argList.stream()).collect(Collectors.toCollection(ArrayDeque::new));
                     final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
-                    intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast().getInfo()))));
+                    intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast()))));
                 }
             } else {
                 AudioTrack current = audioManager.player.getPlayingTrack();
-                eb.appendDescription(Play.trackInfoDisplay(current.getInfo()));
+                eb.appendDescription(Play.trackInfoDisplay(current));
                 if (queue.size() > 0) {
-                    eb.appendDescription("\nNow Playing: ").appendDescription(Play.trackInfoDisplay(queue.get(0).getInfo()));
+                    eb.appendDescription("\nNow Playing: ").appendDescription(Play.trackInfoDisplay(queue.get(0)));
                 }
                 audioManager.scheduler.nextTrack();
             }

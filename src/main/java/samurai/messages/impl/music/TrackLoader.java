@@ -26,6 +26,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandContext;
@@ -67,6 +68,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     private List<AudioTrack> tracklist;
     private MessageChannel channel;
     private boolean closed;
+    private String requester;
 
     public TrackLoader(GuildAudioManager audioManager, boolean playNow, boolean lucky, String... content) {
         this(audioManager, playNow, lucky, Arrays.asList(content));
@@ -106,6 +108,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     protected void onReady(Message message) {
         channel = message.getChannel();
         request.forEach(s -> SamuraiAudioManager.loadItem(audioManager, s, this));
+        requester = message.getGuild().getMemberById(getAuthorId()).getEffectiveName();
     }
 
     @Override
@@ -115,14 +118,13 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             if (playNow) {
                 audioManager.scheduler.clear();
             }
-            this.audioManager.scheduler.queue(track);
+            AudioTrackR trackR = this.audioManager.scheduler.queue(track, requester);
 
-            final AudioTrackInfo trackInfo = track.getInfo();
-            final int i = audioManager.scheduler.getQueue().indexOf(track);
+            final int i = audioManager.scheduler.getQueue().indexOf(trackR);
             if (i != -1) {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(trackInfo), i + 1)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(track), i + 1)).build()).queue();
             } else {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(trackInfo)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(track)).build()).queue();
             }
             unregister();
         } else {
@@ -169,7 +171,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         }
         AtomicInteger i = new AtomicInteger(start);
         final int end = start + 10;
-        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
         return new MessageBuilder().setEmbed(eb.build()).build();
@@ -224,7 +226,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
             unregister();
             if (playNow) audioManager.scheduler.clear();
-            audioManager.scheduler.queue(tracklist);
+            audioManager.scheduler.queue(tracklist, requester);
             return;
         }
         channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
@@ -272,7 +274,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
                 if (playNow) audioManager.scheduler.clear();
-                audioManager.scheduler.queue(tracklist);
+                audioManager.scheduler.queue(tracklist, requester);
                 break;
         }
     }

@@ -17,6 +17,7 @@ package samurai.command.music;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -42,12 +43,12 @@ public class History extends Command{
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager manager = managerOptional.get();
-            final Deque<AudioTrack> history = manager.scheduler.getHistory();
+            final Deque<AudioTrackR> history = manager.scheduler.getHistory();
             final EmbedBuilder eb = new EmbedBuilder();
             final StringBuilder sb = eb.getDescriptionBuilder();
             final AtomicInteger i = new AtomicInteger(0);
             sb.append("**History**");
-            history.stream().limit(10).map(audioTrack -> Play.trackInfoDisplay(audioTrack.getInfo())).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
+            history.stream().limit(10).map(Play::trackInfoDisplay).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
             return FixedMessage.build(eb.build());
         }
         return null;
