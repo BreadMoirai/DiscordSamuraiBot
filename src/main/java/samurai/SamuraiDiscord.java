@@ -79,11 +79,12 @@ public class SamuraiDiscord implements EventListener {
         shardId = 0;
         client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
         messageManager = new MessageManager(client);
-        Groovy.addBinding("mm", messageManager);
-        System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Database.get().load(event);
         this.pointTracker = new PointTracker();
         pointTracker.load(event);
+        System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
+        Groovy.addBinding("mm", messageManager);
+        Groovy.addBinding("points", pointTracker);
     }
 
     @Override
@@ -132,7 +133,7 @@ public class SamuraiDiscord implements EventListener {
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
-                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), c.getContext().getClient().getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
+                if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember())) {
                     final FixedMessage error = FixedMessage.build("You do not have the appropriate permissions to use this command.");
                     error.setChannelId(c.getContext().getChannelId());
                     messageManager.submit(error);
@@ -147,11 +148,13 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void completeContext(CommandContext context) {
+        context.setPointTracker(pointTracker);
         context.setShardId(shardId);
     }
 
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
+        pointTracker.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 

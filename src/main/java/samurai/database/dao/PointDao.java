@@ -22,16 +22,16 @@ import samurai.points.PointSession;
 
 public interface PointDao {
 
-    @SqlUpdate("INSERT INTO Points(DiscordId, GuildId) VALUES (:id, :guildId)")
-    public void insertUser(@Bind("id") long discordId, @Bind("guildId") long guildId);
+    @SqlUpdate("INSERT INTO MemberPoints(DiscordId, GuildId) VALUES (:id, :guildId)")
+    void insertUser(@Bind("id") long discordId, @Bind("guildId") long guildId);
 
-    @SqlUpdate("DELETE FROM Points WHERE DiscordId = :id1 AND GuildId = :id2")
-    public void deleteUser(@Bind("id1") long userId, @Bind("id2") long guildId);
+    @SqlUpdate("DELETE FROM MemberPoints WHERE DiscordId = :id1 AND GuildId = :id2")
+    void deleteUser(@Bind("id1") long userId, @Bind("id2") long guildId);
 
-    @SqlUpdate("UPDATE Points SET Points = :p WHERE DiscordId = :d AND GuildId = :g")
+    @SqlUpdate("UPDATE MemberPoints SET Points = :p WHERE DiscordId = :d AND GuildId = :g")
     void update(@Bind("d") long userId, @Bind("g") long guildId, @Bind("p") long points);
 
-    @SqlQuery("SELECT * FROM Points WHERE DiscordId = :d AND GuildId = :g")
+    @SqlQuery("SELECT * FROM MemberPoints WHERE DiscordId = :d AND GuildId = :g")
     @RegisterBeanMapper(PointSession.class)
     PointSession getSession(@Bind("d") long userId, @Bind("g") long guildId);
 

@@ -15,21 +15,23 @@
 package samurai.points;
 
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.Member;
 import samurai.database.Database;
 import samurai.database.dao.PointDao;
 
 public class PointSession {
-    long userId;
+    long discordId;
     long guildId;
     long points;
     OnlineStatus status;
+    Member member;
 
-    public long getUserId() {
-        return userId;
+    public long getDiscordId() {
+        return discordId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setDiscordId(long discordId) {
+        this.discordId = discordId;
     }
 
     public long getGuildId() {
@@ -57,12 +59,24 @@ public class PointSession {
         return this;
     }
 
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     public void destroy() {
-        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.deleteUser(userId, guildId));
+        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.deleteUser(discordId, guildId));
     }
 
     public void commit() {
-        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.update(userId, guildId, points));
+        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.update(discordId, guildId, points));
     }
 
+    public PointSession offsetPoints(long offset) {
+        points += offset;
+        return this;
+    }
 }

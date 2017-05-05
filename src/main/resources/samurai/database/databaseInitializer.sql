@@ -81,9 +81,9 @@ CREATE TABLE MapSet (
   CONSTRAINT MapSet_PK PRIMARY KEY (MapId)
 );
 
-CREATE TABLE Points (
+CREATE TABLE MemberPoints (
   DiscordId BIGINT NOT NULL,
   GuildId   BIGINT NOT NULL,
-  Points    BIGINT DEFAULT 100,
+  Points    BIGINT DEFAULT 0,
   CONSTRAINT Points_PK PRIMARY KEY (DiscordId, GuildId)
 );
