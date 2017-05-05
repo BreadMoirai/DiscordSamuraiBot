@@ -23,8 +23,8 @@ import samurai.messages.impl.FileMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.PermissionFailureMessage;
-import samurai.messages.impl.black_jack.Card;
-import samurai.messages.impl.black_jack.CardFactory;
+import samurai.messages.impl.poker.Card;
+import samurai.messages.impl.poker.CardFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

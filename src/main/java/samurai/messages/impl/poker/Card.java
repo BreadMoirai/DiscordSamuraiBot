@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.impl.black_jack;
+package samurai.messages.impl.poker;
 
 import java.text.ParseException;
 

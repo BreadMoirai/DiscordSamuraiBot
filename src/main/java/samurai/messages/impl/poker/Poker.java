@@ -12,13 +12,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.impl.black_jack;
+package samurai.messages.impl.poker;
 
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.messages.base.DynamicMessage;
