@@ -29,7 +29,7 @@ public enum CommandModule {
     osu(4L),
     music(8L),
     fun(16L),
-    _____(32L),
+    points(32L),
     restricted(64L),
     debug(128L);
 

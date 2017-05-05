@@ -66,7 +66,7 @@ public class Wasted extends Command {
             boolean grey = args.contains("grey") || args.contains("gs");
             InputStream is = generateImage(new URL(targetUrl), spin, rave, grey);
             if (is == null) return FixedMessage.build("Failure");
-            return new FileMessage(context.getChannelId(), is, "_" + mentions.get(0).getEffectiveName() + "_" + (spin ? 'S' : "") + (rave ? 'R' : "") + (grey ? 'G' : "") + ".png", null);
+            return new FileMessage(context.getChannelId(), is, "_" + mentions.get(0).getEffectiveName() + "_" + (spin ? 'S' : "") + (rave ? 'R' : "") + (grey ? 'G' : "") + ".gif", null);
         } catch (MalformedURLException e) {
             return FixedMessage.build("Invalid Profile Picture. I cannot work with gifs yet");
         }

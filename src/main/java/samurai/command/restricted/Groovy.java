@@ -63,7 +63,6 @@ public class Groovy extends Command {
         BINDING.setVariable("tracker", OsuTracker.class);
         BINDING.setVariable("Game", Game.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
-
     }
 
     public static void addBinding(String name, Object value) {

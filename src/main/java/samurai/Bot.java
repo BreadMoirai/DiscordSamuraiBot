@@ -25,6 +25,7 @@ import samurai.audio.SamuraiAudioManager;
 import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
+import samurai.points.PointTracker;
 
 import javax.security.auth.login.LoginException;
 import java.io.FileNotFoundException;
@@ -109,7 +110,6 @@ public class Bot {
             e.printStackTrace();
         }
 
-        Database.get();
         System.out.println("Initializing " + CommandFactory.class.getSimpleName());
         CommandFactory.initialize();
     }
@@ -119,6 +119,7 @@ public class Bot {
         SamuraiAudioManager.close();
         Database.close();
         OsuTracker.close();
+        PointTracker.close();
         for (JDA jda : shards) {
             jda.shutdown();
         }

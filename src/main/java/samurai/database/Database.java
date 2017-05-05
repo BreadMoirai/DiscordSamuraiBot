@@ -16,15 +16,19 @@ package samurai.database;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.events.ReadyEvent;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import samurai.Bot;
 import samurai.command.CommandModule;
 import samurai.database.dao.GuildDao;
 import samurai.database.dao.PlayerDao;
+import samurai.database.dao.PointDao;
 import samurai.database.objects.GuildBuilder;
 import samurai.database.objects.Player;
 import samurai.database.objects.SamuraiGuild;
+import samurai.points.PointSession;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,6 +39,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -93,6 +99,24 @@ public class Database {
         return Optional.ofNullable(jdbi.withExtension(PlayerDao.class, extension -> extension.getPlayer(discordId)));
     }
 
+    public PointSession getPointSession(long guildId, long memberId) {
+        final PointSession pointSession = jdbi.withExtension(PointDao.class, extension -> extension.getSession(memberId, guildId));
+        if (pointSession != null) {
+            return pointSession;
+        } else {
+            jdbi.useExtension(PointDao.class, extension -> extension.insertUser(memberId, guildId));
+        }
+        return jdbi.withExtension(PointDao.class, extension -> extension.getSession(memberId, guildId));
+    }
+
+    public void load(ReadyEvent event) {
+        List<Long> existingGuilds = jdbi.withExtension(GuildDao.class, GuildDao::getGuilds);
+        final ArrayList<Long> foundGuilds = event.getJDA().getGuilds().stream().map(ISnowflake::getIdLong).collect(Collectors.toCollection(ArrayList::new));
+        foundGuilds.removeAll(existingGuilds);
+        foundGuilds.forEach(guildId -> new GuildBuilder().putPrefix(Bot.DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create());
+    }
+
+
     public String getPrefix(long guildId) {
         String s = jdbi.withExtension(GuildDao.class, extension -> extension.getPrefix(guildId));
         if (s == null) {
@@ -123,7 +147,6 @@ public class Database {
             }
         }
     }
-
 
     private void initializeTables(Connection connection) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Database.class.getResourceAsStream("databaseInitializer.sql")))) {

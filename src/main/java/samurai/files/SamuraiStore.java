@@ -150,7 +150,7 @@ public class SamuraiStore {
 
     public static BufferedImage getImage(String s) {
         try {
-            return ImageIO.read(new File(SamuraiStore.class.getResource("images").getPath() + '/' + s));
+            return ImageIO.read(SamuraiStore.class.getResource("images/" + s));
         } catch (IOException e) {
             e.printStackTrace();
             return null;

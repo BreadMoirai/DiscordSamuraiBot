@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
+import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -30,6 +31,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
+import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,6 +54,7 @@ import samurai.messages.impl.FixedMessage;
 import samurai.osu.enums.GameMode;
 import samurai.osu.tracker.OsuSession;
 import samurai.osu.tracker.OsuTracker;
+import samurai.points.PointTracker;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +68,7 @@ public class SamuraiDiscord implements EventListener {
 
     private int shardId;
     private MessageManager messageManager;
+    private PointTracker pointTracker;
 
 
     SamuraiDiscord() {
@@ -75,14 +79,19 @@ public class SamuraiDiscord implements EventListener {
         shardId = 0;
         client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
         messageManager = new MessageManager(client);
-        Groovy.addBinding("mm", messageManager);
+        Database.get().load(event);
+        this.pointTracker = new PointTracker();
+        pointTracker.load(event);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
+        Groovy.addBinding("mm", messageManager);
+        Groovy.addBinding("points", pointTracker);
     }
 
     @Override
     public void onEvent(Event event) {
         if (event instanceof GuildMessageReceivedEvent) {
             this.onGuildMessageReceived((GuildMessageReceivedEvent) event);
+            this.pointTracker.onGuildMessageReceived((GuildMessageReceivedEvent) event);
         } else if (event instanceof GuildMessageUpdateEvent) {
             this.onGuildMessageUpdate((GuildMessageUpdateEvent) event);
         } else if (event instanceof MessageDeleteEvent) {
@@ -99,6 +108,8 @@ public class SamuraiDiscord implements EventListener {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
         } else if (event instanceof GuildVoiceJoinEvent) {
             this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
+        } else if (event instanceof UserOnlineStatusUpdateEvent) {
+            this.pointTracker.onUserOnlineStatusUpdate((UserOnlineStatusUpdateEvent) event);
         } else if (event instanceof GuildMemberJoinEvent) {
             this.onGuildMemberJoin((GuildMemberJoinEvent) event);
         } else if (event instanceof GuildLeaveEvent) {
@@ -122,7 +133,7 @@ public class SamuraiDiscord implements EventListener {
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
-                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), c.getContext().getClient().getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
+                if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember())) {
                     final FixedMessage error = FixedMessage.build("You do not have the appropriate permissions to use this command.");
                     error.setChannelId(c.getContext().getChannelId());
                     messageManager.submit(error);
@@ -137,11 +148,13 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void completeContext(CommandContext context) {
+        context.setPointTracker(pointTracker);
         context.setShardId(shardId);
     }
 
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
+        pointTracker.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 

@@ -4,12 +4,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.messages.base.DynamicMessage;
-import samurai.messages.base.SamuraiMessage;
 import samurai.messages.listeners.ReactionListener;
+import samurai.points.PointTracker;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -31,16 +30,20 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
     private TimeUnit unit;
     private OffsetDateTime endTime;
     private boolean rollypolly;
+    private int pointValue;
+    private PointTracker pointTracker;
 
     {
         rolls = new HashMap<>(50);
         endTime = null;
     }
 
-    public RollPoll(int time, TimeUnit unit, boolean rollypolly) {
+    public RollPoll(int time, TimeUnit unit, boolean rollypolly, int pointValue, PointTracker pointTracker) {
         this.time = time;
         this.unit = unit;
         this.rollypolly = rollypolly;
+        this.pointValue = pointValue;
+        this.pointTracker = pointTracker;
     }
 
     public RollPoll() {
@@ -59,7 +62,13 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         message.addReaction(DICE).queue();
         if (time > 0) {
             message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
-                message1.editMessage("Winner is: \uD83C\uDF8A" + rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey().getAsMention() + "\uD83C\uDF8A").queue();
+                Member winner = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey();
+                if (pointTracker != null && pointValue > 0) {
+                    message1.editMessage("Winner \uD83C\uDF8A" + winner.getAsMention() + "\uD83C\uDF8A has won **" + pointValue + "** points!").queue();
+                    pointTracker.offsetPoints(winner.getGuild().getIdLong(), winner.getUser().getIdLong(), pointValue);
+                } else {
+                    message1.editMessage("Winner is \uD83C\uDF8A" + winner.getAsMention() + "\uD83C\uDF8A").queue();
+                }
                 message1.clearReactions().queue();
                 unregister();
             });
@@ -83,7 +92,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             if (pos <= 3) {
                 description.append(MEDAL[pos - 1]).append(' ');
             } else {
-                description.append('`').append(pos).append(".` ");
+                description.append("`").append(String.format("%2d", pos)).append(".` ");
             }
             description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a ").append(memberIntegerEntry.getValue())
                     .append('\n');
@@ -98,8 +107,6 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             if (!rollypolly)
                 rolls.putIfAbsent(member, ThreadLocalRandom.current().nextInt(101));
             else {
-
-
                 rolls.put(member, ThreadLocalRandom.current().nextInt(101));
             }
             event.getTextChannel().editMessageById(getMessageId(), buildScoreBoard()).queue();
