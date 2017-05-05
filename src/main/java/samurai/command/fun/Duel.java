@@ -17,6 +17,7 @@ package samurai.command.fun;
 import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
+import samurai.command.CommandModule;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.PermissionFailureMessage;
@@ -33,8 +34,8 @@ public class Duel extends Command {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
         }
         if (context.getMentionedMembers().size() != 1)
-            return new ConnectFour(context.getAuthor().getUser());
+            return new ConnectFour(context.getAuthor().getUser(), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
         else
-            return new ConnectFour(context.getAuthor().getUser(), context.getMentionedMembers().get(0).getUser());
+            return new ConnectFour(context.getAuthor().getUser(), context.getMentionedMembers().get(0).getUser(), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
     }
 }

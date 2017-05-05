@@ -33,12 +33,13 @@ public class Roll extends Command {
         if (context.getKey().equalsIgnoreCase("rollpoll") || context.getKey().equalsIgnoreCase("rollypolly")) {
             final List<String> args = context.getArgs();
             if (!args.isEmpty() && args.size() % 2 == 0) {
+                int pointValue = 0;
                 int totalTime = 0;
                 int i = 0;
                 while (i < args.size()) {
-                    int time;
+                    int value;
                     if (CommandContext.isNumber(args.get(i))) {
-                        time = Integer.parseInt(args.get(i));
+                        value = Integer.parseInt(args.get(i));
                     } else {
                         totalTime = -1;
                         break;
@@ -47,36 +48,40 @@ public class Roll extends Command {
                         case "s":
                         case "second":
                         case "seconds":
-                            totalTime += time;
+                            totalTime += value;
                             break;
                         case "m":
                         case "min":
                         case "minute":
                         case "minutes":
-                            totalTime += time * 60;
+                            totalTime += value * 60;
                             break;
                         case "h":
                         case "hour":
                         case "hours":
-                            totalTime += time * 60 * 60;
+                            totalTime += value * 60 * 60;
                             break;
                         case "d":
                         case "day":
                         case "days":
-                            totalTime += time * 60 * 60 * 24;
+                            totalTime += value * 60 * 60 * 24;
                             break;
                         case "wk":
                         case "week":
                         case "weeks":
-                            totalTime += time * 60 * 60 * 24 * 7;
+                            totalTime += value * 60 * 60 * 24 * 7;
                             break;
+                        case "p":
+                        case "pts":
+                        case "points":
+                            pointValue = value;
                         default:
-                            time = -1;
+                            value = -1;
                     }
                     i++;
                 }
                 if (totalTime > 0)
-                    return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"));
+                    return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), pointValue, context.getPointTracker());
             }
             return new RollPoll();
         }

@@ -36,6 +36,7 @@ public abstract class Command implements Callable<Optional<SamuraiMessage>> {
         messageOptional.ifPresent(samuraiMessage -> {
             samuraiMessage.setChannelId(context.getChannelId());
             samuraiMessage.setAuthorId(context.getAuthorId());
+            samuraiMessage.setGuildId(context.getGuildId());
         });
         return messageOptional;
     }

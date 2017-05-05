@@ -27,6 +27,7 @@ public abstract class SamuraiMessage {
 
     private long channelId;
     private long messageId;
+    private long guildId;
     private long authorId;
 
     /**
@@ -85,5 +86,17 @@ public abstract class SamuraiMessage {
 
     public void setAuthorId(long authorId) {
         this.authorId = authorId;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
+    }
+
+    public long getGuildId() {
+        return guildId;
+    }
+
+    public void setGuildId(long guildId) {
+        this.guildId = guildId;
     }
 }

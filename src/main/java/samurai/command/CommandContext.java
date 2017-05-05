@@ -16,11 +16,14 @@ package samurai.command;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
+import org.apache.commons.lang3.tuple.Pair;
 import samurai.Bot;
 import samurai.database.Database;
 import samurai.database.dao.GuildDao;
 import samurai.database.objects.SamuraiGuild;
 import samurai.database.objects.GuildUpdater;
+import samurai.points.PointSession;
+import samurai.points.PointTracker;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -28,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class CommandContext {
     private final String prefix;
@@ -47,6 +51,7 @@ public class CommandContext {
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
+    private PointTracker pointTracker;
 
     public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.prefix = prefix;
@@ -253,7 +258,28 @@ public class CommandContext {
         final Matcher matcher = URL.matcher(content);
         if (matcher.matches()) {
             return matcher.group(1);
-        }
-        else return null;
+        } else return null;
+    }
+
+    public void setPointTracker(PointTracker pointTracker) {
+        this.pointTracker = pointTracker;
+    }
+
+    public PointTracker getPointTracker() {
+        return pointTracker;
+    }
+
+    public PointSession getAuthorPoints() {
+        return pointTracker.getPoints(getGuildId(), getAuthorId());
+    }
+
+    public Stream<PointSession> getMemberPoints() {
+        return getGuild().getMembers().stream()
+                .filter(member -> !(member.getUser().isBot() || member.getUser().isFake()))
+                .map(member -> {
+            PointSession points = pointTracker.getPoints(getGuildId(), member.getUser().getIdLong());
+            points.setMember(member);
+            return points;
+        }).sorted(Comparator.comparingLong(PointSession::getPoints).reversed());
     }
 }

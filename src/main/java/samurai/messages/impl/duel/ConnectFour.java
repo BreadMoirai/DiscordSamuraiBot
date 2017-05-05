@@ -26,6 +26,7 @@ import samurai.messages.base.DynamicMessage;
 import samurai.messages.impl.duel.strategy.ConnectFourStrategy;
 import samurai.messages.impl.duel.strategy.MiniMaxStrategy;
 import samurai.messages.listeners.ReactionListener;
+import samurai.points.PointTracker;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
-    private static final String DUEL_REACTION = "?";
+    private static final String DUEL_REACTION = "\u2694";
 
     private static final String EMOTE_A = "\uD83D\uDD34";
     private static final String EMOTE_B = "\uD83D\uDD35";
@@ -56,7 +57,8 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     private final char[][] board;
 
     private Long userA, userB, winner, next;
-    private String avatarA, avatarB;
+    private String avatarA;
+    private String avatarB;
     private String nameA, nameB;
 
     private GameState state;
@@ -65,10 +67,13 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
 
     private ConnectFourStrategy ai;
 
-    public ConnectFour(User seeking) {
+    private PointTracker pointTracker;
+
+    public ConnectFour(User seeking, PointTracker pointTracker) {
         userA = Long.valueOf(seeking.getId());
         nameA = seeking.getName();
         avatarA = seeking.getEffectiveAvatarUrl();
+        this.pointTracker = pointTracker;
         userB = null;
         nameB = null;
         winner = null;
@@ -76,13 +81,14 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         state = new InitialState(this);
     }
 
-    public ConnectFour(User instigator, User challenged) {
+    public ConnectFour(User instigator, User challenged, PointTracker pointTracker) {
         userA = Long.valueOf(instigator.getId());
         nameA = instigator.getName();
         avatarA = instigator.getEffectiveAvatarUrl();
         userB = Long.valueOf(challenged.getId());
         nameB = challenged.getName();
         avatarB = challenged.getEffectiveAvatarUrl();
+        this.pointTracker = pointTracker;
         next = random.nextBoolean() ? userA : userB;
         board = new char[X_BOUND][Y_BOUND];
         state = new BuildState(this);
@@ -112,10 +118,8 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         for (int y = Y_BOUND - 1; y >= 0; y--) {
             for (int x = 0; x < X_BOUND; x++) {
                 if (board[x][y] == 'a') {
-
                     sb.append(EMOTE_A);
                 } else if (board[x][y] == 'b') {
-
                     sb.append(EMOTE_B);
                 } else {
                     sb.append("\u26aa");
@@ -206,11 +210,16 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                     .append("> ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(' ')
                     .append(nameB)
                     .append("\n");
-        } else {
+        } else if (next.equals(userB)){
             mb.append(nameA)
                     .append(" ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(" <@")
                     .append(userB)
                     .append(">\n");
+        } else {
+            mb.append(nameA)
+                    .append(" ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(' ')
+                    .append(nameB)
+                    .append("\n");
         }
         return mb;
     }
@@ -359,16 +368,26 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 }
             }
             if (game.hasEnded()) {
-                event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                    message.editMessage(game.buildTitle()
-                            .setEmbed(game.buildBoard()
-                                    .addField("The Winner is:", String.format("<@%d>", game.winner), false)
-                                    .setImage(getWinnerAvatar())
-                                    .build())
-                            .build())
-                            .queue();
-                    message.clearReactions().queue();
-                });
+                game.next = 0L;
+                MessageBuilder titleMessage = game.buildTitle();
+                EmbedBuilder boardEmbed = game.buildBoard();
+                if (game.winner != Bot.ID && game.pointTracker != null) {
+                    long points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, .18);
+                    boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%d** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
+                    event.getChannel().editMessageById(game.getMessageId(), titleMessage.setEmbed(boardEmbed.build()).build()).queue();
+                    event.getTextChannel().clearReactionsById(game.getMessageId()).queue();
+                } else {
+                    event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                        message.editMessage(titleMessage
+                                .setEmbed(boardEmbed
+                                        .addField("The Winner is:", String.format("<@%d>", game.winner), false)
+                                        .setImage(getWinnerAvatar())
+                                        .build())
+                                .build())
+                                .queue();
+                        message.clearReactions().queue();
+                    });
+                }
                 game.unregister();
             } else {
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue());

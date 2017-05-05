@@ -148,11 +148,13 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void completeContext(CommandContext context) {
+        context.setPointTracker(pointTracker);
         context.setShardId(shardId);
     }
 
     private void onShutdown(ShutdownEvent event) {
         messageManager.shutdown();
+        pointTracker.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 
