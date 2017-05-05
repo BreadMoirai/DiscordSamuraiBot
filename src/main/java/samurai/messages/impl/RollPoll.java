@@ -92,7 +92,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             if (pos <= 3) {
                 description.append(MEDAL[pos - 1]).append(' ');
             } else {
-                description.append("`").append(String.format("%2d", pos)).append(".` ");
+                description.append("`_").append(String.format("%2d", pos)).append(".` ");
             }
             description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a ").append(memberIntegerEntry.getValue())
                     .append('\n');
