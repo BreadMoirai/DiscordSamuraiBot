@@ -81,7 +81,10 @@ public class Roll extends Command {
                     i++;
                 }
                 if (totalTime > 0)
-                    return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), pointValue, context.getPointTracker());
+                    if (context.getAuthor().canInteract(context.getSelfMember()))
+                        return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), pointValue, pointValue > 0 ? context.getPointTracker() : null);
+                    else
+                        return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), -1, null);
             }
             return new RollPoll();
         }

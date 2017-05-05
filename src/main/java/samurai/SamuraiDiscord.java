@@ -133,7 +133,7 @@ public class SamuraiDiscord implements EventListener {
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
-                if (!PermissionUtil.canInteract(c.getContext().getAuthor(), c.getContext().getClient().getGuildById(String.valueOf(c.getContext().getGuildId())).getSelfMember())) {
+                if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember())) {
                     final FixedMessage error = FixedMessage.build("You do not have the appropriate permissions to use this command.");
                     error.setChannelId(c.getContext().getChannelId());
                     messageManager.submit(error);
