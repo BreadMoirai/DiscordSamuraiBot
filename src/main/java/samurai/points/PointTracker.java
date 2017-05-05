@@ -36,8 +36,8 @@ import java.util.function.Function;
 
 public class PointTracker {
 
-    public static final int MESSAGE_POINT = 10;
-    public static final int MINUTE_POINT = 2;
+    public static final int MESSAGE_POINT = 6;
+    public static final int MINUTE_POINT = 1;
     public static final float DUEL_POINT_RATIO = .18f;
 
     public static final ScheduledExecutorService pool;
