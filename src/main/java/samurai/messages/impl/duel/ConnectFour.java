@@ -372,8 +372,8 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 MessageBuilder titleMessage = game.buildTitle();
                 EmbedBuilder boardEmbed = game.buildBoard();
                 if (game.winner != Bot.ID && game.pointTracker != null) {
-                    long points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, .18);
-                    boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%d** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
+                    double points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, .18);
+                    boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%.2f** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
                     event.getChannel().editMessageById(game.getMessageId(), titleMessage.setEmbed(boardEmbed.build()).build()).queue();
                     event.getTextChannel().clearReactionsById(game.getMessageId()).queue();
                 } else {

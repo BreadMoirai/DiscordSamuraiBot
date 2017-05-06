@@ -65,7 +65,7 @@ public class AudioTrackR implements AudioTrack {
     }
 
     @Override
-    public AudioTrack makeClone() {
+    public AudioTrackR makeClone() {
         return new AudioTrackR(track.makeClone(), requester);
     }
 

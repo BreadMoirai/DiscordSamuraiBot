@@ -91,19 +91,12 @@ public class Play extends Command {
     }
 
     private MessageEmbed nowPlaying(GuildAudioManager audioManager) {
-        final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
+        final AudioTrackR currentTrack = audioManager.scheduler.getCurrent();
         if (currentTrack == null)
             return null;
-        AudioTrackInfo trackInfo = currentTrack.getInfo();
         EmbedBuilder eb = new EmbedBuilder();
-        String trackLengthDisp;
-        if (trackInfo.length == Long.MAX_VALUE) {
-            trackLengthDisp = "\u221e";
-        } else {
-            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
-        }
-        eb.appendDescription(String.format("Playing [`%02d:%02d`/`%s`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, trackLengthDisp));
-        eb.appendDescription("\n[" + trackInfo.title + "](" + trackInfo.uri + ")\n");
+        eb.appendDescription(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, currentTrack.getDuration() / (60 * 1000), (currentTrack.getDuration() / 1000) % 60));
+        eb.appendDescription("\n[" + currentTrack.getInfo().title + "](" + currentTrack.getInfo().uri + ")\n");
         final Collection<AudioTrackR> tracks = audioManager.scheduler.getQueue();
         if (!tracks.isEmpty()) {
             eb.appendDescription("Up Next:");
@@ -126,7 +119,7 @@ public class Play extends Command {
             trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }
         if (track.getRequester() != null)
-        return String.format("[%s](%s) [%s] requested by %s", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getRequester());
+            return String.format("[%s](%s) [%s] requested by %s", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getRequester());
         else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
     }
 
