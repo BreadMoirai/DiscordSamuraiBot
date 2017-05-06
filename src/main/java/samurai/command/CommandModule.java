@@ -54,7 +54,7 @@ public enum CommandModule {
     }
 
     public static List<CommandModule> getVisible() {
-        return Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule != restricted).collect(Collectors.toList());
+        return Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule.value < 64).collect(Collectors.toList());
     }
 
     public static long getDefault() {
@@ -66,8 +66,7 @@ public enum CommandModule {
     }
 
     public boolean isEnabled(long byteCombo) {
-        return true;
-//        return (byteCombo & this.value) == this.value;
+        return (byteCombo & this.value) == this.value;
     }
 
 

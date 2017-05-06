@@ -94,4 +94,6 @@ public abstract class DynamicMessage extends SamuraiMessage {
     public MessageManager getManager() {
         return manager;
     }
+
+
 }

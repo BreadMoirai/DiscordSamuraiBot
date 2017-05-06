@@ -29,10 +29,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 5.x - 3/18/2017
- */
 @Key({"module", "enable", "disable"})
 @Admin
 public class Module extends Command {
@@ -44,7 +40,7 @@ public class Module extends Command {
         final CommandModule[] commandModules = CommandModule.values();
         if (context.getKey().equalsIgnoreCase("module")) {
             if (!context.hasContent()) {
-                return FixedMessage.build(Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule != CommandModule.basic).map(commandModule -> (commandModule.isEnabled(guildEnabledCommands) ? "+ " : "- ") + commandModule.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
+                return FixedMessage.build(CommandModule.getVisible().stream().filter(commandModule -> commandModule != CommandModule.basic).map(commandModule -> (commandModule.isEnabled(guildEnabledCommands) ? "+ " : "- ") + commandModule.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
             } else {
                 return FixedMessage.build(SamuraiStore.getModuleInfo(context.getContent()));
             }

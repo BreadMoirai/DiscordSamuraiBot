@@ -210,7 +210,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                     .append("> ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(' ')
                     .append(nameB)
                     .append("\n");
-        } else if (next.equals(userB)){
+        } else if (next.equals(userB)) {
             mb.append(nameA)
                     .append(" ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(" <@")
                     .append(userB)
@@ -372,8 +372,8 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
                 MessageBuilder titleMessage = game.buildTitle();
                 EmbedBuilder boardEmbed = game.buildBoard();
                 if (game.winner != Bot.ID && game.pointTracker != null) {
-                    long points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, .18);
-                    boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%d** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
+                    double points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, 0.18);
+                    boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%.2f** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
                     event.getChannel().editMessageById(game.getMessageId(), titleMessage.setEmbed(boardEmbed.build()).build()).queue();
                     event.getTextChannel().clearReactionsById(game.getMessageId()).queue();
                 } else {

@@ -14,48 +14,60 @@
 */
 package samurai.messages.impl.poker;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.listeners.ReactionListener;
 
-public class Seat extends DynamicMessage {
+public class Seat extends DynamicMessage implements ReactionListener{
 
     private TextChannel channel;
-    private boolean available;
-    private long patron;
+    private Member patron;
+    private Table table;
 
-    Seat() {
-        available = true;
+    public Seat(Table table) {
+        this.table = table;
     }
 
     @Override
     protected Message initialize() {
-        return null;
+        return new MessageBuilder().append("This Table isn't ready yet.").build();
     }
 
     @Override
     protected void onReady(Message message) {
         channel = message.getTextChannel();
+        message.editMessage(new MessageBuilder().setEmbed(new EmbedBuilder().appendDescription("Click ").appendDescription(channel.getTopic()).appendDescription(" to take a seat").build()).build()).queue();
+        message.addReaction(channel.getTopic()).queue();
+        table.addSeat(this);
     }
 
     void destroy() {
         channel.delete().queue();
     }
 
-    public boolean isAvailable() {
-        return available;
+    boolean isAvailable() {
+        return getPatron() == null;
     }
 
-    public long getPatron() {
+    Member getPatron() {
         return patron;
     }
 
-    public TextChannel getChannel() {
+    TextChannel getChannel() {
         return channel;
     }
 
     @Override
     public boolean isExpired() {
         return false;
+    }
+    @Override
+    public void onReaction(MessageReactionAddEvent event) {
+
     }
 }

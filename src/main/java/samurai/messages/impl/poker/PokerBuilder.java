@@ -15,67 +15,67 @@
 package samurai.messages.impl.poker;
 
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.requests.restaction.ChannelAction;
 import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.UniqueMessage;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class PokerBuilder extends DynamicMessage implements UniqueMessage {
-    private final TextChannel[] pokerChannels;
-    private TextChannel sourceChannel;
+    private static final String[] BUILD_MESSAGES = new String[]{"Stacking the odds...", "Building a new Poker Table...", "Shuffling cards...", "Clearing the dust..."};
+    private ChannelAction tableAction;
+    private ChannelAction[] pokerChannels;
+    private ChannelAction logAction;
+    private Table table;
 
-    public PokerBuilder(TextChannel[] pokerChannels) {
+    public PokerBuilder(ChannelAction tableAction, ChannelAction[] pokerChannels, ChannelAction logAction) {
+        this.tableAction = tableAction;
         this.pokerChannels = pokerChannels;
+        this.logAction = logAction;
     }
 
     @Override
     protected Message initialize() {
-        return new MessageBuilder().append("Building a new Poker Table...").build();
+        return new MessageBuilder().append(BUILD_MESSAGES[ThreadLocalRandom.current().nextInt(3)]).build();
     }
 
     @Override
     protected void onReady(Message message) {
-        this.sourceChannel = message.getTextChannel();
-        sourceChannel.sendTyping().queue(CheckCompletion(pokerChannels));
+        tableAction.queue(channel -> {
+            table = new Table();
+            table.setChannelId(channel.getIdLong());
+            for (ChannelAction pokerChannel : pokerChannels) {
+                pokerChannel.queue(channel1 -> {
+                    final Seat seat = new Seat(table);
+                    seat.setChannelId(channel1.getIdLong());
+                    seat.send(getManager());
+                });
+            }
+            logAction.queue(channel1 -> {
+                final TableLog tableLog = new TableLog();
+                tableLog.setChannelId(channel1.getIdLong());
+                tableLog.send(getManager());
+                table.setLog(tableLog);
+            });
+            table.send(getManager());
+            table.setEndAction(this::unregister);
+            unregister();
+            final TextChannel sourceChannel = channel.getGuild().getTextChannelById(getChannelId());
+            sourceChannel.deleteMessageById(getMessageId()).queue();
+            sourceChannel.sendMessage("The Table has been successfully constructed over at " + ((TextChannel) channel).getAsMention()).queue(message1 -> {
+                setMessageId(message1.getIdLong());
+                register();
+            });
+        });
     }
 
-    private Consumer<Void> CheckCompletion(TextChannel[] channels) {
-        return aVoid -> {
-            boolean complete = true;
-            for (TextChannel channel : channels) {
-                if (channel == null) {
-                    complete = false;
-                    break;
-                }
-            }
-            if (!complete) {
-                sourceChannel.sendTyping().queueAfter(5, TimeUnit.SECONDS, CheckCompletion(channels));
-            } else {
-                openTable(channels);
-            }
-        };
-    }
-
-    private void openTable(TextChannel[] tableChannels) {
-        final Table table = new Table();
-        table.setChannelId(tableChannels[0].getIdLong());
-        for (int i = 1; i < tableChannels.length - 1; i++) {
-            final Seat seat = new Seat();
-            seat.setChannelId(tableChannels[i].getIdLong());
-            table.addSeat(seat);
-        }
-        final TableLog tableLog = new TableLog();
-        tableLog.setChannelId(tableChannels[tableChannels.length - 1].getIdLong());
-        table.setLog(tableLog);
-        table.send(getManager());
-        table.setEndAction(this::unregister);
-        sourceChannel.editMessageById(getMessageId(), "The Table has been successfully constructed over at " + tableChannels[0].getAsMention());
-        sourceChannel = null;
-    }
 
     @Override
     public MessageScope scope() {
@@ -94,9 +94,7 @@ public class PokerBuilder extends DynamicMessage implements UniqueMessage {
 
     @Override
     public void close(TextChannel channel) {
-        for (TextChannel pokerChannel : pokerChannels) {
-            pokerChannel.delete().queue();
-        }
+        if (table != null) table.destroy();
         channel.editMessageById(getMessageId(), new MessageBuilder().append("This has table has been destroyed.").build()).queue();
     }
 

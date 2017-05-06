@@ -280,6 +280,6 @@ public class CommandContext {
             PointSession points = pointTracker.getPoints(getGuildId(), member.getUser().getIdLong());
             points.setMember(member);
             return points;
-        }).sorted(Comparator.comparingLong(PointSession::getPoints).reversed());
+        }).<PointSession>sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());
     }
 }

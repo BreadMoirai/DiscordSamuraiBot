@@ -29,7 +29,7 @@ public interface PointDao {
     void deleteUser(@Bind("id1") long userId, @Bind("id2") long guildId);
 
     @SqlUpdate("UPDATE MemberPoints SET Points = :p WHERE DiscordId = :d AND GuildId = :g")
-    void update(@Bind("d") long userId, @Bind("g") long guildId, @Bind("p") long points);
+    void update(@Bind("d") long userId, @Bind("g") long guildId, @Bind("p") double points);
 
     @SqlQuery("SELECT * FROM MemberPoints WHERE DiscordId = :d AND GuildId = :g")
     @RegisterBeanMapper(PointSession.class)

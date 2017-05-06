@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -66,7 +67,7 @@ public class Play extends Command {
             boolean lucky = context.getKey().equalsIgnoreCase("play");
             final String asUrl = context.getAsUrl();
             if (asUrl != null) {
-                return new TrackLoader(audioManager, true, lucky, asUrl);
+                return new TrackLoader(audioManager, false, lucky, asUrl);
             }
             String content = context.getContent();
             if (content.startsWith("yt ")) {
@@ -103,27 +104,34 @@ public class Play extends Command {
         }
         eb.appendDescription(String.format("Playing [`%02d:%02d`/`%s`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, trackLengthDisp));
         eb.appendDescription("\n[" + trackInfo.title + "](" + trackInfo.uri + ")\n");
-        final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
+        final Collection<AudioTrackR> tracks = audioManager.scheduler.getQueue();
         if (!tracks.isEmpty()) {
             eb.appendDescription("Up Next:");
             final AtomicInteger i = new AtomicInteger();
-            tracks.stream().limit(10).map(AudioTrack::getInfo).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+            tracks.stream().limit(10).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
             final int tSize = tracks.size();
-            if (tSize > 8) {
-                eb.appendDescription("\n... `" + (tSize - 8) + "` more tracks");
+            if (tSize > 10) {
+                eb.appendDescription("\n... `" + (tSize - 10) + "` more tracks");
             }
         }
         return eb.build();
     }
 
-    public static String trackInfoDisplay(AudioTrackInfo trackInfo) {
+    public static String trackInfoDisplay(AudioTrackR track) {
+        AudioTrackInfo trackInfo = track.getInfo();
         String trackLengthDisp;
         if (trackInfo.length == Long.MAX_VALUE) {
             trackLengthDisp = "\u221e";
         } else {
             trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }
-        return String.format("[%s](%s) [`%s`]", trackInfo.title, trackInfo.uri, trackLengthDisp);
+        if (track.getRequester() != null)
+        return String.format("[%s](%s) [%s] requested by %s", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getRequester());
+        else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
+    }
+
+    public static String trackInfoDisplay(AudioTrack track) {
+        return trackInfoDisplay(new AudioTrackR(track, null));
     }
 }
 

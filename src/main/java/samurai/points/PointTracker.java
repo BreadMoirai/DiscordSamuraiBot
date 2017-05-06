@@ -19,7 +19,11 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import samurai.command.CommandModule;
@@ -27,6 +31,7 @@ import samurai.database.Database;
 import samurai.database.dao.GuildDao;
 import samurai.database.objects.SamuraiGuild;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -36,9 +41,10 @@ import java.util.function.Function;
 
 public class PointTracker {
 
-    public static final int MESSAGE_POINT = 10;
-    public static final int MINUTE_POINT = 2;
+    public static final double MESSAGE_POINT = 5;
+    public static final double MINUTE_POINT = .5;
     public static final float DUEL_POINT_RATIO = .18f;
+    public static final double VOICE_POINT = 10;
 
     public static final ScheduledExecutorService pool;
 
@@ -47,8 +53,10 @@ public class PointTracker {
     }
 
     private ConcurrentHashMap<Long, ConcurrentHashMap<Long, PointSession>> guildPointMap;
+    private HashSet<VoiceChannel> voiceChannels;
 
     public void load(ReadyEvent event) {
+        voiceChannels = new HashSet<>(20);
         final List<Guild> guilds = event.getJDA().getGuilds();
         guildPointMap = new ConcurrentHashMap<>(guilds.size());
         for (Guild guild : guilds) {
@@ -68,8 +76,8 @@ public class PointTracker {
                 }
             }
         }
-
         pool.scheduleAtFixedRate(this::addPointsToAll, 2, 1, TimeUnit.MINUTES);
+        pool.scheduleAtFixedRate(this::addVoicePoints, 2, 1, TimeUnit.MINUTES);
     }
 
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
@@ -118,6 +126,7 @@ public class PointTracker {
 
     private void addPointsToAll() {
         guildPointMap.forEachValue(100L, guildSessions -> guildSessions.forEachValue(100L, pointSession -> pointSession.offsetPoints(MINUTE_POINT)));
+
     }
 
     public PointSession getPoints(long guildId, long userId) {
@@ -131,24 +140,38 @@ public class PointTracker {
         return Database.get().getPointSession(guildId, userId);
     }
 
-    public void offsetPoints(long guildId, long userId, long pointValue) {
+    public void offsetPoints(long guildId, long userId, double pointValue) {
+        offsetPoints(guildId, userId, pointValue, false);
+    }
+
+    public void offsetPoints(long guildId, long userId, double pointValue, boolean addIfNotPresent) {
         ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
         if (guildSession != null) {
             PointSession pointSession = guildSession.get(userId);
             if (pointSession != null) {
                 pointSession.offsetPoints(pointValue);
             } else {
-                Database.get().getPointSession(guildId, userId).offsetPoints(pointValue).commit();
+                if (addIfNotPresent) {
+                    final PointSession databaseSession = Database.get().getPointSession(guildId, userId);
+                    guildSession.put(userId, databaseSession);
+                    databaseSession.offsetPoints(pointValue);
+                } else {
+                    Database.get().getPointSession(guildId, userId).offsetPoints(pointValue).commit();
+                }
             }
         }
+    }
+
+    private void offsetPoints(Member member, double pointValue) {
+        offsetPoints(member.getGuild().getIdLong(), member.getUser().getIdLong(), pointValue, false);
     }
 
     public static void close() {
         pool.shutdown();
     }
 
-    public long transferPoints(long guildId, Long fromUserId, Long toUserId, double ratio) {
-        long transfer = (long) (getPoints(guildId, fromUserId).points * ratio);
+    public double transferPoints(long guildId, Long fromUserId, Long toUserId, double ratio) {
+        double transfer = (getPoints(guildId, fromUserId).points * ratio);
         offsetPoints(guildId, fromUserId, -1 * transfer);
         offsetPoints(guildId, toUserId, transfer);
         return transfer;
@@ -156,5 +179,30 @@ public class PointTracker {
 
     public void shutdown() {
         guildPointMap.forEachValue(100L, guildPoints -> guildPoints.forEachValue(100L, PointSession::commit));
+    }
+
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        voiceChannels.remove(event.getChannelLeft());
+        if (event.getChannelLeft().getMembers().size() > 0)
+            voiceChannels.add(event.getChannelLeft());
+    }
+
+    public void onGuildVoidJoin(GuildVoiceJoinEvent event) {
+        voiceChannels.remove(event.getChannelJoined());
+        voiceChannels.add(event.getChannelJoined());
+    }
+
+    private void addVoicePoints() {
+        for (VoiceChannel voiceChannel : voiceChannels) {
+            for (Member member : voiceChannel.getMembers()) {
+                if (!member.getVoiceState().isMuted())
+                    offsetPoints(member, VOICE_POINT);
+            }
+        }
+    }
+
+    public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
+        voiceChannels.remove(event.getVoiceState().getChannel());
+        voiceChannels.add(event.getVoiceState().getChannel());
     }
 }

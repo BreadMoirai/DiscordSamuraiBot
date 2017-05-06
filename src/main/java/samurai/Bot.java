@@ -109,9 +109,6 @@ public class Bot {
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Initializing " + CommandFactory.class.getSimpleName());
-        CommandFactory.initialize();
     }
 
     public static void shutdown() {
@@ -132,7 +129,7 @@ public class Bot {
     }
 
     public static int getGuildCount() {
-        return shards.stream().map(JDA::getGuilds).flatMap(List::stream).distinct().mapToInt(value -> 1).sum();
+        return shards.stream().map(JDA::getGuilds).flatMap(List::stream).mapToInt(value -> 1).sum();
     }
 
     public static ArrayList<JDA> getShards() {

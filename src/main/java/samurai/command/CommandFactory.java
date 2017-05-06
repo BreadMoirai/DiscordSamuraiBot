@@ -40,12 +40,18 @@ public class CommandFactory {
     private static final Pattern SAMURAI_MENTION = Pattern.compile("<@([!&])?270044218167132170>( )?");
     private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
 
-    private static final HashMap<String, Class<? extends Command>> COMMAND_MAP = new HashMap<>(CommandModule.values().length);
+    private static final Map<String, Class<? extends Command>> COMMAND_MAP;
+
+    static {
+        final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+        initializeCommandMap(commandMap);
+        COMMAND_MAP = Collections.unmodifiableMap(commandMap);
+    }
 
     private CommandFactory() {
     }
 
-    public static void initialize() {
+    public static void initializeCommandMap(HashMap<String, Class<? extends Command>> commandMap) {
         Reflections reflections = new Reflections("samurai.command");
         Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
         for (Class<? extends Command> action : classes) {

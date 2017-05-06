@@ -76,7 +76,6 @@ public class Roll extends Command {
                         case "points":
                             pointValue = value;
                         default:
-                            value = -1;
                     }
                     i++;
                 }
