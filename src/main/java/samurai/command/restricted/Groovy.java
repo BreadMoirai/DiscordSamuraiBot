@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
-@Key({"eval", "import", "def", "clear", "delete"})
+@Key({"eval", "import", "def", "func", "clear", "delete"})
 @Admin
 @Creator
 public class Groovy extends Command {
@@ -71,9 +71,12 @@ public class Groovy extends Command {
 
         IMPORTS = new HashSet<>(20);
         IMPORTS.add("import java.util.*");
+        IMPORTS.add("import java.util.stream.*");
+        IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
         FUNCTIONS = new ArrayList<>(20);
+        FUNCTIONS.add("List<Integer> gen(int size)\n{\n    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
         FUNCTION_NAME = Pattern.compile("[A-Za-z]*[ ]([a-z][A-Za-z]*)\\([A-Za-z\\[\\],<>\\s]*\\)");
-        JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|(`)");
+        JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|\n[`]{3}");
     }
 
     public static void addBinding(String name, Object value) {
@@ -106,13 +109,17 @@ public class Groovy extends Command {
                 if (context.hasContent()) {
                     try {
                         final StringBuilder sb = new StringBuilder();
+                        final String script = JAVA_BLOCK.matcher(content).replaceAll("\n");
                         IMPORTS.forEach(s -> sb.append(s).append("\n"));
-                        FUNCTIONS.forEach(s -> sb.append(s).append("\n"));
-
-                        final String script = JAVA_BLOCK.matcher(content).replaceAll("");
+                        FUNCTIONS.forEach(s -> {
+                            if (!getFunctionName(s).equals(getFunctionName(script))) {
+                                sb.append(s).append("\n");
+                            }
+                        });
                         sb.append(script);
                         final String scriptFull = sb.toString();
                         evalaute(scriptFull);
+                        FUNCTIONS.removeIf(s -> getFunctionName(s).equals(getFunctionName(script)));
                         FUNCTIONS.add(script);
                         return FixedMessage.build("Function Added: " + getFunctionName(script));
                     } catch (Exception e) {
@@ -140,18 +147,24 @@ public class Groovy extends Command {
                 if (FUNCTIONS.removeIf(s -> getFunctionName(s).equalsIgnoreCase(content)))
                     return FixedMessage.build("Matching function removed");
                 else return FixedMessage.build("Specified function not found");
+            case "func":
+                if (context.hasContent())
+                    return FixedMessage.build(FUNCTIONS.stream().filter(s -> getFunctionName(s).equals(content)).map(s -> "```java\n" + s + "\n```").findAny().orElse("Function not found"));
+                else
+                    return FixedMessage.build(FUNCTIONS.stream().map(this::getFunctionName).collect(Collectors.joining("\n", "```java\n", "\n```")));
             case "eval":
-                try {
-                    final StringBuilder sb = new StringBuilder();
-                    IMPORTS.forEach(s -> sb.append(s).append("\n"));
-                    FUNCTIONS.forEach(s -> sb.append(s).append("\n"));
-                    final String script = JAVA_BLOCK.matcher(content).replaceAll("");
-                    sb.append(script);
-                    final String scriptFull = sb.toString();
-                    return evalaute(scriptFull);
-                } catch (Exception e) {
-                    return FixedMessage.build(e.getMessage());
-                }
+                if (context.hasContent())
+                    try {
+                        final StringBuilder sb = new StringBuilder();
+                        IMPORTS.forEach(s -> sb.append(s).append("\n"));
+                        FUNCTIONS.forEach(s -> sb.append(s).append("\n"));
+                        final String script = JAVA_BLOCK.matcher(content).replaceAll("");
+                        sb.append(script);
+                        final String scriptFull = sb.toString();
+                        return evalaute(scriptFull);
+                    } catch (Exception e) {
+                        return FixedMessage.build(e.getMessage());
+                    }
             default:
                 return null;
         }

@@ -22,7 +22,7 @@ import samurai.database.dao.PointDao;
 public class PointSession {
     long discordId;
     long guildId;
-    long points;
+    double points;
     OnlineStatus status;
     Member member;
 
@@ -42,11 +42,11 @@ public class PointSession {
         this.guildId = guildId;
     }
 
-    public long getPoints() {
+    public double getPoints() {
         return points;
     }
 
-    public void setPoints(long points) {
+    public void setPoints(double points) {
         this.points = points;
     }
 
@@ -75,7 +75,7 @@ public class PointSession {
         Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.update(discordId, guildId, points));
     }
 
-    public PointSession offsetPoints(long offset) {
+    public PointSession offsetPoints(double offset) {
         points += offset;
         return this;
     }

@@ -36,8 +36,8 @@ import java.util.function.Function;
 
 public class PointTracker {
 
-    public static final int MESSAGE_POINT = 6;
-    public static final int MINUTE_POINT = 1;
+    public static final double MESSAGE_POINT = 5;
+    public static final double MINUTE_POINT = .5;
     public static final float DUEL_POINT_RATIO = .18f;
 
     public static final ScheduledExecutorService pool;
@@ -68,7 +68,6 @@ public class PointTracker {
                 }
             }
         }
-
         pool.scheduleAtFixedRate(this::addPointsToAll, 2, 1, TimeUnit.MINUTES);
     }
 
@@ -131,7 +130,7 @@ public class PointTracker {
         return Database.get().getPointSession(guildId, userId);
     }
 
-    public void offsetPoints(long guildId, long userId, long pointValue) {
+    public void offsetPoints(long guildId, long userId, double pointValue) {
         ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
         if (guildSession != null) {
             PointSession pointSession = guildSession.get(userId);
@@ -147,8 +146,8 @@ public class PointTracker {
         pool.shutdown();
     }
 
-    public long transferPoints(long guildId, Long fromUserId, Long toUserId, double ratio) {
-        long transfer = (long) (getPoints(guildId, fromUserId).points * ratio);
+    public double transferPoints(long guildId, Long fromUserId, Long toUserId, double ratio) {
+        double transfer = (getPoints(guildId, fromUserId).points * ratio);
         offsetPoints(guildId, fromUserId, -1 * transfer);
         offsetPoints(guildId, toUserId, transfer);
         return transfer;

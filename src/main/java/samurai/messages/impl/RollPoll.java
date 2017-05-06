@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.messages.base.DynamicMessage;
@@ -12,9 +13,7 @@ import samurai.points.PointTracker;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,7 +53,13 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
 
     @Override
     protected Message initialize() {
-        return new MessageBuilder().append("Click " + DICE + " to roll!\n").build();
+        final MessageBuilder mb = new MessageBuilder();
+        mb.append("Click ").append(DICE).append(" to roll");
+        if (pointTracker != null && pointValue > 0) {
+            mb.append("for a maximum prize of **").append(String.valueOf(pointValue)).append("**");
+        }
+        mb.append('!');
+        return mb.build();
     }
 
     @Override
@@ -64,8 +69,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
                 Member winner = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey();
                 if (pointTracker != null && pointValue > 0) {
-                    message1.editMessage("Winner \uD83C\uDF8A" + winner.getAsMention() + "\uD83C\uDF8A has won **" + pointValue + "** points!").queue();
-                    pointTracker.offsetPoints(winner.getGuild().getIdLong(), winner.getUser().getIdLong(), pointValue);
+                    message1.editMessage(new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append(winner.getAsMention()).append("\uD83C\uDF8A").setEmbed(distDispPoints()).build()).queue();
                 } else {
                     message1.editMessage("Winner is \uD83C\uDF8A" + winner.getAsMention() + "\uD83C\uDF8A").queue();
                 }
@@ -80,6 +84,37 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         unit = null;
     }
 
+    private MessageEmbed distDispPoints() {
+        final EmbedBuilder embedBuilder = new EmbedBuilder();
+        if (endTime != null) {
+            embedBuilder.setTimestamp(endTime);
+        }
+        final StringBuilder description = embedBuilder.getDescriptionBuilder();
+        final long guildId = getGuildId();
+        int i = 1;
+        int value = pointValue;
+        List<Map.Entry<Member, Integer>> toSort = new ArrayList<>();
+        toSort.addAll(rolls.entrySet());
+        toSort.sort(Comparator.comparingInt((ToIntFunction<Map.Entry<Member, Integer>>) Map.Entry::getValue).reversed());
+        int previous = toSort.get(0).getValue();
+        for (Map.Entry<Member, Integer> memberIntegerEntry : toSort) {
+            int pos = i;
+            value *= memberIntegerEntry.getValue() / previous;
+            pointTracker.offsetPoints(guildId, memberIntegerEntry.getKey().getUser().getIdLong(), value);
+            if (pos <= 3) {
+                description.append(MEDAL[pos - 1]).append(' ');
+            } else {
+                description.append(String.format("`%02d.`", pos));
+            }
+            description.append(memberIntegerEntry.getKey().getEffectiveName())
+                    .append(" rolled a **").append(memberIntegerEntry.getValue())
+                    .append("** to gain __").append(value).append("__ points");
+            if (i++ == 1) value *= 0.67;
+            previous = memberIntegerEntry.getValue();
+        }
+        return embedBuilder.build();
+    }
+
     private Message buildScoreBoard() {
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         if (endTime != null) {
@@ -92,12 +127,35 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             if (pos <= 3) {
                 description.append(MEDAL[pos - 1]).append(' ');
             } else {
-                description.append("`_").append(String.format("%2d", pos)).append(".` ");
+                description.append(String.format("`%02d.`", pos));
             }
             description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a ").append(memberIntegerEntry.getValue())
                     .append('\n');
         });
-        return new MessageBuilder().append("Click " + DICE + " to roll!\n").setEmbed(embedBuilder.build()).build();
+        final MessageBuilder mb = new MessageBuilder().append("Click ").append(DICE).append(" to roll");
+        if (pointTracker != null && pointValue > 0) {
+            mb.append("for a maximum prize of **").append(String.valueOf(pointValue)).append("**");
+        }
+        mb.append('!');
+        return mb.setEmbed(embedBuilder.build()).build();
+    }
+
+    String dist(List<Integer> rolls, int pointpot) {
+        rolls.sort(Comparator.reverseOrder());
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        int value = pointpot;
+        int previous = rolls.get(0);
+        for (Integer member : rolls) {
+            int pos = i;
+            value *= member / previous;
+            sb.append("`_").append(String.format("%2d", pos)).append(".` ")
+                    .append(" rolled a **").append(member)
+                    .append("** to gain ").append(value).append(" points");
+            if (i++ == 1) value /= 2;
+            previous = member;
+        }
+        return sb.toString();
     }
 
     @Override
