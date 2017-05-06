@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
@@ -106,10 +107,14 @@ public class SamuraiDiscord implements EventListener {
             this.onMessageReactionAddEvent((MessageReactionAddEvent) event);
         } else if (event instanceof GuildVoiceLeaveEvent) {
             this.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
+            this.pointTracker.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
         } else if (event instanceof GuildVoiceJoinEvent) {
             this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
+            this.pointTracker.onGuildVoidJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof UserOnlineStatusUpdateEvent) {
             this.pointTracker.onUserOnlineStatusUpdate((UserOnlineStatusUpdateEvent) event);
+        } else if (event instanceof GuildVoiceMuteEvent) {
+            this.pointTracker.onGuildVoiceMute((GuildVoiceMuteEvent) event);
         } else if (event instanceof GuildMemberJoinEvent) {
             this.onGuildMemberJoin((GuildMemberJoinEvent) event);
         } else if (event instanceof GuildLeaveEvent) {
