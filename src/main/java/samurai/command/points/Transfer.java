@@ -15,6 +15,7 @@
 package samurai.command.points;
 
 import net.dv8tion.jda.core.entities.Member;
+import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -42,6 +43,7 @@ public class Transfer extends Command {
                 return FixedMessage.build(String.format("%s has received your transfer of **%.2f** points.", member.getEffectiveName(), value));
             } else {
                 authorPoints.offsetPoints(-1 * value);
+                context.getPointTracker().offsetPoints(context.getGuildId(), Bot.ID, value);
                 return FixedMessage.build(String.format("Thanks for your donation of **%.2f** points", value));
             }
         }

@@ -274,8 +274,8 @@ public class CommandContext {
     }
 
     public Stream<PointSession> getMemberPoints() {
-        return getGuild().getMembers().stream()
-                .filter(member -> !(member.getUser().isBot() || member.getUser().isFake()))
+        return getGuild().getMembers().stream().limit(20)
+                .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.ID))
                 .map(member -> {
             PointSession points = pointTracker.getPoints(getGuildId(), member.getUser().getIdLong());
             points.setMember(member);

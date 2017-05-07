@@ -384,8 +384,8 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
                 game.next = 0L;
                 MessageBuilder titleMessage = game.buildTitle();
                 EmbedBuilder boardEmbed = game.buildBoard();
-                if (game.winner != Bot.ID && game.pointTracker != null) {
-                    double points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, .18);
+                if (game.pointTracker != null) {
+                    double points = game.pointTracker.transferPoints(game.getGuildId(), game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, PointTracker.DUEL_POINT_RATIO);
                     boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%.2f** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
                     event.getChannel().editMessageById(game.getMessageId(), titleMessage.setEmbed(boardEmbed.build()).build()).queue();
                     event.getTextChannel().clearReactionsById(game.getMessageId()).queue();
@@ -403,10 +403,12 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
                 }
                 game.unregister();
             } else {
-                event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue());
-                if (game.selfOpp && game.next.equals(Bot.ID)) {
-                    game.selfMove(event.getJDA(), event.getResponseNumber());
-                }
+                event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue(message1 -> {
+                    if (game.selfOpp && game.next.equals(Bot.ID)) {
+                        game.selfMove(message1.getJDA(), event.getResponseNumber()+1);
+                    }
+                }));
+
             }
         }
 
@@ -424,7 +426,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
     private void selfMove(JDA jda, long responseNumber) {
         String move;
         if (ai == null) {
-            ai = new MiniMaxStrategy(X_BOUND, Y_BOUND, 3);
+            ai = new MiniMaxStrategy(X_BOUND, Y_BOUND, 4);
         }
         final int i = ai.makeMove(board);
         move = REACTIONS.get(i);
