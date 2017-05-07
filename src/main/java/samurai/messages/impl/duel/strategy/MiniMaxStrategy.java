@@ -41,18 +41,18 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
     @Override
     public int makeMove(char[][] board) {
         int bestCol = -1;
-        int value = Integer.MIN_VALUE;
+        double value = Integer.MIN_VALUE;
         for (int x = 0; x < board.length; x++) {
             int y = height(board[x]);
             if (y == -1) continue;
-            final int i = minimax(x, y, 'b', board, 1) - (100*((Math.abs(xCenter - x) + 1)));
-            System.out.println("col: " + x + " = " + i);
+            final double i = minimax(x, y, 'b', board, 1) - (2 * (Math.abs(xCenter - x) + 1));
+            //System.out.println("col: " + (x + 1) + " = " + i);
             if (i >= value) {
                 bestCol = x;
                 value = i;
             }
         }
-        System.out.println("Chose col: " + bestCol + "\n");
+        //System.out.println("Chose col: " + (bestCol + 1) + "\n");
         return bestCol;
     }
 
@@ -65,18 +65,21 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
     }
 
     @Contract(pure = true)
-    private int minimax(int x, int y, char p, char[][] board, int depth) {
+    private double minimax(int x, int y, char p, char[][] board, int depth) {
         char opp = p == 'b' ? 'a' : 'b';
-        if (!canPlay(x, y, board) || depth == this.depth) {
+        if (!canPlay(x, y, board)) {
             return 0;
         }
+        if (depth == this.depth) {
+            return 50;
+        }
         if (isWinningMove(x, y, p, board)) {
-            return Integer.MAX_VALUE / 4 / depth;
+            return p == 'b' ? 1000 / depth : -1000 / depth;
         } else if (isWinningMove(x, y, opp, board)) {
-            return Integer.MAX_VALUE / depth;
+            return p == 'b' ? 500 / depth : -500 / depth;
         } else {
             final char[][] testBoard = testMove(x, y, p, board);
-            return (int) IntStream.range(0, xBound).parallel().map(testX -> minimax(testX, height(testBoard[testX]), opp, testBoard, depth + 1)).average().orElse(0);
+            return IntStream.range(0, xBound).parallel().mapToDouble(testX -> minimax(testX, height(testBoard[testX]), opp, testBoard, depth + 1)).average().orElse(0.0);
         }
     }
 
