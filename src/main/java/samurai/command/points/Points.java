@@ -14,6 +14,7 @@
 */
 package samurai.command.points;
 
+import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -24,6 +25,10 @@ import samurai.messages.impl.FixedMessage;
 public class Points extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return FixedMessage.build("You have **" + context.getAuthorPoints().getPoints() + "** points");
+        if (context.getMentionedMembers().size() > 0) {
+            final Member member = context.getMentionedMembers().get(0);
+            return FixedMessage.build(String.format("%s has **%.2f** points", member.getEffectiveName(), context.getPointTracker().getPoints(context.getGuildId(), member.getUser().getIdLong()).getPoints()));
+        }
+        return FixedMessage.build(String.format("You have **%.2f** points", context.getAuthorPoints().getPoints()));
     }
 }

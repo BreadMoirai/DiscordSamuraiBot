@@ -73,6 +73,7 @@ public class Groovy extends Command {
         IMPORTS.add("import java.util.*");
         IMPORTS.add("import java.util.stream.*");
         IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
+        IMPORTS.add("import net.dv8tion.jda.core.entities.Member");
         IMPORTS.add("import samurai.messages.impl.*");
         FUNCTIONS = new ArrayList<>(20);
         FUNCTIONS.add("List<Integer> gen(int size)\n{\n    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");

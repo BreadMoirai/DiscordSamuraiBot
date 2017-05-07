@@ -109,9 +109,6 @@ public class Bot {
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Initializing " + CommandFactory.class.getSimpleName());
-        CommandFactory.initialize();
     }
 
     public static void shutdown() {

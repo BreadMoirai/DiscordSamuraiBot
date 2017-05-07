@@ -41,7 +41,7 @@ import java.util.function.Function;
 
 public class PointTracker {
 
-    public static final double MESSAGE_POINT = 5;
+    public static final double MESSAGE_POINT = 4;
     public static final double MINUTE_POINT = .5;
     public static final float DUEL_POINT_RATIO = .18f;
     public static final double VOICE_POINT = 10;
