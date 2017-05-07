@@ -71,7 +71,6 @@ public class SamuraiDiscord implements EventListener {
     private MessageManager messageManager;
     private PointTracker pointTracker;
 
-
     SamuraiDiscord() {
     }
 

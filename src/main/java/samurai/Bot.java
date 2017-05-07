@@ -69,7 +69,6 @@ public class Bot {
         shards = new ArrayList<>(1);
 
         VERSION = "@buildVersion@";
-        //STATIC_SCHEDULER = Executors.newScheduledThreadPool(3);
     }
 
     public static void main(String[] args) {
@@ -93,19 +92,14 @@ public class Bot {
 
         final Config config = ConfigFactory.load();
 
-        //final SamuraiDiscord samuraiDiscord = new SamuraiDiscord();
         final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("samurai.token"))
                 .setAudioEnabled(true)
                 .addEventListener(new SamuraiDiscord());
-        //shards.add(samuraiDiscord);
-
 
         try {
-            for (int i = 0; i < SHARD_COUNT; i++)
-                shards.add(jdaBuilder
-                        //.useSharding(i, SHARD_COUNT)
-                        .buildAsync());
+            //for (int i = 0; i < SHARD_COUNT; i++)
+                shards.add(jdaBuilder.buildAsync());
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
@@ -113,6 +107,9 @@ public class Bot {
 
     public static void shutdown() {
         System.out.println("Shutting Down");
+        for (JDA shard : shards) {
+            shard.removeEventListener(shard.getRegisteredListeners());
+        }
         SamuraiAudioManager.close();
         Database.close();
         OsuTracker.close();
@@ -137,7 +134,7 @@ public class Bot {
     }
 
     static void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
+        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
     }
 
 }

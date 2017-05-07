@@ -20,11 +20,15 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
+import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.impl.duel.strategy.ConnectFourStrategy;
 import samurai.messages.impl.duel.strategy.MiniMaxStrategy;
+import samurai.messages.listeners.ChannelMessageListener;
+import samurai.messages.listeners.GenericCommandListener;
 import samurai.messages.listeners.ReactionListener;
 import samurai.points.PointTracker;
 
@@ -33,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 
@@ -41,7 +46,7 @@ import java.util.function.Consumer;
  *
  * @since 4.0
  */
-public class ConnectFour extends DynamicMessage implements ReactionListener {
+public class ConnectFour extends DynamicMessage implements ReactionListener, GenericCommandListener {
 
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
@@ -51,8 +56,6 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     private static final String EMOTE_B = "\uD83D\uDD35";
 
     private static final int X_BOUND = 7, Y_BOUND = 6;
-
-    private static final Random random = new Random();
 
     private final char[][] board;
 
@@ -89,7 +92,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         nameB = challenged.getName();
         avatarB = challenged.getEffectiveAvatarUrl();
         this.pointTracker = pointTracker;
-        next = random.nextBoolean() ? userA : userB;
+        next = ThreadLocalRandom.current().nextBoolean() ? userA : userB;
         board = new char[X_BOUND][Y_BOUND];
         state = new BuildState(this);
         selfOpp = challenged.getIdLong() == Bot.ID;
@@ -108,6 +111,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
     @Override
     public void onReaction(MessageReactionAddEvent event) {
         if (state.isValid(event)) state.onReaction(event);
+        setActive();
     }
 
     private EmbedBuilder buildBoard() {
@@ -238,6 +242,15 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
         }
     }
 
+    @Override
+    public void onCommand(GenericCommand command) {
+        if (command.getContext().getKey().equalsIgnoreCase("findduel")) {
+            final long authorId = command.getContext().getAuthorId();
+            if (authorId == userB || authorId == userA) {
+                getManager().getClient().getTextChannelById(getChannelId()).sendMessage(state.buildMessage()).queue(((Consumer<Message>) message -> setMessageId(message.getIdLong())).andThen(newMenu(REACTIONS)));
+            }
+        }
+    }
     //todo let's make these singleton eh?
     private static abstract class GameState implements ReactionListener {
         ConnectFour game;
@@ -285,7 +298,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener {
             game.nameB = user.getName();
             game.avatarB = user.getEffectiveAvatarUrl();
             game.selfOpp = user.getIdLong() == Bot.ID;
-            game.next = random.nextBoolean() ? game.userA : game.userB;
+            game.next = ThreadLocalRandom.current().nextBoolean() ? game.userA : game.userB;
             final BuildState buildState = new BuildState(game);
             game.state = buildState;
             event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildState.buildMessage()).queue(buildState.buildConsumer()));

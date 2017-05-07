@@ -31,7 +31,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 public abstract class DynamicMessage extends SamuraiMessage {
 
 
-    private static final int TIMEOUT = 2;
+    private static final int TIMEOUT = 24;
 
     private OffsetDateTime lastActive;
     private MessageManager manager;

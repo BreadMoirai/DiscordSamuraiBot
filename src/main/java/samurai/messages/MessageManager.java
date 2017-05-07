@@ -70,7 +70,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         this.client = client;
         listeners = new ConcurrentHashMap<>();
         executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleWithFixedDelay(this::clearInactive, 2, 2, TimeUnit.HOURS);
+        executorService.scheduleWithFixedDelay(this::clearInactive, 2, 6, TimeUnit.HOURS);
     }
 
     private void clearInactive() {

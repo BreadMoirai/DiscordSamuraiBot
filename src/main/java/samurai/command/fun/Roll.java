@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-@Key({"roll", "rollpoll", "rollypolly"})
+@Key({"roll", "rollpoll"})
 public class Roll extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        if (context.getKey().equalsIgnoreCase("rollpoll") || context.getKey().equalsIgnoreCase("rollypolly")) {
+        if (context.getKey().equalsIgnoreCase("rollpoll")) {
             final List<String> args = context.getArgs();
             if (!args.isEmpty() && args.size() % 2 == 0) {
                 int pointValue = 0;
@@ -81,9 +81,9 @@ public class Roll extends Command {
                 }
                 if (totalTime > 0)
                     if (context.getAuthor().canInteract(context.getSelfMember()))
-                        return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), pointValue, pointValue > 0 ? context.getPointTracker() : null);
+                        return new RollPoll(totalTime, TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null);
                     else
-                        return new RollPoll(totalTime, TimeUnit.SECONDS, context.getKey().equalsIgnoreCase("rollypolly"), -1, null);
+                        return new RollPoll(totalTime, TimeUnit.SECONDS, -1, null);
             }
             return new RollPoll();
         }

@@ -75,10 +75,16 @@ public class Groovy extends Command {
         IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
         IMPORTS.add("import net.dv8tion.jda.core.entities.Member");
         IMPORTS.add("import samurai.messages.impl.*");
+        IMPORTS.add("import org.apache.commons.codec.binary.Hex");
         FUNCTIONS = new ArrayList<>(20);
-        FUNCTIONS.add("List<Integer> gen(int size)\n{\n    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
+        FUNCTIONS.add("List<Integer> gen(int size)\n{\n\treturn IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
+        FUNCTIONS.add("byte[] hexToByte(String s) {\n\tbyte[] b = new byte[s.length() / 2];\n\tfor (int i = 0; i < b.length; i++) {\n\t\tint index = i * 2;\n\t\tint v = Integer.parseInt(s.substring(index, index + 2), 16);\n\t\tb[i] = (byte) v;\n\t}\n\treturn b;\n}");
+        FUNCTIONS.add("List<RollPoll> getRollPolls() {\n" +
+                "mm.listeners.values().stream().flatMap({a -> a.stream()}).filter({b -> b instanceof RollPoll}).collect(Collectors.toList()); \n" +
+                "}");
         FUNCTIONS.add("Member getMember(long id) {\n    return context.getGuild().getMemberById(id)\n}");
-        FUNCTIONS.add("RollPoll getRollPoll() {\n    return mm.listeners.get(308984218527072256).getFirst()\n}");
+        FUNCTIONS.add("def rp() {\ngetRollPolls().stream().map({a -> Hex.encodeHexString(a.download())}).collect(Collectors.toList())}");
+        FUNCTIONS.add("def up(String s) {\n\tRollPoll.upload(hexToByte(s), mm, context.getPointTracker())\n}");
         FUNCTION_NAME = Pattern.compile("[A-Za-z]*[ ]([a-z][A-Za-z]*)\\([A-Za-z\\[\\],<>\\s]*\\)");
         JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|\n[`]{3}");
     }
