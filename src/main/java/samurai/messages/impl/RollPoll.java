@@ -56,7 +56,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         final MessageBuilder mb = new MessageBuilder();
         mb.append("Click ").append(DICE).append(" to roll");
         if (pointTracker != null && pointValue > 0) {
-            mb.append("for a maximum prize of **").append(String.valueOf(pointValue)).append("**");
+            mb.append(" for a maximum prize of **").append(String.valueOf(pointValue)).append("**");
         }
         mb.append('!');
         return mb.build();
@@ -139,25 +139,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         mb.append('!');
         return mb.setEmbed(embedBuilder.build()).build();
     }
-
-    String dist(List<Integer> rolls, int pointpot) {
-        rolls.sort(Comparator.reverseOrder());
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        int value = pointpot;
-        int previous = rolls.get(0);
-        for (Integer member : rolls) {
-            int pos = i;
-            value *= member / previous;
-            sb.append("`_").append(String.format("%2d", pos)).append(".` ")
-                    .append(" rolled a **").append(member)
-                    .append("** to gain ").append(value).append(" points");
-            if (i++ == 1) value /= 2;
-            previous = member;
-        }
-        return sb.toString();
-    }
-
+    
     @Override
     public void onReaction(MessageReactionAddEvent event) {
         if (event.getReaction().getEmote().getName().equals(DICE)) {

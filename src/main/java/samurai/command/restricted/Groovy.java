@@ -73,8 +73,11 @@ public class Groovy extends Command {
         IMPORTS.add("import java.util.*");
         IMPORTS.add("import java.util.stream.*");
         IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
+        IMPORTS.add("import samurai.messages.impl.*");
         FUNCTIONS = new ArrayList<>(20);
         FUNCTIONS.add("List<Integer> gen(int size)\n{\n    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
+        FUNCTIONS.add("Member getMember(long id) {\n    return context.getGuild().getMemberById(id)\n}");
+        FUNCTIONS.add("RollPoll getRollPoll() {\n    return mm.listeners.get(308984218527072256).getFirst()\n}");
         FUNCTION_NAME = Pattern.compile("[A-Za-z]*[ ]([a-z][A-Za-z]*)\\([A-Za-z\\[\\],<>\\s]*\\)");
         JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|\n[`]{3}");
     }
@@ -126,7 +129,7 @@ public class Groovy extends Command {
                         return FixedMessage.build(e.getMessage());
                     }
                 } else {
-                    return FixedMessage.build(FUNCTIONS.stream().map(s -> s.substring(0, s.indexOf('\n'))).collect(Collectors.joining("\n", "```java\n", "\n```")));
+                    return FixedMessage.build(FUNCTIONS.stream().map(this::getFunctionName).collect(Collectors.joining("\n", "```java\n", "\n```")));
                 }
             case "clear":
                 switch (content.toLowerCase()) {
