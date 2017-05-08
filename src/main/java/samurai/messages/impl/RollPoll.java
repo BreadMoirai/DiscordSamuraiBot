@@ -129,11 +129,12 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
 
             description.append(memberRoll.getKey().getEffectiveName())
                     .append(" rolled a **").append(memberRoll.getValue())
-                    .append("** to gain __").append(value).append("__ points");
+                    .append("** to gain __").append(value).append("__ points\n");
             if (i == 1) value *= 0.67;
             i++;
             previous = memberRoll.getValue();
         }
+        description.deleteCharAt(description.length() - 1);
         return embedBuilder.build();
     }
 
