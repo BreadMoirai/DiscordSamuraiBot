@@ -94,3 +94,5 @@ derby.log
 /.shelf
 version.txt
 /SamuraiDatabase
+err.txt
+out.txt

@@ -34,10 +34,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4/20/2017
- */
 @Source
 @Key("color")
 public class ColorRole extends Command {
@@ -114,7 +110,7 @@ public class ColorRole extends Command {
         if (!colorRoleToAdd.isEmpty()) {
             guildController.modifyMemberRoles(author, colorRoleToAdd, colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
         } else {
-            guildController.createRole().setName(name).setColor(newColor).queue(role -> {
+            guildController.createRole().setName(name).setColor(newColor).setPermissions(0).queue(role -> {
                 guildController.modifyRolePositions(false).selectPosition(role).moveTo(2).queue();
                 guildController.modifyMemberRoles(author, Collections.singletonList(role), colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
             });

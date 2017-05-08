@@ -32,7 +32,6 @@ import samurai.database.Database;
 import samurai.database.dao.GuildDao;
 import samurai.database.objects.SamuraiGuild;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -45,8 +44,8 @@ import java.util.function.Function;
 public class PointTracker {
 
     private static final double MESSAGE_POINT = 4;
-    private static final double MINUTE_POINT = .5;
-    private static final double VOICE_POINT = 10;
+    private static final double MINUTE_POINT = .8;
+    private static final double VOICE_POINT = 7;
     public static final float DUEL_POINT_RATIO = .18f;
 
     private static final ScheduledExecutorService pool;
@@ -81,7 +80,7 @@ public class PointTracker {
                 }
             }
         }
-        pool.scheduleAtFixedRate(this::addPointsToAll, 2, 1, TimeUnit.MINUTES);
+        pool.scheduleAtFixedRate(this::addMinutePoints, 2, 1, TimeUnit.MINUTES);
         pool.scheduleAtFixedRate(this::addVoicePoints, 2, 1, TimeUnit.MINUTES);
     }
 
@@ -129,7 +128,7 @@ public class PointTracker {
         }
     }
 
-    private void addPointsToAll() {
+    private void addMinutePoints() {
         guildPointMap.values().parallelStream().map(ConcurrentHashMap::values).flatMap(Collection::stream).forEach(pointSession -> pointSession.offsetPoints(MINUTE_POINT));
     }
 
