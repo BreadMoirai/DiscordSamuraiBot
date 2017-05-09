@@ -157,7 +157,7 @@ public class CommandContext {
     }
 
     public boolean isSource() {
-        return guildId == Bot.SOURCE_GUILD;
+        return guildId == Bot.info().SOURCE_GUILD;
     }
 
     public List<TextChannel> getMentionedChannels() {
@@ -275,7 +275,7 @@ public class CommandContext {
 
     public Stream<PointSession> getMemberPoints() {
         return getGuild().getMembers().stream().limit(20)
-                .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.ID))
+                .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.info().ID))
                 .map(member -> {
             PointSession points = pointTracker.getPoints(getGuildId(), member.getUser().getIdLong());
             points.setMember(member);

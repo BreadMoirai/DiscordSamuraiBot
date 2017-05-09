@@ -41,34 +41,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Bot {
 
-    public static final long START_TIME;
-    public static final String AVATAR;
-    public static final AtomicInteger CALLS;
-    public static final AtomicInteger SENT;
-    public static final long ID;
-    public static final long SOURCE_GUILD;
-    public static final String DEFAULT_PREFIX;
-    public static final int SHARD_COUNT = 1;
-    public static String VERSION;
-
+    private static final int SHARD_COUNT = 1;
     private static final ArrayList<JDA> shards;
-
+    private static BotInfo info;
 
     static {
-        START_TIME = System.currentTimeMillis();
-
-        final Config config = ConfigFactory.load();
-        SOURCE_GUILD = config.getLong("samurai.source_guild");
-        ID = config.getLong("samurai.id");
-        AVATAR = config.getString("samurai.avatar");
-        DEFAULT_PREFIX = config.getString("samurai.prefix");
-
-        CALLS = new AtomicInteger();
-        SENT = new AtomicInteger();
-
-        shards = new ArrayList<>(1);
-
-        VERSION = "@buildVersion@";
+        shards = new ArrayList<>(SHARD_COUNT);
     }
 
     public static void main(String[] args) {
@@ -86,14 +64,10 @@ public class Bot {
                 e.printStackTrace();
             }
 
-            if (VERSION.contains("buildVersion")) {
-            VERSION = "Development";
-            }
-
         final Config config = ConfigFactory.load();
 
         final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
-                .setToken(config.getString("samurai.token"))
+                .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
                 .addEventListener(new SamuraiDiscord());
 
@@ -137,4 +111,10 @@ public class Bot {
         shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
     }
 
+    public static BotInfo info() {
+        return info;
+    }
+    public static void setInfo(BotInfo info) {
+        Bot.info = info;
+    }
 }

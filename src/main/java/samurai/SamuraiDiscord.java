@@ -77,7 +77,10 @@ public class SamuraiDiscord implements EventListener {
     private void onReady(ReadyEvent event) {
         JDA client = event.getJDA();
         shardId = 0;
-        client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
+        //shardId = client.getShardInfo().getShardId();
+        if (shardId == 0) {
+            Bot.setInfo(new BotInfo(client));
+        }
         messageManager = new MessageManager(client);
         Database.get().load(event);
         this.pointTracker = new PointTracker();
@@ -127,7 +130,7 @@ public class SamuraiDiscord implements EventListener {
 
     private void onCommand(Command c) {
         completeContext(c.getContext());
-        if (c.getContext().getAuthorId() == 232703415048732672L) {
+        if (c.getContext().getAuthorId() == Bot.info().OWNER) {
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
             if (c instanceof GenericCommand) {
                 messageManager.onCommand((GenericCommand) c);
@@ -264,7 +267,7 @@ public class SamuraiDiscord implements EventListener {
 
     private void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild();
-        if (guild.getIdLong() == Bot.SOURCE_GUILD) {
+        if (guild.getIdLong() == Bot.info().SOURCE_GUILD) {
             guild.getController().addRolesToMember(event.getMember(), guild.getRolesByName("Peasant", false)).queue();
         }
     }

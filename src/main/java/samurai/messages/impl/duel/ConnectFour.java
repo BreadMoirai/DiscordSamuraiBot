@@ -40,12 +40,6 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
-
-/**
- * ConnectFour game
- *
- * @since 4.0
- */
 public class ConnectFour extends DynamicMessage implements ReactionListener, GenericCommandListener {
 
 
@@ -95,7 +89,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
         next = ThreadLocalRandom.current().nextBoolean() ? userA : userB;
         board = new char[X_BOUND][Y_BOUND];
         state = new BuildState(this);
-        selfOpp = challenged.getIdLong() == Bot.ID;
+        selfOpp = challenged.getIdLong() == Bot.info().ID;
     }
 
     @Override
@@ -134,7 +128,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
         return new EmbedBuilder()
                 .addField("Connect 4", sb.toString(), true)
                 .setColor(Color.BLACK)
-                .setFooter("SamuraiGames\u2122", Bot.AVATAR);
+                .setFooter("SamuraiGames\u2122", Bot.info().AVATAR);
     }
 
     private boolean hasEnded() {
@@ -200,7 +194,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
             if (board[x][Y_BOUND - 1] == '\u0000') {
                 break;
             } else if (x == 6) {
-                winner = Bot.ID;
+                winner = Bot.info().ID;
                 return true;
             }
         }
@@ -237,7 +231,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
                 winner = userB;
                 break;
             default:
-                winner = Bot.ID;
+                winner = Bot.info().ID;
                 break;
         }
     }
@@ -297,7 +291,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
             game.userB = user.getIdLong();
             game.nameB = user.getName();
             game.avatarB = user.getEffectiveAvatarUrl();
-            game.selfOpp = user.getIdLong() == Bot.ID;
+            game.selfOpp = user.getIdLong() == Bot.info().ID;
             game.next = ThreadLocalRandom.current().nextBoolean() ? game.userA : game.userB;
             final BuildState buildState = new BuildState(game);
             game.state = buildState;
@@ -325,7 +319,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
 
         @Override
         Consumer<Message> buildConsumer() {
-            final Consumer<Message> after = game.next.equals(Bot.ID) ? success -> game.selfMove(success.getJDA(), 0L) : null;
+            final Consumer<Message> after = game.next.equals(Bot.info().ID) ? success -> game.selfMove(success.getJDA(), 0L) : null;
             return newMenu(REACTIONS).andThen(message -> {
                 game.state = new PlayState(game);
                 message.editMessage(game.state.buildMessage()).queue(after);
@@ -364,7 +358,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
 
         @Override
         public void onReaction(MessageReactionAddEvent event) {
-            if (event.getUser().getIdLong() != Bot.ID)
+            if (event.getUser().getIdLong() != Bot.info().ID)
                 event.getReaction().removeReaction(event.getUser()).queue();
             int move = REACTIONS.indexOf(event.getReaction().getEmote().getName());
             for (int y = 0; y < Y_BOUND; y++) {
@@ -404,7 +398,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
                 game.unregister();
             } else {
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue(message1 -> {
-                    if (game.selfOpp && game.next.equals(Bot.ID)) {
+                    if (game.selfOpp && game.next.equals(Bot.info().ID)) {
                         game.selfMove(message1.getJDA(), event.getResponseNumber()+1);
                     }
                 }));
@@ -418,7 +412,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
             } else if (game.winner.equals(game.userB)) {
                 return game.avatarB;
             } else {
-                return Bot.AVATAR;
+                return Bot.info().AVATAR;
             }
         }
     }

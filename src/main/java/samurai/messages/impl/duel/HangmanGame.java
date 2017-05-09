@@ -46,6 +46,7 @@ import java.util.stream.IntStream;
 public class HangmanGame extends DynamicMessage implements PrivateMessageListener, ReactionListener, GenericCommandListener {
 
     private static final List<String> HANGMAN_REACTIONS = Collections.unmodifiableList(Arrays.asList("?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?"));
+    //todo well this is borken
     private static final List<String> HANGMAN_IMAGES = Collections.unmodifiableList(Arrays.asList("https://puu.sh/twqZM.jpg", "https://puu.sh/twr1V.jpg", "https://puu.sh/twr3V.jpg", "https://puu.sh/twrGc.jpg", "https://puu.sh/twrGx.jpg", "https://puu.sh/twrW2.jpg", "https://puu.sh/twrWn.jpg", "https://puu.sh/twrWJ.jpg", "https://puu.sh/twrWV.jpg", "https://puu.sh/twrX5.jpg", "https://puu.sh/twrXq.jpg"));
 
 
@@ -218,7 +219,7 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
                 .setDescription(s)
                 .addField("", buildWord(), true)
                 .setAuthor(authorName, null, authorAvatar)
-                .setFooter("SamuraiGames\u2122", Bot.AVATAR)
+                .setFooter("SamuraiGames\u2122", Bot.info().AVATAR)
                 .setImage(life == death ? HANGMAN_IMAGES.get(HANGMAN_IMAGES.size() - 1) : HANGMAN_IMAGES.get(life))
                 .setColor(authorColor)
                 .build();

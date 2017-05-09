@@ -62,6 +62,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import java.io.IOException;
@@ -69,10 +70,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4/15/2017
- */
 public class YoutubeAPI {
     private static int calls;
     private static final String KEY;
@@ -84,14 +81,20 @@ public class YoutubeAPI {
 
     static {
         calls = 0;
-        KEY = ConfigFactory.load().getString("api.google");
-
-        youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, request -> {
-        }).setApplicationName("DiscordSamuraiBot").build();
-        System.out.println("YouTube Initialized");
+        final Config config = ConfigFactory.load();
+        if (config.hasPath("api.google")) {
+            KEY = config.getString("api.google");
+            youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, request -> {
+            }).setApplicationName("DiscordSamuraiBot").build();
+            System.out.println("YouTube Initialized");
+        } else {
+            KEY = null;
+            System.err.println("No Google Api Key found");
+        }
     }
 
     public static List<String> getRelated(String videoID, long size) {
+        if (KEY == null) return Collections.emptyList();
         try {
             YouTube.Search.List search = youtube.search().list("id");
 

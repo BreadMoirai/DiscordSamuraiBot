@@ -14,6 +14,7 @@
 */
 package samurai.util;
 
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.json.JSONObject;
 
@@ -35,13 +36,20 @@ public class GoogleAPI {
     private static int calls;
 
     static {
-        KEY = ConfigFactory.load().getString("api.google");
-        ENGINE = ConfigFactory.load().getString("api.google_engine");
+
+        final Config config = ConfigFactory.load();
+        if (config.hasPath("api.google")) {
+            KEY = config.getString("api.google");
+        } else KEY = null;
+        if (config.hasPath("api.search_engine")) {
+            ENGINE = config.getString("api.search_engine");
+        } else ENGINE = null;
         GOOGLE_URL = "https://www.googleapis.com/customsearch/v1?cx=%s&key=%s&num=%d&q=%s";
     }
 
 
     public static JSONObject retrieveSearchResults(String query, int count) {
+        if (KEY == null || ENGINE == null) return null;
         query = query.replace(" ", "%20");
         calls++;
         try (BufferedReader rd = new BufferedReader(new InputStreamReader(new URL(String.format(GOOGLE_URL, ENGINE, KEY, count, query)).openStream(), StandardCharsets.UTF_8))) {

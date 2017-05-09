@@ -70,7 +70,7 @@ public class PointTracker {
                 guildPointMap.put(guildId, sessions);
                 for (Member member : guild.getMembers()) {
                     if ((member.getUser().isBot() || member.getUser().isFake())
-                            && member.getUser().getIdLong() != Bot.ID)
+                            && member.getUser().getIdLong() != Bot.info().ID)
                         continue;
                     final OnlineStatus onlineStatus = member.getOnlineStatus();
                     if (onlineStatus != OnlineStatus.UNKNOWN && onlineStatus != OnlineStatus.OFFLINE) {

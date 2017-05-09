@@ -16,6 +16,7 @@ package samurai.command.debug;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import samurai.Bot;
+import samurai.BotInfo;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -37,14 +38,15 @@ public class Status extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         Runtime thisInstance = Runtime.getRuntime();
         int mb = 1024 * 1024;
+        final BotInfo info = Bot.info();
         final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Status: Connected", null)
                 .setColor(Color.GREEN)
-                .setFooter("Samurai\u2122", Bot.AVATAR)
+                .setFooter("Samurai\u2122", context.getSelfUser().getEffectiveAvatarUrl())
                 .addField("Global", String.format("**%-14s**`%d`%n**%-14s**`%d`", "Guilds:", Bot.getGuildCount(), "Users:", Bot.getPlayerCount()), true)
                 .addField("Time Active", ((FixedMessage) new Uptime().execute(null)).getMessage().getContent(), false)
-                .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", Bot.CALLS.get(), "sent:", Bot.SENT.get(), "cmds/hr:", 360.0 * Bot.CALLS.get() / ((System.currentTimeMillis() - Bot.START_TIME) / 1000.0)), true)
-                .addField("Osu!API", String.format("**%-16s**`%d`%n**%-17s**`%d`", "calls made:", OsuAPI.calls, "calls/min:", OsuAPI.calls / ((System.currentTimeMillis() - Bot.START_TIME) / 6000)), true)
+                .addField("Messages", String.format("**%-15s**`%d`%n**%-20s**`%d`%n**%-14s**`%.2f`", "received:", info.CALLS.get(), "sent:", info.SENT.get(), "cmds/hr:", 360.0 * info.CALLS.get() / ((System.currentTimeMillis() - info.START_TIME) / 1000.0)), true)
+                .addField("Osu!API", String.format("**%-16s**`%d`%n**%-17s**`%d`", "calls made:", OsuAPI.calls, "calls/min:", OsuAPI.calls / ((System.currentTimeMillis() - info.START_TIME) / 6000)), true)
                 .addField("Memory", String.format("**used:\t**`%d MB`%n**total:\t**`%d MB`%n**max: \t**`%d MB`", (thisInstance.totalMemory() - thisInstance.freeMemory()) / mb, thisInstance.totalMemory() / mb, thisInstance.maxMemory() / mb), true)
                 .setTimestamp(OffsetDateTime.now());
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();

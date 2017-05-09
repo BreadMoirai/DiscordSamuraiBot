@@ -43,7 +43,7 @@ public class Transfer extends Command {
                 return FixedMessage.build(String.format("%s has received your transfer of **%.2f** points.", member.getEffectiveName(), value));
             } else {
                 authorPoints.offsetPoints(-1 * value);
-                context.getPointTracker().offsetPoints(context.getGuildId(), Bot.ID, value);
+                context.getPointTracker().offsetPoints(context.getGuildId(), context.getSelfUser().getIdLong(), value);
                 return FixedMessage.build(String.format("Thanks for your donation of **%.2f** points", value));
             }
         }

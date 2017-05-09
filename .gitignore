@@ -96,3 +96,5 @@ version.txt
 /SamuraiDatabase
 err.txt
 out.txt
+/src/main/resources/samurai/command/restricted/imports.java
+/src/main/resources/samurai/command/restricted/functions.txt

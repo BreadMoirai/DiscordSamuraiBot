@@ -51,7 +51,6 @@ public class TrackScheduler extends AudioEventAdapter {
     public AudioTrackR queue(AudioTrack audioTrack, String requester) {
         AudioTrackR track = new AudioTrackR(audioTrack, requester);
         if (player.startTrack(track.getTrack(), true)) {
-            history.addFirst(current);
             current = track;
         } else queue.add(track);
         return track;
@@ -78,6 +77,9 @@ public class TrackScheduler extends AudioEventAdapter {
         } else {
             AudioTrackR track = queue.remove(0);
             player.startTrack(track.getTrack(), false);
+            if (current != null) {
+                history.addFirst(current);
+            }
             current = track;
         }
     }

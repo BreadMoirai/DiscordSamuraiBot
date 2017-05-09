@@ -33,10 +33,11 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.osu.tracker.OsuTracker;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,21 +71,10 @@ public class Groovy extends Command {
         GROOVY_SHELL = new GroovyShell(BINDING);
 
         IMPORTS = new HashSet<>(20);
-        IMPORTS.add("import java.util.*");
-        IMPORTS.add("import java.util.stream.*");
-        IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
-        IMPORTS.add("import net.dv8tion.jda.core.entities.Member");
-        IMPORTS.add("import samurai.messages.impl.*");
-        IMPORTS.add("import org.apache.commons.codec.binary.Hex");
+        initializeImports();
         FUNCTIONS = new ArrayList<>(20);
-        FUNCTIONS.add("List<Integer> gen(int size)\n{\n\treturn IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
-        FUNCTIONS.add("byte[] hexToByte(String s) {\n\tbyte[] b = new byte[s.length() / 2];\n\tfor (int i = 0; i < b.length; i++) {\n\t\tint index = i * 2;\n\t\tint v = Integer.parseInt(s.substring(index, index + 2), 16);\n\t\tb[i] = (byte) v;\n\t}\n\treturn b;\n}");
-        FUNCTIONS.add("List<RollPoll> getRollPolls() {\n" +
-                "mm.listeners.values().stream().flatMap({a -> a.stream()}).filter({b -> b instanceof RollPoll}).collect(Collectors.toList()); \n" +
-                "}");
-        FUNCTIONS.add("Member getMember(long id) {\n    return context.getGuild().getMemberById(id)\n}");
-        FUNCTIONS.add("def rp() {\ngetRollPolls().stream().map({a -> Hex.encodeHexString(a.download())}).collect(Collectors.toList())}");
-        FUNCTIONS.add("def up(String s) {\n\tRollPoll.upload(hexToByte(s), mm, context.getPointTracker())\n}");
+        initializeFunctions();
+
         FUNCTION_NAME = Pattern.compile("[A-Za-z]*[ ]([a-z][A-Za-z]*)\\([A-Za-z\\[\\],<>\\s]*\\)");
         JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|\n[`]{3}");
     }
@@ -199,5 +189,27 @@ public class Groovy extends Command {
             }
             return FixedMessage.build(result.toString());
         } else return FixedMessage.build("Null");
+    }
+
+    private static void initializeImports() {
+        final InputStream resourceAsStream =  Groovy.class.getResourceAsStream("imports.txt");
+        if (resourceAsStream != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+                IMPORTS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void initializeFunctions() {
+        final InputStream resourceAsStream =  Groovy.class.getResourceAsStream("functions.txt");
+        if (resourceAsStream != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+                FUNCTIONS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

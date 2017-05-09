@@ -14,6 +14,7 @@
 */
 package samurai.osu;
 
+import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,14 +51,25 @@ public class OsuAPI {
     static {
         calls = 0;
         OSU_API = "https://osu.ppy.sh/api/";
-        KEY = "k=" + ConfigFactory.load().getString("api.osu");
+        final Config load = ConfigFactory.load();
+        if (load.hasPath("api.osu")) {
+            KEY = "k=" + load.getString("api.osu");
+        } else {
+            System.err.println("No Osu Api Key found");
+            KEY = null;
+        }
         GET_USER = "get_user?";
         GET_BEATMAPS = "get_beatmaps?";
         GET_SCORES = "get_scores?";
         GET_RECENT = "get_user_recent?";
     }
 
+    public static boolean isEnabled() {
+        return KEY != null;
+    }
+
     public static List<Score> getUserRecent(String player, int userId, GameMode m, int limit) {
+        if (KEY == null) return Collections.emptyList();
         String url = String.format("%s%s%s&u=%d&m=%d&limit=%d&type=id", OSU_API, GET_RECENT, KEY, userId, m.value(), limit);
         final JSONArray jsonArray = readJsonFromUrl(url);
         if (jsonArray == null) return Collections.emptyList();
@@ -86,12 +98,14 @@ public class OsuAPI {
     }
 
     public static PlayerBuilder getPlayer(int osuId) {
+        if (KEY == null) return null;
         JSONArray json = readJsonFromUrl(String.format("%s%s%s&type=id&u=%d", OSU_API, GET_USER, KEY, osuId));
         if (json == null || json.length() != 1) return null;
         return playerFromJson(json.getJSONObject(0));
     }
 
     public static PlayerBuilder getPlayer(String osuName) {
+        if (KEY == null) return null;
         JSONArray json = readJsonFromUrl(String.format("%s%s%s&u=%s", OSU_API, GET_USER, KEY, osuName));
         if (json == null || json.length() != 1) return null;
         return playerFromJson(json.getJSONObject(0));
@@ -115,6 +129,7 @@ public class OsuAPI {
     }
 
     public static JSONArray getSetByHash(String hash) {
+        if (KEY == null) return null;
         JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&h=%s", OSU_API, GET_BEATMAPS, KEY, hash));
         if (jsonArray != null) {
             return getSet(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
@@ -123,6 +138,7 @@ public class OsuAPI {
     }
 
     public static JSONArray getSetByMap(int mapId) {
+        if (KEY == null) return null;
         JSONArray jsonArray = readJsonFromUrl(String.format("%s%s%s&b=%d", OSU_API, GET_BEATMAPS, KEY, mapId));
         if (jsonArray != null) {
             return getSet(jsonArray.getJSONObject(0).getInt("beatmapset_id"));
@@ -131,6 +147,7 @@ public class OsuAPI {
     }
 
     public static JSONArray getSet(int setId) {
+        if (KEY == null) return null;
         return readJsonFromUrl(String.format("%s%s%s&s=%d", OSU_API, GET_BEATMAPS, KEY, setId));
     }
 

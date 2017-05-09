@@ -113,16 +113,16 @@ public class Database {
         List<Long> existingGuilds = jdbi.withExtension(GuildDao.class, GuildDao::getGuilds);
         final ArrayList<Long> foundGuilds = event.getJDA().getGuilds().stream().map(ISnowflake::getIdLong).collect(Collectors.toCollection(ArrayList::new));
         foundGuilds.removeAll(existingGuilds);
-        foundGuilds.forEach(guildId -> new GuildBuilder().putPrefix(Bot.DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create());
+        foundGuilds.forEach(guildId -> new GuildBuilder().putPrefix(Bot.info().DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create());
     }
 
 
     public String getPrefix(long guildId) {
         String s = jdbi.withExtension(GuildDao.class, extension -> extension.getPrefix(guildId));
         if (s == null) {
-            new GuildBuilder().putPrefix(Bot.DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
+            new GuildBuilder().putPrefix(Bot.info().DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
         } else return s;
-        return Bot.DEFAULT_PREFIX;
+        return Bot.info().DEFAULT_PREFIX;
     }
 
     private void testConnection() throws SQLException {

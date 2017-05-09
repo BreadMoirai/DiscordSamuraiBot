@@ -52,6 +52,9 @@ public class Related extends Command {
                 final String uri = playingTrack.getInfo().uri;
                 if (uri.toLowerCase().contains("youtube")) {
                     final List<String> related = YoutubeAPI.getRelated(uri.substring(uri.lastIndexOf('=') + 1), size);
+                    if (related.isEmpty()) {
+                        return FixedMessage.build("No related tracks exist");
+                    }
                     return new TrackLoader(audioManager, related, String.format("Tracks related to [%s](%s)", playingTrack.getInfo().title, uri));
                 }
                 else return FixedMessage.build("Related tracks are not available for sources other than youtube");

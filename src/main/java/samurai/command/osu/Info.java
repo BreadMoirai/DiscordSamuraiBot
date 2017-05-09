@@ -41,7 +41,7 @@ public class Info extends Command {
                     .setAuthor("Info", null, null)
                     .setColor(context.getAuthor().getColor())
                     .setDescription(String.format("**Guild ID:** `%d`%n**Prefix:** `%s`%n**Linked Users:** `%d`%n**Tracker Channels:** `%s`", guild.getGuildId(), guild.getPrefix(), guild.getPlayers().size(), guild.getChannelModes().toString()))
-                    .setFooter("SamuraiStats\u2122", Bot.AVATAR);
+                    .setFooter("SamuraiStats\u2122", context.getSelfUser().getEffectiveAvatarUrl());
             return FixedMessage.build(eb.build());
         } else userD = mentions.get(0);
         final Optional<Player> guildPlayer = context.getSamuraiGuild().getPlayer(context.getAuthorId());
