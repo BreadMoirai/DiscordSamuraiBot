@@ -40,10 +40,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 3/7/2017
- */
 @Key("wasted")
 @Source
 public class Wasted extends Command {

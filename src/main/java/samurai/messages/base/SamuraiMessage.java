@@ -19,10 +19,6 @@ import samurai.messages.MessageManager;
 
 import java.util.function.Consumer;
 
-/**
- * @author TonTL
- * @since 5.0
- */
 public abstract class SamuraiMessage {
 
     private long channelId;

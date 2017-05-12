@@ -22,10 +22,6 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.duel.HangmanGame;
 
-/**
- * @author TonTL
- * @version 3/16/2017
- */
 @Key({"hangman"})
 public class Hangman extends Command {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE};

@@ -33,11 +33,13 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.osu.tracker.OsuTracker;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -60,14 +62,6 @@ public class Groovy extends Command {
 
     static {
         BINDING = new Binding();
-        BINDING.setVariable("CREATOR", "DreadMoirai");
-        BINDING.setVariable("BOT", Bot.class);
-        BINDING.setVariable("STORE", SamuraiStore.class);
-        BINDING.setVariable("CF", CommandFactory.class);
-        BINDING.setVariable("DB", Database.class);
-        BINDING.setVariable("YOUTUBE", YoutubeAPI.class);
-        BINDING.setVariable("TRACKER", OsuTracker.class);
-        BINDING.setVariable("GAME", Game.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
 
         IMPORTS = new HashSet<>(20);
@@ -206,7 +200,7 @@ public class Groovy extends Command {
         final InputStream resourceAsStream =  Groovy.class.getResourceAsStream("functions.txt");
         if (resourceAsStream != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream))) {
-                FUNCTIONS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
+                FUNCTIONS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split("(?:});\n\n")));
             } catch (IOException e) {
                 e.printStackTrace();
             }

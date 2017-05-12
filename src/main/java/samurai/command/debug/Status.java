@@ -30,7 +30,6 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.time.OffsetDateTime;
 
-
 @Key("status")
 public class Status extends Command {
 

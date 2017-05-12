@@ -32,11 +32,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Source
-@Key("unlock")
-public class Unlock extends Command{
+@Key({"unlock", "ununlock"})
+public class Unlock extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        //add database entries to restrict channels
         final Guild guild = context.getGuild();
         final Member author = context.getAuthor();
         if (!context.hasContent()) {
@@ -50,15 +49,19 @@ public class Unlock extends Command{
             return FixedMessage.build(collect);
         }
         List<TextChannel> hiddenChannels = guild.getTextChannelsByName(context.getContent(), true);
-        if (hiddenChannels.isEmpty()) return FixedMessage.build("Channel not found");
-        final TextChannel thatChannel = hiddenChannels.get(0);
+        TextChannel thatChannel;
+        if (hiddenChannels.isEmpty()) {
+            if (context.getMentionedChannels().size() == 1) {
+                thatChannel = context.getMentionedChannels().get(0);
+            } else return FixedMessage.build("Channel Not Found");
+        } else thatChannel = hiddenChannels.get(0);
         final Member selfMember = context.getSelfMember();
         if (!selfMember.hasPermission(thatChannel, Permission.MANAGE_PERMISSIONS)) {
             return new PermissionFailureMessage(selfMember, thatChannel, Permission.MANAGE_PERMISSIONS);
         }
         final PermissionOverride permissionOverride = thatChannel.getPermissionOverride(author);
         if (permissionOverride == null) {
-            thatChannel.createPermissionOverride(author).setAllow(Permission.MESSAGE_READ, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY).queue();
+            thatChannel.createPermissionOverride(author).setAllow(Permission.MESSAGE_READ).queue();
             return FixedMessage.build("Access granted");
         } else {
             if (permissionOverride.getAllowed().contains(Permission.MESSAGE_READ))

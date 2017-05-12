@@ -3,6 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
     id 'java'
     id 'idea'
+    id 'com.sedmelluq.jdaction' version '1.0.1'
 }
 
 idea.module.downloadJavadoc = true
