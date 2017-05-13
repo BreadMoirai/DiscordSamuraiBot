@@ -4,10 +4,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.command.CommandContext;
@@ -75,8 +72,10 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
-        if (event.getUser().getIdLong() == Bot.info().OWNER) {
-            if (event.getReaction().getEmote().getIdLong() == YES) {
+        final long reactionAdded = event.getReaction().getEmote().getIdLong();
+        final User user = event.getUser();
+        if (user.getIdLong() == Bot.info().OWNER) {
+            if (reactionAdded == YES) {
                 event.getTextChannel().getMessageById(getMessageId()).queue(message -> {
                     final EmbedBuilder eb = new EmbedBuilder(message.getEmbeds().get(0));
                     eb.setFooter("APPROVED", "https://cdn.discordapp.com/emojis/" + YES + ".png");
@@ -89,7 +88,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
                     genericCommand.setContext(context);
                     getManager().onCommand(genericCommand);
                 });
-            } else if (event.getReaction().getEmote().getIdLong() == NO) {
+            } else if (reactionAdded == NO) {
                 event.getTextChannel().getMessageById(getMessageId()).queue(message -> {
                     final EmbedBuilder eb = new EmbedBuilder(message.getEmbeds().get(0));
                     final StringBuilder db = eb.getDescriptionBuilder();
@@ -101,22 +100,21 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
                     unregister();
                 });
             }
-        } else if (event.getUser().equals(author.getUser()) && event.getReaction()
-                .getEmote().getIdLong() == NO) {
+        } else if (user.equals(author.getUser()) && reactionAdded == NO) {
             event.getTextChannel().deleteMessageById(getMessageId()).queue();
             unregister();
         } else {
             event.getTextChannel().getMessageById(getMessageId()).queue(message -> {
-                final long reactionAdded = event.getReactionEmote().getIdLong();
                 int y = 0, n = 0;
                 for (MessageReaction messageReaction : message.getReactions()) {
-                    final long id = event.getReaction().getEmote().getIdLong();
-                    if (id == YES) y = messageReaction.getCount();
-                    else if (id == NO) n = messageReaction.getCount();
-                    if (id != reactionAdded) {
+                    final long id = messageReaction.getEmote().getIdLong();
+                    final int count = messageReaction.getCount();
+                    if (id == YES) y = count;
+                    else if (id == NO) n = count;
+                    if (reactionAdded != id) {
                         messageReaction.getUsers().queue(users -> {
-                            if (users.contains(event.getUser())) {
-                                messageReaction.removeReaction(event.getUser()).queue();
+                            if (users.contains(user)) {
+                                messageReaction.removeReaction(user).queue();
                             }
                         });
                     }
@@ -128,7 +126,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
     }
 
     private Color getColor(int yes, int no) {
-        float hue = (float) (240 + (180*Math.atan((yes-no)/2)/Math.PI));
+        float hue = (float) (240.0f + (180.0f*Math.atan((yes-no)/2.0f)/Math.PI)) / 360.0f;
         return new Color(Color.HSBtoRGB(hue, SATURATION, BALANCE));
     }
 
