@@ -110,7 +110,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
                 final long reactionAdded = event.getReactionEmote().getIdLong();
                 int y = 0, n = 0;
                 for (MessageReaction messageReaction : message.getReactions()) {
-                    final long id = messageReaction.getEmote().getIdLong();
+                    final long id = event.getReaction().getEmote().getIdLong();
                     if (id == YES) y = messageReaction.getCount();
                     else if (id == NO) n = messageReaction.getCount();
                     if (id != reactionAdded) {
@@ -128,7 +128,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
     }
 
     private Color getColor(int yes, int no) {
-        float hue = (float) (240 + (180*Math.atan((no-yes)/2)/Math.PI));
+        float hue = (float) (240 + (180*Math.atan((yes-no)/2)/Math.PI));
         return new Color(Color.HSBtoRGB(hue, SATURATION, BALANCE));
     }
 
