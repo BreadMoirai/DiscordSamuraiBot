@@ -65,7 +65,13 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
         message.addReaction(DICE).queue();
         if (time > 0) {
             message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
-                Member winner = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null).getKey();
+                final Map.Entry<Member, Integer> memberIntegerEntry = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElseGet(null);
+                if (memberIntegerEntry == null) {
+                    message1.editMessage("No Winner...").queue();
+                    unregister();
+                    return;
+                }
+                Member winner = memberIntegerEntry.getKey();
                 if (pointTracker != null && pointValue > 0) {
                     message1.editMessage(new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append(winner.getAsMention()).append("\uD83C\uDF8A").setEmbed(distDispPoints(pointValue)).build()).queue();
                 } else {
