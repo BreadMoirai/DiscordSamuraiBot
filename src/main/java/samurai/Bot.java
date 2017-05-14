@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.audio.SamuraiAudioManager;
-import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
 import samurai.points.PointTracker;
@@ -31,9 +30,10 @@ import javax.security.auth.login.LoginException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main Class
@@ -56,11 +56,11 @@ public class Bot {
     private static void start(String[] args) {
         if (args.length != 0)
             try {
-                PrintStream out = new PrintStream(new FileOutputStream("out.txt"));
+                PrintStream out = new PrintStream(new FileOutputStream("out.txt"), false, "UTF-8");
                 System.setOut(out);
-                PrintStream err = new PrintStream(new FileOutputStream("err.txt"));
+                PrintStream err = new PrintStream(new FileOutputStream("err.txt"), false, "UTF-8");
                 System.setErr(err);
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
 
@@ -73,7 +73,7 @@ public class Bot {
 
         try {
             //for (int i = 0; i < SHARD_COUNT; i++)
-                shards.add(jdaBuilder.buildAsync());
+            shards.add(jdaBuilder.buildAsync());
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
@@ -114,6 +114,7 @@ public class Bot {
     public static BotInfo info() {
         return info;
     }
+
     public static void setInfo(BotInfo info) {
         Bot.info = info;
     }

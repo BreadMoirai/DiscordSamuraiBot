@@ -51,7 +51,11 @@ public class SamuraiStore {
         final InputStream fileInput = SamuraiStore.class.getResourceAsStream("help/" + fileName + ".txt");
         if (fileInput == null)
             return String.format("Nothing found for `%s`. Sorry!", fileName);
-        new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8)).lines().map(s -> s + '\n').forEachOrdered(sb::append);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8))) {
+            br.lines().map(s -> s + '\n').forEachOrdered(sb::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return sb.toString();
     }
 
@@ -157,7 +161,7 @@ public class SamuraiStore {
         if (fileInput == null) {
             return "No info found";
         }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8))) {
             return br.lines().collect(Collectors.joining("\n"));
         } catch (IOException e) {
             e.printStackTrace();

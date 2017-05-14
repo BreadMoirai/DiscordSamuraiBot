@@ -86,7 +86,6 @@ public class PointTracker {
 
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
         if (event.getUser().isBot() || event.getUser().isFake()) return;
-        final JDA jda = event.getJDA();
         final User user = event.getUser();
         long userId = user.getIdLong();
         final OnlineStatus onlineStatus = event.getGuild().getMember(user).getOnlineStatus();

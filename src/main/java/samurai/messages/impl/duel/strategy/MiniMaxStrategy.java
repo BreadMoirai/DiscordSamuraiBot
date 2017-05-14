@@ -74,9 +74,9 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
             return 50;
         }
         if (isWinningMove(x, y, p, board)) {
-            return p == 'b' ? 1000 / depth : -1000 / depth;
+            return p == 'b' ? 1000.0 / depth : -1000.0 / depth;
         } else if (isWinningMove(x, y, opp, board)) {
-            return p == 'b' ? 500 / depth : -500 / depth;
+            return p == 'b' ? 500.0 / depth : -500.0 / depth;
         } else {
             final char[][] testBoard = testMove(x, y, p, board);
             return IntStream.range(0, xBound).parallel().mapToDouble(testX -> minimax(testX, height(testBoard[testX]), opp, testBoard, depth + 1)).average().orElse(0.0);

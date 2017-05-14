@@ -23,7 +23,6 @@ public class Suggest extends Command {
 
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final TextChannel suggestionQueue = context.getGuild().getTextChannelById(SUGGESTION_QUEUE_ID);
         String type;
         switch (context.getKey().toLowerCase()) {
             case "fix":
