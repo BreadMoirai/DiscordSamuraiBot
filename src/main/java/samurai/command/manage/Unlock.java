@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Source
-@Key({"unlock", "ununlock"})
+@Key("unlock")
 public class Unlock extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

@@ -170,7 +170,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private class AutoPlayHandler implements AudioLoadResultHandler {
         @Override
         public void trackLoaded(AudioTrack track) {
-            queue(track, null);
+            queue(track, "Samurai");
         }
 
         @Override
