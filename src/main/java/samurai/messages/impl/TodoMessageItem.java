@@ -52,6 +52,7 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
         int i = itemCount - items.size();
         StringJoiner joiner = new StringJoiner("\n");
         for (String s : items) {
+            i++;
             joiner.add(i + ") " + s);
         }
         eb.setDescription(joiner.toString());

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Source
-@Key("color")
+@Key({"color", "uncolor"})
 public class ColorRole extends Command {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MANAGE_ROLES};
 
@@ -43,6 +43,12 @@ public class ColorRole extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
+        final Member author = context.getAuthor();
+        if (context.getKey().equalsIgnoreCase("uncolor")) {
+            final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
+            context.getGuild().getController().removeRolesFromMember(author, colorRoleToRemove).queue();
+            return FixedMessage.build("Your color has been reset to the default color.");
         }
         final java.util.List<Member> members = context.getMentionedMembers();
         if (members.size() == 1) {
@@ -58,7 +64,6 @@ public class ColorRole extends Command {
             eb.setColor(color);
             return FixedMessage.build(eb.build());
         }
-        final Member author = context.getAuthor();
         if (!context.hasContent()) {
             final Color color = author.getColor();
             final EmbedBuilder eb = new EmbedBuilder();

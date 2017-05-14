@@ -96,8 +96,8 @@ public class RollPoll extends DynamicMessage implements ReactionListener {
             } else {
                 description.append(String.format("`%02d.`", pos));
             }
-            description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a ").append(memberIntegerEntry.getValue())
-                    .append('\n');
+            description.append(memberIntegerEntry.getKey().getEffectiveName()).append(" rolled a **").append(memberIntegerEntry.getValue())
+                    .append("**\n");
         });
         final MessageBuilder mb = new MessageBuilder().append("Click ").append(DICE).append(" to roll");
         if (pointTracker != null && pointValue > 0) {
