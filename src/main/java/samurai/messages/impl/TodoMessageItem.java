@@ -53,7 +53,8 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
         StringJoiner joiner = new StringJoiner("\n");
         for (String s : items) {
             i++;
-            joiner.add(i + ") " + s);
+            if (s.startsWith("~~")) joiner.add(String.format("%d)%s", i, s));
+            else joiner.add(String.format("**%d)** %s", i, s));
         }
         eb.setDescription(joiner.toString());
         return mb.setEmbed(eb.build()).build();
@@ -70,11 +71,12 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
 
     @Override
     public void onCommand(GenericCommand command) {
-        if (command.getContext().getKey().equals(name)) {
+        final String key = command.getContext().getKey();
+        if (key.equals(name)) {
             itemCount++;
             items.add(command.getContext().getContent());
             getManager().getClient().getTextChannelById(getChannelId()).editMessageById(getMessageId(), buildMessage()).queue();
-        } else if (command.getContext().getKey().equalsIgnoreCase(name.charAt(0) + "done")) {
+        } else if (key.equalsIgnoreCase(name.charAt(0) + "done")) {
             command.getContext().getChannel().deleteMessageById(command.getContext().getMessageId()).queue();
             command.getContext().getIntArgs().filter(value -> value > 0 && value <= items.size()).map(operand -> operand - 1).forEach(value -> items.set(value, "~~" + items.get(value) + "~~"));
             command.getContext().getChannel().editMessageById(getMessageId(), buildMessage()).queue();
