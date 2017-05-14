@@ -16,10 +16,12 @@ package samurai.messages.impl;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import samurai.messages.MessageManager;
 import samurai.messages.base.SamuraiMessage;
 
+import java.util.Queue;
 import java.util.function.Consumer;
 
 /**
@@ -34,7 +36,16 @@ public class FixedMessage extends SamuraiMessage {
 
     public static FixedMessage build(String s) {
         if (s == null) return null;
-        return new FixedMessage().setMessage(new MessageBuilder().append(s).build());
+        final Queue<Message> messages = new MessageBuilder().append(s).buildAll(MessageBuilder.SplitPolicy.NEWLINE);
+        final Message first = messages.poll();
+        if (messages.isEmpty())
+            return new FixedMessage().setMessage(first);
+        else return new FixedMessage().setMessage(first).setConsumer(message1 -> {
+            final MessageChannel channel = message1.getChannel();
+            while (!messages.isEmpty()) {
+                channel.sendMessage(messages.poll()).queue();
+            }
+        });
     }
 
     public static FixedMessage build(MessageEmbed e) {
