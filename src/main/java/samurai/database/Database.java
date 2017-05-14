@@ -119,10 +119,11 @@ public class Database {
 
     public String getPrefix(long guildId) {
         String s = jdbi.withExtension(GuildDao.class, extension -> extension.getPrefix(guildId));
+        final String prefix = Bot.info().DEFAULT_PREFIX;
         if (s == null) {
-            new GuildBuilder().putPrefix(Bot.info().DEFAULT_PREFIX).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
+            new GuildBuilder().putPrefix(prefix).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
         } else return s;
-        return Bot.info().DEFAULT_PREFIX;
+        return prefix;
     }
 
     private void testConnection() throws SQLException {

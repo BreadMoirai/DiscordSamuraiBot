@@ -16,7 +16,6 @@ package samurai.command;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.lang3.tuple.Pair;
 import samurai.Bot;
 import samurai.database.Database;
 import samurai.database.dao.GuildDao;
@@ -270,14 +269,14 @@ public class CommandContext {
     }
 
     public PointSession getAuthorPoints() {
-        return pointTracker.getPoints(getGuildId(), getAuthorId());
+        return pointTracker.getMemberPointSession(getGuildId(), getAuthorId());
     }
 
     public Stream<PointSession> getMemberPoints() {
         return getGuild().getMembers().stream().limit(20)
                 .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.info().ID))
                 .map(member -> {
-            PointSession points = pointTracker.getPoints(getGuildId(), member.getUser().getIdLong());
+            PointSession points = pointTracker.getMemberPointSession(getGuildId(), member.getUser().getIdLong());
             points.setMember(member);
             return points;
         }).sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());

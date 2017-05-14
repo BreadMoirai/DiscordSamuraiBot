@@ -16,31 +16,23 @@ package samurai.command.restricted;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import net.dv8tion.jda.core.entities.Game;
 import org.apache.commons.codec.binary.Hex;
-import samurai.Bot;
 import samurai.audio.SamuraiAudioManager;
-import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.CommandFactory;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.database.Database;
-import samurai.files.SamuraiStore;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
-import samurai.osu.tracker.OsuTracker;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -187,7 +179,7 @@ public class Groovy extends Command {
     }
 
     private static void initializeImports() {
-        final InputStream resourceAsStream =  Groovy.class.getResourceAsStream("imports.txt");
+        final InputStream resourceAsStream = Groovy.class.getResourceAsStream("imports.txt");
         if (resourceAsStream != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
                 IMPORTS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
@@ -198,7 +190,7 @@ public class Groovy extends Command {
     }
 
     private static void initializeFunctions() {
-        final InputStream resourceAsStream =  Groovy.class.getResourceAsStream("functions.txt");
+        final InputStream resourceAsStream = Groovy.class.getResourceAsStream("functions.txt");
         if (resourceAsStream != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
                 FUNCTIONS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split("(?:});\n\n")));

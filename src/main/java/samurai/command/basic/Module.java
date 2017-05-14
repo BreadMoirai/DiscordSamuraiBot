@@ -59,6 +59,9 @@ public class Module extends Command {
                     case "enable":
                         String s1 = args.stream().filter(commands -> !commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
                         samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
+                        if (args.contains(CommandModule.points)) {
+                            context.getPointTracker().enablePoints(context.getGuild());
+                        }
                         return FixedMessage.build(s1);
                     case "disable":
                         String s2 = args.stream().filter(commands -> commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));

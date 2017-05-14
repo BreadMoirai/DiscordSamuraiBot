@@ -20,11 +20,12 @@ import samurai.database.Database;
 import samurai.database.dao.PointDao;
 
 public class PointSession {
-    long discordId;
-    long guildId;
-    double points;
-    OnlineStatus status;
-    Member member;
+    private long discordId;
+    private long guildId;
+    private double points;
+    private OnlineStatus status;
+    private Member member;
+    private long lastMessageSent;
 
     public long getDiscordId() {
         return discordId;
@@ -67,7 +68,19 @@ public class PointSession {
         this.member = member;
     }
 
-    public void destroy() {
+    public long getLastMessageSent() {
+        return lastMessageSent;
+    }
+
+    public void setLastMessageSent(long lastMessageSent) {
+        this.lastMessageSent = lastMessageSent;
+    }
+
+    /**
+     * deletes this member from the database.
+     * use with caution
+     */
+    public void delete() {
         Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.deleteUser(discordId, guildId));
     }
 
@@ -78,5 +91,10 @@ public class PointSession {
     public PointSession offsetPoints(double offset) {
         points += offset;
         return this;
+    }
+
+    public double getLevel() {
+        return 0.0;
+        //todo
     }
 }
