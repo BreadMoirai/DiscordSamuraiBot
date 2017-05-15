@@ -116,14 +116,14 @@ public class PointTracker {
             if (pointSession != null) {
                 final long now = event.getMessage().getCreationTime().toInstant().getEpochSecond();
                 final long diff = now - pointSession.getLastMessageSent();
-                System.out.print("diff = " + diff + ", ");
+//                System.out.print("diff = " + diff + ", ");
                 if (diff < 10 || diff > 180) {
                     pointSession.offsetPoints(MESSAGE_POINT);
-                    System.out.println("default = 4");
+//                    System.out.println("default = 4");
                 } else {
                     double offset = ((69.0 * Math.pow(Math.atan(diff / 20.0), 3.0)) / ((Math.PI / 6.0) * Math.sqrt(diff))) - (Math.pow(diff, 2) / 1220.0);
                     pointSession.offsetPoints(offset);
-                    System.out.println("offset = " + offset);
+//                    System.out.println("offset = " + offset);
                 }
                 pointSession.setLastMessageSent(now);
             }

@@ -33,13 +33,13 @@ public class Roll extends Command {
         if (context.getKey().equalsIgnoreCase("rollpoll")) {
             final List<String> args = context.getArgs();
             if (!args.isEmpty() && args.size() % 2 == 0) {
-                int pointValue = 0;
-                int totalTime = 0;
+                long pointValue = 0;
+                long totalTime = 0;
                 int i = 0;
                 while (i < args.size()) {
-                    int value;
+                    long value;
                     if (CommandContext.isNumber(args.get(i))) {
-                        value = Integer.parseInt(args.get(i));
+                        value = Long.parseLong(args.get(i));
                     } else {
                         totalTime = -1;
                         break;

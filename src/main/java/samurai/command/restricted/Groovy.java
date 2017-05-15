@@ -25,6 +25,7 @@ import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
+import samurai.util.GoogleAPI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,6 +57,8 @@ public class Groovy extends Command {
     static {
         BINDING = new Binding();
         GROOVY_SHELL = new GroovyShell(BINDING);
+        BINDING.setVariable("google", GoogleAPI.class);
+
 
         IMPORTS = new HashSet<>(20);
         initializeImports();

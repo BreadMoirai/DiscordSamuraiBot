@@ -17,6 +17,8 @@ package samurai.messages.base;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.messages.MessageManager;
 
+import java.io.Serializable;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -33,15 +35,21 @@ public abstract class DynamicMessage extends SamuraiMessage {
 
     private static final int TIMEOUT = 24;
 
-    private OffsetDateTime lastActive;
-    private MessageManager manager;
+    private transient Instant lastActive;
+    private transient MessageManager manager;
+
+    {
+        lastActive = Instant.now();
+    }
+
+    public DynamicMessage() {}
 
     protected static Consumer<Message> newMenu(List<String> emoji) {
         return message -> emoji.forEach(reaction -> message.addReaction(reaction).complete());
     }
 
     public boolean isExpired() {
-        return HOURS.between(lastActive, OffsetDateTime.now()) > TIMEOUT;
+        return HOURS.between(lastActive, Instant.now()) > TIMEOUT;
     }
 
     /**
@@ -88,7 +96,7 @@ public abstract class DynamicMessage extends SamuraiMessage {
      * use this to refresh the timeout of your message. By default, dynamic message are automatically unregistered at 120 minutes after initialization.
      */
     public void setActive() {
-        lastActive = OffsetDateTime.now();
+        lastActive = Instant.now();
     }
 
     public MessageManager getManager() {

@@ -46,9 +46,11 @@ import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
 import samurai.messages.MessageManager;
+import samurai.messages.base.Reloadable;
 import samurai.messages.impl.FixedMessage;
 import samurai.points.PointTracker;
 
+import java.io.*;
 import java.util.List;
 
 /**
@@ -77,6 +79,24 @@ public class SamuraiDiscord implements EventListener {
         pointTracker.load(event);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Groovy.addBinding("mm", messageManager);
+        int i = 0;
+        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream("Objects.ser"))) {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                final Object o = oos.readObject();
+                if (o instanceof Reloadable) {
+                    ((Reloadable) o).reload(this);
+                    System.out.println("o = " + o);
+                    i++;
+                }
+            }
+        } catch (EOFException ignored) {
+            System.out.println(i + " objects read");
+        } catch (FileNotFoundException ignored) {
+            System.out.println("no objects read");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -156,13 +176,28 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void onShutdown(ShutdownEvent event) {
-        messageManager.shutdown();
+        final List<Reloadable> reloadables = messageManager.shutdown();
+        int i = 0;
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Objects.ser"))) {
+            for (Reloadable reloadable : reloadables) {
+                oos.writeObject(reloadable);
+                System.out.println("reloadable = " + reloadable);
+                i++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(i + " messages persisted");
         pointTracker.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 
-    MessageManager getMessageManager() {
+    public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public PointTracker getPointTracker() {
+        return pointTracker;
     }
 
     private void onGuildMessageReceived(GuildMessageReceivedEvent event) {

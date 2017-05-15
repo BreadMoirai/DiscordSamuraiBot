@@ -17,20 +17,17 @@ package samurai.messages.base;
 import net.dv8tion.jda.core.entities.Message;
 import samurai.messages.MessageManager;
 
+import java.io.Serializable;
 import java.util.function.Consumer;
 
-public abstract class SamuraiMessage {
+public abstract class SamuraiMessage implements Serializable{
 
-    private long channelId;
-    private long messageId;
-    private long guildId;
     private long authorId;
+    private long messageId;
+    private long channelId;
+    private long guildId;
 
-    /**
-     * This is the method that retrieves the messages to be sent/updated to.
-     *
-     * @return the messages that will be sent/replace
-     */
+    public SamuraiMessage() {}
 
     public long getChannelId() {
         return channelId;

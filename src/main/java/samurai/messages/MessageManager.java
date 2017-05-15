@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.base.Reloadable;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.base.UniqueMessage;
 import samurai.messages.impl.util.Prompt;
@@ -40,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author TonTL
@@ -187,8 +189,8 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         return client;
     }
 
-    public void shutdown() {
-        listeners.clear();
+    public List<Reloadable> shutdown() {
         executorService.shutdown();
+        return listeners.values().stream().flatMap(Collection::stream).filter(dynamicMessage -> dynamicMessage instanceof Reloadable).map(dynamicMessage -> (Reloadable) dynamicMessage).collect(Collectors.toList());
     }
 }
