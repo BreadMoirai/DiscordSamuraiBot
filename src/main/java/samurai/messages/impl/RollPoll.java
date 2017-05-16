@@ -95,6 +95,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
     private Message buildScoreBoard(Guild g) {
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         if (endTime != null) {
+            embedBuilder.setFooter("End Time", null);
             embedBuilder.setTimestamp(endTime);
         }
         final StringBuilder description = embedBuilder.getDescriptionBuilder();

@@ -147,15 +147,10 @@ public class SamuraiDiscord implements EventListener {
     private void onCommand(Command c) {
         completeContext(c.getContext());
         if (c.getContext().getAuthorId() == Bot.info().OWNER) {
-            System.out.println("owner");
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
             messageManager.onCommand(c);
         } else if (c.getClass().isAnnotationPresent(Creator.class)) {
-            System.err.println("creator only");
-            return;
         } else if (c.getClass().isAnnotationPresent(Source.class) && c.getContext().getGuildId() != Bot.info().SOURCE_GUILD) {
-            System.out.println("source denied");
-            return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
                 if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember())) {

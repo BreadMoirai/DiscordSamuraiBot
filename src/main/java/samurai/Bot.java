@@ -14,6 +14,7 @@
 */
 package samurai;
 
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -69,6 +70,7 @@ public class Bot {
         final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
+                .setAudioSendFactory(new NativeAudioSendFactory())
                 .addEventListener(new SamuraiDiscord());
 
         try {
