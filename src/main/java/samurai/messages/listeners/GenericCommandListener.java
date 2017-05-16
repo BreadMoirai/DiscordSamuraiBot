@@ -14,8 +14,9 @@
 */
 package samurai.messages.listeners;
 
+import samurai.command.Command;
 import samurai.command.basic.GenericCommand;
 
 public interface GenericCommandListener extends SamuraiListener {
-    void onCommand(GenericCommand command);
+    void onCommand(Command command);
 }

@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import samurai.command.Command;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.Reloadable;
@@ -165,7 +166,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     @Override
-    public void onCommand(GenericCommand command) {
+    public void onCommand(Command command) {
         listeners.getOrDefault(command.getContext().getChannelId(), EMPTY_DEQUE).forEach(dynamicMessage -> {
             if (dynamicMessage instanceof GenericCommandListener)
                 ((GenericCommandListener) dynamicMessage).onCommand(command);

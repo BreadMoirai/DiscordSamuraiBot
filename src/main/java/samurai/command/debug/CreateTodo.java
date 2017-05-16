@@ -7,12 +7,14 @@ import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.TodoMessageList;
 
+import java.util.Arrays;
+
 @Creator
 @Key("createtodo")
-public class CreateTodo extends Command{
+public class CreateTodo extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         context.getChannel().deleteMessageById(context.getMessageId()).queue();
-        return new TodoMessageList(context.getArgs());
+        return new TodoMessageList(Arrays.asList("Bug", "Feature", "Enhancement"));
     }
 }

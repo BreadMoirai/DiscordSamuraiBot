@@ -25,7 +25,7 @@ import samurai.points.PointSession;
 
 import java.util.List;
 
-@Key({"give", "donate"})
+@Key({"give", "donate", "transfer"})
 public class Transfer extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

@@ -3,9 +3,13 @@ package samurai.messages.impl;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
+import samurai.SamuraiDiscord;
+import samurai.command.Command;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.base.Reloadable;
 import samurai.messages.listeners.GenericCommandListener;
 
 import java.awt.*;
@@ -15,10 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class TodoMessageItem extends DynamicMessage implements GenericCommandListener, Serializable {
-    private final String name;
+public class TodoMessageItem extends DynamicMessage implements GenericCommandListener
+        , Reloadable {
+
+    private static final long serialVersionUID = 124L;
+
+    private String name;
     private List<String> items;
     private int itemCount;
+    private transient TextChannel textChannel;
 
     {
         items = new ArrayList<String>(50) {
@@ -31,6 +40,8 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
             }
         };
     }
+
+    public TodoMessageItem() {}
 
     public TodoMessageItem(String s) {
         name = StringUtils.capitalize(s);
@@ -53,7 +64,7 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
         StringJoiner joiner = new StringJoiner("\n");
         for (String s : items) {
             i++;
-            if (s.startsWith("~~")) joiner.add(String.format("%d)%s", i, s));
+            if (s.startsWith("~~")) joiner.add(String.format("%d) %s", i, s));
             else joiner.add(String.format("**%d)** %s", i, s));
         }
         eb.setDescription(joiner.toString());
@@ -62,7 +73,9 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
 
 
     @Override
-    protected void onReady(Message message) {}
+    protected void onReady(Message message) {
+        textChannel = message.getTextChannel();
+    }
 
     @Override
     public boolean isExpired() {
@@ -70,16 +83,25 @@ public class TodoMessageItem extends DynamicMessage implements GenericCommandLis
     }
 
     @Override
-    public void onCommand(GenericCommand command) {
+    public void onCommand(Command command) {
         final String key = command.getContext().getKey();
         if (key.equals(name)) {
             itemCount++;
             items.add(command.getContext().getContent());
-            getManager().getClient().getTextChannelById(getChannelId()).editMessageById(getMessageId(), buildMessage()).queue();
+            final long messageId = command.getContext().getMessageId();
+            if (messageId != 0) {
+                textChannel.deleteMessageById(messageId).queue();
+            }
+            textChannel.editMessageById(getMessageId(), buildMessage()).queue();
         } else if (key.equalsIgnoreCase(name.charAt(0) + "done")) {
             command.getContext().getChannel().deleteMessageById(command.getContext().getMessageId()).queue();
             command.getContext().getIntArgs().filter(value -> value > 0 && value <= items.size()).map(operand -> operand - 1).forEach(value -> items.set(value, "~~" + items.get(value) + "~~"));
             command.getContext().getChannel().editMessageById(getMessageId(), buildMessage()).queue();
         }
+    }
+
+    @Override
+    public void reload(SamuraiDiscord samuraiDiscord) {
+        replace(samuraiDiscord.getMessageManager(), getMessageId());
     }
 }

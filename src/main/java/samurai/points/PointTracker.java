@@ -44,8 +44,8 @@ public class PointTracker {
 
     private static final double MESSAGE_POINT = 4;
     private static final double MINUTE_POINT = .8;
-    private static final double VOICE_POINT = 7;
-    public static final float DUEL_POINT_RATIO = .18f;
+    private static final double VOICE_POINT = 20;
+    public static final float DUEL_POINT_RATIO = .17f;
 
     private static final ScheduledExecutorService pool;
 

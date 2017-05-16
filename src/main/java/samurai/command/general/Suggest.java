@@ -1,4 +1,4 @@
-package samurai.command.debug;
+package samurai.command.general;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -26,10 +26,10 @@ public class Suggest extends Command {
         String type;
         switch (context.getKey().toLowerCase()) {
             case "fix":
-                type = "Fix";
+                type = "Bug";
                 break;
             case "suggest":
-                type = "Suggestion";
+                type = "Feature";
                 break;
             case "enhance":
                 type = "Enhancement";
@@ -37,7 +37,7 @@ public class Suggest extends Command {
             default:
                 type = "Unknown";
         }
-        final SuggestionPoll suggestionPoll = new SuggestionPoll(type, context.getContent(), context.getAuthor(), context.getTime());
+        final SuggestionPoll suggestionPoll = new SuggestionPoll(type, context.getContent(), context.getAuthor(), context.getInstant());
         suggestionPoll.setChannelId(SUGGESTION_QUEUE_ID);
         return suggestionPoll;
     }

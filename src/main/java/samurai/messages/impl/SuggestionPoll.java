@@ -7,15 +7,22 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
+import samurai.SamuraiDiscord;
 import samurai.command.CommandContext;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
+import samurai.messages.base.Reloadable;
 import samurai.messages.listeners.ReactionListener;
 
 import java.awt.*;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.concurrent.TimeUnit;
 
-public class SuggestionPoll extends DynamicMessage implements ReactionListener {
+public class SuggestionPoll extends DynamicMessage implements ReactionListener, Reloadable {
+
+    private static final long serialVersionUID = 160L;
+    private static final int DELAY_HOUR = 24;
 
     private static final long YES;
     private static final long NO;
@@ -24,7 +31,6 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
 
     private static final Color COLOR_YES, COLOR_NO;
     private static final float H_BEGIN = 240.0f / 360.0f;
-    private static final float H_OFFSET = 165.0f / 360.0f / 0.2f;
     private static final float SATURATION = .6f;
     private static final float BALANCE = .9f;
 
@@ -38,12 +44,14 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
         COLOR_YES = new Color(58, 242, 12);
     }
 
-    private final String type;
-    private final String content;
-    private final Member author;
-    private final OffsetDateTime timestamp;
+    private String type;
+    private String content;
+    private Member author;
+    private Instant timestamp;
 
-    public SuggestionPoll(String type, String content, Member author, OffsetDateTime timestamp) {
+    public SuggestionPoll() {}
+
+    public SuggestionPoll(String type, String content, Member author, Instant timestamp) {
         this.type = type;
         this.content = content;
         this.author = author;
@@ -59,7 +67,6 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
         eb.setTimestamp(timestamp);
         eb.setFooter("SUBMITTED", "https://cdn.discordapp.com/emojis/" + MAYBE + ".png");
         final Color hsbColor = new Color(Color.HSBtoRGB(H_BEGIN, SATURATION, BALANCE));
-        System.out.println("hsbColor = " + hsbColor);
         eb.setColor(hsbColor);
         return new MessageBuilder().setEmbed(eb.build()).build();
     }
@@ -88,6 +95,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
                     genericCommand.setContext(context);
                     getManager().onCommand(genericCommand);
                 });
+                event.getTextChannel().deleteMessageById(getMessageId()).queueAfter(DELAY_HOUR, TimeUnit.HOURS);
             } else if (reactionAdded == NO) {
                 event.getTextChannel().getMessageById(getMessageId()).queue(message -> {
                     final EmbedBuilder eb = new EmbedBuilder(message.getEmbeds().get(0));
@@ -99,6 +107,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
                     message.editMessage(eb.build()).queue();
                     unregister();
                 });
+                event.getTextChannel().deleteMessageById(getMessageId()).queueAfter(DELAY_HOUR, TimeUnit.HOURS);
             }
         } else if (user.equals(author.getUser()) && reactionAdded == NO) {
             event.getTextChannel().deleteMessageById(getMessageId()).queue();
@@ -130,4 +139,8 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener {
         return new Color(Color.HSBtoRGB(hue, SATURATION, BALANCE));
     }
 
+    @Override
+    public void reload(SamuraiDiscord samuraiDiscord) {
+        replace(samuraiDiscord.getMessageManager(), getMessageId());
+    }
 }

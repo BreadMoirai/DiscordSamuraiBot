@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
+import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.basic.GenericCommand;
 import samurai.command.music.Play;
@@ -198,7 +199,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     }
 
     @Override
-    public void onCommand(GenericCommand command) {
+    public void onCommand(Command command) {
         if (command.getContext().getAuthorId() != this.getAuthorId()) return;
         final CommandContext context = command.getContext();
         if (!context.hasContent()) return;

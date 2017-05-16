@@ -24,6 +24,7 @@ import samurai.database.objects.GuildUpdater;
 import samurai.points.PointSession;
 import samurai.points.PointTracker;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -135,6 +136,10 @@ public class CommandContext {
         return time;
     }
 
+    public Instant getInstant() {
+        return time.toInstant();
+    }
+
     public int getShardId() {
         return shardId;
     }
@@ -153,10 +158,6 @@ public class CommandContext {
 
     public boolean hasContent() {
         return content != null && content.length() > 0;
-    }
-
-    public boolean isSource() {
-        return guildId == Bot.info().SOURCE_GUILD;
     }
 
     public List<TextChannel> getMentionedChannels() {
@@ -273,7 +274,7 @@ public class CommandContext {
     }
 
     public Stream<PointSession> getMemberPoints() {
-        return getGuild().getMembers().stream().limit(20)
+        return getGuild().getMembers().stream()
                 .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.info().ID))
                 .map(member -> {
             PointSession points = pointTracker.getMemberPointSession(getGuildId(), member.getUser().getIdLong());

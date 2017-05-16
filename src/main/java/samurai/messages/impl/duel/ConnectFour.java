@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
+import samurai.command.Command;
 import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.impl.duel.strategy.ConnectFourStrategy;
@@ -237,7 +238,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
     }
 
     @Override
-    public void onCommand(GenericCommand command) {
+    public void onCommand(Command command) {
         if (command.getContext().getKey().equalsIgnoreCase("findduel")) {
             final long authorId = command.getContext().getAuthorId();
             if (authorId == userB || authorId == userA) {

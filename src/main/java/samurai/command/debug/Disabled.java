@@ -12,28 +12,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.command.manage;
+package samurai.command.debug;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
-import samurai.database.objects.GuildUpdater;
-import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
-import java.util.List;
+@Key("disabled")
+public class Disabled extends Command {
 
-@Key("prefix")
-public class Prefix extends Command {
 
     @Override
-    public SamuraiMessage execute(CommandContext context) {
-        final List<String> args = context.getArgs();
-        if (!context.getAuthor().canInteract(context.getSelfMember()) || args.size() != 1)
-            return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
-        final String newPrefix = context.getContent();
-        context.getSamuraiGuildUpdater().updatePrefix(newPrefix);
-        return FixedMessage.build(String.format("Prefix successfully set to `%s`", newPrefix));
+    protected SamuraiMessage execute(CommandContext context) {
+        if (!context.hasContent()) return null;
+        return FixedMessage.build("This command is disabled");
     }
 }

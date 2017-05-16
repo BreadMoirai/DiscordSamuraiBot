@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class Unlock extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
+        System.out.println("unlock: " + context.getContent());
         final Guild guild = context.getGuild();
         final Member author = context.getAuthor();
         if (!context.hasContent()) {
@@ -55,7 +56,9 @@ public class Unlock extends Command {
                 thatChannel = context.getMentionedChannels().get(0);
             } else return FixedMessage.build("Channel Not Found");
         } else thatChannel = hiddenChannels.get(0);
+        System.out.println("thatChannel = " + thatChannel);
         final Member selfMember = context.getSelfMember();
+        System.out.println("selfMember = " + selfMember);
         if (!selfMember.hasPermission(thatChannel, Permission.MANAGE_PERMISSIONS)) {
             return new PermissionFailureMessage(selfMember, thatChannel, Permission.MANAGE_PERMISSIONS);
         }

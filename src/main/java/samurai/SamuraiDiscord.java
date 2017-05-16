@@ -147,12 +147,14 @@ public class SamuraiDiscord implements EventListener {
     private void onCommand(Command c) {
         completeContext(c.getContext());
         if (c.getContext().getAuthorId() == Bot.info().OWNER) {
+            System.out.println("owner");
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
-            if (c instanceof GenericCommand) {
-                messageManager.onCommand((GenericCommand) c);
-            }
-        } else if (c.getClass().isAnnotationPresent(Creator.class) || (c.getClass().isAnnotationPresent(Source.class) && !c.getContext().isSource())) {
-            //noinspection UnnecessaryReturnStatement
+            messageManager.onCommand(c);
+        } else if (c.getClass().isAnnotationPresent(Creator.class)) {
+            System.err.println("creator only");
+            return;
+        } else if (c.getClass().isAnnotationPresent(Source.class) && c.getContext().getGuildId() != Bot.info().SOURCE_GUILD) {
+            System.out.println("source denied");
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
@@ -164,9 +166,7 @@ public class SamuraiDiscord implements EventListener {
                 }
             }
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
-            if (c instanceof GenericCommand) {
-                messageManager.onCommand((GenericCommand) c);
-            }
+            messageManager.onCommand(c);
         }
     }
 
@@ -205,7 +205,6 @@ public class SamuraiDiscord implements EventListener {
             this.getMessageManager().onGuildMessageReceived(event);
             final String prefix = Database.get().getPrefix(event.getGuild().getIdLong());
             final Command c = CommandFactory.build(event, prefix);
-
             if (c != null) {
                 this.onCommand(c);
             }
