@@ -44,7 +44,7 @@ public class Ranking extends Command {
         }
         if (target == -1)
             target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
-        final IntSummaryStatistics intStat = context.getIntArgs().peek(System.out::println).filter(value -> value > 0 && value < pointSessions.length).summaryStatistics();
+        final IntSummaryStatistics intStat = context.getIntArgs().peek(System.out::println).filter(value -> value > 0 && value <= pointSessions.length).summaryStatistics();
         int idx, end;
         if (intStat.getCount() == 1) {
             end = Math.min(pointSessions.length, intStat.getMax());
