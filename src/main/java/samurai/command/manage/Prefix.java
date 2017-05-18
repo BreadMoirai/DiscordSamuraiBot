@@ -25,13 +25,12 @@ import samurai.messages.base.SamuraiMessage;
 import java.util.List;
 
 @Key("prefix")
-@Admin
 public class Prefix extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
         final List<String> args = context.getArgs();
-        if (args.size() != 1)
+        if (!context.getAuthor().canInteract(context.getSelfMember()) || args.size() != 1)
             return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
         final String newPrefix = context.getContent();
         context.getSamuraiGuildUpdater().updatePrefix(newPrefix);

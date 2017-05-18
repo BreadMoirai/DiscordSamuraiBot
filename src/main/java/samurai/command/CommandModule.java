@@ -54,7 +54,7 @@ public enum CommandModule {
     }
 
     public static List<CommandModule> getVisible() {
-        return Arrays.stream(CommandModule.values()).filter(commandModule -> commandModule.value < 64).collect(Collectors.toList());
+        return Arrays.asList(manage, general, osu, music, fun, points);
     }
 
     public static long getDefault() {

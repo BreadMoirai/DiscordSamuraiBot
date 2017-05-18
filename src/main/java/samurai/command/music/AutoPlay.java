@@ -32,13 +32,17 @@ public class AutoPlay extends Command {
         if (managerOptional.isPresent()) {
             final GuildAudioManager audioManager = managerOptional.get();
             if (context.hasContent()) {
-                final String content = context.getContent();
-                if (content.equalsIgnoreCase("t") || content.equalsIgnoreCase("true")) {
-                    audioManager.scheduler.setAutoPlay(true);
-                    return FixedMessage.build("AutoPlay set to `true`");
-                } else if (content.equalsIgnoreCase("f") || content.equalsIgnoreCase("false")) {
-                    audioManager.scheduler.setAutoPlay(false);
-                    return FixedMessage.build("AutoPlay set to `false`");
+                switch (context.getContent().toLowerCase()) {
+                    case "true":
+                    case "on":
+                        audioManager.scheduler.setAutoPlay(true);
+                        return FixedMessage.build("AutoPlay set to `true`");
+                    case "false":
+                    case "off":
+                        audioManager.scheduler.setAutoPlay(false);
+                        return FixedMessage.build("AutoPlay set to `false`");
+                    default:
+                        return null;
                 }
             } else {
                 return FixedMessage.build("AutoPlay is currently `" + (audioManager.scheduler.isAutoPlay() ? "enabled`" : "disabled`"));

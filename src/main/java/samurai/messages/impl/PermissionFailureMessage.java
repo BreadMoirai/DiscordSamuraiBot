@@ -16,10 +16,7 @@ package samurai.messages.impl;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Arrays;
@@ -44,7 +41,10 @@ public class PermissionFailureMessage extends SamuraiMessage {
         final List<Permission> permissionsFound = selfMember.getPermissions(channel);
         messageBuilder.append("This command requires additional permissions");
         if (channel.getIdLong() != getChannelId()) {
-            messageBuilder.append(" in channel **").append(channel.getName()).append("**");
+            messageBuilder.append(" in channel ");
+            if (channel.getType() == ChannelType.TEXT)
+                messageBuilder.append(((TextChannel) channel).getAsMention());
+            else messageBuilder.append("**").append(channel.getName()).append("**");
         }
         messageBuilder.append(" to execute\n```diff");
         Arrays.stream(permissionsRequired).map(permission -> (permissionsFound.contains(permission) ? "\n+ " : "\n- ") + permission.getName()).sorted(Comparator.comparingInt(s -> s.codePointAt(0))).forEachOrdered(messageBuilder::append);

@@ -21,15 +21,10 @@ import samurai.util.MyLogger;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +51,11 @@ public class SamuraiStore {
         final InputStream fileInput = SamuraiStore.class.getResourceAsStream("help/" + fileName + ".txt");
         if (fileInput == null)
             return String.format("Nothing found for `%s`. Sorry!", fileName);
-        new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8)).lines().map(s -> s + '\n').forEachOrdered(sb::append);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8))) {
+            br.lines().map(s -> s + '\n').forEachOrdered(sb::append);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return sb.toString();
     }
 
@@ -162,7 +161,7 @@ public class SamuraiStore {
         if (fileInput == null) {
             return "No info found";
         }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(fileInput, StandardCharsets.UTF_8))) {
             return br.lines().collect(Collectors.joining("\n"));
         } catch (IOException e) {
             e.printStackTrace();

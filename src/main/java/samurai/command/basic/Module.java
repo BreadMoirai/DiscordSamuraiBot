@@ -25,6 +25,7 @@ import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class Module extends Command {
         final CommandModule[] commandModules = CommandModule.values();
         if (context.getKey().equalsIgnoreCase("module")) {
             if (!context.hasContent()) {
-                return FixedMessage.build(CommandModule.getVisible().stream().filter(commandModule -> commandModule != CommandModule.basic).map(commandModule -> (commandModule.isEnabled(guildEnabledCommands) ? "+ " : "- ") + commandModule.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
+                return FixedMessage.build(CommandModule.getVisible().stream().map(commandModule -> (commandModule.isEnabled(guildEnabledCommands) ? "+ " : "- ") + commandModule.name()).collect(Collectors.joining("\n", "```diff\n", "\n```")));
             } else {
                 return FixedMessage.build(SamuraiStore.getModuleInfo(context.getContent()));
             }
@@ -48,16 +49,19 @@ public class Module extends Command {
             if (context.hasContent()) {
                 final Set<CommandModule> args;
                 if (context.getContent().equalsIgnoreCase("all")) {
-                    args = (Arrays.stream(commandModules).filter(commandModule -> !commandModule.equals(CommandModule.manage))).collect(Collectors.toSet());
+                    args = new HashSet<>(CommandModule.getVisible());
                 } else {
                     args = context.getArgs().stream().map(String::toLowerCase).filter(s -> Arrays.stream(commandModules).map(Enum::name).anyMatch(s::equals)).map(CommandModule::valueOf).filter(Objects::nonNull).collect(Collectors.toSet());
                 }
                 if (args.isEmpty())
-                    return FixedMessage.build("Could not find specified command");
+                    return FixedMessage.build("Could not find specified module");
                 switch (context.getKey()) {
                     case "enable":
                         String s1 = args.stream().filter(commands -> !commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
                         samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
+                        if (args.contains(CommandModule.points)) {
+                            context.getPointTracker().enablePoints(context.getGuild());
+                        }
                         return FixedMessage.build(s1);
                     case "disable":
                         String s2 = args.stream().filter(commands -> commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));

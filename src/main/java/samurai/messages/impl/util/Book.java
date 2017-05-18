@@ -80,8 +80,8 @@ public class Book extends DynamicMessage implements ReactionListener {
             else if (i == 2) if (page != book.size() - 1) page++;
             else return;
             else return;
-            message.editMessage(book.get(page));
-            event.getReaction().removeReaction(event.getUser());
+            message.editMessage(book.get(page)).queue();
+            event.getReaction().removeReaction(event.getUser()).queue();
         }
     }
 }

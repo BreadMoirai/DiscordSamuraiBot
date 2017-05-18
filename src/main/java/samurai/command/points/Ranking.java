@@ -26,6 +26,6 @@ import java.util.stream.Collectors;
 public class Ranking extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-       return FixedMessage.build(context.getMemberPoints().map(pointSession -> String.format("`%.0f` - %s", pointSession.getPoints(), pointSession.getMember().getEffectiveName())).collect(Collectors.joining("\n")));
+       return FixedMessage.build(context.getMemberPoints().map(pointSession -> String.format("`%.2f` - %s", pointSession.getPoints(), pointSession.getMember().getEffectiveName())).collect(Collectors.joining("\n")));
     }
 }

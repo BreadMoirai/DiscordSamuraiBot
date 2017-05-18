@@ -39,7 +39,7 @@ public class Help extends Command {
     public SamuraiMessage execute(CommandContext context) {
         if (!context.hasContent()) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor("Samurai - help.txt", null, Bot.AVATAR)
+                    .setAuthor("Samurai - help.txt", null, context.getSelfUser().getEffectiveAvatarUrl())
                     .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getPrefix())));
 
             return new FixedMessage()

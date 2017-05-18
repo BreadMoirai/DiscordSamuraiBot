@@ -14,16 +14,30 @@
 */
 package samurai.command.points;
 
+import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
+import java.util.Optional;
+
 @Key("points")
 public class Points extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return FixedMessage.build("You have **" + context.getAuthorPoints().getPoints() + "** points");
+        if (context.getMentionedMembers().size() > 0) {
+            final Member member = context.getMentionedMembers().get(0);
+            return FixedMessage.build(String.format("**%s** has **%.2f** points", member.getEffectiveName(), context.getPointTracker().getMemberPointSession(context.getGuildId(), member.getUser().getIdLong()).getPoints()));
+        } else if (context.hasContent()) {
+            final String content = context.getContent().toLowerCase();
+            final Optional<Member> any = context.getGuild().getMembers().stream().filter(member1 -> !member1.getUser().isBot()).filter(member1 -> member1.getEffectiveName().toLowerCase().startsWith(content)).findAny();
+            if (any.isPresent()) {
+                final Member member = any.get();
+                return FixedMessage.build(String.format("**%s** has **%.2f** points", member.getEffectiveName(), context.getPointTracker().getMemberPointSession(context.getGuildId(), member.getUser().getIdLong()).getPoints()));
+            }
+        }
+        return FixedMessage.build(String.format("**%s**, you have **%.2f** points", context.getAuthor().getEffectiveName(), context.getAuthorPoints().getPoints()));
     }
 }

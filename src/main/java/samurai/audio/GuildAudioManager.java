@@ -46,7 +46,7 @@ public class GuildAudioManager {
      */
     GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager guildAudioManager) {
         player = manager.createPlayer();
-        player.setVolume(75);
+        player.setVolume(30);
         scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
         this.guildAudioManager = guildAudioManager;

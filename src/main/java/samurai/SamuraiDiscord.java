@@ -19,8 +19,8 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
-import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -34,8 +34,6 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
-import net.dv8tion.jda.core.utils.PermissionUtil;
-import org.apache.commons.lang3.tuple.Pair;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -47,19 +45,13 @@ import samurai.command.annotations.Source;
 import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
-import samurai.database.dao.ChannelDao;
-import samurai.database.dao.GuildDao;
-import samurai.database.objects.SamuraiGuild;
 import samurai.messages.MessageManager;
+import samurai.messages.base.Reloadable;
 import samurai.messages.impl.FixedMessage;
-import samurai.osu.enums.GameMode;
-import samurai.osu.tracker.OsuSession;
-import samurai.osu.tracker.OsuTracker;
 import samurai.points.PointTracker;
 
+import java.io.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalLong;
 
 /**
  * @author TonTL
@@ -71,21 +63,40 @@ public class SamuraiDiscord implements EventListener {
     private MessageManager messageManager;
     private PointTracker pointTracker;
 
-
     SamuraiDiscord() {
     }
 
     private void onReady(ReadyEvent event) {
         JDA client = event.getJDA();
         shardId = 0;
-        client.getPresence().setGame(Game.of(String.format("Version %s", Bot.VERSION)));
+        //shardId = client.getShardInfo().getShardId();
+        if (shardId == 0) {
+            Bot.setInfo(new BotInfo(client));
+        }
         messageManager = new MessageManager(client);
         Database.get().load(event);
         this.pointTracker = new PointTracker();
         pointTracker.load(event);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Groovy.addBinding("mm", messageManager);
-        Groovy.addBinding("points", pointTracker);
+        int i = 0;
+        try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream("Objects.ser"))) {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                final Object o = oos.readObject();
+                if (o instanceof Reloadable) {
+                    ((Reloadable) o).reload(this);
+                    System.out.println("o = " + o);
+                    i++;
+                }
+            }
+        } catch (EOFException ignored) {
+            System.out.println(i + " objects read");
+        } catch (FileNotFoundException ignored) {
+            System.out.println("no objects read");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -110,7 +121,7 @@ public class SamuraiDiscord implements EventListener {
             this.pointTracker.onGuildVoiceLeave((GuildVoiceLeaveEvent) event);
         } else if (event instanceof GuildVoiceJoinEvent) {
             this.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
-            this.pointTracker.onGuildVoidJoin((GuildVoiceJoinEvent) event);
+            this.pointTracker.onGuildVoiceJoin((GuildVoiceJoinEvent) event);
         } else if (event instanceof UserOnlineStatusUpdateEvent) {
             this.pointTracker.onUserOnlineStatusUpdate((UserOnlineStatusUpdateEvent) event);
         } else if (event instanceof GuildVoiceMuteEvent) {
@@ -119,6 +130,9 @@ public class SamuraiDiscord implements EventListener {
             this.onGuildMemberJoin((GuildMemberJoinEvent) event);
         } else if (event instanceof GuildLeaveEvent) {
             this.onGuildLeave((GuildLeaveEvent) event);
+            this.pointTracker.onGuildLeave((GuildLeaveEvent) event);
+        } else if (event instanceof GuildJoinEvent) {
+            this.onGuildJoin((GuildJoinEvent) event);
         } else if (event instanceof ReadyEvent) {
             this.onReady((ReadyEvent) event);
         } else if (event instanceof ShutdownEvent) {
@@ -126,15 +140,21 @@ public class SamuraiDiscord implements EventListener {
         }
     }
 
+    private void onGuildJoin(GuildJoinEvent event) {
+        Database.get().getPrefix(event.getGuild().getIdLong());
+    }
+
     private void onCommand(Command c) {
         completeContext(c.getContext());
-        if (c.getContext().getAuthorId() == 232703415048732672L) {
+        if (c.getContext().getAuthorId() == Bot.info().OWNER) {
+            System.out.println("owner");
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
-            if (c instanceof GenericCommand) {
-                messageManager.onCommand((GenericCommand) c);
-            }
-        } else if (c.getClass().isAnnotationPresent(Creator.class) || (c.getClass().isAnnotationPresent(Source.class) && !c.getContext().isSource())) {
-            //noinspection UnnecessaryReturnStatement
+            messageManager.onCommand(c);
+        } else if (c.getClass().isAnnotationPresent(Creator.class)) {
+            System.err.println("creator only");
+            return;
+        } else if (c.getClass().isAnnotationPresent(Source.class) && c.getContext().getGuildId() != Bot.info().SOURCE_GUILD) {
+            System.out.println("source denied");
             return;
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
@@ -146,9 +166,7 @@ public class SamuraiDiscord implements EventListener {
                 }
             }
             c.call().ifPresent(samuraiMessage -> messageManager.submit(samuraiMessage));
-            if (c instanceof GenericCommand) {
-                messageManager.onCommand((GenericCommand) c);
-            }
+            messageManager.onCommand(c);
         }
     }
 
@@ -158,13 +176,28 @@ public class SamuraiDiscord implements EventListener {
     }
 
     private void onShutdown(ShutdownEvent event) {
-        messageManager.shutdown();
+        final List<Reloadable> reloadables = messageManager.shutdown();
+        int i = 0;
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Objects.ser"))) {
+            for (Reloadable reloadable : reloadables) {
+                oos.writeObject(reloadable);
+                System.out.println("reloadable = " + reloadable);
+                i++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(i + " messages persisted");
         pointTracker.shutdown();
         System.out.printf("Shutdown Shard[%d]", shardId);
     }
 
-    MessageManager getMessageManager() {
+    public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public PointTracker getPointTracker() {
+        return pointTracker;
     }
 
     private void onGuildMessageReceived(GuildMessageReceivedEvent event) {
@@ -172,7 +205,6 @@ public class SamuraiDiscord implements EventListener {
             this.getMessageManager().onGuildMessageReceived(event);
             final String prefix = Database.get().getPrefix(event.getGuild().getIdLong());
             final Command c = CommandFactory.build(event, prefix);
-
             if (c != null) {
                 this.onCommand(c);
             }
@@ -265,7 +297,7 @@ public class SamuraiDiscord implements EventListener {
 
     private void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild();
-        if (guild.getIdLong() == Bot.SOURCE_GUILD) {
+        if (guild.getIdLong() == Bot.info().SOURCE_GUILD) {
             guild.getController().addRolesToMember(event.getMember(), guild.getRolesByName("Peasant", false)).queue();
         }
     }

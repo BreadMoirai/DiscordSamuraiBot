@@ -3,6 +3,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
     id 'java'
     id 'idea'
+    id 'com.sedmelluq.jdaction' version '1.0.1'
 }
 
 idea.module.downloadJavadoc = true
@@ -16,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.dv8tion:JDA:3.0.0_191'
+    compile 'net.dv8tion:JDA:3.0.0_193'
     compile 'org.codehaus.groovy:groovy:2.4.8'
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
@@ -47,7 +48,7 @@ tasks.create('incrementVersionCode', {
     versionFile.write(mNextVersionCode as String)
 })
 
-version = "5.0." + file("version.txt").getText()
+version = "5.2." + file("version.txt").getText()
 
 import org.apache.tools.ant.filters.ReplaceTokens
 tasks.create('sourcesForRelease', Copy.class)

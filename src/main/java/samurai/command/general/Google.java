@@ -56,6 +56,6 @@ public class Google extends Command {
         JSONArray items = search.getJSONArray("items");
         final JSONObject jsonObject = items.getJSONObject(0);
         final SearchResult result = SearchResult.fromGoogle(jsonObject);
-        return FixedMessage.build(String.format("**%s**\n__%s__\n%s", result.getTitle(), result.getUrl(), result.getContent()));
+        return FixedMessage.build(String.format("**%s**%n__%s__%n%s", result.getTitle(), result.getUrl(), result.getContent()));
     }
 }

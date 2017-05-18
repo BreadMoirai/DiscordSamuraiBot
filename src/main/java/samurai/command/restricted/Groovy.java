@@ -16,27 +16,24 @@ package samurai.command.restricted;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import net.dv8tion.jda.core.entities.Game;
 import org.apache.commons.codec.binary.Hex;
-import samurai.Bot;
 import samurai.audio.SamuraiAudioManager;
-import samurai.audio.YoutubeAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.CommandFactory;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.database.Database;
-import samurai.files.SamuraiStore;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
-import samurai.osu.tracker.OsuTracker;
+import samurai.util.GoogleAPI;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,22 +56,15 @@ public class Groovy extends Command {
 
     static {
         BINDING = new Binding();
-        BINDING.setVariable("CREATOR", "DreadMoirai");
-        BINDING.setVariable("BOT", Bot.class);
-        BINDING.setVariable("STORE", SamuraiStore.class);
-        BINDING.setVariable("CF", CommandFactory.class);
-        BINDING.setVariable("DB", Database.class);
-        BINDING.setVariable("YOUTUBE", YoutubeAPI.class);
-        BINDING.setVariable("TRACKER", OsuTracker.class);
-        BINDING.setVariable("GAME", Game.class);
         GROOVY_SHELL = new GroovyShell(BINDING);
+        BINDING.setVariable("google", GoogleAPI.class);
+
 
         IMPORTS = new HashSet<>(20);
-        IMPORTS.add("import java.util.*");
-        IMPORTS.add("import java.util.stream.*");
-        IMPORTS.add("import java.util.concurrent.ThreadLocalRandom");
+        initializeImports();
         FUNCTIONS = new ArrayList<>(20);
-        FUNCTIONS.add("List<Integer> gen(int size)\n{\n    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())\n}");
+        initializeFunctions();
+
         FUNCTION_NAME = Pattern.compile("[A-Za-z]*[ ]([a-z][A-Za-z]*)\\([A-Za-z\\[\\],<>\\s]*\\)");
         JAVA_BLOCK = Pattern.compile("([`]{3}(?:java)?[\n])|\n[`]{3}");
     }
@@ -126,7 +116,7 @@ public class Groovy extends Command {
                         return FixedMessage.build(e.getMessage());
                     }
                 } else {
-                    return FixedMessage.build(FUNCTIONS.stream().map(s -> s.substring(0, s.indexOf('\n'))).collect(Collectors.joining("\n", "```java\n", "\n```")));
+                    return FixedMessage.build(FUNCTIONS.stream().map(this::getFunctionName).collect(Collectors.joining("\n", "```java\n", "\n```")));
                 }
             case "clear":
                 switch (content.toLowerCase()) {
@@ -189,5 +179,27 @@ public class Groovy extends Command {
             }
             return FixedMessage.build(result.toString());
         } else return FixedMessage.build("Null");
+    }
+
+    private static void initializeImports() {
+        final InputStream resourceAsStream = Groovy.class.getResourceAsStream("imports.txt");
+        if (resourceAsStream != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
+                IMPORTS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void initializeFunctions() {
+        final InputStream resourceAsStream = Groovy.class.getResourceAsStream("functions.txt");
+        if (resourceAsStream != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
+                FUNCTIONS.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split("(?:});\n\n")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -161,7 +161,7 @@ public class RandomBeatmapDisplay extends DynamicMessage implements ReactionList
                 unregister();
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.clearReactions().queue());
             } else {
-                event.getReaction().removeReaction(event.getUser());
+                event.getReaction().removeReaction(event.getUser()).queue();
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(getMessage()).queue());
             }
         }

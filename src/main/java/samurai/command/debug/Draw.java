@@ -71,11 +71,12 @@ public class Draw extends Command {
             Card c;
             c = Card.parseCard(args.get(0));
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write(CardFactory.drawCard(c), "jpg", os);
+            ImageIO.write(CardFactory.drawCard(c), "png", os);
             InputStream is = new ByteArrayInputStream(os.toByteArray());
             return new FileMessage(context.getChannelId(), is, c.toString() + ".png", null);
         } catch (ParseException ignored) {
         } catch (IOException e) {
+            e.printStackTrace();
             return FixedMessage.build("Failed to save and upload drawing");
         }
         try {

@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import samurai.audio.SamuraiAudioManager;
-import samurai.command.CommandFactory;
 import samurai.database.Database;
 import samurai.osu.tracker.OsuTracker;
 import samurai.points.PointTracker;
@@ -31,9 +30,10 @@ import javax.security.auth.login.LoginException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main Class
@@ -41,35 +41,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Bot {
 
-    public static final long START_TIME;
-    public static final String AVATAR;
-    public static final AtomicInteger CALLS;
-    public static final AtomicInteger SENT;
-    public static final long ID;
-    public static final long SOURCE_GUILD;
-    public static final String DEFAULT_PREFIX;
-    public static final int SHARD_COUNT = 1;
-    public static String VERSION;
-
+    private static final int SHARD_COUNT = 1;
     private static final ArrayList<JDA> shards;
-
+    private static BotInfo info;
 
     static {
-        START_TIME = System.currentTimeMillis();
-
-        final Config config = ConfigFactory.load();
-        SOURCE_GUILD = config.getLong("samurai.source_guild");
-        ID = config.getLong("samurai.id");
-        AVATAR = config.getString("samurai.avatar");
-        DEFAULT_PREFIX = config.getString("samurai.prefix");
-
-        CALLS = new AtomicInteger();
-        SENT = new AtomicInteger();
-
-        shards = new ArrayList<>(1);
-
-        VERSION = "@buildVersion@";
-        //STATIC_SCHEDULER = Executors.newScheduledThreadPool(3);
+        shards = new ArrayList<>(SHARD_COUNT);
     }
 
     public static void main(String[] args) {
@@ -79,33 +56,24 @@ public class Bot {
     private static void start(String[] args) {
         if (args.length != 0)
             try {
-                PrintStream out = new PrintStream(new FileOutputStream("out.txt"));
+                PrintStream out = new PrintStream(new FileOutputStream("out.txt"), false, "UTF-8");
                 System.setOut(out);
-                PrintStream err = new PrintStream(new FileOutputStream("err.txt"));
+                PrintStream err = new PrintStream(new FileOutputStream("err.txt"), false, "UTF-8");
                 System.setErr(err);
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 e.printStackTrace();
-            }
-
-            if (VERSION.contains("buildVersion")) {
-            VERSION = "Development";
             }
 
         final Config config = ConfigFactory.load();
 
-        //final SamuraiDiscord samuraiDiscord = new SamuraiDiscord();
         final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
-                .setToken(config.getString("samurai.token"))
+                .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
                 .addEventListener(new SamuraiDiscord());
-        //shards.add(samuraiDiscord);
-
 
         try {
-            for (int i = 0; i < SHARD_COUNT; i++)
-                shards.add(jdaBuilder
-                        //.useSharding(i, SHARD_COUNT)
-                        .buildAsync());
+            //for (int i = 0; i < SHARD_COUNT; i++)
+            shards.add(jdaBuilder.buildAsync());
         } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
@@ -113,6 +81,9 @@ public class Bot {
 
     public static void shutdown() {
         System.out.println("Shutting Down");
+        for (JDA shard : shards) {
+            shard.removeEventListener(shard.getRegisteredListeners());
+        }
         SamuraiAudioManager.close();
         Database.close();
         OsuTracker.close();
@@ -137,7 +108,14 @@ public class Bot {
     }
 
     static void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
-        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).findAny().ifPresent(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
+        shards.forEach(jda -> jda.getRegisteredListeners().stream().filter(o -> o instanceof SamuraiDiscord).map(o -> (SamuraiDiscord) o).forEach(samuraiDiscord -> samuraiDiscord.getMessageManager().onPrivateMessageReceived(event)));
     }
 
+    public static BotInfo info() {
+        return info;
+    }
+
+    public static void setInfo(BotInfo info) {
+        Bot.info = info;
+    }
 }

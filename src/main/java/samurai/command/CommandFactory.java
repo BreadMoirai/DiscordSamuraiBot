@@ -51,7 +51,7 @@ public class CommandFactory {
     private CommandFactory() {
     }
 
-    public static void initializeCommandMap(HashMap<String, Class<? extends Command>> commandMap) {
+    private static void initializeCommandMap(HashMap<String, Class<? extends Command>> commandMap) {
         Reflections reflections = new Reflections("samurai.command");
         Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
         for (Class<? extends Command> action : classes) {
@@ -62,7 +62,7 @@ public class CommandFactory {
             }
             String[] name = action.getName().substring(15).split("\\.");
             for (String key : actionKey.value()) {
-                COMMAND_MAP.put(key, action);
+                commandMap.put(key, action);
                 System.out.printf("%-11s mapped to %-10s.%s%n", String.format("\"%s\"", key), name[1], name[2]);
             }
         }

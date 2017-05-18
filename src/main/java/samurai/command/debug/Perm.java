@@ -26,10 +26,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 4.x - 2/18/2017
- */
 @Key("perm")
 public class Perm extends Command {
 

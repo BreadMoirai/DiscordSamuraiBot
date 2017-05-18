@@ -127,13 +127,13 @@ public class Card {
     public String getSymbolSuit() {
         switch (suit) {
             case SPADES:
-                return "?";
+                return "\u2660";
             case CLUBS:
-                return "?";
+                return "\u2663";
             case DIAMONDS:
-                return "?";
+                return "\u2666";
             case HEARTS:
-                return "?";
+                return "\u2665";
         }
         return "";
     }

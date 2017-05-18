@@ -34,12 +34,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4/20/2017
- */
 @Source
-@Key("color")
+@Key({"color", "uncolor"})
 public class ColorRole extends Command {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MANAGE_ROLES};
 
@@ -47,6 +43,12 @@ public class ColorRole extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
+        }
+        final Member author = context.getAuthor();
+        if (context.getKey().equalsIgnoreCase("uncolor")) {
+            final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
+            context.getGuild().getController().removeRolesFromMember(author, colorRoleToRemove).queue();
+            return FixedMessage.build("Your color has been reset to the default color.");
         }
         final java.util.List<Member> members = context.getMentionedMembers();
         if (members.size() == 1) {
@@ -62,7 +64,6 @@ public class ColorRole extends Command {
             eb.setColor(color);
             return FixedMessage.build(eb.build());
         }
-        final Member author = context.getAuthor();
         if (!context.hasContent()) {
             final Color color = author.getColor();
             final EmbedBuilder eb = new EmbedBuilder();
@@ -114,7 +115,7 @@ public class ColorRole extends Command {
         if (!colorRoleToAdd.isEmpty()) {
             guildController.modifyMemberRoles(author, colorRoleToAdd, colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
         } else {
-            guildController.createRole().setName(name).setColor(newColor).queue(role -> {
+            guildController.createRole().setName(name).setColor(newColor).setPermissions(0).queue(role -> {
                 guildController.modifyRolePositions(false).selectPosition(role).moveTo(2).queue();
                 guildController.modifyMemberRoles(author, Collections.singletonList(role), colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
             });
