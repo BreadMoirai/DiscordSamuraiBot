@@ -97,4 +97,33 @@ public class PointSession {
         return 0.0;
         //todo
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PointSession that = (PointSession) o;
+
+        if (discordId != that.discordId) return false;
+        return guildId == that.guildId;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (discordId ^ (discordId >>> 32));
+        result = 31 * result + (int) (guildId ^ (guildId >>> 32));
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PointSession{");
+        sb.append("discordId=").append(discordId);
+        sb.append(", guildId=").append(guildId);
+        sb.append(", points=").append(points);
+        sb.append(", member=").append(member);
+        sb.append('}');
+        return sb.toString();
+    }
 }

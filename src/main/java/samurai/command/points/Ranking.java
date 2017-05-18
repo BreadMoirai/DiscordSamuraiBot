@@ -14,6 +14,7 @@
 */
 package samurai.command.points;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -30,41 +31,50 @@ public class Ranking extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final PointSession[] pointSessions = context.getMemberPoints().toArray(PointSession[]::new);
-        int target = 0;
+        int target = -1;
         final List<Member> mentionedMembers = context.getMentionedMembers();
         if (mentionedMembers.size() == 1) {
-            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(context.getGuildId(), mentionedMembers.get(0).getUser().getIdLong()).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(mentionedMembers.get(0)).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
         } else if (context.hasContent()) {
             final Optional<Member> memberOptional = context.getGuild().getMembers().stream().filter(member -> member.getEffectiveName().toLowerCase().startsWith(context.getContent().toLowerCase())).findAny();
             if (memberOptional.isPresent()) {
-                target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(context.getGuildId(), memberOptional.get().getUser().getIdLong()).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+                final PointSession memberPointSession = context.getPointTracker().getMemberPointSession(memberOptional.get());
+                target = ArrayUtil.binarySearch(pointSessions, memberPointSession.getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o), pointSession -> Objects.equals(memberPointSession, pointSession));
             }
         }
-        if (target == 0)
+        if (target == -1)
             target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
-        final IntSummaryStatistics intStat = context.getIntArgs().summaryStatistics();
-        int i = 0, limit = 0;
+        final IntSummaryStatistics intStat = context.getIntArgs().peek(System.out::println).filter(value -> value > 0 && value < pointSessions.length).summaryStatistics();
+        int idx, end;
         if (intStat.getCount() == 1) {
-            limit = Math.min(pointSessions.length, intStat.getMax());
-        } else if (intStat.getCount() > 1){
-            i = Math.max(0, intStat.getMin());
-            limit = Math.min(pointSessions.length, intStat.getMin());
+            end = Math.min(pointSessions.length, intStat.getMax());
+            idx = Math.max(0, end - 10);
+        } else if (intStat.getCount() > 1) {
+            idx = Math.max(0, intStat.getMin() - 1);
+            end = Math.min(pointSessions.length, intStat.getMax());
         } else if (target < 20) {
-            i = 0;
-            limit = Math.min(pointSessions.length, 20);
+            idx = 0;
+            end = Math.min(pointSessions.length, 20);
         } else {
-            i = Math.max(0, target - 10);
-            limit = Math.min(pointSessions.length, target + 10);
+            idx = Math.max(0, target - 10);
+            end = Math.min(pointSessions.length, target + 10);
         }
-        final int length = String.format("%.2f", pointSessions[0].getPoints()).length();
+        final int length = String.format("%.2f", pointSessions[idx].getPoints()).length();
         final StringJoiner sj = new StringJoiner("\n");
-        for (; i < limit; i++) {
-            if (i == target)
-                sj.add(String.format(String.format("`\u00AD%%%d.2f` - **%%s**", length), pointSessions[i].getPoints(), pointSessions[i].getMember().getEffectiveName()));
-            else
-                sj.add(String.format(String.format("`\u00AD%%%d.2f` - %%s", length), pointSessions[i].getPoints(), pointSessions[i].getMember().getEffectiveName()));
-
+        int ranklen = Math.max(String.valueOf(idx).length(), String.valueOf(end).length());
+        for (; idx < end; idx++) {
+            String s;
+            if (idx == target) {
+                s = String.format(String.format("__#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - **%%s**__", ranklen, length), idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
+            } else {
+                s = String.format(String.format("#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - %%s", ranklen, length), idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
+            }
+            if (sj.length() + s.length() >= 2000) {
+                break;
+            }
+            sj.add(s);
         }
+        final EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(sj.toString()).setColor(pointSessions[target].getMember().getColor());
         return FixedMessage.build(sj.toString());
     }
 }

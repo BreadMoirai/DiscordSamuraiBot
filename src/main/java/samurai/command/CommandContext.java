@@ -185,14 +185,23 @@ public class CommandContext {
     }
 
     private IntStream parseIntArg(String s) {
-        final String[] split = s.split("-");
-        if (split.length == 1) {
-            if (isNumber(split[0]))
-                return IntStream.of(Integer.parseInt(split[0]));
-        } else if (split.length == 2) {
-            if (isNumber(split[0]) && isNumber(split[1])) {
-                return IntStream.rangeClosed(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        try {
+            final String[] split = s.split("-");
+            if (split.length == 1) {
+                if (isNumber(split[0]))
+                    return IntStream.of(Integer.parseInt(split[0]));
+            } else if (split.length == 2) {
+                if (isNumber(split[0]) && isNumber(split[1])) {
+                    final int a = Integer.parseInt(split[0]);
+                    final int b = Integer.parseInt(split[1]);
+                    if (a < b)
+                        return IntStream.rangeClosed(a, b);
+                    else return IntStream.rangeClosed(b, a).map(i -> a - i + b);
+
+                }
             }
+        } catch (NumberFormatException e) {
+            return IntStream.empty();
         }
         return IntStream.empty();
     }
@@ -275,11 +284,10 @@ public class CommandContext {
 
     public Stream<PointSession> getMemberPoints() {
         return getGuild().getMembers().stream()
-                .filter(member -> !((member.getUser().isBot() || member.getUser().isFake()) && member.getUser().getIdLong() != Bot.info().ID))
-                .map(member -> {
-            PointSession points = pointTracker.getMemberPointSession(getGuildId(), member.getUser().getIdLong());
-            points.setMember(member);
-            return points;
-        }).sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());
+                .filter(member ->
+                        !((member.getUser().isBot() || member.getUser().isFake())
+                                && member.getUser().getIdLong() != Bot.info().ID))
+                .map(member -> pointTracker.getMemberPointSession(member))
+                .sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());
     }
 }

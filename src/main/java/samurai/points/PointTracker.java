@@ -145,6 +145,12 @@ public class PointTracker {
         return Database.get().getPointSession(guildId, userId);
     }
 
+    public PointSession getMemberPointSession(Member member) {
+        final PointSession memberPointSession = getMemberPointSession(member.getGuild().getIdLong(), member.getUser().getIdLong());
+        memberPointSession.setMember(member);
+        return memberPointSession;
+    }
+
 
     public void offsetPoints(long guildId, long userId, double pointValue) {
         ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
