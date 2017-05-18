@@ -28,7 +28,7 @@ import samurai.messages.impl.util.Prompt;
 import samurai.util.GoogleAPI;
 import samurai.util.SearchResult;
 
-@Key({"google", "g"})
+@Key("google")
 public class Google extends Command {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE};
 

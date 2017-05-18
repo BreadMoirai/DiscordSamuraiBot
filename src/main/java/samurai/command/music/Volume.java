@@ -24,7 +24,7 @@ import samurai.messages.base.SamuraiMessage;
 
 import java.util.Optional;
 
-@Key({"vol", "volume"})
+@Key("volume")
 public class Volume extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

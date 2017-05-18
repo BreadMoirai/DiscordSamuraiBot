@@ -105,7 +105,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
             if (pos <= 3) {
                 description.append(MEDAL[pos - 1]).append(' ');
             } else {
-                description.append(String.format("`%02d.`", pos));
+                description.append(String.format("`%02d.` ", pos));
             }
             final Member memberById = g.getMemberById(memberIntegerEntry.getKey());
             description.append((memberById != null ? memberById.getEffectiveName() : "unknown")).append(" rolled a **").append(memberIntegerEntry.getValue())

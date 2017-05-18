@@ -38,7 +38,7 @@ import java.util.List;
  * @see ExampleMessage
  * @since 2/16/2017
  */
-@Key({"ex", "example"}) //this denotes what command the user should type in ex. "!template"
+@Key("example") //this denotes what command the user should type in ex. "!template"
 // you can use an array for aliases ex. @Key({"template", "tp", "temp"})
 //keys should be less than 10 characters
 @Source // can only be used in DreadMoirai's Samurais;
