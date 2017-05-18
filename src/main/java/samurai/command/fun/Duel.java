@@ -34,8 +34,8 @@ public class Duel extends Command {
             return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
         }
         if (context.getMentionedMembers().size() != 1)
-            return new ConnectFour(context.getAuthor().getUser(), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
+            return new ConnectFour(context.getAuthor(), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
         else
-            return new ConnectFour(context.getAuthor().getUser(), context.getMentionedMembers().get(0).getUser(), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
+            return new ConnectFour(context.getAuthor(), context.getMentionedMembers().get(0), CommandModule.points.isEnabled(context.getSamuraiGuild().getModules()) ? context.getPointTracker() : null);
     }
 }

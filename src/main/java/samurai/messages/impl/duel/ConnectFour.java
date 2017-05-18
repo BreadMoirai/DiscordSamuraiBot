@@ -17,6 +17,7 @@ package samurai.messages.impl.duel;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
@@ -67,10 +68,10 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
 
     private PointTracker pointTracker;
 
-    public ConnectFour(User seeking, PointTracker pointTracker) {
-        userA = Long.valueOf(seeking.getId());
-        nameA = seeking.getName();
-        avatarA = seeking.getEffectiveAvatarUrl();
+    public ConnectFour(Member seeking, PointTracker pointTracker) {
+        userA = seeking.getUser().getIdLong();
+        nameA = seeking.getEffectiveName();
+        avatarA = seeking.getUser().getEffectiveAvatarUrl();
         this.pointTracker = pointTracker;
         userB = null;
         nameB = null;
@@ -79,18 +80,18 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Gen
         state = new InitialState(this);
     }
 
-    public ConnectFour(User instigator, User challenged, PointTracker pointTracker) {
-        userA = Long.valueOf(instigator.getId());
-        nameA = instigator.getName();
-        avatarA = instigator.getEffectiveAvatarUrl();
-        userB = Long.valueOf(challenged.getId());
-        nameB = challenged.getName();
-        avatarB = challenged.getEffectiveAvatarUrl();
+    public ConnectFour(Member instigator, Member challenged, PointTracker pointTracker) {
+        userA = instigator.getUser().getIdLong();
+        nameA = instigator.getEffectiveName();
+        avatarA = instigator.getUser().getEffectiveAvatarUrl();
+        userB = challenged.getUser().getIdLong();
+        nameB = challenged.getEffectiveName();
+        avatarB = challenged.getUser().getEffectiveAvatarUrl();
         this.pointTracker = pointTracker;
         next = ThreadLocalRandom.current().nextBoolean() ? userA : userB;
         board = new char[X_BOUND][Y_BOUND];
         state = new BuildState(this);
-        selfOpp = challenged.getIdLong() == Bot.info().ID;
+        selfOpp = challenged.getUser().getIdLong() == Bot.info().ID;
     }
 
     @Override
