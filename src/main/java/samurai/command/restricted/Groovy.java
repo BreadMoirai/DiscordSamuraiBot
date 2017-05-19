@@ -59,7 +59,6 @@ public class Groovy extends Command {
         GROOVY_SHELL = new GroovyShell(BINDING);
         BINDING.setVariable("google", GoogleAPI.class);
 
-
         IMPORTS = new HashSet<>(20);
         initializeImports();
         FUNCTIONS = new ArrayList<>(20);

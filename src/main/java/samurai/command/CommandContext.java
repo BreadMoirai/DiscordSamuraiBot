@@ -260,6 +260,7 @@ public class CommandContext {
 
     private static final Pattern URL = Pattern.compile("(?:<)?((?:http(s)?://.)?(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*))(?:>)?");
 
+
     /**
      * @return the url if found, null if content is not a url.
      */
@@ -289,5 +290,11 @@ public class CommandContext {
                                 && member.getUser().getIdLong() != Bot.info().ID))
                 .map(member -> pointTracker.getMemberPointSession(member))
                 .sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());
+    }
+
+    private static final Pattern LINES = Pattern.compile("[\n](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+    public String[] lines() {
+        return LINES.split(content);
     }
 }
