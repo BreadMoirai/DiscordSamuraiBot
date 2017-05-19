@@ -39,8 +39,9 @@ public class Unlock extends Command {
         System.out.println("unlock: " + context.getContent());
         final Guild guild = context.getGuild();
         final Member author = context.getAuthor();
+        final Member selfMember = context.getSelfMember();
         if (!context.hasContent()) {
-            final String collect = guild.getTextChannels().stream().map(textChannel -> {
+            final String collect = guild.getTextChannels().stream().filter(textChannel -> selfMember.hasPermission(textChannel, Permission.MANAGE_PERMISSIONS, Permission.MANAGE_WEBHOOKS)).map(textChannel -> {
                 if (author.hasPermission(textChannel, Permission.MESSAGE_READ)) {
                     return "+ " + textChannel.getName();
                 } else {
@@ -57,10 +58,9 @@ public class Unlock extends Command {
             } else return FixedMessage.build("Channel Not Found");
         } else thatChannel = hiddenChannels.get(0);
         System.out.println("thatChannel = " + thatChannel);
-        final Member selfMember = context.getSelfMember();
         System.out.println("selfMember = " + selfMember);
-        if (!selfMember.hasPermission(thatChannel, Permission.MANAGE_PERMISSIONS)) {
-            return new PermissionFailureMessage(selfMember, thatChannel, Permission.MANAGE_PERMISSIONS);
+        if (!selfMember.hasPermission(thatChannel, Permission.MANAGE_PERMISSIONS, Permission.MANAGE_WEBHOOKS)) {
+            return FixedMessage.build("Channel is unavailable");
         }
         final PermissionOverride permissionOverride = thatChannel.getPermissionOverride(author);
         if (permissionOverride == null) {
