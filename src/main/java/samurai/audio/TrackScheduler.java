@@ -29,17 +29,18 @@ import java.util.stream.Stream;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    private final List<AudioTrackR> queue;
-    private final Deque<AudioTrackR> history;
-    private AudioTrackR current;
+    private final List<AudioTrack> queue;
+    private final Deque<AudioTrack> history;
+    private AudioTrack current;
     private boolean autoPlay;
+    private boolean repeat;
 
     TrackScheduler(AudioPlayer player) {
         this.player = player;
         this.queue = new ArrayList<>(20);
-        history = new ArrayDeque<AudioTrackR>(10) {
+        history = new ArrayDeque<AudioTrack>(10) {
             @Override
-            public void addFirst(AudioTrackR audioTrack) {
+            public void addFirst(AudioTrack audioTrack) {
                 if (this.size() > 9)
                     super.removeLast();
                 super.addFirst(audioTrack);
@@ -48,20 +49,24 @@ public class TrackScheduler extends AudioEventAdapter {
         autoPlay = true;
     }
 
-    public AudioTrackR queue(AudioTrack audioTrack, String requester) {
-        AudioTrackR track = new AudioTrackR(audioTrack, requester);
-        if (player.startTrack(track.getTrack(), true)) {
-            current = track;
-        } else queue.add(track);
-        return track;
+    public AudioTrack queue(AudioTrack audioTrack) {
+        if (player.startTrack(audioTrack, true)) {
+            current = audioTrack;
+        } else queue.add(audioTrack);
+        return audioTrack;
     }
 
 
     public void nextTrack() {
+        if (repeat && current != null) {
+            current = current.makeClone();
+            player.startTrack(current, false);
+            return;
+        }
         if (queue.isEmpty()) {
             history.addFirst(current);
             if (autoPlay) {
-                AudioTrackR track = current;
+                AudioTrack track = current;
                 if (track == null) {
                     return;
                 }
@@ -75,8 +80,8 @@ public class TrackScheduler extends AudioEventAdapter {
                 player.stopTrack();
             }
         } else {
-            AudioTrackR track = queue.remove(0);
-            player.startTrack(track.getTrack(), false);
+            AudioTrack track = queue.remove(0);
+            player.startTrack(track, false);
             if (current != null) {
                 history.addFirst(current);
             }
@@ -86,7 +91,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void prevTrack() {
         if (history.isEmpty()) return;
-        AudioTrackR previous = history.pollFirst();
+        AudioTrack previous = history.pollFirst();
         current = previous.makeClone();
         player.startTrack(current, false);
     }
@@ -118,11 +123,11 @@ public class TrackScheduler extends AudioEventAdapter {
         queue.clear();
     }
 
-    public AudioTrackR getCurrent() {
+    public AudioTrack getCurrent() {
         return current;
     }
 
-    public List<AudioTrackR> getQueue() {
+    public List<AudioTrack> getQueue() {
         return Collections.unmodifiableList(queue);
     }
 
@@ -131,25 +136,25 @@ public class TrackScheduler extends AudioEventAdapter {
         return queue.size();
     }
 
-    public Stream<AudioTrackR> skip(Stream<Integer> indexes) {
+    public Stream<AudioTrack> skip(Stream<Integer> indexes) {
         final int size = queue.size();
         return indexes.distinct().sorted((o1, o2) -> o2 - o1).mapToInt(Integer::intValue).map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size).mapToObj(queue::remove);
     }
 
-    public void queueFirst(AudioTrack track, String requester) {
+    public void queueFirst(AudioTrack track) {
         if (!player.startTrack(track, true)) {
-            queue.add(0, new AudioTrackR(track, requester));
+            queue.add(0, track);
         }
     }
 
-    public void queue(List<AudioTrack> playlist, String requester) {
+    public void queue(List<AudioTrack> playlist) {
         for (AudioTrack audioTrack : playlist) {
-            queue(audioTrack, requester);
+            queue(audioTrack);
         }
     }
 
-    public void queueFirst(List<AudioTrack> playlist, String requester) {
-        queue.addAll(0, playlist.stream().map(audioTrack -> new AudioTrackR(audioTrack, requester)).collect(Collectors.toList()));
+    public void queueFirst(List<AudioTrack> playlist) {
+        queue.addAll(0, playlist);
         if (player.getPlayingTrack() == null) {
             nextTrack();
         }
@@ -163,14 +168,20 @@ public class TrackScheduler extends AudioEventAdapter {
         return autoPlay;
     }
 
-    public Deque<AudioTrackR> getHistory() {
+    public Deque<AudioTrack> getHistory() {
         return history;
+    }
+
+    public boolean toggleRepeat() {
+        repeat = !repeat;
+        return repeat;
     }
 
     private class AutoPlayHandler implements AudioLoadResultHandler {
         @Override
         public void trackLoaded(AudioTrack track) {
-            queue(track, "Samurai");
+            track.setUserData("Samurai");
+            queue(track);
         }
 
         @Override

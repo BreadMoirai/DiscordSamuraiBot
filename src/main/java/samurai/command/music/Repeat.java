@@ -16,7 +16,6 @@ package samurai.command.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -24,33 +23,22 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
-import samurai.messages.impl.PermissionFailureMessage;
 
-import java.util.Deque;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
-@Key("history")
-public class History extends Command{
-    private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_MANAGE};
-
+@Key("repeat")
+public class Repeat extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        if (!context.getSelfMember().hasPermission(context.getChannel(), PERMISSIONS)) {
-            return new PermissionFailureMessage(context.getSelfMember(), context.getChannel(), PERMISSIONS);
-        }
         final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.retrieveManager(context.getGuildId());
         if (managerOptional.isPresent()) {
-            final GuildAudioManager manager = managerOptional.get();
-            final Deque<AudioTrack> history = manager.scheduler.getHistory();
-            final EmbedBuilder eb = new EmbedBuilder();
-            final StringBuilder sb = eb.getDescriptionBuilder();
-            final AtomicInteger i = new AtomicInteger(0);
-            sb.append("**History**");
-            history.stream().limit(10).map(track -> Play.trackInfoDisplay(track, true)).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
-            return FixedMessage.build(eb.build());
+            final GuildAudioManager guildAudioManager = managerOptional.get();
+            final AudioTrack current = guildAudioManager.scheduler.getCurrent();
+            if (current == null) return FixedMessage.build("There is nothing to repeat");
+            final boolean b = guildAudioManager.scheduler.toggleRepeat();
+            if (!b) return FixedMessage.build("Repeat stopped");
+            else return FixedMessage.build(new EmbedBuilder().appendDescription(Play.trackInfoDisplay(current, true) + " is now playing on repeat").build());
         }
-        return null;
+        return FixedMessage.build("There is nothing to repeat.");
     }
-
 }

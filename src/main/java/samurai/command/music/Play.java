@@ -20,14 +20,13 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.PermissionFailureMessage;
 import samurai.messages.impl.music.TrackLoader;
 
@@ -84,24 +83,25 @@ public class Play extends Command {
         } else {
             final MessageEmbed embed = nowPlaying(audioManager);
             if (embed == null) {
-                return FixedMessage.build("Nothing is playing right now. Look at <#302662195270123520>");
+                return FixedMessage.build("Nothing is playing right now.");
             }
             return FixedMessage.build(embed);
         }
     }
 
     private MessageEmbed nowPlaying(GuildAudioManager audioManager) {
-        final AudioTrackR currentTrack = audioManager.scheduler.getCurrent();
+        final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
         if (currentTrack == null)
             return null;
         EmbedBuilder eb = new EmbedBuilder();
         eb.appendDescription(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, currentTrack.getDuration() / (60 * 1000), (currentTrack.getDuration() / 1000) % 60));
-        eb.appendDescription("\n[" + currentTrack.getInfo().title + "](" + currentTrack.getInfo().uri + ")\n");
-        final Collection<AudioTrackR> tracks = audioManager.scheduler.getQueue();
+        eb.appendDescription("\n[" + currentTrack.getInfo().title + "](" + currentTrack.getInfo().uri + ")");
+        eb.appendDescription(" _").appendDescription(currentTrack.getUserData(String.class)).appendDescription("_\n");
+        final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
         if (!tracks.isEmpty()) {
             eb.appendDescription("Up Next:");
             final AtomicInteger i = new AtomicInteger();
-            tracks.stream().limit(10).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo))).forEachOrdered(eb::appendDescription);
+            tracks.stream().limit(10).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), trackInfoDisplay(audioTrackInfo, true))).forEachOrdered(eb::appendDescription);
             final int tSize = tracks.size();
             if (tSize > 10) {
                 eb.appendDescription("\n... `" + (tSize - 10) + "` more tracks");
@@ -110,21 +110,22 @@ public class Play extends Command {
         return eb.build();
     }
 
-    public static String trackInfoDisplay(AudioTrackR track) {
-        AudioTrackInfo trackInfo = track.getInfo();
-        String trackLengthDisp;
-        if (trackInfo.length == Long.MAX_VALUE) {
-            trackLengthDisp = "\u221e";
-        } else {
-            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
-        }
-        if (track.getRequester() != null)
-            return String.format("[%s](%s) [%s] requested by %s", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getRequester());
-        else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
-    }
+
 
     public static String trackInfoDisplay(AudioTrack track) {
-        return trackInfoDisplay(new AudioTrackR(track, null));
+        return trackInfoDisplay(track, true);
     }
-}
+        public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
+            AudioTrackInfo trackInfo = track.getInfo();
+            String trackLengthDisp;
+            if (trackInfo.length == Long.MAX_VALUE) {
+                trackLengthDisp = "\u221e";
+            } else {
+                trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
+            }
+            if (displayName && track.getUserData() != null)
+                return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
+            else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
+        }
+    }
 

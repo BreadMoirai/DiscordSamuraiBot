@@ -18,7 +18,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -26,7 +25,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import samurai.audio.AudioTrackR;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
@@ -114,18 +112,17 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     public void trackLoaded(AudioTrack track) {
+        track.setUserData(requester);
         if (closed) return;
         if (!loadAsPlaylist) {
-            if (playNow) {
-                audioManager.scheduler.clear();
-            }
-            AudioTrackR trackR = this.audioManager.scheduler.queue(track, requester);
+            if (playNow) audioManager.scheduler.queueFirst(track);
+            else audioManager.scheduler.queue(track);
+            final int i = audioManager.scheduler.getQueue().indexOf(track);
 
-            final int i = audioManager.scheduler.getQueue().indexOf(trackR);
             if (i != -1) {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(track), i + 1)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(track, true), i + 1)).build()).queue();
             } else {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(track)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(track, true)).build()).queue();
             }
             unregister();
         } else {
@@ -145,6 +142,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     public void playlistLoaded(AudioPlaylist playlist) {
+        playlist.getTracks().forEach(track -> track.setUserData(requester));
         if (closed) return;
         this.playlist = playlist;
         this.tracklist = Collections.synchronizedList(playlist.getTracks());
@@ -172,7 +170,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         }
         AtomicInteger i = new AtomicInteger(start);
         final int end = start + 10;
-        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo))).forEachOrdered(sb::append);
+        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo, false))).forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
         return new MessageBuilder().setEmbed(eb.build()).build();
@@ -200,6 +198,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
 
     @Override
     public void onCommand(Command command) {
+        if (!(command instanceof GenericCommand)) return;
         if (command.getContext().getAuthorId() != this.getAuthorId()) return;
         final CommandContext context = command.getContext();
         if (!context.hasContent()) return;
@@ -227,7 +226,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
             unregister();
             if (playNow) audioManager.scheduler.clear();
-            audioManager.scheduler.queue(tracklist, requester);
+            audioManager.scheduler.queue(tracklist);
             return;
         }
         channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
@@ -275,7 +274,7 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
                 unregister();
                 if (playNow) audioManager.scheduler.clear();
-                audioManager.scheduler.queue(tracklist, requester);
+                audioManager.scheduler.queue(tracklist);
                 break;
         }
     }
