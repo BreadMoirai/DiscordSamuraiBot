@@ -17,10 +17,12 @@ package samurai.command.fun;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.command.manage.Schedule;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.RollPoll;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -32,59 +34,16 @@ public class Roll extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         if (context.getKey().equalsIgnoreCase("rollpoll")) {
             final List<String> args = context.getArgs();
-            if (!args.isEmpty() && args.size() % 2 == 0) {
-                long pointValue = 0;
-                long totalTime = 0;
-                int i = 0;
-                while (i < args.size()) {
-                    long value;
-                    if (CommandContext.isNumber(args.get(i))) {
-                        value = Long.parseLong(args.get(i));
-                    } else {
-                        totalTime = -1;
-                        break;
-                    }
-                    switch (args.get(++i).toLowerCase()) {
-                        case "s":
-                        case "second":
-                        case "seconds":
-                            totalTime += value;
-                            break;
-                        case "m":
-                        case "min":
-                        case "minute":
-                        case "minutes":
-                            totalTime += value * 60;
-                            break;
-                        case "h":
-                        case "hour":
-                        case "hours":
-                            totalTime += value * 60 * 60;
-                            break;
-                        case "d":
-                        case "day":
-                        case "days":
-                            totalTime += value * 60 * 60 * 24;
-                            break;
-                        case "wk":
-                        case "week":
-                        case "weeks":
-                            totalTime += value * 60 * 60 * 24 * 7;
-                            break;
-                        case "p":
-                        case "pts":
-                        case "points":
-                            pointValue = value;
-                        default:
-                    }
-                    i++;
-                }
-                if (totalTime > 0)
-                    if (context.getAuthor().canInteract(context.getSelfMember()))
-                        return new RollPoll(totalTime, TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null);
-                    else
-                        return new RollPoll(totalTime, TimeUnit.SECONDS, -1, null);
+            final Duration duration = Schedule.getDuration(args);
+            long pointValue = 0;
+            if (args.size() != 0 && CommandContext.isNumber(args.get(0))) {
+                pointValue = Long.parseLong(args.get(0));
             }
+            if (!duration.isZero())
+                if (context.getAuthor().canInteract(context.getSelfMember()))
+                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null);
+                else
+                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, -1, null);
             return new RollPoll();
         }
         if (context.hasContent()) {

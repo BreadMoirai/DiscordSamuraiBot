@@ -38,14 +38,14 @@ public class CommandContext {
     private final String key;
     private final Member author;
     private final List<User> mentionedUsers;
-    private List<Member> mentionedMembers;
     private final List<Role> mentionedRoles;
     private final String content;
     private final List<Message.Attachment> attaches;
     private final long guildId;
     private final long channelId;
     private final long messageId;
-    private List<TextChannel> mentionedChannels;
+    private final List<TextChannel> mentionedChannels;
+    private List<Member> mentionedMembers;
     private List<String> args;
     private SamuraiGuild samuraiGuild;
     private final TextChannel channel;
@@ -296,5 +296,9 @@ public class CommandContext {
 
     public String[] lines() {
         return LINES.split(content);
+    }
+
+    public SerializableCommandContext getSerializable() {
+        return new SerializableCommandContext(this);
     }
 }

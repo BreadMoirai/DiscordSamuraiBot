@@ -172,7 +172,7 @@ public class PointTracker {
         pool.shutdown();
     }
 
-    public double transferPoints(long guildId, Long fromUserId, Long toUserId, double ratio) {
+    public double transferPoints(long guildId, long fromUserId, long toUserId, double ratio) {
         double transfer = (getMemberPointSession(guildId, fromUserId).getPoints() * ratio);
         offsetPoints(guildId, fromUserId, -1 * transfer);
         offsetPoints(guildId, toUserId, transfer);

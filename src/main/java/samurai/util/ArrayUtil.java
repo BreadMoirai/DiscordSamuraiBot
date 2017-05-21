@@ -32,10 +32,8 @@ public class ArrayUtil {
         final int size = array.length;
         boolean left = true, right = true;
         for (int i = 1; i < Math.max(size - idx, idx); i++) {
-            System.out.println("i = " + i);
             if (right) {
                 final int iR = idx + i;
-                System.out.println("iR = " + iR);
                 if (iR < size) {
                     if (equals.test(array[iR])) return iR;
                     else if (comparator.compare(value, extractor.apply(array[iR])) != 0) right = false;
@@ -43,7 +41,6 @@ public class ArrayUtil {
             }
             if (left) {
                 final int iL = idx - i;
-                System.out.println("iL = " + iL);
                 if (iL >= 0) {
                     if (equals.test(array[iL])) return iL;
                     else if (comparator.compare(value, extractor.apply(array[iL])) != 0) left = false;

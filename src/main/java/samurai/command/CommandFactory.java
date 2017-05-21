@@ -68,7 +68,7 @@ public class CommandFactory {
         }
     }
 
-    private static Command newAction(String key) {
+    public static Command newAction(String key) {
         String keyL = key.toLowerCase();
         if (!COMMAND_MAP.containsKey(keyL)) return new GenericCommand();
         try {
