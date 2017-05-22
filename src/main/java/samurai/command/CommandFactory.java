@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import org.reflections.Reflections;
+import samurai.Bot;
 import samurai.command.annotations.Key;
 import samurai.command.basic.GenericCommand;
 import samurai.util.MyLogger;
@@ -39,6 +40,9 @@ public class CommandFactory {
     private static final Pattern ARG_PATTERN = Pattern.compile("[\\s+](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     private static final Pattern SAMURAI_MENTION = Pattern.compile("<@([!&])?270044218167132170>( )?");
     private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
+    private static final Pattern USER_MENTION = Pattern.compile("<@(?:!)?(\\d+)>");
+    private static final Pattern ROLE_MENTION = Pattern.compile("<@&(\\d+)>");
+    private static final Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d+)>");
 
     private static final Map<String, Class<? extends Command>> COMMAND_MAP;
 
@@ -68,7 +72,7 @@ public class CommandFactory {
         }
     }
 
-    public static Command newAction(String key) {
+    public static Command newCommand(String key) {
         String keyL = key.toLowerCase();
         if (!COMMAND_MAP.containsKey(keyL)) return new GenericCommand();
         try {
@@ -79,13 +83,12 @@ public class CommandFactory {
         }
     }
 
+
     private static Command buildCommand(String prefix, Member author, String content, long channelId, long guildId, long messageId, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
         //if content does not with prefix ex. "!"
-        final Matcher matcher = SAMURAI_MENTION.matcher(content);
-        if (matcher.find() && matcher.start() == 0) {
-            content = prefix + content.substring(matcher.end());
-        }
+        final Matcher matcher = USER_MENTION.matcher(content);
+        content = replaceSamuraiMention(prefix, content);
         if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
 
         content = content.substring(prefix.length());
@@ -99,7 +102,7 @@ public class CommandFactory {
             key = content.substring(0, whitespace.start());
             content = content.substring(whitespace.end()).trim();
         }
-        Command command = CommandFactory.newAction(key);
+        Command command = CommandFactory.newCommand(key);
         if (command == null) return null;
 
         command.setContext(new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attachments, guildId, channelId, messageId, channel, time));
@@ -108,9 +111,55 @@ public class CommandFactory {
         return command;
     }
 
+
+    public static PrimitiveContext buildContextFromTask(String content, PrimitiveContext context) {
+        String prefix = context.prefix;
+        content = replaceSamuraiMention(prefix, content);
+        if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
+
+        content = content.substring(prefix.length());
+        String key;
+        final Matcher whitespace = WHITESPACE_MATCHER.matcher(content);
+        if (!whitespace.find()) {
+            key = content;
+            content = "";
+            if (key.length() > 11) return null;
+        } else {
+            key = content.substring(0, whitespace.start());
+            content = content.substring(whitespace.end()).trim();
+        }
+        context.key = key;
+        context.content = content;
+        context.mentionedUsers = parseMentions(USER_MENTION, content);
+        context.mentionedChannels = parseMentions(CHANNEL_MENTION, content);
+        context.mentionedRoles = parseMentions(ROLE_MENTION, content);
+        return context;
+    }
+
+    private static String replaceSamuraiMention(String prefix, String content) {
+        final Matcher matcher = USER_MENTION.matcher(content);
+        if (matcher.find() && matcher.start() == 0 && matcher.group(1).equals(String.valueOf(Bot.info().ID))) {
+            content = prefix + content.substring(matcher.end()).trim();
+        }
+        return content;
+    }
+
+    private static long[] parseMentions(Pattern match, String content) {
+        List<Long> mentions = new ArrayList<>();
+        final Matcher matcher = match.matcher(content);
+        while (matcher.find()) {
+            final String group = matcher.group(1);
+            if (CommandContext.isNumber(group)) {
+                final long id = Long.parseLong(group);
+                mentions.add(id);
+            }
+        }
+        return mentions.stream().mapToLong(l -> l).toArray();
+    }
+
     public static List<String> parseArgs(String content) {
         if (content != null && !content.isEmpty()) {
-            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).map(String::trim).filter((s) -> !s.isEmpty()).filter(s -> !((s.startsWith("<") && s.endsWith(">")) || s.equals("@everyone") || s.equals("@here"))).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
+            return Arrays.stream(ARG_PATTERN.split(content.replace('`', '\"'))).filter((s) -> !s.isEmpty()).filter(s -> !((s.startsWith("<") && s.endsWith(">")) || s.equals("@everyone") || s.equals("@here"))).map(s -> s.replace('\"', ' ')).map(String::trim).map(String::toLowerCase).collect(Collectors.toList());
         } else return Collections.emptyList();
     }
 

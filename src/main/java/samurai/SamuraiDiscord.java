@@ -36,9 +36,7 @@ import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
-import samurai.command.Command;
-import samurai.command.CommandContext;
-import samurai.command.CommandFactory;
+import samurai.command.*;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Source;
@@ -62,6 +60,7 @@ public class SamuraiDiscord implements EventListener {
     private int shardId;
     private MessageManager messageManager;
     private PointTracker pointTracker;
+    private CommandScheduler commandScheduler;
 
     SamuraiDiscord() {
     }
@@ -77,6 +76,7 @@ public class SamuraiDiscord implements EventListener {
         Database.get().load(event);
         this.pointTracker = new PointTracker();
         pointTracker.load(event);
+        commandScheduler = new CommandScheduler(this);
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Groovy.addBinding("mm", messageManager);
         int i = 0;
@@ -144,7 +144,7 @@ public class SamuraiDiscord implements EventListener {
         Database.get().getPrefix(event.getGuild().getIdLong());
     }
 
-    private void onCommand(Command c) {
+    public void onCommand(Command c) {
         completeContext(c.getContext());
         if (c.getContext().getAuthorId() == Bot.info().OWNER) {
             messageManager.onCommand(c);
@@ -168,9 +168,11 @@ public class SamuraiDiscord implements EventListener {
     private void completeContext(CommandContext context) {
         context.setPointTracker(pointTracker);
         context.setShardId(shardId);
+        context.setCommandScheduler(commandScheduler);
     }
 
     private void onShutdown(ShutdownEvent event) {
+        commandScheduler.shutdown();
         final List<Reloadable> reloadables = messageManager.shutdown();
         int i = 0;
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Objects.ser"))) {

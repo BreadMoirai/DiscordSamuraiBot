@@ -1,11 +1,13 @@
 package samurai.command.manage;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.text.WordUtils;
 import org.jetbrains.annotations.Nullable;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
+import samurai.command.PrimitiveContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
@@ -18,6 +20,7 @@ import java.time.temporal.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,8 +28,8 @@ import java.util.regex.Pattern;
 public class Schedule extends Command {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER;
-    public static final Pattern DAY_SUFFIX = Pattern.compile("(st|nd|rd)");
-    public static final Pattern MONTH_DAY = Pattern.compile("[a-zA-Z]+ [0-9]+");
+    private static final Pattern DAY_SUFFIX = Pattern.compile("(st|nd|rd)");
+    private static final Pattern MONTH_DAY = Pattern.compile("[a-zA-Z]+ [0-9]+");
 
     static {
         DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
@@ -38,6 +41,7 @@ public class Schedule extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final String[] lines = context.lines();
+        if (lines.length == 1) return FixedMessage.build("Nothing was scheduled...");
         final List<TextChannel> mentionedChannels = context.getMentionedChannels();
         String args = lines[0];
         TextChannel targetChannel = context.getChannel();
@@ -50,11 +54,21 @@ public class Schedule extends Command {
         }
         if (!context.hasContent()) return null;
         final List<String> argList = CommandFactory.parseArgs(args);
-        final OffsetDateTime time = getDate(context.getContent(), context.getTime());
+        OffsetDateTime time = getDate(context.getContent(), context.getTime());
         if (time == null) {
-            return FixedMessage.build(getDuration(argList).toString());
-        } else return FixedMessage.build(time.toString());
-
+            final Duration duration = getDuration(argList);
+            if (duration.equals(Duration.ZERO)) {
+                return FixedMessage.build("Scheduled Time could not be determined");
+            }
+            time = context.getTime().plus(duration);
+        }
+        final StringJoiner sj = new StringJoiner("\n");
+        final PrimitiveContext prime = context.getSerializable();
+        for (int i = 1; i < lines.length; i++) {
+            context.getCommandScheduler().scheduleCommand(lines[i], prime, targetChannel.getIdLong(), time);
+            sj.add(lines[i]);
+        }
+        return FixedMessage.build(new EmbedBuilder().setFooter("Task scheduled for", null).setTimestamp(time).setDescription(sj.toString()).setColor(context.getAuthor().getColor()).build());
     }
 
     public static Duration getDuration(List<String> args) {
@@ -152,7 +166,6 @@ public class Schedule extends Command {
         public Temporal adjustInto(Temporal temporal) {
             if (into.isSupported(ChronoField.SECOND_OF_DAY)) {
                 temporal = temporal.with(ChronoField.NANO_OF_DAY, into.getLong(ChronoField.NANO_OF_DAY));
-
             } else {
                 temporal = temporal.with(ChronoField.NANO_OF_DAY, 0);
             }

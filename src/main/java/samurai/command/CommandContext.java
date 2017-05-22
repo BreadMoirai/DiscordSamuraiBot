@@ -52,6 +52,7 @@ public class CommandContext {
     private final OffsetDateTime time;
     private int shardId;
     private PointTracker pointTracker;
+    private CommandScheduler commandScheduler;
 
     public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.prefix = prefix;
@@ -229,10 +230,6 @@ public class CommandContext {
     }
 
 
-    public CommandContext clone(String key, String content) {
-        return new CommandContext(prefix, key, author, mentionedUsers, mentionedRoles, mentionedChannels, content, attaches, guildId, channelId, messageId, channel, time);
-    }
-
     public JDA getClient() {
         return channel.getJDA();
     }
@@ -260,7 +257,6 @@ public class CommandContext {
 
     private static final Pattern URL = Pattern.compile("(?:<)?((?:http(s)?://.)?(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*))(?:>)?");
 
-
     /**
      * @return the url if found, null if content is not a url.
      */
@@ -270,6 +266,7 @@ public class CommandContext {
             return matcher.group(1);
         } else return null;
     }
+
 
     public void setPointTracker(PointTracker pointTracker) {
         this.pointTracker = pointTracker;
@@ -298,7 +295,23 @@ public class CommandContext {
         return LINES.split(content);
     }
 
-    public SerializableCommandContext getSerializable() {
-        return new SerializableCommandContext(this);
+    public PrimitiveContext getSerializable() {
+        return new PrimitiveContext(this);
+    }
+
+    public void setCommandScheduler(CommandScheduler commandScheduler) {
+        this.commandScheduler = commandScheduler;
+    }
+
+    public CommandScheduler getCommandScheduler() {
+        return commandScheduler;
+    }
+
+    public CommandContext clone(String key, String content) {
+        return clone(key, content, mentionedUsers, mentionedRoles, mentionedChannels);
+    }
+
+    public CommandContext clone(String key, String content, List<User> users, List<Role> roles, List<TextChannel> channels) {
+        return new CommandContext(prefix, key, author, users, roles, channels, content, attaches, guildId, channelId, messageId, channel, time);
     }
 }

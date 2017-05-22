@@ -1,34 +1,117 @@
+/*    Copyright 2017 Ton Ly
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 package samurai.command;
 
-import samurai.messages.base.SamuraiMessage;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import samurai.SamuraiDiscord;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.time.OffsetDateTime;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class CommandScheduler {
+public class CommandScheduler implements Serializable {
 
-    private static final ScheduledExecutorService COMMAND_EXECUTOR;
+    private static final transient ScheduledExecutorService COMMAND_EXECUTOR;
 
     static {
         COMMAND_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
     }
 
+    private final transient SamuraiDiscord samurai;
 
-    public void scheduleCommand(Command c, Duration time) {
-        scheduleCommand(c, time.getSeconds());
+    final transient HashMap<Long, List<CommandTask>> tasks;
+
+    public CommandScheduler(SamuraiDiscord samurai) {
+        this.samurai = samurai;
+        tasks = new HashMap<>();
+        samurai.getMessageManager().getClient().getGuilds().stream().map(ISnowflake::getIdLong).forEach(i -> tasks.put(i, Collections.synchronizedList(new ArrayList<>())));
+        initializeTasks();
     }
 
-    public void scheduleCommand(Command c, Instant time) {
-        scheduleCommand(c, Duration.between(Instant.now(), time));
+    public void scheduleCommand(String line, PrimitiveContext context, long targetChannel, OffsetDateTime time) {
+        final long guildId = context.guildId;
+        context.channelId = targetChannel;
+        tasks.putIfAbsent(guildId, Collections.synchronizedList(new ArrayList<>()));
+        new CommandTask(line, context, time, this).schedule();
     }
 
-    public void scheduleCommand(Command c, long secondsFromEpoch) {
-        final ScheduledFuture<Optional<SamuraiMessage>> future = COMMAND_EXECUTOR.schedule(c, secondsFromEpoch, TimeUnit.SECONDS);
+    private void rescheduleCommand(CommandTask task) {
+        tasks.putIfAbsent(task.context.guildId, Collections.synchronizedList(new ArrayList<>()));
+        task.setScheduler(this);
+        task.schedule();
+    }
+
+    private void initializeTasks() {
+        int i = 0;
+        try (ObjectInputStream is = new ObjectInputStream(new FileInputStream("tasks.ser"))) {
+            //noinspection InfiniteLoopStatement
+            while (true) {
+                final Object o = is.readObject();
+                if (o instanceof CommandTask) {
+                    rescheduleCommand((CommandTask) o);
+                    i++;
+                }
+            }
+        } catch (EOFException ignored) {
+            System.out.println(i + " tasks read");
+        } catch (FileNotFoundException ignored) {
+            System.out.println("no tasks read");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void shutdown() {
+        final List<Runnable> runnables = COMMAND_EXECUTOR.shutdownNow();
+        System.out.println("runnables = " + runnables);
+        int i = 0;
+        try (ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream("tasks.ser"))) {
+            for (List<CommandTask> commandTasks : tasks.values()) {
+                for (CommandTask commandTask : commandTasks) {
+                    os.writeObject(commandTask);
+                    i++;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(i + " tasks written");
+    }
+
+
+    ScheduledFuture<?> schedule(CommandTask commandTask, long between, TimeUnit seconds) {
+        return COMMAND_EXECUTOR.schedule(commandTask, between, seconds);
+    }
+
+    public SamuraiDiscord getSamurai() {
+        return samurai;
+    }
+
+    void addTask(long guildId, CommandTask commandTask) {
+        tasks.get(guildId).add(commandTask);
+    }
+
+    void removeTask(long guildId, CommandTask commandTask) {
+        tasks.get(guildId).remove(commandTask);
+    }
+
+    public List<CommandTask> getTasks(long guildId) {
+        return Collections.unmodifiableList(tasks.get(guildId));
     }
 }

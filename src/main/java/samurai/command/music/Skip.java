@@ -26,9 +26,11 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 import samurai.messages.impl.PermissionFailureMessage;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -66,12 +68,18 @@ public class Skip extends Command {
                     intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, Play.trackInfoDisplay(skip.removeLast(), true))));
                 }
             } else {
-                AudioTrack current = audioManager.player.getPlayingTrack();
+                AudioTrack current = audioManager.scheduler.getCurrent();
                 eb.appendDescription(Play.trackInfoDisplay(current, true));
-                if (queue.size() > 0) {
-                    eb.appendDescription("\nNow Playing: ").appendDescription(Play.trackInfoDisplay(queue.get(0), true));
-                }
                 audioManager.scheduler.nextTrack();
+                if (queue.size() > 0) {
+                    eb.appendDescription("\nNow Playing: ").appendDescription(Play.trackInfoDisplay(audioManager.scheduler.getCurrent(), true));
+                }
+                else return FixedMessage.build(eb.build()).setDelay(2, ChronoUnit.SECONDS).appendConsumer(message -> {
+                    final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
+                    if (currentTrack != null) {
+                        message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing**").appendDescription(Play.trackInfoDisplay(currentTrack)).build()).queue();
+                    }
+                });
             }
             return FixedMessage.build(eb.build());
         }

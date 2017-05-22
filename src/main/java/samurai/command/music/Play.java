@@ -87,6 +87,7 @@ public class Play extends Command {
             }
             return FixedMessage.build(embed);
         }
+
     }
 
     private MessageEmbed nowPlaying(GuildAudioManager audioManager) {
@@ -96,7 +97,7 @@ public class Play extends Command {
         EmbedBuilder eb = new EmbedBuilder();
         eb.appendDescription(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, currentTrack.getDuration() / (60 * 1000), (currentTrack.getDuration() / 1000) % 60));
         eb.appendDescription("\n[" + currentTrack.getInfo().title + "](" + currentTrack.getInfo().uri + ")");
-        eb.appendDescription(" _").appendDescription(currentTrack.getUserData(String.class)).appendDescription("_\n");
+        eb.appendDescription(" `").appendDescription(currentTrack.getUserData(String.class)).appendDescription("`\n");
         final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
         if (!tracks.isEmpty()) {
             eb.appendDescription("Up Next:");
@@ -111,21 +112,22 @@ public class Play extends Command {
     }
 
 
-
     public static String trackInfoDisplay(AudioTrack track) {
         return trackInfoDisplay(track, true);
     }
-        public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
-            AudioTrackInfo trackInfo = track.getInfo();
-            String trackLengthDisp;
-            if (trackInfo.length == Long.MAX_VALUE) {
-                trackLengthDisp = "\u221e";
-            } else {
-                trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
-            }
-            if (displayName && track.getUserData() != null)
-                return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
-            else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
+
+    public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
+        if (track == null) return "Nothing";
+        AudioTrackInfo trackInfo = track.getInfo();
+        String trackLengthDisp;
+        if (trackInfo.length == Long.MAX_VALUE) {
+            trackLengthDisp = "\u221e";
+        } else {
+            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }
+        if (displayName && track.getUserData() != null)
+            return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
+        else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
     }
+}
 

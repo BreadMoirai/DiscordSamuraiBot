@@ -168,9 +168,8 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         if (page != 0) {
             sb.append("\n... `").append(start).append("` more tracks");
         }
-        AtomicInteger i = new AtomicInteger(start);
         final int end = start + 10;
-        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(tracklist::get).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), Play.trackInfoDisplay(audioTrackInfo, false))).forEachOrdered(sb::append);
+        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(i -> String.format("%n`%d.` %s", i + 1, Play.trackInfoDisplay(tracklist.get(i), false))).forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
         return new MessageBuilder().setEmbed(eb.build()).build();

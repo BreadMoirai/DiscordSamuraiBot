@@ -21,7 +21,10 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import samurai.messages.MessageManager;
 import samurai.messages.base.SamuraiMessage;
 
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -32,6 +35,7 @@ public class FixedMessage extends SamuraiMessage {
 
     private Message message;
     private Consumer<Message> consumer;
+    private transient Duration delay;
 
 
     public static FixedMessage build(String s) {
@@ -72,13 +76,17 @@ public class FixedMessage extends SamuraiMessage {
     }
 
     public FixedMessage appendConsumer(Consumer<Message> consumer) {
-        this.consumer = this.consumer.andThen(consumer);
+        if (getConsumer() == null) setConsumer(consumer);
+        else this.consumer = getConsumer().andThen(consumer);
         return this;
     }
 
     @Override
     public void send(MessageManager messageManager) {
-        messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queue(consumer, null);
+        if (delay == null)
+            messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queue(consumer, null);
+        else
+            messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queueAfter(delay.getSeconds(), TimeUnit.SECONDS, consumer);
     }
 
     @Override
@@ -89,5 +97,10 @@ public class FixedMessage extends SamuraiMessage {
     @Override
     protected void onReady(Message message) {
 
+    }
+
+    public FixedMessage setDelay(int time, TemporalUnit unit) {
+        this.delay = Duration.of(time, unit);
+        return this;
     }
 }
