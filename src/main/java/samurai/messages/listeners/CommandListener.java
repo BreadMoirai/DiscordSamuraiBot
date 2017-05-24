@@ -12,6 +12,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.annotations;
+package samurai.messages.listeners;
 
-public enum MessageScope {Author, Channel, Guild}
+import samurai.command.Command;
+import samurai.command.basic.GenericCommand;
+
+public interface CommandListener extends SamuraiListener {
+    void onCommand(Command command);
+}

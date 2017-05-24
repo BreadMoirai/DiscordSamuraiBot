@@ -12,11 +12,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.listeners;
+package samurai.command.general;
 
 import samurai.command.Command;
-import samurai.command.basic.GenericCommand;
+import samurai.command.CommandContext;
+import samurai.command.annotations.Key;
+import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.SimplePoll;
 
-public interface GenericCommandListener extends SamuraiListener {
-    void onCommand(Command command);
+@Key("poll")
+public class Poll extends Command {
+
+    public SamuraiMessage execute(CommandContext context) {
+        if (!context.hasContent()) return null;
+        return new SimplePoll(context.getContent(), context.getAuthor(), context.getInstant());
+    }
 }

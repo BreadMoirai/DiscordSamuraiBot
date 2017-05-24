@@ -21,16 +21,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.Bot;
 import samurai.command.Command;
-import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.impl.duel.strategy.ConnectFourStrategy;
 import samurai.messages.impl.duel.strategy.MiniMaxStrategy;
-import samurai.messages.listeners.ChannelMessageListener;
-import samurai.messages.listeners.GenericCommandListener;
+import samurai.messages.listeners.CommandListener;
 import samurai.messages.listeners.ReactionListener;
 import samurai.points.PointTracker;
 
@@ -38,11 +35,10 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
-public class ConnectFour extends DynamicMessage implements ReactionListener, GenericCommandListener {
+public class ConnectFour extends DynamicMessage implements ReactionListener, CommandListener {
 
 
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));

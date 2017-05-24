@@ -52,7 +52,7 @@ public class CommandScheduler implements Serializable {
     }
 
     private void rescheduleCommand(CommandTask task) {
-        tasks.putIfAbsent(task.context.guildId, Collections.synchronizedList(new ArrayList<>()));
+        tasks.putIfAbsent(task.getContext().guildId, Collections.synchronizedList(new ArrayList<>()));
         task.setScheduler(this);
         task.schedule();
     }
@@ -67,6 +67,7 @@ public class CommandScheduler implements Serializable {
                     rescheduleCommand((CommandTask) o);
                     i++;
                 }
+                else System.out.println("Task: " + o.toString());
             }
         } catch (EOFException ignored) {
             System.out.println(i + " tasks read");
@@ -87,6 +88,9 @@ public class CommandScheduler implements Serializable {
                     os.writeObject(commandTask);
                     i++;
                 }
+            }
+            if (i == 0) {
+                os.writeObject("Null");
             }
         } catch (IOException e) {
             e.printStackTrace();

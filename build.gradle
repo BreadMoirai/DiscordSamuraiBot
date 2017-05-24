@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.dv8tion:JDA:3.0.0_201'
+    compile 'net.dv8tion:JDA:3.1.0_204'
     compile 'com.sedmelluq:jda-nas:1.0.5'
     compile 'com.sedmelluq:lavaplayer:1.2.39'
     compile 'org.codehaus.groovy:groovy:2.4.8'

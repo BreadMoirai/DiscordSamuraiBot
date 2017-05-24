@@ -314,4 +314,21 @@ public class CommandContext {
     public CommandContext clone(String key, String content, List<User> users, List<Role> roles, List<TextChannel> channels) {
         return new CommandContext(prefix, key, author, users, roles, channels, content, attaches, guildId, channelId, messageId, channel, time);
     }
+
+    public boolean isFloat() {
+        return isFloat(content);
+    }
+
+    public static boolean isFloat(String s) {
+        if (s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            final char c = s.charAt(i);
+            if (i == 0 && c == '-') {
+                if (s.length() == 1) return false;
+                else continue;
+            }
+            if (Character.digit(c, 10) < 0 && c != '.') return false;
+        }
+        return true;
+    }
 }

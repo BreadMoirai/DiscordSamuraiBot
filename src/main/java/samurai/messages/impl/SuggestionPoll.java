@@ -49,7 +49,8 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
     private Member author;
     private Instant timestamp;
 
-    public SuggestionPoll() {}
+    public SuggestionPoll() {
+    }
 
     public SuggestionPoll(String type, String content, Member author, Instant timestamp) {
         this.type = type;
@@ -102,7 +103,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
                     final StringBuilder db = eb.getDescriptionBuilder();
                     db.insert(0, "~~");
                     db.append("~~");
-                    eb.setFooter( "DENIED", "https://cdn.discordapp.com/emojis/" + NO + ".png");
+                    eb.setFooter("DENIED", "https://cdn.discordapp.com/emojis/" + NO + ".png");
                     eb.setColor(COLOR_NO);
                     message.editMessage(eb.build()).queue();
                     unregister();
@@ -113,6 +114,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
             event.getTextChannel().deleteMessageById(getMessageId()).queue();
             unregister();
         } else {
+            //noinspection Duplicates
             event.getTextChannel().getMessageById(getMessageId()).queue(message -> {
                 int y = 0, n = 0;
                 for (MessageReaction messageReaction : message.getReactions()) {
@@ -135,7 +137,7 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
     }
 
     private Color getColor(int yes, int no) {
-        float hue = (float) (240.0f + (180.0f*Math.atan((yes-no)/2.0f)/Math.PI)) / 360.0f;
+        float hue = (float) (240.0f + (180.0f * Math.atan((yes - no) / 2.0f) / Math.PI)) / 360.0f;
         return new Color(Color.HSBtoRGB(hue, SATURATION, BALANCE));
     }
 

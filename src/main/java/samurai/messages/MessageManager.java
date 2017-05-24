@@ -17,23 +17,19 @@ package samurai.messages;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import samurai.command.Command;
-import samurai.command.basic.GenericCommand;
+import samurai.messages.annotations.GhostMessage;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.Reloadable;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.base.UniqueMessage;
 import samurai.messages.impl.util.Prompt;
 import samurai.messages.listeners.ChannelMessageListener;
-import samurai.messages.listeners.GenericCommandListener;
+import samurai.messages.listeners.CommandListener;
 import samurai.messages.listeners.PrivateMessageListener;
 import samurai.messages.listeners.ReactionListener;
 
@@ -48,7 +44,7 @@ import java.util.stream.Collectors;
  * @author TonTL
  * @version 4.x - 3/9/2017
  */
-public class MessageManager implements ReactionListener, ChannelMessageListener, GenericCommandListener, PrivateMessageListener {
+public class MessageManager implements ReactionListener, ChannelMessageListener, CommandListener, PrivateMessageListener {
 
     private static final ArrayDeque<DynamicMessage> EMPTY_DEQUE;
     private final ConcurrentHashMap<Long, ArrayDeque<DynamicMessage>> listeners;
@@ -87,6 +83,11 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void submit(SamuraiMessage samuraiMessage) {
+        if (!verifyUnique(samuraiMessage))
+        samuraiMessage.send(this);
+    }
+
+    private boolean verifyUnique(SamuraiMessage samuraiMessage) {
         if (samuraiMessage instanceof UniqueMessage) {
             final Class<? extends SamuraiMessage> aClass = samuraiMessage.getClass();
             final UniqueMessage uniqueMessage = (UniqueMessage) samuraiMessage;
@@ -121,14 +122,14 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
                     prompt.setAuthorId(samuraiMessage.getAuthorId());
                     prompt.setChannelId(samuraiMessage.getChannelId());
                     prompt.send(this);
-                    return;
+                    return true;
                 } else {
                     unregister(previousMessage);
                     previousUnique.close(textChannel);
                 }
             }
         }
-        samuraiMessage.send(this);
+        return false;
     }
 
     public void register(DynamicMessage dynamicMessage) {
@@ -168,8 +169,8 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     @Override
     public void onCommand(Command command) {
         listeners.getOrDefault(command.getContext().getChannelId(), EMPTY_DEQUE).forEach(dynamicMessage -> {
-            if (dynamicMessage instanceof GenericCommandListener)
-                ((GenericCommandListener) dynamicMessage).onCommand(command);
+            if (dynamicMessage instanceof CommandListener)
+                ((CommandListener) dynamicMessage).onCommand(command);
         });
     }
 
@@ -183,7 +184,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void remove(long channelId, long messageId) {
-        listeners.getOrDefault(channelId, EMPTY_DEQUE).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId);
+        listeners.getOrDefault(channelId, EMPTY_DEQUE).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId && !dynamicMessage.getClass().isAnnotationPresent(GhostMessage.class));
     }
 
     public JDA getClient() {

@@ -23,10 +23,6 @@ import samurai.messages.listeners.ReactionListener;
 
 import java.util.function.Consumer;
 
-/**
- * @author TonTL
- * @version 4/18/2017
- */
 public class Prompt extends DynamicMessage implements ReactionListener, UniqueMessage {
 
     private static final String YES = "\u2705", NO = "\u274e";

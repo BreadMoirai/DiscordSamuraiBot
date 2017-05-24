@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TonTL
  * @version 4/11/2017
  */
-@Key({"queue", "play", "playing", "playnow"})
+@Key({"queue", "play", "nowplaying", "playnow"})
 public class Play extends Command {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
 

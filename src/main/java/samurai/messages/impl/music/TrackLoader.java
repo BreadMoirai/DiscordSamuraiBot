@@ -34,14 +34,13 @@ import samurai.command.music.Play;
 import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.UniqueMessage;
-import samurai.messages.listeners.GenericCommandListener;
+import samurai.messages.listeners.CommandListener;
 import samurai.messages.listeners.ReactionListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,7 +49,7 @@ import java.util.stream.IntStream;
  * @author TonTL
  * @version 4/11/2017
  */
-public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, GenericCommandListener, ReactionListener, UniqueMessage {
+public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, CommandListener, ReactionListener, UniqueMessage {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
     private static final String CANCEL_REACTION = "\u23cf";

@@ -7,19 +7,17 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import samurai.SamuraiDiscord;
 import samurai.command.Command;
-import samurai.command.basic.GenericCommand;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.Reloadable;
-import samurai.messages.listeners.GenericCommandListener;
+import samurai.messages.listeners.CommandListener;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class TodoMessageItem extends DynamicMessage implements GenericCommandListener
+public class TodoMessageItem extends DynamicMessage implements CommandListener
         , Reloadable {
 
     private static final long serialVersionUID = 124L;
