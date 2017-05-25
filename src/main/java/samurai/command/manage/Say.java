@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-@Admin
 @Key("say")
 public class Say extends Command{
 

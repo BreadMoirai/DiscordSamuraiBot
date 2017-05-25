@@ -112,27 +112,27 @@ public class CommandFactory {
     }
 
 
-    public static PrimitiveContext buildContextFromTask(String content, PrimitiveContext context) {
+    public static PrimitiveContext buildContextFromTask(String line, PrimitiveContext context) {
         String prefix = context.prefix;
-        content = replaceSamuraiMention(prefix, content);
-        if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
+        line = replaceSamuraiMention(prefix, line);
+        if (!line.startsWith(prefix) || line.length() <= prefix.length()) return null;
 
-        content = content.substring(prefix.length());
+        line = line.substring(prefix.length());
         String key;
-        final Matcher whitespace = WHITESPACE_MATCHER.matcher(content);
+        final Matcher whitespace = WHITESPACE_MATCHER.matcher(line);
         if (!whitespace.find()) {
-            key = content;
-            content = "";
+            key = line;
+            line = "";
             if (key.length() > 11) return null;
         } else {
-            key = content.substring(0, whitespace.start());
-            content = content.substring(whitespace.end()).trim();
+            key = line.substring(0, whitespace.start());
+            line = line.substring(whitespace.end()).trim();
         }
         context.key = key;
-        context.content = content;
-        context.mentionedUsers = parseMentions(USER_MENTION, content);
-        context.mentionedChannels = parseMentions(CHANNEL_MENTION, content);
-        context.mentionedRoles = parseMentions(ROLE_MENTION, content);
+        context.content = line;
+        context.mentionedUsers = parseMentions(USER_MENTION, line);
+        context.mentionedChannels = parseMentions(CHANNEL_MENTION, line);
+        context.mentionedRoles = parseMentions(ROLE_MENTION, line);
         return context;
     }
 

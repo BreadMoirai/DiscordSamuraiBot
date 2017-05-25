@@ -35,7 +35,7 @@ public class BotInfo {
     public final long OWNER;
     public String VERSION;
 
-    public BotInfo(JDA client) {
+    BotInfo(JDA client) {
         START_TIME = Instant.now().getEpochSecond();
         final Config config = ConfigFactory.load();
         SOURCE_GUILD = config.getLong("bot.source_guild");

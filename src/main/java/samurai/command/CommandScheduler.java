@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import samurai.SamuraiDiscord;
 
 import java.io.*;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -35,7 +36,7 @@ public class CommandScheduler implements Serializable {
 
     private final transient SamuraiDiscord samurai;
 
-    final transient HashMap<Long, List<CommandTask>> tasks;
+    private final transient HashMap<Long, List<CommandTask>> tasks;
 
     public CommandScheduler(SamuraiDiscord samurai) {
         this.samurai = samurai;
@@ -44,7 +45,7 @@ public class CommandScheduler implements Serializable {
         initializeTasks();
     }
 
-    public void scheduleCommand(String line, PrimitiveContext context, long targetChannel, OffsetDateTime time) {
+    public void scheduleCommand(String line, PrimitiveContext context, long targetChannel, Instant time) {
         final long guildId = context.guildId;
         context.channelId = targetChannel;
         tasks.putIfAbsent(guildId, Collections.synchronizedList(new ArrayList<>()));

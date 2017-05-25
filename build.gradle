@@ -8,7 +8,8 @@ plugins {
 
 idea.module.downloadJavadoc = true
 
-
+def majorVersion = 5
+def minorVersion = 3
 mainClassName = "samurai.Bot"
 
 repositories {
@@ -49,8 +50,7 @@ tasks.create('incrementVersionCode', {
     versionFile.write(mNextVersionCode as String)
 })
 
-version = "5.2." + file("version.txt").getText()
-
+version = "${majorVersion}.${minorVersion}.${file("version.txt").getText()}".toString()
 import org.apache.tools.ant.filters.ReplaceTokens
 tasks.create('sourcesForRelease', Copy.class)
 sourcesForRelease.with {

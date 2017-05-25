@@ -53,8 +53,7 @@ public class SimplePoll extends DynamicMessage implements ReactionListener, Relo
     @Override
     protected Message initialize() {
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Poll", null);
-        eb.setDescription(content);
+        eb.setTitle(content, null);
         eb.setTimestamp(timestamp);
         eb.setFooter(author, authorUrl);
         final Color hsbColor = new Color(Color.HSBtoRGB(H_BEGIN, SATURATION, BALANCE));

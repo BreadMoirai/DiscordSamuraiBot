@@ -11,6 +11,7 @@ import samurai.messages.impl.FixedMessage;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,12 +21,22 @@ public class Tasks extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final List<CommandTask> tasks = context.getCommandScheduler().getTasks(context.getGuildId());
+        System.out.println("tasks = " + tasks);
         if (context.getContent().toLowerCase().startsWith("cancel")) {
-            final long count = context.getIntArgs().map(i -> --i).mapToObj(tasks::get).map(CommandTask::cancel).mapToInt(value -> value ? 1 : 0).sum();
+            final List<CommandTask> cTasks = context.getIntArgs().map(i -> i - 1).filter(i -> i > -1 && i < tasks.size()).mapToObj(tasks::get).collect(Collectors.toList());
+            int count = cTasks.size();
+            cTasks.forEach(CommandTask::cancel);
             return FixedMessage.build(count + " tasks cancelled");
         }
         final EmbedBuilder embedBuilder = new EmbedBuilder();
-        final String collect = IntStream.range(0, tasks.size()).mapToObj(i -> "`" + (i + 1) + tasks.get(i).toDisplay(context.getGuild())).collect(Collectors.joining("\n"));
+        StringJoiner joiner = new StringJoiner("\n");
+        int bound = tasks.size();
+        int i = 1;
+        for (CommandTask task : tasks) {
+            String format = String.format("`%d.` %s", i++, task.toDisplay(context.getGuild()));
+            joiner.add(format);
+        }
+        final String collect = joiner.toString();
         return FixedMessage.build(embedBuilder.setDescription(collect).setTimestamp(Instant.now()).build());
     }
 }

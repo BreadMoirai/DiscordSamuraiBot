@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class CommandTask implements Runnable, Serializable {
     private static final long serialVersionUID = 360L;
 
-    private OffsetDateTime end;
+    private Instant end;
     private PrimitiveContext context;
     private transient CommandScheduler scheduler;
     private transient ScheduledFuture<?> future;
@@ -37,7 +37,7 @@ public class CommandTask implements Runnable, Serializable {
     }
 
 
-    CommandTask(String line, PrimitiveContext baseContext, OffsetDateTime time, CommandScheduler scheduler) {
+    CommandTask(String line, PrimitiveContext baseContext, Instant time, CommandScheduler scheduler) {
         context = CommandFactory.buildContextFromTask(line, baseContext);
         end = time;
         this.scheduler = scheduler;
@@ -48,7 +48,7 @@ public class CommandTask implements Runnable, Serializable {
     }
 
     void schedule() {
-        final long between = ChronoUnit.SECONDS.between(OffsetDateTime.now(), end);
+        final long between = ChronoUnit.SECONDS.between(Instant.now(), end);
         if (between < 2) {
             executeTask();
         } else {
@@ -64,7 +64,7 @@ public class CommandTask implements Runnable, Serializable {
 
     @Override
     public void run() {
-        scheduler.tasks.get(context.guildId).remove(this);
+        scheduler.removeTask(context.guildId, this);
         executeTask();
     }
 
@@ -81,11 +81,11 @@ public class CommandTask implements Runnable, Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder("CommandTask{");
         sb.append(context.prefix).append(context.key);
-        sb.append(' ').append(context.content);
+        sb.append(' ').append(context.content).append("}");
         return sb.toString();
     }
 
-    public OffsetDateTime getEnd() {
+    public Instant getEnd() {
         return end;
     }
 
@@ -96,6 +96,6 @@ public class CommandTask implements Runnable, Serializable {
     public String toDisplay(Guild guild) {
         final Member member = guild.getMemberById(context.authorId);
         final Duration until = Duration.between(Instant.now(), end);
-        return String.format("[%s]`%s%s %s` T-minus %s", member != null ? member.getEffectiveName(): "Unknown", context.prefix, context.key, context.content, until.toString().substring(2));
+        return String.format("[%s]`%s%s %s` T-minus `%s%s%s`", member != null ? member.getEffectiveName(): "Unknown", context.prefix, context.key, context.content, until.toHours() > 0 ? until.toHours() + ":" : "", until.toMinutes() > 0 ? String.format("%02d:", until.toMinutes() % 60): "", String.format("%02d", until.getSeconds() % 60));
     }
 }

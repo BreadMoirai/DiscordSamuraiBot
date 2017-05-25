@@ -40,7 +40,7 @@ public class FixedMessage extends SamuraiMessage {
 
     public static FixedMessage build(String s) {
         if (s == null) return null;
-        final Queue<Message> messages = new MessageBuilder().append(s).buildAll(MessageBuilder.SplitPolicy.NEWLINE);
+        final Queue<Message> messages = new MessageBuilder().append(s).buildAll(MessageBuilder.SplitPolicy.NEWLINE, MessageBuilder.SplitPolicy.SPACE, MessageBuilder.SplitPolicy.ANYWHERE);
         final Message first = messages.poll();
         if (messages.isEmpty())
             return new FixedMessage().setMessage(first);

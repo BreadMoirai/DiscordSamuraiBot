@@ -26,8 +26,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import static java.time.temporal.ChronoUnit.MILLIS;
-
 @Key("remind")
 public class Remind extends Command {
 
@@ -35,7 +33,7 @@ public class Remind extends Command {
         final List<String> args = context.getArgs();
         final Duration duration = Schedule.getDuration(args);
         final OffsetDateTime plus = context.getTime().plus(duration);
-        context.getCommandScheduler().scheduleCommand(context.getPrefix() + "say " + String.join(" ", args), context.getSerializable(), context.getChannelId(), plus);
+        context.getCommandScheduler().scheduleCommand(context.getPrefix() + "say " + String.join(" ", args), context.createPrimitive(), context.getChannelId(), plus.toInstant());
 
         return FixedMessage.build(new EmbedBuilder().setFooter("Reminder scheduled at", null).setTimestamp(plus).build());
 

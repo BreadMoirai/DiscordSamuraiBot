@@ -7,13 +7,11 @@ import org.jetbrains.annotations.Nullable;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.CommandFactory;
-import samurai.command.PrimitiveContext;
 import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.*;
@@ -28,13 +26,14 @@ import java.util.regex.Pattern;
 public class Schedule extends Command {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER;
-    private static final Pattern DAY_SUFFIX = Pattern.compile("(st|nd|rd)");
-    private static final Pattern MONTH_DAY = Pattern.compile("[a-zA-Z]+ [0-9]+");
+    private static final Pattern DAY_SUFFIX = Pattern.compile("(?<=[0-9])(ST|ND|RD|TH)");
+    private static final Pattern MONTH_DAY = Pattern.compile("[a-zA-Z]+ ([0-9]+?!(ST|ND|RD|TH))");
 
     static {
         DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
-                "[[MMMM][MMM][' ']d'th'[' ']]" +
-                        "[h[':'mm[':'ss]][' ']a[' ']]");
+                "[[MMMM][MMM][' ']d'th'[' ']][M/d[' ']]" +
+                        "[h[':'mm[':'ss]][' ']a[' ']]" +
+                        "[z][0][x]");
     }
 
 
@@ -43,30 +42,33 @@ public class Schedule extends Command {
         final String[] lines = context.lines();
         if (lines.length == 1) return FixedMessage.build("Nothing was scheduled...");
         final List<TextChannel> mentionedChannels = context.getMentionedChannels();
-        String args = lines[0];
+        String firstLine = lines[0];
         TextChannel targetChannel = context.getChannel();
         for (TextChannel mentionedChannel : mentionedChannels) {
-            if (args.contains(mentionedChannel.getAsMention())) {
+            final String asMention = mentionedChannel.getAsMention();
+            if (firstLine.contains(asMention)) {
                 targetChannel = mentionedChannel;
-                args = args.replace(mentionedChannel.getAsMention(), "");
+                firstLine = firstLine.replace(asMention, "").trim();
                 break;
             }
         }
         if (!context.hasContent()) return null;
-        final List<String> argList = CommandFactory.parseArgs(args);
-        OffsetDateTime time = getDate(context.getContent(), context.getTime());
+        final List<String> argList = CommandFactory.parseArgs(firstLine);
+        Instant time = getDate(firstLine, context.getTime());
         if (time == null) {
             final Duration duration = getDuration(argList);
             if (duration.equals(Duration.ZERO)) {
                 return FixedMessage.build("Scheduled Time could not be determined");
             }
-            time = context.getTime().plus(duration);
+            time = context.getTime().plus(duration).toInstant();
+        } else if (time.equals(Instant.MIN)) {
+            return FixedMessage.build("Please provide a timezone or offset");
         }
         final StringJoiner sj = new StringJoiner("\n");
-        final PrimitiveContext prime = context.getSerializable();
         for (int i = 1; i < lines.length; i++) {
-            context.getCommandScheduler().scheduleCommand(lines[i], prime, targetChannel.getIdLong(), time);
-            sj.add(lines[i]);
+            final String line = lines[i];
+            context.getCommandScheduler().scheduleCommand(line, context.createPrimitive(), targetChannel.getIdLong(), time);
+            sj.add(line);
         }
         return FixedMessage.build(new EmbedBuilder().setFooter("Task scheduled for", null).setTimestamp(time).setDescription(sj.toString()).setColor(context.getAuthor().getColor()).build());
     }
@@ -132,17 +134,20 @@ public class Schedule extends Command {
     }
 
     @Nullable
-    public static OffsetDateTime getDate(String args, OffsetDateTime base) {
-        args = WordUtils.capitalizeFully(args, '\u0000');
-        args = args.replace("pm", "PM");
-        args = args.replace("am", "AM");
+    public static Instant getDate(String args, OffsetDateTime base) {
+        if (Character.isLetter(args.charAt(0))) {
+            final int endIndex = args.indexOf(' ');
+            if (endIndex <= 0) return null;
+            args = WordUtils.capitalizeFully(args.substring(0, endIndex)) + args.substring(endIndex).toUpperCase();
+        } else {
+            args = args.toUpperCase();
+        }
         final Matcher monthDay = MONTH_DAY.matcher(args);
         if (monthDay.find()) {
             if (monthDay.start() == 0) {
-                args = args.substring(0, monthDay.end()) + "th" + args.substring(monthDay.end());
+                args = args.substring(0, monthDay.end() + 1) + "th" + args.substring(monthDay.end() + 1);
             }
-        }
-        else
+        } else
             args = DAY_SUFFIX.matcher(args).replaceAll("th");
         TemporalAccessor time;
         try {
@@ -150,37 +155,46 @@ public class Schedule extends Command {
         } catch (DateTimeParseException e) {
             return null;
         }
-        base = base.with(new MyTemporalAdjuster(time));
-        return base;
+
+        boolean hasDate = false;
+        final LocalTime localTime;
+        if (time.isSupported(ChronoField.NANO_OF_DAY)) {
+            localTime = LocalTime.from(time);
+        } else {
+            localTime = LocalTime.MIDNIGHT;
+        }
+        LocalDate localDate;
+        if (time.isSupported(ChronoField.MONTH_OF_YEAR) && time.isSupported(ChronoField.DAY_OF_MONTH)) {
+            localDate = LocalDate.of(base.getYear(), Month.from(time), time.get(ChronoField.DAY_OF_MONTH));
+            hasDate = true;
+        } else if (time.isSupported(ChronoField.DAY_OF_MONTH)) {
+            localDate = LocalDate.of(base.getYear(), base.getMonth(), time.get(ChronoField.DAY_OF_MONTH));
+            if (localDate.isBefore(base.toLocalDate()) || (localDate.isEqual(base.toLocalDate()) && localTime.isBefore(base.toLocalTime()))) {
+                localDate = localDate.withMonth(localDate.getMonth().plus(1).getValue());
+            }
+            hasDate = true;
+        } else {
+            localDate = base.toLocalDate();
+        }
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+        OffsetDateTime offsetDateTime;
+        if (time.isSupported(ChronoField.OFFSET_SECONDS)) {
+            offsetDateTime = localDateTime.atOffset(ZoneOffset.from(time));
+        } else {
+            try {
+                offsetDateTime = localDateTime.atZone(ZoneId.from(time)).toOffsetDateTime();
+            } catch (DateTimeException e) {
+                return Instant.MIN;
+            }
+        }
+        if (offsetDateTime.isBefore(base)) {
+            if (hasDate)
+                offsetDateTime = offsetDateTime.plusYears(1);
+            else offsetDateTime = offsetDateTime.plusDays(1);
+        } else if (!hasDate && offsetDateTime.minusDays(1).isAfter(base)) {
+            offsetDateTime = offsetDateTime.minusDays(1);
+        }
+        return offsetDateTime.toInstant();
     }
 
-    static class MyTemporalAdjuster implements TemporalAdjuster {
-
-        private final TemporalAccessor into;
-
-        MyTemporalAdjuster(TemporalAccessor into) {
-            this.into = into;
-        }
-
-        @Override
-        public Temporal adjustInto(Temporal temporal) {
-            if (into.isSupported(ChronoField.SECOND_OF_DAY)) {
-                temporal = temporal.with(ChronoField.NANO_OF_DAY, into.getLong(ChronoField.NANO_OF_DAY));
-            } else {
-                temporal = temporal.with(ChronoField.NANO_OF_DAY, 0);
-            }
-            if (into.isSupported(ChronoField.MONTH_OF_YEAR) && into.isSupported(ChronoField.DAY_OF_MONTH)) {
-                temporal = temporal.with(ChronoField.MONTH_OF_YEAR, into.get(ChronoField.MONTH_OF_YEAR));
-                temporal = temporal.with(ChronoField.DAY_OF_MONTH, into.get(ChronoField.DAY_OF_MONTH));
-            } else {
-                if (ChronoUnit.SECONDS.between(OffsetDateTime.now(), temporal) < 0) {
-                    temporal = temporal.with(ChronoField.DAY_OF_YEAR, temporal.get(ChronoField.DAY_OF_YEAR) + 1);
-                }
-            }
-            if (ChronoUnit.SECONDS.between(OffsetDateTime.now(), temporal) < 0) {
-                temporal = temporal.with(ChronoField.YEAR, temporal.get(ChronoField.YEAR) + 1);
-            }
-            return temporal;
-        }
-    }
 }

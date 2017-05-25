@@ -295,7 +295,7 @@ public class CommandContext {
         return LINES.split(content);
     }
 
-    public PrimitiveContext getSerializable() {
+    public PrimitiveContext createPrimitive() {
         return new PrimitiveContext(this);
     }
 
