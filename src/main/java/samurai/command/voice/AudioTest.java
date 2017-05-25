@@ -32,6 +32,9 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 @Source
@@ -61,10 +64,10 @@ public class AudioTest extends Command{
 
     private class AudioTestHandler implements AudioReceiveHandler, AudioSendHandler {
         private final User tester;
-        private ArrayDeque<byte[]> audioData;
+        private BlockingQueue<byte[]> audioData;
         AudioTestHandler(Member tester) {
             this.tester = tester.getUser();
-            audioData = new ArrayDeque<>();
+            audioData = new LinkedBlockingDeque<>();
         }
 
         @Override
@@ -87,20 +90,23 @@ public class AudioTest extends Command{
             if (userAudio.getUser().equals(tester)) {
                 System.out.println("audio recieved");
                 final byte[] data = userAudio.getAudioData(1.0);
-                audioData.add(data);
+                audioData.offer(data);
+            } else {
+                System.out.println("audio recieved from " + userAudio.getUser().getName());
             }
         }
 
         @Override
         public boolean canProvide() {
-            System.out.println("canProvide = " + audioData.isEmpty());
-            return !audioData.isEmpty();
+            final boolean b = !audioData.isEmpty();
+            System.out.println("canProvide = " + b);
+            return b;
         }
 
         @Override
         public byte[] provide20MsAudio() {
             System.out.println("audio sent");
-            return audioData.pop();
+            return audioData.poll();
         }
 
         @Override
