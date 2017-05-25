@@ -30,8 +30,9 @@ public enum CommandModule {
     music(8L),
     fun(16L),
     points(32L),
-    restricted(64L),
-    debug(128L);
+    voice(64L),
+    restricted(128L),
+    debug(256L);
 
 
     private final long value;
@@ -54,7 +55,7 @@ public enum CommandModule {
     }
 
     public static List<CommandModule> getVisible() {
-        return Arrays.asList(manage, general, osu, music, fun, points);
+        return Arrays.asList(manage, general, osu, music, fun, points, voice);
     }
 
     public static long getDefault() {
