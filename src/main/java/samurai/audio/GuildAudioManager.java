@@ -28,7 +28,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 
 public class GuildAudioManager {
 
-    private net.dv8tion.jda.core.managers.AudioManager guildAudioManager;
+    private net.dv8tion.jda.core.managers.AudioManager audioManager;
 
 
     /**
@@ -44,18 +44,18 @@ public class GuildAudioManager {
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
      */
-    GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager guildAudioManager) {
+    GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager audiomanager) {
         player = manager.createPlayer();
         player.setVolume(30);
         scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
-        this.guildAudioManager = guildAudioManager;
-        guildAudioManager.setSendingHandler(new AudioPlayerSendHandler(player));
+        this.audioManager = audiomanager;
+        audiomanager.setSendingHandler(new AudioPlayerSendHandler(player));
     }
 
     boolean openAudioConnection(VoiceChannel channel) {
         try {
-            guildAudioManager.openAudioConnection(channel);
+            audioManager.openAudioConnection(channel);
             return true;
         }
         catch(IllegalArgumentException | PermissionException e) {
@@ -63,10 +63,9 @@ public class GuildAudioManager {
         }
     }
 
-
     public void destroy() {
         player.destroy();
         scheduler.clear();
-        guildAudioManager.closeAudioConnection();
+        audioManager.closeAudioConnection();
     }
 }

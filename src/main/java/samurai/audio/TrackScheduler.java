@@ -41,7 +41,7 @@ public class TrackScheduler extends AudioEventAdapter {
         history = new ArrayDeque<AudioTrack>(10) {
             @Override
             public void addFirst(AudioTrack audioTrack) {
-                if (this.size() > 9)
+                if (this.size() > 15)
                     super.removeLast();
                 super.addFirst(audioTrack);
             }

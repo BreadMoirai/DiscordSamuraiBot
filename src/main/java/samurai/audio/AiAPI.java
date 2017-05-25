@@ -17,9 +17,12 @@ package samurai.audio;
 import ai.api.AIConfiguration;
 import ai.api.AIDataService;
 import ai.api.AIServiceException;
+import ai.api.model.AIContext;
 import ai.api.model.AIRequest;
 import ai.api.model.AIResponse;
 import com.typesafe.config.ConfigFactory;
+
+import java.util.List;
 
 public class AiAPI {
 
@@ -33,8 +36,9 @@ public class AiAPI {
         service = new AIDataService(aiConfiguration);
     }
 
-    public static AIResponse query(String query) {
+    public static AIResponse query(String query, List<AIContext> aiContexts) {
         try {
+            service.addActiveContext(aiContexts);
             return service.request(new AIRequest(query));
         } catch (AIServiceException e) {
             e.printStackTrace();

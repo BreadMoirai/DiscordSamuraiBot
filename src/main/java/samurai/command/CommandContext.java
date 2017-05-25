@@ -105,7 +105,9 @@ public class CommandContext {
         final List<Emote> emotes = new ArrayList<>();
         final Matcher emoteMatcher = EMOTE_PATTERN.matcher(content);
         while (emoteMatcher.find()) {
-            emotes.add(getGuild().getEmoteById(emoteMatcher.group(2)));
+            final List<Emote> emoteById = getClient().getEmotesByName(emoteMatcher.group(1), false);
+            if (!emoteById.isEmpty() && emoteById.get(0) != null)
+            emotes.add(emoteById.get(0));
         }
         return emotes;
     }

@@ -14,6 +14,7 @@
 */
 package samurai.command.voice;
 
+import ai.api.model.AIContext;
 import ai.api.model.AIResponse;
 import samurai.audio.AiAPI;
 import samurai.command.Command;
@@ -22,11 +23,22 @@ import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 @Key("")
-public class Query extends Command{
+public class Chat extends Command{
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final AIResponse query = AiAPI.query(context.getContent());
+        final AIContext memberContext = new AIContext("user");
+        final HashMap<String, String> params = new HashMap<>();
+        params.put("mention", context.getAuthor().getAsMention());
+        params.put("name", context.getAuthor().getEffectiveName());
+        memberContext.setParameters(params);
+
+        final ArrayList<AIContext> aiContexts = new ArrayList<>();
+
+        final AIResponse query = AiAPI.query(context.getContent(), aiContexts);
         if (query != null) return FixedMessage.build(query.getResult().getFulfillment().getSpeech());
         return null;
     }

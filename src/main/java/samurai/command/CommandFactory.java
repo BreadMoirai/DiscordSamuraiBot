@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 public class CommandFactory {
 
     private static final Pattern ARG_PATTERN = Pattern.compile("[\\s+](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-    private static final Pattern SAMURAI_MENTION = Pattern.compile("<@([!&])?270044218167132170>( )?");
     private static final Pattern WHITESPACE_MATCHER = Pattern.compile("\\s+");
     private static final Pattern USER_MENTION = Pattern.compile("<@(?:!)?(\\d+)>");
     private static final Pattern ROLE_MENTION = Pattern.compile("<@&(\\d+)>");
@@ -139,8 +138,10 @@ public class CommandFactory {
     private static String replaceSamuraiMention(String prefix, String content) {
         final Matcher matcher = USER_MENTION.matcher(content);
         if (matcher.find() && matcher.start() == 0 && matcher.group(1).equals(String.valueOf(Bot.info().ID))) {
-            content = prefix + content.substring(matcher.end()).trim();
+            content = prefix + content.substring(matcher.end());
         }
+        if (content.startsWith(" "))
+            content = content.substring(1);
         return content;
     }
 

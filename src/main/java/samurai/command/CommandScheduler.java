@@ -31,7 +31,7 @@ public class CommandScheduler implements Serializable {
     private static final transient ScheduledExecutorService COMMAND_EXECUTOR;
 
     static {
-        COMMAND_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
+        COMMAND_EXECUTOR = Executors.newScheduledThreadPool(2);
     }
 
     private final transient SamuraiDiscord samurai;
@@ -118,5 +118,9 @@ public class CommandScheduler implements Serializable {
 
     public List<CommandTask> getTasks(long guildId) {
         return Collections.unmodifiableList(tasks.get(guildId));
+    }
+
+    public static ScheduledExecutorService getCommandExecutor() {
+        return COMMAND_EXECUTOR;
     }
 }

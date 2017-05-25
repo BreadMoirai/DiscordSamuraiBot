@@ -39,7 +39,6 @@ public class SamuraiAudioManager {
 
     static {
         playerManager = new DefaultAudioPlayerManager();
-        playerManager.setFrameBufferDuration((int) TimeUnit.SECONDS.toMillis(15));
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
         terminationExecutor = Executors.newSingleThreadScheduledExecutor();

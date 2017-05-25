@@ -31,13 +31,20 @@ import java.util.List;
 public class Join extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final List<VoiceChannel> voiceChannelsByName = context.getGuild().getVoiceChannelsByName(context.getContent(), true);
-        if (voiceChannelsByName.isEmpty()) {
-            return FixedMessage.build("The specified Voice Channel was not found.");
+        final VoiceChannel channel;
+        if (context.hasContent()) {
+            final List<VoiceChannel> voiceChannelsByName = context.getGuild().getVoiceChannelsByName(context.getContent(), true);
+            if (voiceChannelsByName.isEmpty()) {
+                return FixedMessage.build("The specified Voice Channel was not found.");
+            }
+            channel = voiceChannelsByName.get(0);
+        } else channel = context.getAuthor().getVoiceState().getChannel();
+        if (channel == null) {
+            return FixedMessage.build("Try joining a voice channel first");
         }
-        final VoiceChannel channel = voiceChannelsByName.get(0);
         final Member selfMember = context.getSelfMember();
-        if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK)) return new PermissionFailureMessage(selfMember, channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK);
+        if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK))
+            return new PermissionFailureMessage(selfMember, channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK);
         SamuraiAudioManager.openConnection(channel);
         return null;
     }
