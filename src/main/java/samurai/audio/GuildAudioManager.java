@@ -30,7 +30,6 @@ public class GuildAudioManager {
 
     private net.dv8tion.jda.core.managers.AudioManager audioManager;
 
-
     /**
      * Audio player for the guild.
      */

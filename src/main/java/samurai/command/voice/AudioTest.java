@@ -54,11 +54,11 @@ public class AudioTest extends Command{
         final AudioTestHandler audioTestHandler = new AudioTestHandler(context.getAuthor());
         audioManager.setReceivingHandler(audioTestHandler);
         audioManager.setSendingHandler(audioTestHandler);
-//        CommandScheduler.getCommandExecutor().schedule(() -> {
-//            audioManager.closeAudioConnection();
-//            audioManager.setSendingHandler(null);
-//            audioManager.setReceivingHandler(null);
-//        }, 1, TimeUnit.MINUTES);
+        CommandScheduler.getCommandExecutor().schedule(() -> {
+            audioManager.closeAudioConnection();
+            audioManager.setSendingHandler(null);
+            audioManager.setReceivingHandler(null);
+        }, 5, TimeUnit.MINUTES);
         return FixedMessage.build("AudioTesting enabled for 1 minute");
     }
 
