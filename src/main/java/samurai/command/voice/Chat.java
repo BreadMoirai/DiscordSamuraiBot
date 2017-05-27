@@ -17,6 +17,7 @@ package samurai.command.voice;
 import ai.api.model.AIContext;
 import ai.api.model.AIResponse;
 import net.dv8tion.jda.core.entities.Member;
+import org.apache.logging.log4j.util.Strings;
 import samurai.audio.AiAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -52,7 +53,11 @@ public class Chat extends Command {
         }
 
         final AIResponse query = AiAPI.query(context.getContent(), aiContexts);
-        if (query != null) return FixedMessage.build(query.getResult().getFulfillment().getSpeech());
+        if (query != null) {
+            final String speech = query.getResult().getFulfillment().getSpeech();
+            if (Strings.isNotBlank(speech))
+            return FixedMessage.build(speech);
+        }
         return null;
     }
 }
