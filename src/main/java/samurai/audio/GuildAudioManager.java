@@ -18,17 +18,16 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.managers.AudioManager;
 
 
 /**
-
  * Holder for both the player and a track scheduler for one guild.
-
  */
 
 public class GuildAudioManager {
 
-    private net.dv8tion.jda.core.managers.AudioManager audioManager;
+    private AudioManager audioManager;
 
     /**
      * Audio player for the guild.
@@ -43,7 +42,7 @@ public class GuildAudioManager {
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
      */
-    GuildAudioManager(AudioPlayerManager manager, net.dv8tion.jda.core.managers.AudioManager audiomanager) {
+    GuildAudioManager(AudioPlayerManager manager, AudioManager audiomanager) {
         player = manager.createPlayer();
         player.setVolume(30);
         scheduler = new TrackScheduler(player);
@@ -66,5 +65,9 @@ public class GuildAudioManager {
         player.destroy();
         scheduler.clear();
         audioManager.closeAudioConnection();
+    }
+
+    public AudioManager getManager() {
+        return audioManager;
     }
 }
