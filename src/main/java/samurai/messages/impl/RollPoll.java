@@ -84,7 +84,8 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
                 message1.clearReactions().queue();
                 unregister();
             });
-            endTime = message.getCreationTime().plus(time, ChronoUnit.valueOf(unit.name())).toInstant();
+            if (endTime == null)
+                endTime = message.getCreationTime().plus(time, ChronoUnit.valueOf(unit.name())).toInstant();
         } else {
             message.addReaction(END).queue();
         }
@@ -158,14 +159,26 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
             rolls.putIfAbsent(member.getUser().getIdLong(), ThreadLocalRandom.current().nextInt(101));
             event.getTextChannel().editMessageById(getMessageId(), buildScoreBoard(event.getGuild())).queue();
         } else if (event.getUser().getIdLong() == getAuthorId() && event.getReactionEmote().getName().equals(END)) {
+            final Map.Entry<Long, Integer> memberIntegerEntry = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElse(null);
             TextChannel textChannel = event.getTextChannel();
             if (textChannel != null) {
-                textChannel.clearReactionsById(getMessageId()).queue();
-                final Map.Entry<Long, Integer> longIntegerEntry = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElse(null);
-                if (longIntegerEntry != null) {
-                    final Member memberById = event.getGuild().getMemberById(longIntegerEntry.getKey());
-                    textChannel.editMessageById(getMessageId(), "Winner is: \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
+                if (memberIntegerEntry == null) {
+                    textChannel.editMessageById(getMessageId(), "No Winner...").queue();
+                    textChannel.clearReactionsById(getMessageId()).queue();
+                    unregister();
+                    return;
                 }
+                long winner = memberIntegerEntry.getKey();
+                final Guild guild = textChannel.getGuild();
+                if (pointTracker != null && pointValue > 0) {
+                    final Member memberById = guild.getMemberById(winner);
+                    textChannel.editMessageById(getMessageId(), new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append((memberById != null ? memberById.getAsMention() : "unknown")).append("\uD83C\uDF8A").setEmbed(distDispPoints(pointValue, guild)).build()).queue();
+                } else {
+                    final Member memberById = guild.getMemberById(winner);
+                    textChannel.editMessageById(getMessageId(),"Winner is \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
+                }
+                textChannel.clearReactionsById(getMessageId()).queue();
+                unregister();
             }
             unregister();
         }
@@ -183,21 +196,21 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
         if (endTime != null) {
             unit = TimeUnit.SECONDS;
             time = ChronoUnit.SECONDS.between(Instant.now(), endTime);
-            if (time < 0) return;
+            if (time < 0) {
+                replace(samuraiDiscord.getMessageManager(), getMessageId());
+            }
         }
         replace(samuraiDiscord.getMessageManager(), getMessageId());
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RollPoll{");
-        sb.append("rolls=").append(rolls);
-        sb.append(", time=").append(time);
-        sb.append(", unit=").append(unit);
-        sb.append(", endTime=").append(endTime);
-        sb.append(", pointValue=").append(pointValue);
-        sb.append(", pointTracker=").append(pointTracker);
-        sb.append('}');
-        return sb.toString();
+        return "RollPoll{" + "rolls=" + rolls +
+                ", time=" + time +
+                ", unit=" + unit +
+                ", endTime=" + endTime +
+                ", pointValue=" + pointValue +
+                ", pointTracker=" + pointTracker +
+                '}';
     }
 }

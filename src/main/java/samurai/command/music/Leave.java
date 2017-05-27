@@ -29,12 +29,7 @@ import java.util.Optional;
 public class Leave extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final Optional<GuildAudioManager> managerOptional = SamuraiAudioManager.removeManager(context.getGuildId());
-        managerOptional.ifPresent(audioManager -> {
-            audioManager.player.destroy();
-            audioManager.scheduler.clear();
-        });
-        context.getGuild().getAudioManager().closeAudioConnection();
+        SamuraiAudioManager.retrieveManager(context.getGuildId()).ifPresent(GuildAudioManager::destroy);
         return null;
     }
 }

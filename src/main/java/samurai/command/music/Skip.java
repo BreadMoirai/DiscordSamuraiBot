@@ -77,7 +77,7 @@ public class Skip extends Command {
                 else return FixedMessage.build(eb.build()).setDelay(2, ChronoUnit.SECONDS).appendConsumer(message -> {
                     final AudioTrack currentTrack = audioManager.scheduler.getCurrent();
                     if (currentTrack != null) {
-                        message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing**").appendDescription(Play.trackInfoDisplay(currentTrack)).build()).queue();
+                        message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing:** ").appendDescription(Play.trackInfoDisplay(currentTrack)).build()).queue();
                     }
                 });
             }

@@ -17,7 +17,6 @@ package samurai.command.voice;
 import ai.api.model.AIContext;
 import ai.api.model.AIResponse;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
 import samurai.audio.AiAPI;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -30,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Key("")
-public class Chat extends Command{
+public class Chat extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final ArrayList<AIContext> aiContexts = new ArrayList<>();

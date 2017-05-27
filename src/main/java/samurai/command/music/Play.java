@@ -97,7 +97,10 @@ public class Play extends Command {
         EmbedBuilder eb = new EmbedBuilder();
         eb.appendDescription(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, currentTrack.getDuration() / (60 * 1000), (currentTrack.getDuration() / 1000) % 60));
         eb.appendDescription("\n[" + currentTrack.getInfo().title + "](" + currentTrack.getInfo().uri + ")");
-        eb.appendDescription(" `").appendDescription(currentTrack.getUserData(String.class)).appendDescription("`\n");
+        final String userData = currentTrack.getUserData(String.class);
+        if (userData != null)
+        eb.appendDescription(" `").appendDescription(userData).appendDescription("`\n");
+        else eb.appendDescription("\n");
         final Collection<AudioTrack> tracks = audioManager.scheduler.getQueue();
         if (!tracks.isEmpty()) {
             eb.appendDescription("Up Next:");

@@ -30,7 +30,7 @@ public class Transfer extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final String content = context.getStrippedContent();
-        if (context.isFloat()) {
+        if (CommandContext.isFloat(content)) {
             double value = Double.parseDouble(content);
             final PointSession authorPoints = context.getAuthorPoints();
             if (value <= 0) return null;

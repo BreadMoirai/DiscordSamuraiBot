@@ -40,30 +40,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4.x - 3/9/2017
- */
 public class MessageManager implements ReactionListener, ChannelMessageListener, CommandListener, PrivateMessageListener {
 
-    private static final ArrayDeque<DynamicMessage> EMPTY_DEQUE;
-    private final ConcurrentHashMap<Long, ArrayDeque<DynamicMessage>> listeners;
+    private final Map<Long, List<DynamicMessage>> listeners;
     private final ScheduledExecutorService executorService;
     private final JDA client;
 
-    static {
-        EMPTY_DEQUE = new ArrayDeque<DynamicMessage>(0) {
-            @Override
-            public void addFirst(DynamicMessage dynamicMessage) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public void addLast(DynamicMessage dynamicMessage) {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
 
     public MessageManager(JDA client) {
         this.client = client;
@@ -73,10 +55,10 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     private void clearInactive() {
-        final Iterator<Map.Entry<Long, ArrayDeque<DynamicMessage>>> iterator = listeners.entrySet().iterator();
+        final Iterator<Map.Entry<Long, List<DynamicMessage>>> iterator = listeners.entrySet().iterator();
         while (iterator.hasNext()) {
-            final Map.Entry<Long, ArrayDeque<DynamicMessage>> next = iterator.next();
-            final ArrayDeque<DynamicMessage> value = next.getValue();
+            final Map.Entry<Long, List<DynamicMessage>> next = iterator.next();
+            final List<DynamicMessage> value = next.getValue();
             value.removeIf(DynamicMessage::isExpired);
             if (value.isEmpty()) iterator.remove();
         }
@@ -96,13 +78,13 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
             final Optional<DynamicMessage> optionalPrevious;
             switch (uniqueMessage.scope()) {
                 case Author:
-                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass && dynamicMessage.getAuthorId() == authorId).findAny();
+                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), Collections.emptyList()).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass && dynamicMessage.getAuthorId() == authorId).findAny();
                     break;
                 case Channel:
-                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
+                    optionalPrevious = listeners.getOrDefault(samuraiMessage.getChannelId(), Collections.emptyList()).stream().filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
                     break;
                 case Guild:
-                    optionalPrevious = textChannel.getGuild().getTextChannels().stream().mapToLong(ISnowflake::getIdLong).mapToObj(listeners::get).filter(Objects::nonNull).flatMap(ArrayDeque::stream).filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
+                    optionalPrevious = textChannel.getGuild().getTextChannels().stream().mapToLong(ISnowflake::getIdLong).mapToObj(listeners::get).filter(Objects::nonNull).flatMap(List::stream).filter(dynamicMessage -> dynamicMessage.getClass() == aClass).findAny();
                     break;
                 default:
                     throw new UnsupportedOperationException("Scope not found");
@@ -133,18 +115,18 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void register(DynamicMessage dynamicMessage) {
-        listeners.putIfAbsent(dynamicMessage.getChannelId(), new ArrayDeque<>());
-        listeners.get(dynamicMessage.getChannelId()).addLast(dynamicMessage);
+        listeners.putIfAbsent(dynamicMessage.getChannelId(), new ArrayList<>());
+        listeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
     }
 
 
     public void unregister(DynamicMessage dynamicMessage) {
-        listeners.getOrDefault(dynamicMessage.getChannelId(), EMPTY_DEQUE).removeFirstOccurrence(dynamicMessage);
+        listeners.getOrDefault(dynamicMessage.getChannelId(), Collections.emptyList()).remove(dynamicMessage);
     }
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), EMPTY_DEQUE).forEach(dynamicMessage -> {
+        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), Collections.emptyList()).forEach(dynamicMessage -> {
             if (dynamicMessage instanceof ChannelMessageListener)
                 ((ChannelMessageListener) dynamicMessage).onGuildMessageReceived(event);
         });
@@ -152,7 +134,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
-        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), EMPTY_DEQUE).forEach(dynamicMessage -> {
+        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), Collections.emptyList()).forEach(dynamicMessage -> {
             if (dynamicMessage instanceof ChannelMessageListener)
                 ((ChannelMessageListener) dynamicMessage).onGuildMessageUpdate(event);
         });
@@ -160,7 +142,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
-        listeners.getOrDefault(event.getChannel().getIdLong(), EMPTY_DEQUE).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == event.getMessageIdLong()).findFirst().ifPresent(dynamicMessage -> {
+        listeners.getOrDefault(event.getChannel().getIdLong(), Collections.emptyList()).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == event.getMessageIdLong()).findFirst().ifPresent(dynamicMessage -> {
             if (dynamicMessage instanceof ReactionListener)
                 ((ReactionListener) dynamicMessage).onReaction(event);
         });
@@ -168,7 +150,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
 
     @Override
     public void onCommand(Command command) {
-        listeners.getOrDefault(command.getContext().getChannelId(), EMPTY_DEQUE).forEach(dynamicMessage -> {
+        listeners.getOrDefault(command.getContext().getChannelId(), Collections.emptyList()).forEach(dynamicMessage -> {
             if (dynamicMessage instanceof CommandListener)
                 ((CommandListener) dynamicMessage).onCommand(command);
         });
@@ -184,7 +166,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void remove(long channelId, long messageId) {
-        listeners.getOrDefault(channelId, EMPTY_DEQUE).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId && !dynamicMessage.getClass().isAnnotationPresent(GhostMessage.class));
+        listeners.getOrDefault(channelId, Collections.emptyList()).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId && !dynamicMessage.getClass().isAnnotationPresent(GhostMessage.class));
     }
 
     public JDA getClient() {

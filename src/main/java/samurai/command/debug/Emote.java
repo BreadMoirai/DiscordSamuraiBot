@@ -30,6 +30,6 @@ public class Emote extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final List<net.dv8tion.jda.core.entities.Emote> emotes = context.getEmotes();
         if (emotes.isEmpty()) return null;
-        else return FixedMessage.build("`" + emotes.get(0).toString() + "`");
+        else return FixedMessage.build("`" + emotes.get(0).getAsMention() + "`");
     }
 }
