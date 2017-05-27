@@ -14,30 +14,18 @@
 */
 package samurai.command.voice;
 
-import net.dv8tion.jda.core.audio.AudioReceiveHandler;
-import net.dv8tion.jda.core.audio.AudioSendHandler;
-import net.dv8tion.jda.core.audio.CombinedAudio;
-import net.dv8tion.jda.core.audio.UserAudio;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AudioManager;
+import samurai.audio.AudioTestHandler;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.Command;
 import samurai.command.CommandContext;
-import samurai.command.CommandScheduler;
+import samurai.command.annotations.Creator;
 import samurai.command.annotations.Key;
-import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
-import java.util.ArrayDeque;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-
-@Source
+@Creator
 @Key("audiotest")
 public class AudioTest extends Command{
     @Override
@@ -49,69 +37,15 @@ public class AudioTest extends Command{
         if (voiceChannel == null) {
             return FixedMessage.build("Try joining a voice channel before using this command");
         }
+
         final AudioManager audioManager = context.getGuild().getAudioManager();
-        audioManager.openAudioConnection(voiceChannel);
-        final AudioTestHandler audioTestHandler = new AudioTestHandler(context.getAuthor());
+        final AudioTestHandler audioTestHandler = new AudioTestHandler(context.getAuthor().getUser());
+
         audioManager.setReceivingHandler(audioTestHandler);
         audioManager.setSendingHandler(audioTestHandler);
-        CommandScheduler.getCommandExecutor().schedule(() -> {
-            audioManager.closeAudioConnection();
-            audioManager.setSendingHandler(null);
-            audioManager.setReceivingHandler(null);
-        }, 5, TimeUnit.MINUTES);
-        return FixedMessage.build("AudioTesting enabled for 1 minute");
+        audioManager.openAudioConnection(voiceChannel);
+
+        return FixedMessage.build("AudioTesting enabled");
     }
 
-    private class AudioTestHandler implements AudioReceiveHandler, AudioSendHandler {
-        private final User tester;
-        private BlockingQueue<byte[]> audioData;
-        AudioTestHandler(Member tester) {
-            this.tester = tester.getUser();
-            audioData = new LinkedBlockingDeque<>();
-        }
-
-        @Override
-        public boolean canReceiveCombined() {
-            return false;
-        }
-
-        @Override
-        public boolean canReceiveUser() {
-            return true;
-        }
-
-        @Override
-        public void handleCombinedAudio(CombinedAudio combinedAudio) {
-            //don't
-        }
-
-        @Override
-        public void handleUserAudio(UserAudio userAudio) {
-            if (userAudio.getUser().equals(tester)) {
-                System.out.println("audio recieved");
-                final byte[] data = userAudio.getAudioData(1.0);
-                audioData.offer(data);
-            } else {
-                System.out.println("audio recieved from " + userAudio.getUser().getName());
-            }
-        }
-
-        @Override
-        public boolean canProvide() {
-            final boolean b = !audioData.isEmpty();
-            System.out.println("canProvide = " + b);
-            return b;
-        }
-
-        @Override
-        public byte[] provide20MsAudio() {
-            System.out.println("audio sent");
-            return audioData.poll();
-        }
-
-        @Override
-        public boolean isOpus() {
-            return true;
-        }
-    }
 }
