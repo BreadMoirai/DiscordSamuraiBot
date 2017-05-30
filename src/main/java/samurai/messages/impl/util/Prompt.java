@@ -14,6 +14,8 @@
 */
 package samurai.messages.impl.util;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -25,7 +27,14 @@ import java.util.function.Consumer;
 
 public class Prompt extends DynamicMessage implements ReactionListener, UniqueMessage {
 
-    private static final String YES = "\u2705", NO = "\u274e";
+    private static final long YES_ID, NO_ID;
+
+    static {
+        final Config config = ConfigFactory.load("source_commands.conf");
+        YES_ID = config.getLong("prompt.yes");
+        NO_ID = config.getLong("prompt.no");
+    }
+
 
     private final Message prompt;
     private final Consumer<Prompt> onYes, onNo;
@@ -46,29 +55,24 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
     @Override
     protected void onReady(Message message) {
         this.message = message;
-        message.addReaction(YES).queue();
-        message.addReaction(NO).queue();
+        message.addReaction(message.getJDA().getEmoteById(YES_ID)).queue();
+        message.addReaction(message.getJDA().getEmoteById(NO_ID)).queue();
     }
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
         final long userId = event.getUser().getIdLong();
         if (userId != 0 && userId != this.getAuthorId()) return;
-        final String name = event.getReaction().getEmote().getName();
-        switch (name) {
-            case YES:
-                if (onYes != null)
-                    onYes.accept(this);
-                unregister();
-                break;
-            case NO:
-                if (onNo != null)
-                    onNo.accept(this);
-                unregister();
-                break;
-            default:
+        final long emoteId = event.getReaction().getEmote().getIdLong();
+        if (emoteId == YES_ID) {
+            if (onYes != null)
+                onYes.accept(this);
+            unregister();
+        } else if (emoteId == NO_ID) {
+            if (onNo != null)
+                onNo.accept(this);
+            unregister();
         }
-
     }
 
     @Override
