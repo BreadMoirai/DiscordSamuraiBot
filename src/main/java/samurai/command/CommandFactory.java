@@ -22,6 +22,8 @@ import org.reflections.Reflections;
 import samurai.Bot;
 import samurai.command.annotations.Key;
 import samurai.command.basic.GenericCommand;
+import samurai.database.Database;
+import samurai.database.dao.AliasDao;
 import samurai.util.MyLogger;
 
 import java.time.OffsetDateTime;
@@ -96,11 +98,25 @@ public class CommandFactory {
         if (!whitespace.find()) {
             key = content;
             content = "";
-            if (key.length() > 10) return null;
         } else {
             key = content.substring(0, whitespace.start());
-            content = content.substring(whitespace.end()).trim();
+            content = content.substring(whitespace.end());
         }
+        System.out.println("key = " + key);
+        System.out.println("content = " + content);
+        final String keyA = key;
+        final String alias = Database.get().<AliasDao, String>openDao(AliasDao.class, aliasDao -> aliasDao.getAlias(guildId, keyA));
+        if (alias != null) {
+            final Matcher whitespace2 = WHITESPACE_MATCHER.matcher(alias);
+            if (!whitespace2.find()) {
+                key = alias;
+            } else {
+                key = alias.substring(0, whitespace2.start());
+                content = alias.substring(whitespace2.end()) + " " + content;
+            }
+        }
+        System.out.println("key = " + key);
+        System.out.println("content = " + content);
         Command command = CommandFactory.newCommand(key);
         if (command == null) return null;
 
