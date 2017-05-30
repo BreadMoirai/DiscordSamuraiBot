@@ -90,7 +90,7 @@ CREATE TABLE MemberPoints (
 
 CREATE TABLE CommandAlias (
   GuildId BIGINT        NOT NULL,
-  Alias   VARCHAR(32)   NOT NULL,
+  Alias   VARCHAR(42)   NOT NULL,
   Command VARCHAR(1800) NOT NULL,
   CONSTRAINT CommandAlias_PK PRIMARY KEY (GuildId, Alias)
 );

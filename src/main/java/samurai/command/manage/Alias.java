@@ -47,6 +47,8 @@ public class Alias extends Command {
         if (matcher.find()) {
             String alias = content.substring(0, matcher.start());
             String command = content.substring(matcher.end());
+            if (alias.length() > 31) return FixedMessage.build("Alias length must be < 40 chars");
+            if (command.length() > 1799) return FixedMessage.build("Command length must be < 1800 chars");
             if (Database.get().<AliasDao, Boolean>openDao(AliasDao.class, aliasDao -> {
                 final String existingAlias = aliasDao.getAlias(guildId, alias);
                 if (existingAlias != null) return Boolean.FALSE;
