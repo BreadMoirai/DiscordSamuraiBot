@@ -54,7 +54,7 @@ public class Alias extends Command {
                 if (existingAlias != null) return Boolean.FALSE;
                 else aliasDao.insertAlias(guildId, alias, command);
                 return Boolean.TRUE;
-            })) return FixedMessage.build(String.format("Alias `%s` mapped to `%s`", alias, command));
+            })) return FixedMessage.build(String.format("Alias `%s` has been mapped to `%s`", alias, command));
             else
                 return FixedMessage.build(String.format("Alias `%s` already exists. Use `%saliasremove` to remove it", alias, context.getPrefix()));
         }

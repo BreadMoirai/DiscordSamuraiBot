@@ -102,8 +102,6 @@ public class CommandFactory {
             key = content.substring(0, whitespace.start());
             content = content.substring(whitespace.end());
         }
-        System.out.println("key = " + key);
-        System.out.println("content = " + content);
         final String keyA = key;
         final String alias = Database.get().<AliasDao, String>openDao(AliasDao.class, aliasDao -> aliasDao.getAlias(guildId, keyA));
         if (alias != null) {
@@ -115,8 +113,6 @@ public class CommandFactory {
                 content = alias.substring(whitespace2.end()) + " " + content;
             }
         }
-        System.out.println("key = " + key);
-        System.out.println("content = " + content);
         Command command = CommandFactory.newCommand(key);
         if (command == null) return null;
 
