@@ -1,0 +1,2 @@
+To disable a command, you can just create an alias that points to [prefix]disabled
+eg `[prefix]alias <command> disabled`

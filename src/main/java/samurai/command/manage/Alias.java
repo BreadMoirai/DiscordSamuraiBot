@@ -53,8 +53,12 @@ public class Alias extends Command {
                 else aliasDao.insertAlias(guildId, alias, command);
                 return Boolean.TRUE;
             })) return FixedMessage.build(String.format("Alias `%s` mapped to `%s`", alias, command));
-            else return FixedMessage.build(String.format("Alias `%s` already exists. Use `%saliasremove` to remove it", alias, context.getPrefix()));
+            else
+                return FixedMessage.build(String.format("Alias `%s` already exists. Use `%saliasremove` to remove it", alias, context.getPrefix()));
         }
-        return FixedMessage.build(Database.get().<AliasDao, List<String>>openDao(AliasDao.class, aliasDao -> aliasDao.getAllAliases(guildId)).stream().collect(Collectors.joining("\n")));
+        final List<String> strings = Database.get().<AliasDao, List<String>>openDao(AliasDao.class, aliasDao -> aliasDao.getAllAliases(guildId));
+        if (!strings.isEmpty())
+        return FixedMessage.build(strings.stream().map(s -> s.length() > 60 ? s.substring(0, 60) + "...`" : s).collect(Collectors.joining("\n")));
+        else return FixedMessage.build("No aliases have been defined");
     }
 }

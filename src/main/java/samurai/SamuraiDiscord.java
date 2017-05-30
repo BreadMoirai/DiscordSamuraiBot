@@ -15,6 +15,7 @@
 package samurai;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -153,7 +154,7 @@ public class SamuraiDiscord implements EventListener {
         } else if (c.getClass().isAnnotationPresent(Source.class) && c.getContext().getGuildId() != Bot.info().SOURCE_GUILD) {
         } else if (c.isEnabled()) {
             if (c.getClass().isAnnotationPresent(Admin.class)) {
-                if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember())) {
+                if (!c.getContext().getAuthor().canInteract(c.getContext().getSelfMember()) && !c.getContext().getAuthor().hasPermission(Permission.KICK_MEMBERS)) {
                     final FixedMessage error = FixedMessage.build("You do not have the appropriate permissions to use this command.");
                     error.setChannelId(c.getContext().getChannelId());
                     messageManager.submit(error);
