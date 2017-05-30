@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.managers.GuildController;
+import net.dv8tion.jda.core.requests.RestAction;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -48,6 +49,9 @@ public class ColorRole extends Command {
         if (context.getKey().equalsIgnoreCase("uncolor")) {
             final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
             context.getGuild().getController().removeRolesFromMember(author, colorRoleToRemove).queue();
+
+            final Guild guild = context.getGuild();
+            guild.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).filter(role -> guild.getMembersWithRoles(role).isEmpty()).map(Role::delete).forEach(RestAction::queue);
             return FixedMessage.build("Your color has been reset to the default color.");
         }
         final java.util.List<Member> members = context.getMentionedMembers();
@@ -127,7 +131,7 @@ public class ColorRole extends Command {
     private void deleteEmptyRoles(Member member, List<Role> rolesRemovedFromMember) {
         for (Role role : rolesRemovedFromMember) {
             final List<Member> membersWithRole = member.getGuild().getMembersWithRoles(role);
-            if (membersWithRole.size() == 1 && membersWithRole.contains(member)) {
+            if (membersWithRole.size() == 0) {
                 role.delete().queue();
             }
         }

@@ -43,9 +43,9 @@ import java.util.concurrent.TimeUnit;
 public class PointTracker {
 
     private static final double MESSAGE_POINT = 4;
-    private static final double MINUTE_POINT = .8;
-    private static final double VOICE_POINT = 20;
-    public static final float DUEL_POINT_RATIO = .17f;
+    private static final double MINUTE_POINT = .1;
+    private static final double VOICE_POINT = 18;
+    public static final float DUEL_POINT_RATIO = .15f;
 
     private static final ScheduledExecutorService pool;
 
@@ -116,14 +116,11 @@ public class PointTracker {
             if (pointSession != null) {
                 final long now = event.getMessage().getCreationTime().toInstant().getEpochSecond();
                 final long diff = now - pointSession.getLastMessageSent();
-//                System.out.print("diff = " + diff + ", ");
                 if (diff < 10 || diff > 180) {
                     pointSession.offsetPoints(MESSAGE_POINT);
-//                    System.out.println("default = 4");
                 } else {
-                    double offset = ((69.0 * Math.pow(Math.atan(diff / 20.0), 3.0)) / ((Math.PI / 6.0) * Math.sqrt(diff))) - (Math.pow(diff, 2) / 1220.0);
+                    double offset = (((69.0 * Math.pow(Math.atan(diff / 20.0), 3.0)) / ((Math.PI / 6.0) * Math.sqrt(diff))) - (Math.pow(diff, 2) / 1220.0));
                     pointSession.offsetPoints(offset);
-//                    System.out.println("offset = " + offset);
                 }
                 pointSession.setLastMessageSent(now);
             }

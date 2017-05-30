@@ -15,6 +15,6 @@ public class CreateTodo extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         context.getChannel().deleteMessageById(context.getMessageId()).queue();
-        return new TodoMessageList(Arrays.asList("Bug", "Feature", "Enhancement"));
+        return new TodoMessageList(Arrays.asList("Bug", "Enhancement", "Feature"));
     }
 }
