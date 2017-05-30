@@ -87,3 +87,30 @@ CREATE TABLE MemberPoints (
   Points    DOUBLE DEFAULT 0,
   CONSTRAINT Points_PK PRIMARY KEY (DiscordId, GuildId)
 );
+
+CREATE TABLE MemberInventory (
+  DiscordId BIGINT NOT NULL,
+  GuildId   BIGINT NOT NULL,
+  ItemId    INT    NOT NULL,
+  Count     INT    NOT NULL,
+  CONSTRAINT Inventory_PK PRIMARY KEY (DiscordId, GuildId)
+);
+
+CREATE TABLE ItemCatalog (
+  ItemId      INT PRIMARY KEY,
+  Type        SMALLINT NOT NULL,
+  Value       DOUBLE   NOT NULL,
+  PropertyA   DOUBLE,
+  PropertyB   DOUBLE,
+  PropertyC   DOUBLE,
+  PropertyD   DOUBLE,
+  PropertyE   DOUBLE,
+  PropertyF   DOUBLE,
+  Description VARCHAR(2000)
+);
+
+CREATE TABLE ItemDrop (
+  ItemId INT PRIMARY KEY,
+  DropId INT NOT NULL,
+  Weight INT NOT NULL
+);
