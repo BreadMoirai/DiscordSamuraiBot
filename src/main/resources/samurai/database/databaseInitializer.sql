@@ -91,21 +91,26 @@ CREATE TABLE MemberPoints (
 CREATE TABLE MemberInventory (
   DiscordId BIGINT NOT NULL,
   GuildId   BIGINT NOT NULL,
+  SlotId    INT    NOT NULL,
   ItemId    INT    NOT NULL,
   Count     INT    NOT NULL,
-  CONSTRAINT Inventory_PK PRIMARY KEY (DiscordId, GuildId)
+  CONSTRAINT Inventory_PK PRIMARY KEY (DiscordId, GuildId, SlotId)
 );
 
 CREATE TABLE ItemCatalog (
   ItemId      INT PRIMARY KEY,
-  Type        SMALLINT NOT NULL,
-  Value       DOUBLE   NOT NULL,
+  Type        SMALLINT    NOT NULL,
+  Name        VARCHAR(64) NOT NULL,
+  Value       DOUBLE      NOT NULL,
   PropertyA   DOUBLE,
   PropertyB   DOUBLE,
   PropertyC   DOUBLE,
   PropertyD   DOUBLE,
   PropertyE   DOUBLE,
   PropertyF   DOUBLE,
+  PropertyG   DOUBLE,
+  PropertyH   DOUBLE,
+  PropertyI   DOUBLE,
   Description VARCHAR(2000)
 );
 
