@@ -1,0 +1,16 @@
+```cs
+Purpose: Create command alias / shortcut
+Restrictions: Admin
+Arguments:  '<alias> <command>'
+                       - maps alias to specified command
+                       - alias cannot contain spaces
+                       - command must be < 1800 chars
+--------------------------------------------------------
+Example:    '[prefix]alias roll disabled'
+            '[prefix]rpm schedule 12 AM PST
+              [prefix]rollpoll 3 weeks 99999 points'
+--------------------------------------------------------
+Related Commands:
+            '[prefix]aliasremove <alias>' - deletes alias
+            '[prefix]alias' - view alias mappings
+```

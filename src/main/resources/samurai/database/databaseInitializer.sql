@@ -87,3 +87,10 @@ CREATE TABLE MemberPoints (
   Points    DOUBLE DEFAULT 0,
   CONSTRAINT Points_PK PRIMARY KEY (DiscordId, GuildId)
 );
+
+CREATE TABLE CommandAlias (
+  GuildId BIGINT        NOT NULL,
+  Alias   VARCHAR(42)   NOT NULL,
+  Command VARCHAR(1800) NOT NULL,
+  CONSTRAINT CommandAlias_PK PRIMARY KEY (GuildId, Alias)
+);
