@@ -34,7 +34,9 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Main Class
@@ -55,7 +57,8 @@ public class Bot {
     }
 
     private static void start(String[] args) {
-        if (args.length != 0)
+        final List<String> argList = Arrays.stream(args).map(String::toLowerCase).collect(Collectors.toList());
+        if (argList.contains("ext"))
             try {
                 PrintStream out = new PrintStream(new FileOutputStream("out.txt"), false, "UTF-8");
                 System.setOut(out);
@@ -64,6 +67,12 @@ public class Bot {
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
+        if (argList.contains("items")) {
+            Database.get().loadItems(true);
+            Database.close();
+            System.exit(0);
+        }
 
         final Config config = ConfigFactory.load();
 
