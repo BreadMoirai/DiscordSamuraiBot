@@ -14,7 +14,6 @@
 */
 package samurai.command.points;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.command.Command;
 import samurai.command.CommandContext;
@@ -28,6 +27,9 @@ import java.util.*;
 
 @Key("ranking")
 public class Ranking extends Command {
+
+    private static final int MAX_RESULTS = 10;
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final PointSession[] pointSessions = context.getMemberPoints().toArray(PointSession[]::new);
@@ -48,16 +50,16 @@ public class Ranking extends Command {
         int idx, end;
         if (intStat.getCount() == 1) {
             end = Math.min(pointSessions.length, intStat.getMax());
-            idx = Math.max(0, end - 10);
+            idx = Math.max(0, end - MAX_RESULTS);
         } else if (intStat.getCount() > 1) {
             idx = Math.max(0, intStat.getMin() - 1);
             end = Math.min(pointSessions.length, intStat.getMax());
-        } else if (target < 20) {
+        } else if (target < MAX_RESULTS) {
             idx = 0;
-            end = Math.min(pointSessions.length, 20);
+            end = Math.min(pointSessions.length, MAX_RESULTS);
         } else {
-            idx = Math.max(0, target - 10);
-            end = Math.min(pointSessions.length, target + 10);
+            idx = Math.max(0, target - MAX_RESULTS/2);
+            end = Math.min(pointSessions.length, target + MAX_RESULTS/2);
         }
         final int length = String.format("%.2f", pointSessions[idx].getPoints()).length();
         final StringJoiner sj = new StringJoiner("\n");
@@ -74,7 +76,6 @@ public class Ranking extends Command {
             }
             sj.add(s);
         }
-        final EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(sj.toString()).setColor(pointSessions[target].getMember().getColor());
         return FixedMessage.build(sj.toString());
     }
 }
