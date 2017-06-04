@@ -9,7 +9,7 @@ plugins {
 idea.module.downloadJavadoc = true
 
 def majorVersion = 5
-def minorVersion = 3
+def minorVersion = 5
 mainClassName = "samurai.Bot"
 
 repositories {
@@ -71,4 +71,3 @@ compileJava {
     options.encoding = 'UTF-8'
     dependsOn sourcesForRelease
 }
-
