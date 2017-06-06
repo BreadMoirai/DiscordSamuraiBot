@@ -8,7 +8,7 @@ public enum ItemType {
     public String toString() {
         switch (this) {
             case VANITY: return "Vanity";
-            case CONSUMABLE: return "Consumble";
+            case CONSUMABLE: return "Consumable";
             case CRATE: return "Crate";
             case SEED: return "Seed";
             case EGG: return "Egg";

@@ -25,11 +25,14 @@ import samurai.Bot;
 import samurai.command.CommandContext;
 import samurai.command.CommandModule;
 import samurai.database.dao.GuildDao;
+import samurai.database.dao.ItemDao;
 import samurai.database.dao.PlayerDao;
 import samurai.database.dao.PointDao;
 import samurai.database.objects.GuildBuilder;
 import samurai.database.objects.Player;
 import samurai.database.objects.SamuraiGuild;
+import samurai.items.Inventory;
+import samurai.items.Item;
 import samurai.items.ItemType;
 import samurai.points.PointSession;
 
@@ -187,7 +190,7 @@ public class Database {
                 String line;
                 while ((line = brItems.readLine()) != null) {
                     final String[] values = line.split(",", 0);
-                    System.out.println("values = " + Arrays.toString(values));
+                    System.out.println("item = " + Arrays.toString(values));
                     if (values.length != 15) continue;
                     for (int i = 0; i < 15; i++) {
                         final String value = values[i];
@@ -196,18 +199,14 @@ public class Database {
                                 if (CommandContext.isNumber(value)) itemBatch.bind(i, Integer.parseInt(value));
                                 break;
                             case 1:
-                                try {
-                                    final ItemType type = ItemType.valueOf(value);
-                                    itemBatch.bind(i, type.ordinal());
-                                } catch (IllegalArgumentException ignored) {
-                                }
-                                break;
                             case 2:
                             case 14:
                                 if (value == null || value.isEmpty()) itemBatch.bindNull(i, Types.VARCHAR);
                                 else itemBatch.bind(i, value);
                                 break;
                             case 3:
+                            case 5:
+                                System.out.println("value = " + value);
                                 if (value == null || value.isEmpty() || !CommandContext.isNumber(value)) {
                                     itemBatch.bindNull(i, Types.SMALLINT);
                                 } else itemBatch.bind(i, Short.parseShort(value));

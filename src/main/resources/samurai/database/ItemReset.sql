@@ -7,6 +7,7 @@ CREATE TABLE ItemCatalog (
   Name        VARCHAR(64) NOT NULL,
   Rarity      SMALLINT    NOT NULL,
   Value       DOUBLE,
+  StackLimit  SMALLINT DEFAULT 99,
   PropertyA   DOUBLE,
   PropertyB   DOUBLE,
   PropertyC   DOUBLE,
@@ -15,7 +16,6 @@ CREATE TABLE ItemCatalog (
   PropertyF   DOUBLE,
   PropertyG   DOUBLE,
   PropertyH   DOUBLE,
-  PropertyI   DOUBLE,
   Description VARCHAR(2000)
 );
 

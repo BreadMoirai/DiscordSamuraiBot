@@ -1,5 +1,8 @@
 package samurai.items;
 
+import samurai.items.decorator.CrateVoucher;
+import samurai.items.decorator.PointVoucher;
+
 public class ItemBuilder {
     private int itemId;
     private ItemType type;
@@ -8,6 +11,7 @@ public class ItemBuilder {
     private double value;
     private double[] properties;
     private String description;
+    private int stackLimit;
 
     public ItemBuilder setItemId(int itemId) {
         this.itemId = itemId;
@@ -44,10 +48,17 @@ public class ItemBuilder {
         return this;
     }
 
-    public Item createItem() {
-        switch (type) {
+    public void setStackLimit(int stackLimit) {
+        this.stackLimit = stackLimit;
+    }
 
+    public Item createItem() {
+        Item item = new BaseItem(new ItemData(itemId, stackLimit, type, name, rarity, value, properties, description));
+        if (itemId >= 100 && itemId <= 116) {
+            item = new PointVoucher(item);
+        } else if (itemId >= 300 && itemId <= 307) {
+            item = new CrateVoucher(item);
         }
-        return new Item(itemId, type, name, rarity, value, properties, description);
+        return item;
     }
 }
