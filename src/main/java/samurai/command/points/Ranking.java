@@ -36,7 +36,7 @@ public class Ranking extends Command {
         int target = -1;
         final List<Member> mentionedMembers = context.getMentionedMembers();
         if (mentionedMembers.size() == 1) {
-            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(mentionedMembers.get(0)).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(mentionedMembers.get(0)).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o), pointSession -> pointSession.getMember().equals(mentionedMembers.get(0)));
         } else if (context.hasContent()) {
             final Optional<Member> memberOptional = context.getGuild().getMembers().stream().filter(member -> member.getEffectiveName().toLowerCase().startsWith(context.getContent().toLowerCase())).findAny();
             if (memberOptional.isPresent()) {
@@ -45,7 +45,7 @@ public class Ranking extends Command {
             }
         }
         if (target == -1)
-            target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+            target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o), pointSession -> context.getAuthor().equals(pointSession.getMember()));
         final IntSummaryStatistics intStat = context.getIntArgs().peek(System.out::println).filter(value -> value > 0 && value <= pointSessions.length).summaryStatistics();
         int idx, end;
         if (intStat.getCount() == 1) {
