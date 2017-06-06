@@ -6,9 +6,21 @@ import java.util.function.Predicate;
 
 public class ArrayUtil {
 
+    /**
+     * This searches through an array of type T to find an object that matches V value using a value extractor and comparator for values. The array must have been sorted before hand by the same comparator as provided to this function. If there are elements with the same extracted value, a Predicate equals function may be provided to match a single value. Otherwise, null may be passes as equals and the first value found will be returned.
+     *
+     * @param array      of objects T
+     * @param value      value to search for
+     * @param extractor  Function that takes in object T and returns value V
+     * @param comparator Comparator that compares V
+     * @param equals     Predicate that may be null. Used to find a specific object if array is not unique
+     * @param <T>
+     * @param <V>
+     * @return the index of object found
+     */
     public static <T, V> int binarySearch(T[] array, V value, Function<T, V> extractor, Comparator<V> comparator, Predicate<T> equals) {
         final int idx = binarySearch(array, value, extractor, comparator);
-        return bidirectionalSearch(array, equals, idx, value, extractor, comparator);
+        return equals == null ? idx : bidirectionalSearch(array, equals, idx, value, extractor, comparator);
     }
 
     public static <T, V> int binarySearch(T[] array, V value, Function<T, V> extractor, Comparator<V> comparator) {
