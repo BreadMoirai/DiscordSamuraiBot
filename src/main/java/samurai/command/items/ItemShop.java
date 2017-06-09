@@ -20,10 +20,13 @@ package samurai.command.items;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.database.Database;
 import samurai.items.Item;
 import samurai.items.ItemFactory;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
+
+import java.util.stream.Collectors;
 
 @Key({"shop", "buy"})
 public class ItemShop extends Command {
@@ -35,19 +38,22 @@ public class ItemShop extends Command {
                 itemId = Integer.parseInt(context.getContent());
             } else {
                 switch (context.getContent().toLowerCase()) {
-                    case "vip": itemId = 200;
+                    case "vip":
+                        itemId = 200;
                 }
             }
-            if (itemId == 0) return FixedMessage.build("Item not found");
-            final Item item = ItemFactory.getItemById(itemId);
-            if (item == null) return FixedMessage.build("Specified item does not exist");
-            else if (item.getData().getValue() == 0.0) return FixedMessage.build(item.print(context.getClient()) + " is not available for sale");
-            if (context.getAuthorPoints().getPoints() < item.getData().getValue()) return FixedMessage.build(String.format("You require an additional **%.2f** to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print(context.getClient())));
-            context.getAuthorPoints().offsetPoints(item.getData().getValue() * -1);
-            context.getAuthorInventory().addItem(item);
-            return FixedMessage.build("Thank you for your purchase of " + item.print(context.getClient()));
+            if (itemId != 0) {
+                final Item item = ItemFactory.getItemById(itemId);
+                if (item == null) return FixedMessage.build("Specified item does not exist");
+                else if (item.getData().getValue() == 0.0)
+                    return FixedMessage.build(item.print(context.getClient()) + " is not available for sale");
+                if (context.getAuthorPoints().getPoints() < item.getData().getValue())
+                    return FixedMessage.build(String.format("You require an additional **%.2f** to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print(context.getClient())));
+                context.getAuthorPoints().offsetPoints(item.getData().getValue() * -1);
+                context.getAuthorInventory().addItem(item);
+                return FixedMessage.build("Thank you for your purchase of " + item.print(context.getClient()));
+            }
         }
-        final Item vip = ItemFactory.getItemById(200);
-        return FixedMessage.build(String.format("_**Items for Sale**_%n%s - `%s` points", vip.print(context.getClient()), vip.getData().getValue()));
+        return FixedMessage.build("__**Items for Sale**__\n" + ItemFactory.getShopItems().stream().map(item -> String.format("%s - `%.0f`", item.print(context.getClient()), item.getData().getValue())).collect(Collectors.joining("\n")));
     }
 }

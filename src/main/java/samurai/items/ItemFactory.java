@@ -7,6 +7,7 @@ import samurai.database.dao.ItemDao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class ItemFactory implements RowMapper<Item>{
 
@@ -37,5 +38,9 @@ public class ItemFactory implements RowMapper<Item>{
 
     public static Item getItemById(int itemId) {
         return Database.get().<ItemDao, Item>openDao(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
+    }
+
+    public static List<Item> getShopItems() {
+        return Database.get().<ItemDao, List<Item>>openDao(ItemDao.class, itemDao -> itemDao.selectShopItems());
     }
 }

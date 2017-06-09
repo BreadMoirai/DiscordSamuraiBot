@@ -56,4 +56,7 @@ public interface ItemDao {
         return new DropTable(selectDropTable(itemId));
     }
 
+    @SqlQuery("SELECT * FROM ItemCatalog WHERE Value > 0")
+    @RegisterRowMapper(ItemFactory.class)
+    List<Item> selectShopItems();
 }
