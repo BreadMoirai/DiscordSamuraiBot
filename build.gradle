@@ -72,3 +72,9 @@ compileJava {
     options.encoding = 'UTF-8'
     dependsOn sourcesForRelease
 }
+
+run {
+    if (project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    }
+}

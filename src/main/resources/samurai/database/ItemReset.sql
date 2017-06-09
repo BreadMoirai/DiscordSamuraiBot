@@ -14,8 +14,8 @@ CREATE TABLE ItemCatalog (
   PropertyD   DOUBLE,
   PropertyE   DOUBLE,
   PropertyF   DOUBLE,
-  PropertyG   DOUBLE,
-  PropertyH   DOUBLE,
+  PropertyG   BIGINT,
+  PropertyH   BIGINT,
   Description VARCHAR(2000)
 );
 

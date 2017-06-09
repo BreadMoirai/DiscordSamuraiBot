@@ -16,7 +16,7 @@ public class ItemTest {
     private static final long GUILD_ID = 1111111;
     private static final long USER_ID = 2222222;
 
-    private static final int ITEM_A = 100, ITEM_B = 101, ITEM_C = 102;
+    private static final int ITEM_A = 103, ITEM_B = 101, ITEM_C = 102;
 
     @Before
     @After

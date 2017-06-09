@@ -211,6 +211,12 @@ public class Database {
                                     itemBatch.bindNull(i, Types.SMALLINT);
                                 } else itemBatch.bind(i, Short.parseShort(value));
                                 break;
+                            case 12:
+                            case 13:
+                                if (value == null || value.isEmpty() || !CommandContext.isNumber(value))
+                                    itemBatch.bindNull(i, Types.BIGINT);
+                                else itemBatch.bind(i, Long.parseLong(value));
+                                break;
                             default:
                                 if (value == null || value.isEmpty() || !CommandContext.isFloat(value))
                                     itemBatch.bindNull(i, Types.DOUBLE);

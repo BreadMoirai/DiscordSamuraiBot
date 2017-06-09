@@ -11,13 +11,15 @@ public class ItemData {
     private final ItemType type;
     private final String name, description;
     private final double value, properties[];
+    private final long properties2[];
 
-    ItemData(int itemId, int stackLimit, ItemType type, String name, ItemRarity rarity, double value, double[] properties, String description) {
+    ItemData(int itemId, int stackLimit, ItemType type, String name, ItemRarity rarity, double value, double[] properties, long[] properties2, String description) {
         this.itemId = itemId;
         this.stackLimit = stackLimit;
         this.rarity = rarity;
         this.type = type;
         this.name = name;
+        this.properties2 = properties2;
         this.description = description;
         this.value = value;
         this.properties = properties;
@@ -52,8 +54,8 @@ public class ItemData {
     }
 
     public Emote getEmote(JDA client) {
-        final Emote emote = client.getEmoteById((long) properties[7]);
-        if (emote == null) throw new NullPointerException(name + ": emote not found with id = " + properties[7]);
+        final Emote emote = client.getEmoteById(properties2[1]);
+        if (emote == null) throw new NullPointerException(name + ": emote not found with id = " + properties2[1]);
         else return emote;
     }
 

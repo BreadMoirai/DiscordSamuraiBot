@@ -12,6 +12,7 @@ public class ItemBuilder {
     private double[] properties;
     private String description;
     private int stackLimit;
+    private long[] properties2;
 
     public ItemBuilder setItemId(int itemId) {
         this.itemId = itemId;
@@ -53,7 +54,7 @@ public class ItemBuilder {
     }
 
     public Item createItem() {
-        final ItemData data = new ItemData(itemId, stackLimit, type, name, rarity, value, properties, description);
+        final ItemData data = new ItemData(itemId, stackLimit, type, name, rarity, value, properties, properties2, description);
         return build(data);
     }
 
@@ -70,5 +71,9 @@ public class ItemBuilder {
 
     public Item cloneItem(Item item) {
         return build(item.getData());
+    }
+
+    public void setProperties(long[] property2) {
+        this.properties2 = property2;
     }
 }
