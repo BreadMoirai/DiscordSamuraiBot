@@ -48,7 +48,7 @@ public class ItemShop extends Command {
                 else if (item.getData().getValue() == 0.0)
                     return FixedMessage.build(item.print() + " is not available for sale");
                 if (context.getAuthorPoints().getPoints() < item.getData().getValue())
-                    return FixedMessage.build(String.format("You require an additional **%.2f** to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print()));
+                    return FixedMessage.build(String.format("You require an additional **%.2f** points to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print()));
                 context.getAuthorPoints().offsetPoints(item.getData().getValue() * -1);
                 context.getAuthorInventory().addItem(item);
                 return FixedMessage.build("Thank you for your purchase of " + item.print());
