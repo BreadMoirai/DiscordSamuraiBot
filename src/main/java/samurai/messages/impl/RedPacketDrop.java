@@ -157,7 +157,7 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
 
     @Override
     public void reload(SamuraiDiscord samuraiDiscord) {
-        if (endTime.isBefore(Instant.now())) {
+        if (endTime.isAfter(Instant.now())) {
             replace(samuraiDiscord.getMessageManager(), getMessageId());
         } else {
             final TextChannel textChannel = samuraiDiscord.getMessageManager().getClient().getTextChannelById(getChannelId());
