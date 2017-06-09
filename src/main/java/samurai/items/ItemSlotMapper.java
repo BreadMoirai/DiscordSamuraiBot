@@ -18,8 +18,8 @@ public class ItemSlotMapper implements org.jdbi.v3.core.mapper.RowMapper<ItemSlo
         final Item item = itemFactory.map(rs, ctx);
         final int slotId = rs.getInt("SlotId");
         final int count = rs.getInt("Count");
-        final long userId = rs.getInt("DiscordId");
-        final long guildId = rs.getInt("GuildId");
+        final long userId = rs.getLong("DiscordId");
+        final long guildId = rs.getLong("GuildId");
         return new ItemSlotBuilder().setGuildId(guildId).setUserId(userId).setSlotId(slotId).setItem(item).setCount(count).build();
     }
 }

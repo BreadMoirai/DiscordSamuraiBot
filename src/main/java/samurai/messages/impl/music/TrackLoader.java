@@ -45,10 +45,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * @author TonTL
- * @version 4/11/2017
- */
 public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler, CommandListener, ReactionListener, UniqueMessage {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";

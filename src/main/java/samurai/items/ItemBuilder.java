@@ -53,12 +53,22 @@ public class ItemBuilder {
     }
 
     public Item createItem() {
-        Item item = new BaseItem(new ItemData(itemId, stackLimit, type, name, rarity, value, properties, description));
+        final ItemData data = new ItemData(itemId, stackLimit, type, name, rarity, value, properties, description);
+        return build(data);
+    }
+
+    public Item build(ItemData data) {
+        Item item = new BaseItem(data);
+        final int itemId = data.getItemId();
         if (itemId >= 100 && itemId <= 116) {
             item = new PointVoucher(item);
         } else if (itemId >= 300 && itemId <= 307) {
             item = new CrateVoucher(item);
         }
         return item;
+    }
+
+    public Item cloneItem(Item item) {
+        return build(item.getData());
     }
 }

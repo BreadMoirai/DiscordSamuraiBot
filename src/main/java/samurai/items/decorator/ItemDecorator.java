@@ -5,6 +5,8 @@ import samurai.items.ItemData;
 import samurai.items.ItemUseContext;
 import samurai.messages.base.SamuraiMessage;
 
+import java.lang.reflect.InvocationTargetException;
+
 public abstract class ItemDecorator implements Item {
 
     private final Item baseItem;
@@ -46,4 +48,5 @@ public abstract class ItemDecorator implements Item {
     public int hashCode() {
         return getData().hashCode();
     }
+
 }

@@ -16,6 +16,7 @@ package samurai.command.fun;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
+import samurai.Bot;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
@@ -73,7 +74,7 @@ public class Wasted extends Command {
         BufferedImage avatarBI;
         try {
             connection = url.openConnection();
-            connection.addRequestProperty("User-Agent", "DiscordApp:270044218167132170");
+            connection.addRequestProperty("User-Agent", Bot.info().getUserAgent());
             avatarBI = ImageIO.read(connection.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();

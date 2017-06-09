@@ -186,7 +186,7 @@ public class CommandFactory {
         final List<TextChannel> mentionedChannels = message.getMentionedChannels();
         final long messageId = message.getIdLong();
         final List<Message.Attachment> attachments = message.getAttachments();
-        final String content = message.getRawContent().trim();
+        final String content = message.getContentRaw().trim();
         final OffsetDateTime time = message.isEdited() ? message.getEditedTime() : message.getCreationTime();
         return CommandFactory.buildCommand(prefix, author, content, channelId, guildId, messageId, mentionedUsers, mentionedRoles, mentionedChannels, attachments, channel, time);
     }

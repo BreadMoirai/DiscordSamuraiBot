@@ -21,6 +21,7 @@ import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Key("emote")
 public class Emote extends Command {
@@ -30,6 +31,6 @@ public class Emote extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final List<net.dv8tion.jda.core.entities.Emote> emotes = context.getEmotes();
         if (emotes.isEmpty()) return null;
-        else return FixedMessage.build("`" + emotes.get(0).getAsMention() + "`");
+        else return FixedMessage.build(emotes.stream().map(emote -> String.format("`%s`", emote.getAsMention())).collect(Collectors.joining("\n")));
     }
 }

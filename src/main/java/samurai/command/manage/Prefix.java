@@ -18,12 +18,12 @@ import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
-import samurai.database.objects.GuildUpdater;
-import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
 import java.util.List;
 
+@Admin
 @Key("prefix")
 public class Prefix extends Command {
 

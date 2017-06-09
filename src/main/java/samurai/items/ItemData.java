@@ -1,5 +1,8 @@
 package samurai.items;
 
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Emote;
+
 import java.util.Arrays;
 
 public class ItemData {
@@ -46,6 +49,12 @@ public class ItemData {
 
     public String getDescription() {
         return description;
+    }
+
+    public Emote getEmote(JDA client) {
+        final Emote emote = client.getEmoteById((long) properties[7]);
+        if (emote == null) throw new NullPointerException(name + ": emote not found with id = " + properties[7]);
+        else return emote;
     }
 
     public double[] getProperties() {

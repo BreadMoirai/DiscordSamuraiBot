@@ -57,6 +57,10 @@ public class FixedMessage extends SamuraiMessage {
         return new FixedMessage().setMessage(new MessageBuilder().setEmbed(e).build());
     }
 
+    public static FixedMessage build(Message m) {
+        return new FixedMessage().setMessage(m);
+    }
+
     public Message getMessage() {
         return message;
     }
