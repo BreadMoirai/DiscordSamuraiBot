@@ -9,7 +9,7 @@
 `[prefix]roll....` -Rolls a dice
 
 **--- Music  ---**
-use `[prefix]join` and see #how-to-music
+use `[prefix]help music` and see #how-to-music
 
 **--- Manage ---**
 `[prefix]prefix..` -changes the command prefix.

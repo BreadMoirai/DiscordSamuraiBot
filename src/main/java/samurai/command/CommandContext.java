@@ -21,6 +21,7 @@ import samurai.database.Database;
 import samurai.database.dao.GuildDao;
 import samurai.database.objects.SamuraiGuild;
 import samurai.database.objects.GuildUpdater;
+import samurai.items.Inventory;
 import samurai.points.PointSession;
 import samurai.points.PointTracker;
 
@@ -53,6 +54,7 @@ public class CommandContext {
     private int shardId;
     private PointTracker pointTracker;
     private CommandScheduler commandScheduler;
+    private transient Inventory authorInventory;
 
     public CommandContext(String prefix, String key, Member author, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, String content, List<Message.Attachment> attaches, long guildId, long channelId, long messageId, TextChannel channel, OffsetDateTime time) {
         this.prefix = prefix;
@@ -99,15 +101,16 @@ public class CommandContext {
         else return args;
     }
 
-    private static final Pattern EMOTE_PATTERN = Pattern.compile("<:(.*):([0-9]*)>");
+    private static final Pattern EMOTE_PATTERN = Pattern.compile("<:([^\\s]*):([0-9]*)>");
 
     public List<Emote> getEmotes() {
         final List<Emote> emotes = new ArrayList<>();
         final Matcher emoteMatcher = EMOTE_PATTERN.matcher(content);
         while (emoteMatcher.find()) {
-            final List<Emote> emoteById = getClient().getEmotesByName(emoteMatcher.group(1), false);
-            if (!emoteById.isEmpty() && emoteById.get(0) != null)
-            emotes.add(emoteById.get(0));
+            final String id = emoteMatcher.group(2);
+            final Emote emoteById = getClient().getEmoteById(id);
+            if (emoteById != null)
+                emotes.add(emoteById);
         }
         return emotes;
     }
@@ -332,5 +335,12 @@ public class CommandContext {
             if (Character.digit(c, 10) < 0 && c != '.') return false;
         }
         return true;
+    }
+
+    public Inventory getAuthorInventory() {
+        if (authorInventory == null) {
+            authorInventory = Inventory.ofMember(getGuildId(), getAuthorId());
+        }
+        return authorInventory;
     }
 }

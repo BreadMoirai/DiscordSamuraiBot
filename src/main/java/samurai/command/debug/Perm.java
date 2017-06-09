@@ -18,12 +18,11 @@ import net.dv8tion.jda.core.Permission;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.messages.impl.FixedMessage;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 @Key("perm")

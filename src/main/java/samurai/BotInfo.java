@@ -33,6 +33,7 @@ public class BotInfo {
     public final long SOURCE_GUILD;
     public final String DEFAULT_PREFIX;
     public final long OWNER;
+    public final String URL;
     public String VERSION;
 
     BotInfo(JDA client) {
@@ -41,6 +42,7 @@ public class BotInfo {
         SOURCE_GUILD = config.getLong("bot.source_guild");
         DEFAULT_PREFIX = config.getString("bot.prefix");
         OWNER = config.getLong("owner.id");
+        URL = config.getString("bot.url");
 
         CALLS = new AtomicInteger();
         SENT = new AtomicInteger();
@@ -52,5 +54,9 @@ public class BotInfo {
 
         client.getPresence().setGame(Game.of(String.format("Version %s", VERSION)));
         System.out.println("VERSION = " + VERSION);
+    }
+
+    public String getUserAgent() {
+        return String.format("DiscordBot (%s, %s)", URL, VERSION);
     }
 }

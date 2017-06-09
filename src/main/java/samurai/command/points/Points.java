@@ -32,7 +32,7 @@ public class Points extends Command {
             return FixedMessage.build(String.format("**%s** has **%.2f** points", member.getEffectiveName(), context.getPointTracker().getMemberPointSession(context.getGuildId(), member.getUser().getIdLong()).getPoints()));
         } else if (context.hasContent()) {
             final String content = context.getContent().toLowerCase();
-            final Optional<Member> any = context.getGuild().getMembers().stream().filter(member1 -> !member1.getUser().isBot()).filter(member1 -> member1.getEffectiveName().toLowerCase().startsWith(content)).findAny();
+            final Optional<Member> any = context.getGuild().getMembers().stream().filter(member -> !member.getUser().isBot() || member.equals(context.getSelfMember())).filter(member1 -> member1.getEffectiveName().toLowerCase().startsWith(content) || (member1.getNickname() == null && member1.getUser().getName().toLowerCase().startsWith(content))).findAny();
             if (any.isPresent()) {
                 final Member member = any.get();
                 return FixedMessage.build(String.format("**%s** has **%.2f** points", member.getEffectiveName(), context.getPointTracker().getMemberPointSession(context.getGuildId(), member.getUser().getIdLong()).getPoints()));

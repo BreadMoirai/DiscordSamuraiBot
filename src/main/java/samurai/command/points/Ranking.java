@@ -27,13 +27,16 @@ import java.util.*;
 
 @Key("ranking")
 public class Ranking extends Command {
+
+    private static final int MAX_RESULTS = 10;
+
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final PointSession[] pointSessions = context.getMemberPoints().toArray(PointSession[]::new);
         int target = -1;
         final List<Member> mentionedMembers = context.getMentionedMembers();
         if (mentionedMembers.size() == 1) {
-            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(mentionedMembers.get(0)).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+            target = ArrayUtil.binarySearch(pointSessions, context.getPointTracker().getMemberPointSession(mentionedMembers.get(0)).getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o), pointSession -> pointSession.getMember().equals(mentionedMembers.get(0)));
         } else if (context.hasContent()) {
             final Optional<Member> memberOptional = context.getGuild().getMembers().stream().filter(member -> member.getEffectiveName().toLowerCase().startsWith(context.getContent().toLowerCase())).findAny();
             if (memberOptional.isPresent()) {
@@ -42,21 +45,21 @@ public class Ranking extends Command {
             }
         }
         if (target == -1)
-            target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o));
+            target = ArrayUtil.binarySearch(pointSessions, context.getAuthorPoints().getPoints(), PointSession::getPoints, Comparator.comparingDouble(o -> o), pointSession -> context.getAuthor().equals(pointSession.getMember()));
         final IntSummaryStatistics intStat = context.getIntArgs().peek(System.out::println).filter(value -> value > 0 && value <= pointSessions.length).summaryStatistics();
         int idx, end;
         if (intStat.getCount() == 1) {
             end = Math.min(pointSessions.length, intStat.getMax());
-            idx = Math.max(0, end - 10);
+            idx = Math.max(0, end - MAX_RESULTS);
         } else if (intStat.getCount() > 1) {
             idx = Math.max(0, intStat.getMin() - 1);
             end = Math.min(pointSessions.length, intStat.getMax());
-        } else if (target < 20) {
+        } else if (target < MAX_RESULTS) {
             idx = 0;
-            end = Math.min(pointSessions.length, 20);
+            end = Math.min(pointSessions.length, MAX_RESULTS);
         } else {
-            idx = Math.max(0, target - 10);
-            end = Math.min(pointSessions.length, target + 10);
+            idx = Math.max(0, target - MAX_RESULTS/2);
+            end = Math.min(pointSessions.length, target + MAX_RESULTS/2);
         }
         final int length = String.format("%.2f", pointSessions[idx].getPoints()).length();
         final StringJoiner sj = new StringJoiner("\n");
