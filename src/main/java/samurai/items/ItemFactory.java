@@ -19,7 +19,7 @@ public class ItemFactory implements RowMapper<Item>{
         itemBuilder.setRarity(ItemRarity.valueOf(rs.getShort("Rarity")));
         itemBuilder.setValue(rs.getDouble("Value"));
         itemBuilder.setDescription(rs.getString("Description"));
-        itemBuilder.setStackLimit(rs.getShort("StackLimit"));
+        itemBuilder.setStackLimit(/*rs.getShort("StackLimit")*/1);
         final double property[] = new double[6];
         final long property2[] = new long[2];
         property[0] = rs.getDouble("PropertyA");

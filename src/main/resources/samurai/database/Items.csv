@@ -99,7 +99,7 @@ ItemId,Type,Name,Rarity,Value,Stack,PropertyA,PropertyB,PropertyC,PropertyD,Prop
 197,Consumable,,,,,,,,,,,,,,,,,,,,,,,,,,,
 198,Consumable,,,,,,,,,,,,,,,,,,,,,,,,,,,
 199,Consumable,,,,,,,,,,,,,,,,,,,,,,,,,,,
-200,Vanity,VIP,4,100000,1,,,,,,,,319277157287329802,"If you have this item, you are special. Congratulations.",,,,,,,,,,,,,,
+200,Vanity,VIP,4,100000,1,,,,,,,,319277157287329802,Having this item means you are special. Congratulations.,,,,,,,,,,,,,,
 201,Vanity,,,,,,,,,,,,,,,,,,,,,,,,,,,
 202,Vanity,,,,,,,,,,,,,,,,,,,,,,,,,,,
 203,Vanity,,,,,,,,,,,,,,,,,,,,,,,,,,,

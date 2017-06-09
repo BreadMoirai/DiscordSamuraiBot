@@ -10,7 +10,8 @@ public class ItemUseContextBuilder {
     private PointSession session;
     private Inventory inventory;
     private String key;
-    private List<BaseItem> itemList;
+    private List<Item> itemList;
+    private ItemSlot itemSlot;
 
     public ItemUseContextBuilder setMember(Member member) {
         this.member = member;
@@ -32,12 +33,17 @@ public class ItemUseContextBuilder {
         return this;
     }
 
-    public ItemUseContextBuilder setItemList(List<BaseItem> itemList) {
+    public ItemUseContextBuilder setItemList(List<Item> itemList) {
         this.itemList = itemList;
         return this;
     }
 
-    public ItemUseContext createItemUseContext() {
-        return new ItemUseContext(member, session, inventory, key, itemList);
+    public ItemUseContextBuilder setItemSlot(ItemSlot itemSlot) {
+        this.itemSlot = itemSlot;
+        return this;
+    }
+
+    public ItemUseContext build() {
+        return new ItemUseContext(member, session, inventory, key, itemSlot, itemList);
     }
 }

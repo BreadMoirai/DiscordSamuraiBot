@@ -37,6 +37,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class RedPacketDrop extends DynamicMessage implements ReactionListener, Reloadable {
     private static final long REACTION = ConfigFactory.load("items").getLong("emote.envelope");
@@ -84,14 +85,27 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
             for (int i = 0; i < drops.length - 1; i += 2) {
                 dropMap.put(ItemFactory.getItemById(drops[i]), drops[i + 1]);
             }
-            dropDisplay = dropMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).map(itemIntegerEntry -> String.format("%s%s x %d", itemIntegerEntry.getKey().getData().getRarity().getEmote(), itemIntegerEntry.getKey().getData().getName(), itemIntegerEntry.getValue())).collect(Collectors.joining("\n"));
+            dropDisplay = dropMap.entrySet().stream().sorted((o1, o2) -> {
+                final Item o1Key = o1.getKey();
+                final Item o2Key = o2.getKey();
+                final int o1rare = o1Key.getData().getRarity().ordinal();
+                final int o2rare = o2Key.getData().getRarity().ordinal();
+                if (o1rare == o2rare) {
+                    final Integer o1v = o1.getValue();
+                    final Integer o2v = o2.getValue();
+                    if (Objects.equals(o1v, o2v)) {
+                        return o2.getKey().getData().getItemId() - o1.getKey().getData().getItemId();
+                    } else return o2v - o1v;
+                } else return o1rare - o2rare;
+            }).map(itemIntegerEntry -> {
+                final String emote = itemIntegerEntry.getKey().getData().getEmote(getManager().getClient()).getAsMention();
+                return IntStream.range(0, itemIntegerEntry.getValue()).mapToObj(value -> emote).collect(Collectors.joining());
+            }).collect(Collectors.joining("\n"));
         }
         return dropDisplay;
     }
 
     private Message buildMessage() {
-
-
         return new MessageBuilder().setEmbed(
                 new EmbedBuilder()
                         .setColor(COLOR)

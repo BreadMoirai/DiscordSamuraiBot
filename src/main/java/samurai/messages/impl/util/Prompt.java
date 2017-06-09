@@ -14,9 +14,11 @@
 */
 package samurai.messages.impl.util;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import samurai.messages.annotations.MessageScope;
 import samurai.messages.base.DynamicMessage;
 import samurai.messages.base.UniqueMessage;
 import samurai.messages.listeners.ReactionListener;
@@ -29,7 +31,7 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
 
     private final Message prompt;
     private final Consumer<Prompt> onYes, onNo;
-    private Message message;
+    private JDA client;
 
     public Prompt(Message prompt, Consumer<Prompt> onYes, Consumer<Prompt> onNo) {
         this.prompt = prompt;
@@ -45,7 +47,7 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
 
     @Override
     protected void onReady(Message message) {
-        this.message = message;
+        this.client = message.getJDA();
         message.addReaction(YES).queue();
         message.addReaction(NO).queue();
     }
@@ -81,7 +83,11 @@ public class Prompt extends DynamicMessage implements ReactionListener, UniqueMe
         channel.deleteMessageById(getMessageId()).queue();
     }
 
-    public Message getMessage() {
-        return message;
+    public JDA getJDA() {
+        return client;
+    }
+
+    public TextChannel getChannel() {
+        return client.getTextChannelById(getChannelId());
     }
 }

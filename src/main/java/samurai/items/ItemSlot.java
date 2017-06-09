@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 public class ItemSlot {
     private final long guildId, userId;
-    private final int slotId;
+    private int slotId;
     private final Item item;
     private int count;
 
@@ -39,9 +39,15 @@ public class ItemSlot {
         return count;
     }
 
-    void add(int count) {
+    public void offset(int count) {
         this.count += count;
         Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.updateItemSlotCount(this));
+    }
+
+    void setSlotId(int slotId) {
+        if (this.slotId == slotId) return;
+        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.updateItemSlotId(this, slotId));
+        this.slotId = slotId;
     }
 
     @Override
@@ -51,12 +57,21 @@ public class ItemSlot {
 
         ItemSlot itemSlot = (ItemSlot) o;
 
-        return slotId == itemSlot.slotId;
+        if (guildId != itemSlot.guildId) return false;
+        if (userId != itemSlot.userId) return false;
+        if (slotId != itemSlot.slotId) return false;
+        if (count != itemSlot.count) return false;
+        return item != null ? item.equals(itemSlot.item) : itemSlot.item == null;
     }
 
     @Override
     public int hashCode() {
-        return slotId;
+        int result = (int) (guildId ^ (guildId >>> 32));
+        result = 31 * result + (int) (userId ^ (userId >>> 32));
+        result = 31 * result + slotId;
+        result = 31 * result + (item != null ? item.hashCode() : 0);
+        result = 31 * result + count;
+        return result;
     }
 
     public static Comparator<ItemSlot> comparator() {
@@ -71,5 +86,9 @@ public class ItemSlot {
         sb.append(", count=").append(count);
         sb.append('}');
         return sb.toString();
+    }
+
+    public void destroy() {
+        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.deleteItemSlot(getGuildId(), getUserId(), getSlotId()));
     }
 }

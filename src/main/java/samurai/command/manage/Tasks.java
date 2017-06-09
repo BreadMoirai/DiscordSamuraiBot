@@ -21,7 +21,6 @@ public class Tasks extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         final List<CommandTask> tasks = context.getCommandScheduler().getTasks(context.getGuildId());
-        System.out.println("tasks = " + tasks);
         if (context.getContent().toLowerCase().startsWith("cancel")) {
             final List<CommandTask> cTasks = context.getIntArgs().map(i -> i - 1).filter(i -> i > -1 && i < tasks.size()).mapToObj(tasks::get).collect(Collectors.toList());
             int count = cTasks.size();

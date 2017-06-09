@@ -88,9 +88,9 @@ public class FixedMessage extends SamuraiMessage {
     @Override
     public void send(MessageManager messageManager) {
         if (delay == null)
-            messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queue(consumer, null);
+            messageManager.getClient().getTextChannelById(getChannelId()).sendMessage(message).queue(consumer, null);
         else
-            messageManager.getClient().getTextChannelById(String.valueOf(getChannelId())).sendMessage(message).queueAfter(delay.getSeconds(), TimeUnit.SECONDS, consumer);
+            messageManager.getClient().getTextChannelById(getChannelId()).sendMessage(message).queueAfter(delay.getSeconds(), TimeUnit.SECONDS, consumer);
     }
 
     @Override

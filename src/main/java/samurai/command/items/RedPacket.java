@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Creator
-@Key("/rp")
+@Key("/rpd")
 public class RedPacket extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

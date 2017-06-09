@@ -19,12 +19,30 @@ package samurai.command.items;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
+import samurai.items.ItemSlot;
+import samurai.items.ItemUseContextBuilder;
 import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.FixedMessage;
 
 @Key("use")
 public class UseItem extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        return null;
+        if (context.isNumeric()) {
+            final int i = Integer.parseInt(context.getContent());
+            final ItemSlot itemSlot = context.getAuthorInventory().getItemSlot(i);
+            if (itemSlot == null) return FixedMessage.build("There is no item in that slot");
+            final SamuraiMessage use = itemSlot.getItem().useItem(
+                    new ItemUseContextBuilder()
+                            .setKey(context.getKey().toLowerCase())
+                            .setMember(context.getAuthor())
+                            .setInventory(context.getAuthorInventory())
+                            .setItemSlot(itemSlot)
+                            .setSession(context.getAuthorPoints())
+                            .build());
+            if (use != null) return use;
+            else
+                return FixedMessage.build("Item" + itemSlot.getItem().getData().getEmote(context.getClient()).getAsMention() + itemSlot.getItem().getData().getName() + " cannot be used");
+        } else return FixedMessage.build("Please provide a valid index starting at 1 of the intended item in your inventory");
     }
 }

@@ -16,13 +16,12 @@ package samurai.items;
 
 import samurai.database.Database;
 import samurai.database.dao.ItemDao;
-import samurai.util.ArrayUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Inventory {
     private final long guildId, userId;
-    private List<ItemSlot> itemSlots;
 
     public static Inventory ofMember(long guildId, long userId) {
         return new Inventory(guildId, userId);
@@ -42,10 +41,8 @@ public class Inventory {
     }
 
     public List<ItemSlot> getItemSlots() {
-        if (itemSlots == null) {
-            itemSlots = new ArrayList<>(Database.get().<ItemDao, List<ItemSlot>>openDao(ItemDao.class, itemDao -> itemDao.selectUserInventory(guildId, userId)));
-            itemSlots.sort(ItemSlot.comparator());
-        }
+        final ArrayList<ItemSlot> itemSlots = new ArrayList<>(Database.get().<ItemDao, List<ItemSlot>>openDao(ItemDao.class, itemDao -> itemDao.selectUserInventory(guildId, userId)));
+        itemSlots.sort(ItemSlot.comparator());
         return itemSlots;
     }
 
@@ -54,7 +51,7 @@ public class Inventory {
         final StringBuilder sb = new StringBuilder("Inventory{");
         sb.append("guildId=").append(guildId);
         sb.append(", userId=").append(userId);
-        sb.append(", itemSlots=").append(itemSlots);
+        sb.append(", itemSlots=").append(getItemSlots());
         sb.append('}');
         return sb.toString();
     }
@@ -67,28 +64,31 @@ public class Inventory {
         for (ItemSlot itemSlot : getItemSlots()) {
             final Item item = itemSlot.getItem();
             if (item.equals(itemA) && itemSlot.getCount() + count <= item.getData().getStackLimit()) {
-                itemSlot.add(count);
+                itemSlot.offset(count);
                 return;
             }
         }
-        int i = 1;
-        for (ItemSlot itemSlot : getItemSlots()) {
-            if (itemSlot.getSlotId() == i) {
-                i++;
-            } else {
-                final ItemSlot firstEmptySlot = new ItemSlotBuilder().setGuildId(guildId).setUserId(userId).setSlotId(i).setItem(itemA).setCount(count).createItemSlot();
-                getItemSlots().add(i - 1, firstEmptySlot);
-                return;
-            }
-        }
-        final ItemSlot firstEmptySlot = new ItemSlotBuilder().setGuildId(guildId).setUserId(userId).setSlotId(i).setItem(itemA).setCount(count).createItemSlot();
-        getItemSlots().add(itemSlots.size(), firstEmptySlot);
+        final ItemSlot newItemSlot = new ItemSlotBuilder().setGuildId(guildId).setUserId(userId).setSlotId(getItemSlots().size() + 1).setItem(itemA).setCount(count).createItemSlot();
+        getItemSlots().add(newItemSlot);
     }
 
     public ItemSlot getItemSlot(int slotId) {
-        if (itemSlots == null) {
-            return Database.get().<ItemDao, ItemSlot>openDao(ItemDao.class, itemDao -> itemDao.selectItemSlot(guildId, userId, slotId));
-        }else return getItemSlots().get(ArrayUtil.binarySearch(itemSlots, slotId, ItemSlot::getSlotId, Comparator.comparingInt(o -> o), null));
+        final List<ItemSlot> itemSlots = getItemSlots();
+        if (slotId - 1 < itemSlots.size())
+            return itemSlots.get(slotId - 1);
+        else return null;
+    }
+
+    public boolean removeItemSlot(ItemSlot slot) {
+        final List<ItemSlot> itemSlots = getItemSlots();
+        final boolean remove = itemSlots.remove(slot);
+        if (remove) {
+            slot.destroy();
+            for (int i = 1; i <= itemSlots.size(); i++) {
+                itemSlots.get(i - 1).setSlotId(i);
+            }
+        }
+        return remove;
     }
 
     public void clear() {

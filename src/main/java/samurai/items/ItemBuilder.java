@@ -61,7 +61,7 @@ public class ItemBuilder {
     public Item build(ItemData data) {
         Item item = new BaseItem(data);
         final int itemId = data.getItemId();
-        if (itemId >= 100 && itemId <= 116) {
+        if (itemId > 100 && itemId <= 117) {
             item = new PointVoucher(item);
         } else if (itemId >= 300 && itemId <= 307) {
             item = new CrateVoucher(item);

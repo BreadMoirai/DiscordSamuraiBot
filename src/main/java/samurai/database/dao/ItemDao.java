@@ -40,4 +40,20 @@ public interface ItemDao {
 
     @SqlUpdate("DELETE FROM MemberInventory WHERE GuildId = :guildId AND DiscordId = :userId")
     void deleteInventory(@Bind("guildId") long guildId, @Bind("userId") long userId);
+
+    @SqlUpdate("UPDATE MemberInventory SET SlotId = :newSlotId WHERE GuildId = :guildId AND DiscordId = :userId AND SlotId = :oldSlotId AND ItemId = :itemId")
+    void updateItemSlotId(@Bind("guildId") long guildId, @Bind("userId") long userId, @Bind("newSlotId") int newSlotId, @Bind("itemId") int itemId, @Bind("oldSlotId") int oldSlotId);
+
+    default void updateItemSlotId(ItemSlot itemSlot, int newSlotId) {
+        updateItemSlotId(itemSlot.getGuildId(), itemSlot.getUserId(), newSlotId, itemSlot.getItem().getData().getItemId(), itemSlot.getSlotId());
+    }
+
+    @SqlQuery("SELECT DropId, Weight FROM DropRate WHERE ItemId = :id")
+    @RegisterRowMapper(DropTable.class)
+    List<int[]> selectDropTable(@Bind("id") int itemId);
+
+    default DropTable getDropTable(int itemId) {
+        return new DropTable(selectDropTable(itemId));
+    }
+
 }
