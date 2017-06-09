@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.core.events.guild.voice.GenericGuildVoiceEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
@@ -84,6 +83,7 @@ public class PointTracker extends ListenerAdapter {
         final User user = event.getUser();
         long userId = user.getIdLong();
         final OnlineStatus onlineStatus = event.getGuild().getMember(user).getOnlineStatus();
+        final OnlineStatus previousOnlineStatus = event.getPreviousOnlineStatus();
         long guildId = event.getGuild().getIdLong();
         switch (onlineStatus) {
             case OFFLINE:

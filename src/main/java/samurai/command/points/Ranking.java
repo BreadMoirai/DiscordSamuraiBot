@@ -64,17 +64,20 @@ public class Ranking extends Command {
         final int length = String.format("%.2f", pointSessions[idx].getPoints()).length();
         final StringJoiner sj = new StringJoiner("\n");
         int ranklen = Math.max(String.valueOf(idx).length(), String.valueOf(end).length());
+        final String formatA = String.format("__#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - **%%s**__", ranklen, length);
+        final String formatB = String.format("#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - %%s", ranklen, length);
+        System.out.println("formatB = " + formatB);
         for (; idx < end; idx++) {
             String s;
             if (idx == target) {
-                s = String.format(String.format("__#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - **%%s**__", ranklen, length), idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
+                s = String.format(formatA, idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
             } else {
-                s = String.format(String.format("#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - %%s", ranklen, length), idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
+                s = String.format(formatB, idx + 1, pointSessions[idx].getPoints(), pointSessions[idx].getMember().getEffectiveName());
             }
             if (sj.length() + s.length() >= 2000) {
                 break;
             }
-            sj.add(s);
+            sj.add(s.replace(" ", "\u00AD "));
         }
         return FixedMessage.build(sj.toString());
     }
