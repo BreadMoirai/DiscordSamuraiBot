@@ -126,9 +126,10 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
             Inventory.ofMember(event.getGuild().getIdLong(), event.getUser().getIdLong()).addItem(ItemFactory.getItemById(dropqueue[dropsGiven++]));
         }
         if (dropsGiven == dropqueue.length) {
-            scheduledFuture.cancel(false);
-            event.getTextChannel().editMessageById(getMessageId(), buildEndMessage()).queue();
-            event.getTextChannel().clearReactionsById(getMessageId()).queue();
+            if (scheduledFuture.cancel(false)) {
+                event.getTextChannel().editMessageById(getMessageId(), buildEndMessage()).queue();
+                event.getTextChannel().clearReactionsById(getMessageId()).queue();
+            }
         } else event.getTextChannel().editMessageById(getMessageId(), new EmbedBuilder()
                 .setColor(COLOR)
                 .setTitle(TITLE)
@@ -146,7 +147,7 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
                         .addField("~~Available Gifts~~",
                                 IntStream.range(dropsGiven, dropqueue.length).map(operand -> dropqueue[operand]).mapToObj(ItemFactory::getItemById).map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()), false)
                         .addField("Gifts claimed",
-                                IntStream.range(0 , dropsGiven).map(operand -> dropqueue[operand]).mapToObj(ItemFactory::getItemById).map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()),
+                                IntStream.range(0, dropsGiven).map(operand -> dropqueue[operand]).mapToObj(ItemFactory::getItemById).map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()),
                                 false)
                         .setFooter("Ended at", null)
                         .setTimestamp(endTime)

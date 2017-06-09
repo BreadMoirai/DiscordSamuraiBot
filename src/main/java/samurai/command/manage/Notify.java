@@ -27,6 +27,7 @@ import java.util.List;
 @Source
 @Key("notify")
 public class Notify extends Command{
+    @SuppressWarnings("Duplicates")
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         if (!context.hasContent()) return FixedMessage.build("did you mean `!notify rollpoll`?");
@@ -47,6 +48,24 @@ public class Notify extends Command{
                     }
                     return null;
                 }
+                break;
+            case "qte":
+            case "quick":
+            case "event":
+            case "quicktimeevent":
+                final List<Role> qte = context.getGuild().getRolesByName("quicktimeevent", true);
+                if (qte.size() > 0) {
+                    final Role role = qte.get(0);
+                    if (!context.getAuthor().getRoles().contains(role)) {
+                        context.getGuild().getController().addRolesToMember(context.getAuthor(), role).queue();
+                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC96").queue();
+                    } else {
+                        context.getGuild().getController().removeRolesFromMember(context.getAuthor(), role).queue();
+                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC94").queue();
+                    }
+                    return null;
+                }
+                break;
         }
         return null;
     }
