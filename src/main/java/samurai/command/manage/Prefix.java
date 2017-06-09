@@ -21,7 +21,7 @@ import samurai.command.annotations.Key;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
-import java.util.List;
+import java.util.regex.Pattern;
 
 @Admin
 @Key("prefix")
@@ -29,8 +29,7 @@ public class Prefix extends Command {
 
     @Override
     public SamuraiMessage execute(CommandContext context) {
-        final List<String> args = context.getArgs();
-        if (!context.getAuthor().canInteract(context.getSelfMember()) || args.size() != 1)
+        if (!context.hasContent() || Pattern.compile("\\s").matcher(context.getContent()).find())
             return FixedMessage.build("Guild prefix: `" + context.getPrefix() + "`");
         final String newPrefix = context.getContent();
         context.getSamuraiGuildUpdater().updatePrefix(newPrefix);
