@@ -45,11 +45,11 @@ public class Google extends Command {
             if (search.has("spelling")) {
                 final String correction = search.getJSONObject("spelling").getString("correctedQuery");
                 return new Prompt(new MessageBuilder().append("No results found. Did you mean __").append(correction).append("__?").build(), prompt -> {
-                    new Google().execute(context.clone(context.getKey(), correction)).replace(prompt.getManager(), prompt.getMessage());
-                    prompt.getMessage().clearReactions().queue();
+                    new Google().execute(context.clone(context.getKey(), correction)).replace(prompt.getManager(), prompt.getMessageId());
+                    prompt.getChannel().clearReactionsById(prompt.getMessageId()).queue();
                 }, prompt -> {
-                    prompt.getMessage().clearReactions().queue();
-                    prompt.getMessage().editMessage("No results found.").queue();
+                    prompt.getChannel().clearReactionsById(prompt.getMessageId()).queue();
+                    prompt.getChannel().editMessageById(prompt.getMessageId(),"No results found.").queue();
                 });
             } else return FixedMessage.build("No results found.");
         }

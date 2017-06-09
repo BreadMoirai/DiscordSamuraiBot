@@ -1,13 +1,8 @@
 !```cs
 Purpose: Meme
-Restrictions: User does not use default profile picture
 Arguments:  '{@mention}' the target
-            'spin' make it spin
             'rave' make it rave
-            'grey' make it greyscale
-            'frames:x' make the gif x frames long; default 20
-            Gifs have a 15.87 fps
 --------------------------------------------------------
-Example:    '[prefix]wasted @someone spin rave frames:10'
+Example:    '[prefix]wasted @someone'
             '[prefix]info @someone'
 ```

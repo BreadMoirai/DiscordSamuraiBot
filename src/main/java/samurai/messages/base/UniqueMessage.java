@@ -19,17 +19,13 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import samurai.messages.annotations.MessageScope;
 
-/**
- * @author TonTL
- * @version 4/19/2017
- */
 public interface UniqueMessage {
 
     /**
      * Returns to what extent this message should be unique
      * <ol>
      *     <li>Author - one per user</li>
-     *     <li>Channel - one per channel for all uesrs</li>
+     *     <li>Channel - one per channel for all users</li>
      *     <li>Guild - one per guild for all channels & users</li>
      * </ol>
      * @return the scope of uniqueness

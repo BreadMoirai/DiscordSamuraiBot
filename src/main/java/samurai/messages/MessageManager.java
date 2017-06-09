@@ -97,10 +97,10 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
                     SamuraiMessage prompt = new Prompt(uniqueMessage.prompt(),
                             yesPrompt -> {
                                 previousUnique.close(client.getTextChannelById(previousMessage.getChannelId()));
-                                yesPrompt.getMessage().clearReactions().queue();
-                                samuraiMessage.replace(this, yesPrompt.getMessage());
+                                yesPrompt.getChannel().clearReactionsById(yesPrompt.getMessageId()).queue();
+                                samuraiMessage.replace(this, yesPrompt.getMessageId());
                             },
-                            noPrompt -> noPrompt.getMessage().delete().queue());
+                            noPrompt -> noPrompt.getChannel().deleteMessageById(noPrompt.getMessageId()).queue());
                     prompt.setAuthorId(samuraiMessage.getAuthorId());
                     prompt.setChannelId(samuraiMessage.getChannelId());
                     prompt.send(this);

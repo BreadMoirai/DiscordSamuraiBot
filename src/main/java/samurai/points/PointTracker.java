@@ -26,6 +26,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import samurai.Bot;
 import samurai.command.CommandModule;
 import samurai.database.Database;
@@ -40,12 +41,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class PointTracker {
+public class PointTracker extends ListenerAdapter {
 
     private static final double MESSAGE_POINT = 4;
-    private static final double MINUTE_POINT = .1;
+    private static final double MINUTE_POINT = .12;
     private static final double VOICE_POINT = 15;
-    public static final float DUEL_POINT_RATIO = .15f;
+    public static final float DUEL_POINT_RATIO = .025f;
 
     private static final ScheduledExecutorService pool;
 
@@ -76,6 +77,7 @@ public class PointTracker {
         pool.scheduleAtFixedRate(this::addVoicePoints, 2, 1, TimeUnit.MINUTES);
     }
 
+    @Override
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
         if (event.getUser().isBot() || event.getUser().isFake()) return;
         final User user = event.getUser();
@@ -109,6 +111,7 @@ public class PointTracker {
         }
     }
 
+    @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         ConcurrentHashMap<Long, PointSession> guildSessions = guildPointMap.get(event.getGuild().getIdLong());
         if (guildSessions != null) {
@@ -117,9 +120,9 @@ public class PointTracker {
                 final long now = event.getMessage().getCreationTime().toInstant().getEpochSecond();
                 final long diff = now - pointSession.getLastMessageSent();
                 if (diff < 10 || diff > 180) {
-                    pointSession.offsetPoints(MESSAGE_POINT * .7);
+                    pointSession.offsetPoints(MESSAGE_POINT);
                 } else {
-                    double offset = (((69.0 * Math.pow(Math.atan(diff / 20.0), 3.0)) / ((Math.PI / 6.0) * Math.sqrt(diff))) - (Math.pow(diff, 2) / 1220.0)) * .7;
+                    double offset = (((69.0 * Math.pow(Math.atan(diff / 20.0), 3.0)) / ((Math.PI / 6.0) * Math.sqrt(diff))) - (Math.pow(diff, 2) / 1220.0));
                     pointSession.offsetPoints(offset);
                 }
                 pointSession.setLastMessageSent(now);
@@ -180,12 +183,14 @@ public class PointTracker {
         guildPointMap.forEachValue(100L, guildPoints -> guildPoints.forEachValue(100L, PointSession::commit));
     }
 
+    @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         voiceChannels.remove(event.getChannelLeft());
         if (event.getChannelLeft().getMembers().size() > 0)
             voiceChannels.add(event.getChannelLeft());
     }
 
+    @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         voiceChannels.remove(event.getChannelJoined());
         voiceChannels.add(event.getChannelJoined());
@@ -193,18 +198,22 @@ public class PointTracker {
 
     private void addVoicePoints() {
         for (VoiceChannel voiceChannel : voiceChannels) {
-            for (Member member : voiceChannel.getMembers()) {
-                if (!member.getVoiceState().isMuted() && !member.getUser().isBot())
-                    offsetPoints(member, VOICE_POINT);
-            }
+            final List<Member> members = voiceChannel.getMembers();
+            if (members.stream().filter(member -> !member.getUser().isBot()).count() >= 2)
+                for (Member member : members) {
+                    if (!member.getVoiceState().isMuted() && !member.getUser().isBot())
+                        offsetPoints(member, VOICE_POINT);
+                }
         }
     }
 
+    @Override
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         voiceChannels.remove(event.getVoiceState().getChannel());
         voiceChannels.add(event.getVoiceState().getChannel());
     }
 
+    @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         final ConcurrentHashMap<Long, PointSession> guildPoints = guildPointMap.remove(event.getGuild().getIdLong());
         if (guildPoints != null) {
