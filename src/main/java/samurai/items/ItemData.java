@@ -10,10 +10,12 @@ public class ItemData {
     private final ItemRarity rarity;
     private final ItemType type;
     private final String name, description;
-    private final double value, properties[];
+    private final double value;
+    private final double[] properties;
     private final long properties2[];
+    private final transient Emote emote;
 
-    ItemData(int itemId, int stackLimit, ItemType type, String name, ItemRarity rarity, double value, double[] properties, long[] properties2, String description) {
+    ItemData(int itemId, int stackLimit, ItemType type, String name, ItemRarity rarity, double value, double[] properties, long[] properties2, String description, Emote emote) {
         this.itemId = itemId;
         this.stackLimit = stackLimit;
         this.rarity = rarity;
@@ -23,6 +25,7 @@ public class ItemData {
         this.description = description;
         this.value = value;
         this.properties = properties;
+        this.emote = emote;
     }
 
     public int getItemId() {
@@ -53,14 +56,16 @@ public class ItemData {
         return description;
     }
 
-    public Emote getEmote(JDA client) {
-        final Emote emote = client.getEmoteById(properties2[1]);
-        if (emote == null) throw new NullPointerException(name + ": emote not found with id = " + properties2[1]);
-        else return emote;
+    public Emote getEmote() {
+        return emote;
     }
 
     public double[] getProperties() {
         return properties;
+    }
+
+    public long[] getProperties2() {
+        return properties2;
     }
 
     @Override

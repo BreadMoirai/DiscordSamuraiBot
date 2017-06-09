@@ -24,7 +24,7 @@ public class PointVoucher extends ItemDecorator {
     @Override
     public SamuraiMessage use(ItemUseContext context) {
         if (getData().getRarity().compareTo(ItemRarity.SALIENT) > 0) {
-            final Emote emote = getData().getEmote(context.getMember().getJDA());
+            final Emote emote = getData().getEmote();
             final Message redeemPrompt = new MessageBuilder().setEmbed(
                     new EmbedBuilder()
                             .setTitle("Please confirm")
@@ -58,6 +58,6 @@ public class PointVoucher extends ItemDecorator {
             value = ThreadLocalRandom.current().nextDouble(properties[0], properties[1]);
         }
         context.getPointSession().offsetPoints(value);
-        return FixedMessage.build(String.format("**%s** redeemed a %s_%s_ for **%.2f** points", context.getMember().getEffectiveName(), getData().getEmote(context.getMember().getJDA()).getAsMention(), getData().getName(), value));
+        return FixedMessage.build(String.format("**%s** redeemed a %s_%s_ for **%.2f** points", context.getMember().getEffectiveName(), getData().getEmote().getAsMention(), getData().getName(), value));
     }
 }

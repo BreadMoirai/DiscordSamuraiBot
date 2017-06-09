@@ -46,14 +46,14 @@ public class ItemShop extends Command {
                 final Item item = ItemFactory.getItemById(itemId);
                 if (item == null) return FixedMessage.build("Specified item does not exist");
                 else if (item.getData().getValue() == 0.0)
-                    return FixedMessage.build(item.print(context.getClient()) + " is not available for sale");
+                    return FixedMessage.build(item.print() + " is not available for sale");
                 if (context.getAuthorPoints().getPoints() < item.getData().getValue())
-                    return FixedMessage.build(String.format("You require an additional **%.2f** to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print(context.getClient())));
+                    return FixedMessage.build(String.format("You require an additional **%.2f** to buy %s", item.getData().getValue() - context.getAuthorPoints().getPoints(), item.print()));
                 context.getAuthorPoints().offsetPoints(item.getData().getValue() * -1);
                 context.getAuthorInventory().addItem(item);
-                return FixedMessage.build("Thank you for your purchase of " + item.print(context.getClient()));
+                return FixedMessage.build("Thank you for your purchase of " + item.print());
             }
         }
-        return FixedMessage.build("__**Items for Sale**__\n" + ItemFactory.getShopItems().stream().map(item -> String.format("%s - `%.0f`", item.print(context.getClient()), item.getData().getValue())).collect(Collectors.joining("\n")));
+        return FixedMessage.build("__**Items for Sale**__\n" + ItemFactory.getShopItems().stream().map(item -> String.format("%s - `%.0f`", item.print(), item.getData().getValue())).collect(Collectors.joining("\n")));
     }
 }

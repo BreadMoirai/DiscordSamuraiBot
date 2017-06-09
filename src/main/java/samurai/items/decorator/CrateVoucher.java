@@ -26,7 +26,7 @@ public class CrateVoucher extends ItemDecorator {
 
     @Override
     protected SamuraiMessage use(ItemUseContext context) {
-        final Emote emote = getData().getEmote(context.getMember().getJDA());
+        final Emote emote = getData().getEmote();
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         final StringBuilder sb = embedBuilder.getDescriptionBuilder();
         final double v = getData().getProperties()[0];
@@ -60,13 +60,12 @@ public class CrateVoucher extends ItemDecorator {
         }
         final DropTable dropTable = Database.get().<ItemDao, DropTable>openDao(ItemDao.class, itemDao -> itemDao.getDropTable(getData().getItemId()));
         final StringBuilder sb = new StringBuilder();
-        final JDA jda = context.getMember().getJDA();
         context.getPointSession().offsetPoints(getData().getProperties()[0] * -1);
         for (int i = 0; i < getData().getProperties()[1]; i++) {
             final Item drop = dropTable.getDrop();
             context.getInventory().addItem(drop);
-            sb.append(drop.getData().getEmote(jda).getAsMention());
+            sb.append(drop.getData().getEmote().getAsMention());
         }
-        return FixedMessage.build(String.format("**%s** has paid %.2f points to open a %s_%s_ and receive %s", context.getMember().getEffectiveName(),getData().getProperties()[0], getData().getEmote(jda).getAsMention(), getData().getName(), sb.toString()));
+        return FixedMessage.build(String.format("**%s** has paid %.2f points to open a %s_%s_ and receive %s", context.getMember().getEffectiveName(),getData().getProperties()[0], getData().getEmote().getAsMention(), getData().getName(), sb.toString()));
     }
 }

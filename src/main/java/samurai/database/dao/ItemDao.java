@@ -59,4 +59,8 @@ public interface ItemDao {
     @SqlQuery("SELECT * FROM ItemCatalog WHERE Value > 0")
     @RegisterRowMapper(ItemFactory.class)
     List<Item> selectShopItems();
+
+    @SqlQuery("SELECT * FROM ItemCatalog")
+    @RegisterRowMapper(ItemFactory.class)
+    List<Item> selectAllItems();
 }

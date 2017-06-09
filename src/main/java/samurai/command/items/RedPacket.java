@@ -38,6 +38,7 @@ public class RedPacket extends Command {
     protected SamuraiMessage execute(CommandContext context) {
         final List<String> args = context.getArgs();
         final Duration duration = Schedule.getDuration(args);
+        if (duration.equals(Duration.ZERO)) return null;
         final int size = args.size();
         final int[] drops = new int[size];
         final ArrayList<Integer> dropQueueList = new ArrayList<>();

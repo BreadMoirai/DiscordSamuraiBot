@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +51,7 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
     private int dropsGiven;
     private Set<Long> dropsReceived;
     private transient String dropDisplay;
+    private transient ScheduledFuture<?> scheduledFuture;
 
     public RedPacketDrop() {
     }
@@ -71,7 +73,8 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
     protected void onReady(Message message) {
         message.addReaction(message.getJDA().getEmoteById(REACTION)).queue();
         message.editMessage(buildMessage()).queue();
-        message.getTextChannel().getMessageById(getMessageId()).queueAfter(ChronoUnit.SECONDS.between(Instant.now(), endTime), TimeUnit.SECONDS, message1 -> {
+        scheduledFuture = message.getTextChannel().getMessageById(getMessageId()).queueAfter(ChronoUnit.SECONDS.between(Instant.now(), endTime), TimeUnit.SECONDS, message1 -> {
+
             unregister();
             message1.clearReactions().queue();
             message1.editMessage(buildEndMessage()).queue();
@@ -98,7 +101,7 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
                     } else return o2v - o1v;
                 } else return o1rare - o2rare;
             }).map(itemIntegerEntry -> {
-                final String emote = itemIntegerEntry.getKey().getData().getEmote(getManager().getClient()).getAsMention();
+                final String emote = itemIntegerEntry.getKey().getData().getEmote().getAsMention();
                 return IntStream.range(0, itemIntegerEntry.getValue()).mapToObj(value -> emote).collect(Collectors.joining());
             }).collect(Collectors.joining("\n"));
         }
@@ -122,22 +125,29 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
         if (dropsReceived.add(event.getUser().getIdLong())) {
             Inventory.ofMember(event.getGuild().getIdLong(), event.getUser().getIdLong()).addItem(ItemFactory.getItemById(dropqueue[dropsGiven++]));
         }
-        event.getTextChannel().getMessageById(getMessageId()).queue(message -> message.editMessage(new EmbedBuilder()
+        if (dropsGiven == dropqueue.length) {
+            scheduledFuture.cancel(false);
+            event.getTextChannel().editMessageById(getMessageId(), buildEndMessage()).queue();
+            event.getTextChannel().clearReactionsById(getMessageId()).queue();
+        } else event.getTextChannel().editMessageById(getMessageId(), new EmbedBuilder()
                 .setColor(COLOR)
                 .setTitle(TITLE)
                 .addField("Available Gifts", getDropDisplay(), false)
                 .addField("Gifts claimed", String.valueOf(dropsGiven), false)
                 .setFooter("Ends At", null)
                 .setTimestamp(endTime)
-                .build()).queue());
+                .build()).queue();
     }
 
     public Message buildEndMessage() {
         return new MessageBuilder()
                 .setEmbed(new EmbedBuilder()
                         .setTitle("~~" + TITLE + "~~")
-                        .addField("~~Available Gifts~~", getDropDisplay(), false)
-                        .addField("Gifts claimed", String.valueOf(dropsGiven), false)
+                        .addField("~~Available Gifts~~",
+                                IntStream.range(dropsGiven, dropqueue.length).map(operand -> dropqueue[operand]).mapToObj(ItemFactory::getItemById).map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()), false)
+                        .addField("Gifts claimed",
+                                IntStream.range(0 , dropsGiven).map(operand -> dropqueue[operand]).mapToObj(ItemFactory::getItemById).map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()),
+                                false)
                         .setFooter("Ended at", null)
                         .setTimestamp(endTime)
                         .build())

@@ -1,5 +1,6 @@
 package samurai.items;
 
+import net.dv8tion.jda.core.entities.Emote;
 import samurai.items.decorator.CrateVoucher;
 import samurai.items.decorator.PointVoucher;
 
@@ -13,6 +14,7 @@ public class ItemBuilder {
     private String description;
     private int stackLimit;
     private long[] properties2;
+    private Emote emote;
 
     public ItemBuilder setItemId(int itemId) {
         this.itemId = itemId;
@@ -54,7 +56,7 @@ public class ItemBuilder {
     }
 
     public Item createItem() {
-        final ItemData data = new ItemData(itemId, stackLimit, type, name, rarity, value, properties, properties2, description);
+        final ItemData data = new ItemData(itemId, stackLimit, type, name, rarity, value, properties, properties2, description, emote);
         return build(data);
     }
 
@@ -75,5 +77,9 @@ public class ItemBuilder {
 
     public void setProperties(long[] property2) {
         this.properties2 = property2;
+    }
+
+    public void setEmote(Emote emote) {
+        this.emote = emote;
     }
 }

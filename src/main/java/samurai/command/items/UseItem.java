@@ -42,7 +42,7 @@ public class UseItem extends Command {
                             .build());
             if (use != null) return use;
             else
-                return FixedMessage.build("Item" + itemSlot.getItem().getData().getEmote(context.getClient()).getAsMention() + itemSlot.getItem().getData().getName() + " cannot be used");
+                return FixedMessage.build("Item" + itemSlot.getItem().print() + " cannot be used");
         } else return FixedMessage.build("Please provide a valid index starting at 1 of the intended item in your inventory");
     }
 }

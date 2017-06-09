@@ -39,7 +39,7 @@ public class ItemInfo extends Command{
             final ItemData data = item.getData();
             final EmbedBuilder eb = new EmbedBuilder()
                     .setTitle(data.getName())
-                    .setThumbnail(item.getData().getEmote(context.getClient()).getImageUrl())
+                    .setThumbnail(item.getData().getEmote().getImageUrl())
                     .setFooter(String.valueOf(data.getItemId()), null)
                     .setColor(data.getRarity().getColor())
                     .setDescription(data.getDescription());

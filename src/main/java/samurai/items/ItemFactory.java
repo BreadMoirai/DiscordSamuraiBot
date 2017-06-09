@@ -1,20 +1,30 @@
 package samurai.items;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.events.ReadyEvent;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 import samurai.database.Database;
 import samurai.database.dao.ItemDao;
 
+import java.rmi.NoSuchObjectException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class ItemFactory implements RowMapper<Item>{
 
+    private static final TIntObjectMap<Emote> itemEmotes = new TIntObjectHashMap<>();
+
     @Override
     public Item map(ResultSet rs, StatementContext ctx) throws SQLException {
         final ItemBuilder itemBuilder = new ItemBuilder();
-        itemBuilder.setItemId(rs.getInt("ItemId"));
+        final int itemId = rs.getInt("ItemId");
+        itemBuilder.setItemId(itemId);
         itemBuilder.setType(ItemType.valueOf(rs.getString("Type").toUpperCase()));
         itemBuilder.setName(rs.getString("Name"));
         itemBuilder.setRarity(ItemRarity.valueOf(rs.getShort("Rarity")));
@@ -33,6 +43,7 @@ public class ItemFactory implements RowMapper<Item>{
         property2[1] = rs.getLong("PropertyH");
         itemBuilder.setProperties(property);
         itemBuilder.setProperties(property2);
+        itemBuilder.setEmote(itemEmotes.get(itemId));
         return itemBuilder.createItem();
     }
 
@@ -41,6 +52,17 @@ public class ItemFactory implements RowMapper<Item>{
     }
 
     public static List<Item> getShopItems() {
-        return Database.get().<ItemDao, List<Item>>openDao(ItemDao.class, itemDao -> itemDao.selectShopItems());
+        return Database.get().openDao(ItemDao.class, ItemDao::selectShopItems);
+    }
+
+    public static List<Item> getAllItems() { return Database.get().openDao(ItemDao.class, ItemDao::selectAllItems);}
+
+    public static void load(ReadyEvent event) throws NoSuchObjectException {
+        final JDA jda = event.getJDA();
+        for (Item item : getAllItems()) {
+            final Emote emote = jda.getEmoteById(item.getData().getProperties2()[1]);
+            if (emote == null) throw new NoSuchObjectException("Emote for " + item.getData().getName() + " by id of " + item.getData().getProperties2()[1] + "was not found");
+            else itemEmotes.put(item.getData().getItemId(), emote);
+        }
     }
 }

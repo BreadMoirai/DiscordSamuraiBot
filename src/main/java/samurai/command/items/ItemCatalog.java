@@ -14,32 +14,21 @@
  *   limitations under the License.
  *
  */
-
 package samurai.command.items;
 
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
-import samurai.items.Inventory;
 import samurai.items.ItemFactory;
-import samurai.items.ItemSlot;
 import samurai.messages.base.SamuraiMessage;
 import samurai.messages.impl.FixedMessage;
 
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
-@Key("inventory")
-public class InventoryInfo extends Command {
+@Key("catalog")
+public class ItemCatalog extends Command{
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        final Inventory authorInventory = context.getAuthorInventory();
-        final StringBuilder sb = new StringBuilder();
-        sb.append(String.format("__**%s's Inventory**__", context.getAuthor().getEffectiveName()));
-        int i = 0;
-        for (ItemSlot itemSlot : authorInventory.getItemSlots()) {
-            if (i++ % 10 == 0) sb.append('\n');
-            sb.append(itemSlot.getItem().getData().getEmote().getAsMention());
-        }
-        return FixedMessage.build(sb.toString());
+        return FixedMessage.build(ItemFactory.getAllItems().stream().map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()));
     }
 }

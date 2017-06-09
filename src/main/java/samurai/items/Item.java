@@ -9,7 +9,7 @@ public interface Item {
 
     ItemData getData();
 
-    default String print(JDA client) {
-        return getData().getEmote(client).getAsMention() + " " + getData().getName();
+    default String print() {
+        return getData().getEmote().getAsMention() + " " + getData().getName();
     }
 }

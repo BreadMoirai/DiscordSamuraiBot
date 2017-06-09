@@ -33,10 +33,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 4.x - 2/21/2017
- */
 public class CommandFactory {
 
     private static final Pattern ARG_PATTERN = Pattern.compile("[\\s+](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
@@ -87,9 +83,8 @@ public class CommandFactory {
 
     private static Command buildCommand(String prefix, Member author, String content, long channelId, long guildId, long messageId, List<User> mentionedUsers, List<Role> mentionedRoles, List<TextChannel> mentionedChannels, List<Message.Attachment> attachments, TextChannel channel, OffsetDateTime time) {
 
-        //if content does not with prefix ex. "!"
-        final Matcher matcher = USER_MENTION.matcher(content);
         content = replaceSamuraiMention(prefix, content);
+        //if content does not with prefix eg. "!"
         if (!content.startsWith(prefix) || content.length() <= prefix.length()) return null;
 
         content = content.substring(prefix.length());
@@ -152,8 +147,8 @@ public class CommandFactory {
         if (matcher.find() && matcher.start() == 0 && matcher.group(1).equals(String.valueOf(Bot.info().ID))) {
             content = prefix + content.substring(matcher.end());
         }
-        if (content.startsWith(" "))
-            content = content.substring(1);
+        if (content.startsWith(prefix + " "))
+            content = prefix + content.substring(prefix.length() + 1);
         return content;
     }
 

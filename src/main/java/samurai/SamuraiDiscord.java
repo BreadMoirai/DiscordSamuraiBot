@@ -44,18 +44,16 @@ import samurai.command.annotations.Source;
 import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
+import samurai.items.ItemFactory;
 import samurai.messages.MessageManager;
 import samurai.messages.base.Reloadable;
 import samurai.messages.impl.FixedMessage;
 import samurai.points.PointTracker;
 
 import java.io.*;
+import java.rmi.NoSuchObjectException;
 import java.util.List;
 
-/**
- * @author TonTL
- * @version 5.x - 3/13/2017
- */
 public class SamuraiDiscord implements EventListener {
 
     private int shardId;
@@ -72,6 +70,12 @@ public class SamuraiDiscord implements EventListener {
         //shardId = client.getShardInfo().getShardId();
         if (shardId == 0) {
             Bot.setInfo(new BotInfo(client));
+        }
+        try {
+            ItemFactory.load(event);
+        } catch (NoSuchObjectException e) {
+            Bot.shutdown();
+            return;
         }
         messageManager = new MessageManager(client);
         Database.get().load(event);
