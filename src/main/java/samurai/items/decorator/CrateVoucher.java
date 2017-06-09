@@ -66,6 +66,6 @@ public class CrateVoucher extends ItemDecorator {
             context.getInventory().addItem(drop);
             sb.append(drop.getData().getEmote().getAsMention());
         }
-        return FixedMessage.build(String.format("**%s** has paid %.2f points to open a %s_%s_ that contains %s", context.getMember().getEffectiveName(),getData().getProperties()[0], getData().getEmote().getAsMention(), getData().getName(), sb.toString()));
+        return FixedMessage.build(String.format("**%s** has paid %.2f points to open a %s_%s_ that contained %s", context.getMember().getEffectiveName(),getData().getProperties()[0], getData().getEmote().getAsMention(), getData().getName(), sb.toString()));
     }
 }
