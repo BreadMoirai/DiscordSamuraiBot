@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class SuggestionPoll extends DynamicMessage implements ReactionListener, Reloadable {
 
     private static final long serialVersionUID = 160L;
-    private static final int DELAY_HOUR = 24;
+    private static final int DELAY_HOUR = 18;
 
     private static final long YES;
     private static final long NO;
@@ -36,8 +36,8 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
 
     static {
         final Config config = ConfigFactory.load("source_commands.conf");
-        YES = config.getLong("SuggestionPoll.yes");
-        NO = config.getLong("SuggestionPoll.no");
+        YES = config.getLong("prompt.yes");
+        NO = config.getLong("prompt.no");
         MAYBE = config.getLong("SuggestionPoll.maybe");
         TODO = config.getLong("SuggestionPoll.todo");
         COLOR_NO = new Color(232, 28, 28);
@@ -74,8 +74,8 @@ public class SuggestionPoll extends DynamicMessage implements ReactionListener, 
 
     @Override
     protected void onReady(Message message) {
-        message.addReaction(message.getGuild().getEmoteById(YES)).queue();
-        message.addReaction(message.getGuild().getEmoteById(NO)).queue();
+        message.addReaction(message.getJDA().getEmoteById(YES)).queue();
+        message.addReaction(message.getJDA().getEmoteById(NO)).queue();
     }
 
     @Override

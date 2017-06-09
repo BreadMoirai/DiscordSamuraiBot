@@ -1,0 +1,9 @@
+```cs
+Purpose: Enable or Disable specific modules
+Restrictions: Admin
+Arguments:  '<module name>...'
+--------------------------------------------------------
+Example:    '[prefix]moduleon points'
+            '[prefix]moduleoff all'
+--------------------------------------------------------
+```

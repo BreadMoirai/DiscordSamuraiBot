@@ -31,8 +31,8 @@ public class SimplePoll extends DynamicMessage implements ReactionListener, Relo
 
     static {
         final Config config = ConfigFactory.load("source_commands.conf");
-        YES = config.getLong("SuggestionPoll.yes");
-        NO = config.getLong("SuggestionPoll.no");
+        YES = config.getLong("prompt.yes");
+        NO = config.getLong("prompt.no");
     }
 
     private String content;
@@ -63,8 +63,8 @@ public class SimplePoll extends DynamicMessage implements ReactionListener, Relo
 
     @Override
     protected void onReady(Message message) {
-        message.addReaction(message.getGuild().getEmoteById(YES)).queue();
-        message.addReaction(message.getGuild().getEmoteById(NO)).queue();
+        message.addReaction(message.getJDA().getEmoteById(YES)).queue();
+        message.addReaction(message.getJDA().getEmoteById(NO)).queue();
     }
 
     @Override

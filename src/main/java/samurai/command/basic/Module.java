@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Key({"module", "enable", "disable"})
+@Key({"module", "moduleon", "moduleoff"})
 @Admin
 public class Module extends Command {
 
@@ -55,15 +55,15 @@ public class Module extends Command {
                 }
                 if (args.isEmpty())
                     return FixedMessage.build("Could not find specified module");
-                switch (context.getKey()) {
-                    case "enable":
+                switch (context.getKey().toLowerCase()) {
+                    case "moduleon":
                         String s1 = args.stream().filter(commands -> !commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Enabled **", "**"));
                         samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).reduce(guildEnabledCommands, (left, right) -> left | right));
                         if (args.contains(CommandModule.points)) {
                             context.getPointTracker().enablePoints(context.getGuild());
                         }
                         return FixedMessage.build(s1);
-                    case "disable":
+                    case "moduleoff":
                         String s2 = args.stream().filter(commands -> commands.isEnabled(guildEnabledCommands)).map(CommandModule::name).collect(Collectors.joining("**, **", "Disabled **", "**"));
                         samuraiGuild.getUpdater().updateModules(args.stream().mapToLong(CommandModule::getValue).map(operand -> ~operand).reduce(guildEnabledCommands, (left, right) -> left & right));
                         return FixedMessage.build(s2);

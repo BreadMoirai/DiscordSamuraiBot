@@ -13,9 +13,8 @@ use `[prefix]help music` and see #how-to-music
 
 **--- Manage ---**
 `[prefix]prefix..` -changes the command prefix.
-`[prefix]module..` -displays modules
-`[prefix]enable..` -enable specified modules
-`[prefix]disable.` -disable specified modules
+`[prefix]module..` -modules. use `[prefix]help` module for more info
+`[prefix]alias...` -create an alias
 
 **--- Notes ---**
 This bot is actively being developed.
