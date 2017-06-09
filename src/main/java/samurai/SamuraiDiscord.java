@@ -60,6 +60,7 @@ public class SamuraiDiscord implements EventListener {
     private MessageManager messageManager;
     private PointTracker pointTracker;
     private CommandScheduler commandScheduler;
+    private QuickTimeEventController qte;
 
     SamuraiDiscord() {
     }
