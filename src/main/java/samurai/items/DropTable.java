@@ -20,13 +20,14 @@ package samurai.items;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DropTable implements RowMapper<int[]> {
+public class DropTable implements RowMapper<int[]>, Serializable {
     private int[] drops;
     private int[] weights;
 
@@ -48,6 +49,19 @@ public class DropTable implements RowMapper<int[]> {
             }
         }
         return null;
+    }
+
+    public int getDropId() {
+        final int sum = Arrays.stream(weights).sum();
+        final int rand = ThreadLocalRandom.current().nextInt(sum);
+        int current = 0;
+        for (int i = 0; i < weights.length; i++) {
+            current += weights[i];
+            if (rand < current) {
+                return drops[i];
+            }
+        }
+        return 0;
     }
 
     @Override
