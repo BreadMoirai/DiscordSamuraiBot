@@ -74,7 +74,6 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
         message.addReaction(message.getJDA().getEmoteById(REACTION)).queue();
         message.editMessage(buildMessage()).queue();
         scheduledFuture = message.getTextChannel().getMessageById(getMessageId()).queueAfter(ChronoUnit.SECONDS.between(Instant.now(), endTime), TimeUnit.SECONDS, message1 -> {
-
             unregister();
             message1.clearReactions().queue();
             message1.editMessage(buildEndMessage()).queue();
@@ -86,7 +85,9 @@ public class RedPacketDrop extends DynamicMessage implements ReactionListener, R
         if (dropDisplay == null) {
             final Map<Item, Integer> dropMap = new HashMap<>(drops.length / 2 + 1);
             for (int i = 0; i < drops.length - 1; i += 2) {
-                dropMap.put(ItemFactory.getItemById(drops[i]), drops[i + 1]);
+                final Item itemById = ItemFactory.getItemById(drops[i]);
+                if (itemById == null) throw new NullPointerException("Item not found by id: " + drops[i]);
+                dropMap.put(itemById, drops[i + 1]);
             }
             dropDisplay = dropMap.entrySet().stream().sorted((o1, o2) -> {
                 final Item o1Key = o1.getKey();

@@ -14,19 +14,9 @@
  *   limitations under the License.
  *
  */
-package samurai;
 
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.events.ReadyEvent;
+package samurai.qte;
 
-public class QuickTimeEventController {
-
-    private final JeopardyService jservice;
-    private final JDA client;
-
-    QuickTimeEventController(ReadyEvent event) {
-        client = event.getJDA();
-        jservice = new JeopardyService();
-    }
-
+public interface QuickTimeEventService {
+    QuizMessage provide();
 }

@@ -35,13 +35,13 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.core.utils.MiscUtil;
 import samurai.audio.GuildAudioManager;
 import samurai.audio.SamuraiAudioManager;
 import samurai.command.*;
 import samurai.command.annotations.Admin;
 import samurai.command.annotations.Creator;
 import samurai.command.annotations.Source;
-import samurai.command.basic.GenericCommand;
 import samurai.command.restricted.Groovy;
 import samurai.database.Database;
 import samurai.items.ItemFactory;
@@ -49,9 +49,13 @@ import samurai.messages.MessageManager;
 import samurai.messages.base.Reloadable;
 import samurai.messages.impl.FixedMessage;
 import samurai.points.PointTracker;
+import samurai.qte.QuickTimeEventController;
+import samurai.qte.QuizMessage;
 
 import java.io.*;
 import java.rmi.NoSuchObjectException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class SamuraiDiscord implements EventListener {
@@ -86,6 +90,7 @@ public class SamuraiDiscord implements EventListener {
         System.out.println("SamuraiDiscord [" + shardId + "] is ready!");
         Groovy.addBinding("mm", messageManager);
         int i = 0;
+        Instant creationTime = null;
         try (ObjectInputStream oos = new ObjectInputStream(new FileInputStream("Objects.ser"))) {
             //noinspection InfiniteLoopStatement
             while (true) {
@@ -93,6 +98,10 @@ public class SamuraiDiscord implements EventListener {
                 if (o instanceof Reloadable) {
                     ((Reloadable) o).reload(this);
                     System.out.println("o = " + o);
+                    if (o instanceof QuizMessage) {
+                        creationTime = MiscUtil.getCreationTime(((QuizMessage) o).getMessageId()).toInstant();
+                        System.out.println("creationTime = " + creationTime);
+                    }
                     i++;
                 }
             }
@@ -103,6 +112,7 @@ public class SamuraiDiscord implements EventListener {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+        this.qte = new QuickTimeEventController(messageManager, creationTime);
     }
 
     @Override
@@ -307,5 +317,9 @@ public class SamuraiDiscord implements EventListener {
 
     private void onGuildLeave(GuildLeaveEvent event) {
         SamuraiAudioManager.retrieveManager(event.getGuild().getIdLong()).ifPresent(GuildAudioManager::destroy);
+    }
+
+    public QuickTimeEventController getQuickTimeEventController() {
+        return qte;
     }
 }
