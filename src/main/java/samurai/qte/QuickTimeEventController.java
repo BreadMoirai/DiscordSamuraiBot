@@ -17,12 +17,12 @@
 package samurai.qte;
 
 import com.typesafe.config.ConfigFactory;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.events.ReadyEvent;
 import samurai.command.CommandScheduler;
-import samurai.command.manage.Schedule;
 import samurai.messages.MessageManager;
+import samurai.qte.service.jeopardy.JeopardyService;
+import samurai.util.TimeUtil;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -33,43 +33,56 @@ import java.util.concurrent.TimeUnit;
 
 public class QuickTimeEventController {
 
-    public static final int COOLDOWN = 4;
-    private final long targetChannel;
+    private static final int COOLDOWN = 5;
+
+    private static final long TARGET_CHANNEL;
 
     private final List<QuickTimeEventService> services;
     private final MessageManager messageManager;
     private transient Instant lastQuizTime;
     private transient ScheduledFuture<?> future;
 
-    {
-        targetChannel = ConfigFactory.load("items").getLong("quiz");
+    static {
+        TARGET_CHANNEL = ConfigFactory.load("items").getLong("quiz");
     }
 
 
-    public QuickTimeEventController(MessageManager messageManager, Instant lastQuizTime) {
+    public QuickTimeEventController(MessageManager messageManager) {
         services = new ArrayList<>();
         services.add(new JeopardyService());
         this.messageManager = messageManager;
-        this.lastQuizTime = lastQuizTime;
-        onCompletion();
     }
 
 
     void onCompletion() {
-        if (future != null && future.cancel(false))
+        if (((future != null) && future.cancel(false)) || (future == null))
             if (lastQuizTime == null || ChronoUnit.HOURS.between(lastQuizTime, Instant.now()) >= COOLDOWN) {
                 sendNewQuiz();
             } else {
-                future = CommandScheduler.getCommandExecutor().schedule(this::sendNewQuiz, ChronoUnit.SECONDS.between(Instant.now(), lastQuizTime.plus(COOLDOWN, ChronoUnit.HOURS)), TimeUnit.SECONDS);
+                final Instant delay = lastQuizTime.plus(COOLDOWN, ChronoUnit.HOURS);
+                future = CommandScheduler.getCommandExecutor().schedule(this::sendNewQuiz, Instant.now().until(delay, ChronoUnit.SECONDS), TimeUnit.SECONDS);
+                messageManager.getClient().getTextChannelById(TARGET_CHANNEL).sendMessage("Next QuickTimeEvent will be available in " + TimeUtil.format(Duration.between(Instant.now(), delay), ChronoUnit.MINUTES)).queue();
             }
     }
-    
 
-    private void sendNewQuiz() {
+    void sendNewQuiz() {
+        future = null;
         lastQuizTime = Instant.now();
-        final QuizMessage provide = services.get(ThreadLocalRandom.current().nextInt(services.size())).provide();
-        provide.setQteController(this);
-        provide.setChannelId(targetChannel);
+        final QuickTimeMessage provide = services.get(ThreadLocalRandom.current().nextInt(services.size())).provide();
+        provide.setQuickTimeEventController(this);
+        provide.setChannelId(TARGET_CHANNEL);
         messageManager.submit(provide);
+    }
+
+    public Duration getCoolDown() {
+        if (future != null) {
+           return Duration.of(future.getDelay(TimeUnit.MILLISECONDS), ChronoUnit.MILLIS);
+        } else return Duration.ZERO;
+    }
+
+    public void onReady(Instant creationTime) {
+        this.lastQuizTime = creationTime;
+        if (lastQuizTime == null)
+            onCompletion();
     }
 }

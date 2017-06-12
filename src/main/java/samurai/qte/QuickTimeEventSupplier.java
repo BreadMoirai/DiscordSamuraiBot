@@ -14,9 +14,20 @@
  *   limitations under the License.
  *
  */
-
 package samurai.qte;
 
-public interface QuickTimeEventService {
-    QuickTimeMessage provide();
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import samurai.command.CommandContext;
+import samurai.messages.base.SamuraiMessage;
+
+import java.io.Serializable;
+
+public interface QuickTimeEventSupplier {
+
+    MessageEmbed getQuestion();
+    MessageEmbed getAnswer();
+    boolean canProvide();
+    boolean checkAnswer(CommandContext context);
+    void markInvalid();
+    SamuraiMessage getReward();
 }

@@ -16,56 +16,50 @@
  */
 package samurai.qte;
 
-import gnu.trove.iterator.TIntIntIterator;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntIntHashMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongByteHashMap;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import samurai.SamuraiDiscord;
+import samurai.Bot;
 import samurai.command.CommandContext;
 import samurai.command.basic.GenericCommand;
-import samurai.items.DropTable;
-import samurai.items.Item;
 import samurai.messages.annotations.GhostMessage;
-import samurai.messages.base.DynamicMessage;
-import samurai.messages.base.Reloadable;
-import samurai.messages.impl.RedPacketDrop;
-
-import java.time.Duration;
-import java.util.Random;
-import java.util.function.Supplier;
+import samurai.messages.base.SamuraiMessage;
+import samurai.messages.listeners.GenericCommandListener;
 
 @GhostMessage
-public class QuizMessage extends DynamicMessage implements Reloadable, GenericCommandListener {
+public class QuizMessage extends QuickTimeMessage implements GenericCommandListener {
 
     private static final long serialVersionUID = 10L;
 
-    private static final int ITEM_DROP_COUNT = 40;
-    private static final transient Random RAND = new Random();
+    private static final long ZERO, SHRUG;
+    private static final String ONE = "1\u20E3", TWO = "2\u20E3", THREE = "3\u20E3";
 
-    private transient QuickTimeEventController qteController;
+    static {
+        final Config config = ConfigFactory.load("source_commands");
+        ZERO = config.getLong("prompt.no");
+        SHRUG = 316687021513113600L;
 
+    }
 
-    private Supplier<Message> question;
-    private String answer;
-    private Supplier<Message> complete;
-    private DropTable reward;
+    private QuickTimeEventSupplier supplier;
+    private TLongByteHashMap users;
+
 
     public QuizMessage() {
     }
 
-    QuizMessage(JeopardyQuestionSupplier question, String answer, JeopardyAnswerSupplier complete, DropTable reward) {
-        this.question = question;
-        this.answer = answer;
-
-        this.complete = complete;
-        this.reward = reward;
+    public QuizMessage(QuickTimeEventSupplier supplier) {
+        this.supplier = supplier;
+        users = new TLongByteHashMap(15, Constants.DEFAULT_LOAD_FACTOR, Constants.DEFAULT_LONG_NO_ENTRY_VALUE, (byte) 4);
     }
 
 
     @Override
     protected Message initialize() {
-        return new MessageBuilder(question.get()).append("<@&322810785527234561>").build();
+        return new MessageBuilder().append("<@&322810785527234561>").setEmbed(supplier.getQuestion()).build();
     }
 
     @Override
@@ -76,64 +70,70 @@ public class QuizMessage extends DynamicMessage implements Reloadable, GenericCo
     @Override
     public void onGenericCommand(GenericCommand command) {
         final CommandContext context = command.getContext();
-        if (context.getKey().equalsIgnoreCase("answer")) {
-            if (answer.equalsIgnoreCase(context.getContent())) {
-                context.getChannel().sendMessage(complete.get()).queue();
-                final Item drop = reward.getDrop();
-                context.getAuthorInventory().addItem(drop);
-                context.getChannel().sendMessage(String.format("**%s** has been rewarded a %s", context.getAuthor().getEffectiveName(), drop.print())).queue();
-                getManager().submit(createDrop());
-                unregister();
-                if (qteController != null) {
-                    qteController.onCompletion();
+        switch (context.getKey().toLowerCase()) {
+            case "answer":
+            case "whois":
+            case "whatis":
+                if (users.get(context.getAuthorId()) > 0 && supplier.checkAnswer(context)) {
+                    if (supplier.canProvide()) {
+                        context.getChannel().sendMessage(initialize()).queue(this::setMessageId);
+                    } else {
+                        unregister();
+                        final SamuraiMessage reward = supplier.getReward();
+                        reward.setChannelId(getChannelId());
+                        getManager().submit(reward);
+                        fireCompletionEvent(false);
+                    }
+                } else {
+                    switch (users.adjustOrPutValue(context.getAuthorId(), (byte) -1, (byte) 3)) {
+                        case 3:
+                            context.getChannel().addReactionById(context.getMessageId(), THREE).queue();
+                            break;
+                        case 2:
+                            context.getChannel().addReactionById(context.getMessageId(), TWO).queue();
+                            break;
+                        case 1:
+                            context.getChannel().addReactionById(context.getMessageId(), ONE).queue();
+                            break;
+                        case 0:
+                            context.getChannel().addReactionById(context.getMessageId(), context.getClient().getEmoteById(ZERO)).queue();
+                            break;
+                        default:
+                            context.getChannel().addReactionById(context.getMessageId(), context.getClient().getEmoteById(SHRUG)).queue();
+                            break;
+                    }
                 }
-            } else {
-                context.getChannel().addReactionById(context.getMessageId(), context.getClient().getEmoteById(312373404286320640L)).queue();
-            }
-        } else if (context.getKey().equalsIgnoreCase("question")) {
-            context.getChannel().sendMessage(question.get()).queue();
-        } else if (context.getKey().equalsIgnoreCase("invalid") && context.getAuthor().canInteract(context.getSelfMember())) {
-            unregister();
-            context.getChannel().deleteMessageById(getMessageId()).queue();
-            if (qteController != null) {
-                qteController.onCompletion();
-            }
+                break;
+            case "question":
+                context.getChannel().sendMessage(supplier.getQuestion()).queue(this::setMessageId);
+                break;
+            case "/invalid":
+                if (context.getAuthor().canInteract(context.getSelfMember())) {
+                    supplier.markInvalid();
+                    context.getChannel().deleteMessageById(getMessageId()).queue();
+                    if (supplier.canProvide()) {
+                        context.getClient().getTextChannelById(getChannelId()).sendMessage(initialize()).queue(this::setMessageId);
+                        break;
+                    } else {
+                        unregister();
+                        fireCompletionEvent(true);
+                    }
+                }
+                break;
+            case "//invalid":
+                if (context.getAuthor().canInteract(context.getSelfMember())) {
+                    unregister();
+                    context.getChannel().deleteMessageById(getMessageId()).queue();
+                    fireCompletionEvent(true);
+                }
+                break;
+            case "/validate":
+                if (context.getAuthorId() == Bot.info().OWNER) {
+                    context.getChannel().deleteMessageById(context.getMessageId()).queue();
+                    context.getAuthor().getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(supplier.getAnswer()).queue());
+                }
+                break;
         }
-    }
-
-    private RedPacketDrop createDrop() {
-        final TIntIntHashMap map = new TIntIntHashMap();
-        for (int i = 0; i < ITEM_DROP_COUNT; i++) {
-            map.adjustOrPutValue(reward.getDropId(), 1, 1);
-        }
-        final int size = map.size();
-        final int[] drops = new int[size * 2];
-        final TIntIntIterator itr = map.iterator();
-        final TIntArrayList dropQueueList = new TIntArrayList();
-        int i = 0;
-        while (itr.hasNext()) {
-            itr.advance();
-            final int itemId = itr.key();
-            drops[i++] = itemId;
-            final int count = itr.value();
-            drops[i++] = count;
-            for (int j = 0; j < count; j++) {
-                dropQueueList.add(itemId);
-            }
-        }
-        dropQueueList.shuffle(RAND);
-        final RedPacketDrop redPacketDrop = new RedPacketDrop(Duration.ofDays(1), drops, dropQueueList.toArray());
-        redPacketDrop.setChannelId(getChannelId());
-        return redPacketDrop;
-    }
-
-    @Override
-    public void reload(SamuraiDiscord samuraiDiscord) {
-        qteController = samuraiDiscord.getQuickTimeEventController();
-    }
-
-    public void setQteController(QuickTimeEventController qteController) {
-        this.qteController = qteController;
     }
 
     @Override
