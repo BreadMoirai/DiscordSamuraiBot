@@ -17,16 +17,24 @@
 
 package samurai.items;
 
+import gnu.trove.iterator.TIntIntIterator;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntIntHashMap;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
+import samurai.messages.base.SamuraiMessage;
+import samurai.messages.impl.RedPacketDrop;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DropTable implements RowMapper<int[]> {
+public class DropTable implements RowMapper<int[]>, Serializable {
     private int[] drops;
     private int[] weights;
 
@@ -50,8 +58,45 @@ public class DropTable implements RowMapper<int[]> {
         return null;
     }
 
+    public int getDropId() {
+        final int sum = Arrays.stream(weights).sum();
+        final int rand = ThreadLocalRandom.current().nextInt(sum);
+        int current = 0;
+        for (int i = 0; i < weights.length; i++) {
+            current += weights[i];
+            if (rand < current) {
+                return drops[i];
+            }
+        }
+        return 0;
+    }
+
     @Override
     public int[] map(ResultSet rs, StatementContext ctx) throws SQLException {
         return new int[]{rs.getInt("DropId"), rs.getInt("Weight")};
+    }
+
+    public SamuraiMessage createDrop(int count, Duration duration) {
+        final TIntIntHashMap map = new TIntIntHashMap();
+        for (int i = 0; i < count; i++) {
+            map.adjustOrPutValue(getDropId(), 1, 1);
+        }
+        final int size = map.size();
+        final int[] drops = new int[size * 2];
+        final TIntIntIterator itr = map.iterator();
+        final TIntArrayList dropQueueList = new TIntArrayList();
+        int i = 0;
+        while (itr.hasNext()) {
+            itr.advance();
+            final int itemId = itr.key();
+            drops[i++] = itemId;
+            final int itemCount = itr.value();
+            drops[i++] = itemCount;
+            for (int j = 0; j < itemCount; j++) {
+                dropQueueList.add(itemId);
+            }
+        }
+        dropQueueList.shuffle(new Random());
+        return new RedPacketDrop(duration, drops, dropQueueList.toArray());
     }
 }

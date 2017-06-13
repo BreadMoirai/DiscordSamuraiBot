@@ -20,17 +20,16 @@ import samurai.command.CommandContext;
 import samurai.command.annotations.Key;
 import samurai.command.annotations.Source;
 import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.FixedMessage;
 
 import java.util.List;
 
 @Source
 @Key("notify")
-public class Notify extends Command{
-    @SuppressWarnings("Duplicates")
+public class Notify extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {
-        if (!context.hasContent()) return FixedMessage.build("did you mean `!notify rollpoll`?");
+        if (!context.hasContent()) return null;
+        Role role = null;
         switch (context.getContent().toLowerCase()) {
             case "roll":
             case "rollpoll":
@@ -38,34 +37,24 @@ public class Notify extends Command{
             case "daily":
                 final List<Role> rollpoll = context.getGuild().getRolesByName("rollpoll", true);
                 if (rollpoll.size() > 0) {
-                    final Role role = rollpoll.get(0);
-                    if (!context.getAuthor().getRoles().contains(role)) {
-                        context.getGuild().getController().addRolesToMember(context.getAuthor(), role).queue();
-                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC96").queue();
-                    } else {
-                        context.getGuild().getController().removeRolesFromMember(context.getAuthor(), role).queue();
-                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC94").queue();
-                    }
-                    return null;
+                    role = rollpoll.get(0);
                 }
-                break;
             case "qte":
-            case "quick":
-            case "event":
             case "quicktimeevent":
-                final List<Role> qte = context.getGuild().getRolesByName("quicktimeevent", true);
+            case "event":
+                final List<Role> qte = context.getGuild().getRolesByName("rollpoll", true);
                 if (qte.size() > 0) {
-                    final Role role = qte.get(0);
-                    if (!context.getAuthor().getRoles().contains(role)) {
-                        context.getGuild().getController().addRolesToMember(context.getAuthor(), role).queue();
-                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC96").queue();
-                    } else {
-                        context.getGuild().getController().removeRolesFromMember(context.getAuthor(), role).queue();
-                        context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC94").queue();
-                    }
-                    return null;
+                    role = qte.get(0);
                 }
-                break;
+        }
+        if (role != null) {
+            if (!context.getAuthor().getRoles().contains(role)) {
+                context.getGuild().getController().addRolesToMember(context.getAuthor(), role).queue();
+                context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC96").queue();
+            } else {
+                context.getGuild().getController().removeRolesFromMember(context.getAuthor(), role).queue();
+                context.getChannel().addReactionById(context.getMessageId(), "\uD83D\uDC94").queue();
+            }
         }
         return null;
     }

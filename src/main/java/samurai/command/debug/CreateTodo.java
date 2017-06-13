@@ -24,7 +24,7 @@ import samurai.messages.impl.TodoMessageList;
 import java.util.Arrays;
 
 @Creator
-@Key("createtodo")
+@Key("/createtodo")
 public class CreateTodo extends Command {
     @Override
     protected SamuraiMessage execute(CommandContext context) {

@@ -162,13 +162,14 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
                 life++;
                 if (life == death) {
                     unregister();
-                    command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.clearReactions().queue());
+                    command.getContext().getChannel().clearReactionsById(getMessageId()).queue();
+                    command.getContext().getChannel().editMessageById(getMessageId(), buildEmbed("The answer was: `" + word + "`")).queue();
                     if (helper != null) {
                         helper.kill(command.getContext().getChannel());
                         helper = null;
                     }
                 }
-                command.getContext().getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(buildEmbed("Bad guess " + command.getContext().getAuthor().getAsMention() + ". Better luck next time.")).queue());
+                command.getContext().getChannel().editMessageById(getMessageId(), buildEmbed("Bad guess " + command.getContext().getAuthor().getAsMention() + ". Better luck next time.")).queue();
             }
         }
     }
@@ -179,7 +180,11 @@ public class HangmanGame extends DynamicMessage implements PrivateMessageListene
         if (word != null) return;
         if (!event.getAuthor().getId().equals(authorId)) return;
 
-        word = CommandFactory.parseArgs(event.getMessage().getContent().trim()).stream().collect(Collectors.joining(" ")).toUpperCase(Locale.ENGLISH);
+        word = CommandFactory.parseArgs(event.getMessage().getContentDisplay().trim()).stream().collect(Collectors.joining(" ")).toUpperCase(Locale.ENGLISH);
+        if (word.contains("_")) {
+            event.getChannel().sendMessage("Invalid Character found: `_`").queue();
+            return;
+        }
         event.getChannel().sendMessage("Recieved Word: `" + word + '`').queue();
         IntStream.range(0, word.length()).boxed().forEach(hidden::add);
         hidden.removeIf(integer -> !Character.isLetter(word.charAt(integer)));

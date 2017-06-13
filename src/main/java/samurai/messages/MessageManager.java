@@ -32,12 +32,10 @@ import samurai.messages.listeners.ChannelMessageListener;
 import samurai.messages.listeners.CommandListener;
 import samurai.messages.listeners.PrivateMessageListener;
 import samurai.messages.listeners.ReactionListener;
+import samurai.qte.QuizMessage;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class MessageManager implements ReactionListener, ChannelMessageListener, CommandListener, PrivateMessageListener {
@@ -66,7 +64,7 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
 
     public void submit(SamuraiMessage samuraiMessage) {
         if (!verifyUnique(samuraiMessage))
-        samuraiMessage.send(this);
+            samuraiMessage.send(this);
     }
 
     private boolean verifyUnique(SamuraiMessage samuraiMessage) {
@@ -115,45 +113,59 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void register(DynamicMessage dynamicMessage) {
-        listeners.putIfAbsent(dynamicMessage.getChannelId(), new ArrayList<>());
-        listeners.get(dynamicMessage.getChannelId()).add(dynamicMessage);
+        listeners.putIfAbsent(dynamicMessage.getChannelId(), new CopyOnWriteArrayList<>());
+        final List<DynamicMessage> list = listeners.get(dynamicMessage.getChannelId());
+        list.add(dynamicMessage);
     }
 
 
     public void unregister(DynamicMessage dynamicMessage) {
-        listeners.getOrDefault(dynamicMessage.getChannelId(), Collections.emptyList()).remove(dynamicMessage);
+        final List<DynamicMessage> list = listeners.get(dynamicMessage.getChannelId());
+        if (list == null) return;
+        list.remove(dynamicMessage);
     }
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), Collections.emptyList()).forEach(dynamicMessage -> {
+        final List<DynamicMessage> list = listeners.get(event.getChannel().getIdLong());
+        if (list == null) return;
+        for (DynamicMessage dynamicMessage : list) {
             if (dynamicMessage instanceof ChannelMessageListener)
                 ((ChannelMessageListener) dynamicMessage).onGuildMessageReceived(event);
-        });
+        }
+
     }
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
-        listeners.getOrDefault(Long.parseLong(event.getChannel().getId()), Collections.emptyList()).forEach(dynamicMessage -> {
+        final List<DynamicMessage> list = listeners.get(event.getChannel().getIdLong());
+        if (list == null) return;
+        for (DynamicMessage dynamicMessage : list) {
             if (dynamicMessage instanceof ChannelMessageListener)
                 ((ChannelMessageListener) dynamicMessage).onGuildMessageUpdate(event);
-        });
+        }
+
     }
 
     @Override
     public void onReaction(MessageReactionAddEvent event) {
-        listeners.getOrDefault(event.getChannel().getIdLong(), Collections.emptyList()).stream().filter(dynamicMessage -> dynamicMessage.getMessageId() == event.getMessageIdLong()).findFirst().ifPresent(dynamicMessage -> {
+        final List<DynamicMessage> list = listeners.get(event.getTextChannel().getIdLong());
+        if (list == null) return;
+        for (DynamicMessage dynamicMessage : list) {
             if (dynamicMessage instanceof ReactionListener)
                 ((ReactionListener) dynamicMessage).onReaction(event);
-        });
+        }
+
     }
 
     @Override
     public void onCommand(Command command) {
-        listeners.getOrDefault(command.getContext().getChannelId(), Collections.emptyList()).forEach(dynamicMessage -> {
+        final List<DynamicMessage> list = listeners.get(command.getContext().getChannelId());
+        if (list == null) return;
+        for (DynamicMessage dynamicMessage : list) {
             if (dynamicMessage instanceof CommandListener)
                 ((CommandListener) dynamicMessage).onCommand(command);
-        });
+        }
     }
 
     @Override
@@ -166,7 +178,9 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
     }
 
     public void remove(long channelId, long messageId) {
-        listeners.getOrDefault(channelId, Collections.emptyList()).removeIf(dynamicMessage -> dynamicMessage.getMessageId() == messageId && !dynamicMessage.getClass().isAnnotationPresent(GhostMessage.class));
+        final List<DynamicMessage> list = listeners.get(channelId);
+        if (list == null) return;
+        list.removeIf(next -> next.getMessageId() == messageId && !next.getClass().isAnnotationPresent(GhostMessage.class));
     }
 
     public JDA getClient() {
@@ -177,4 +191,5 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         executorService.shutdown();
         return listeners.values().stream().flatMap(Collection::stream).filter(dynamicMessage -> dynamicMessage instanceof Reloadable).map(dynamicMessage -> (Reloadable) dynamicMessage).collect(Collectors.toList());
     }
+
 }

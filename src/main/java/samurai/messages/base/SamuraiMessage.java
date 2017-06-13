@@ -82,8 +82,11 @@ public abstract class SamuraiMessage implements Serializable{
         this.authorId = authorId;
     }
 
-    public void setMessageId(long messageId) {
+    protected void setMessageId(long messageId) {
         this.messageId = messageId;
+    }
+    protected void setMessageId(Message message) {
+        setMessageId(message.getIdLong());
     }
 
     public long getGuildId() {

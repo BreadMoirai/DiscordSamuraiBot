@@ -90,7 +90,6 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
             message.addReaction(END).queue();
         }
         message.editMessage(buildScoreBoard(message.getGuild())).queue();
-        unit = null;
     }
 
     private Message buildScoreBoard(Guild g) {
@@ -175,7 +174,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
                     textChannel.editMessageById(getMessageId(), new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append((memberById != null ? memberById.getAsMention() : "unknown")).append("\uD83C\uDF8A").setEmbed(distDispPoints(pointValue, guild)).build()).queue();
                 } else {
                     final Member memberById = guild.getMemberById(winner);
-                    textChannel.editMessageById(getMessageId(),"Winner is \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
+                    textChannel.editMessageById(getMessageId(), "Winner is \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
                 }
                 textChannel.clearReactionsById(getMessageId()).queue();
                 unregister();
@@ -199,8 +198,9 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
             if (time < 0) {
                 replace(samuraiDiscord.getMessageManager(), getMessageId());
             }
+        } else {
+            replace(samuraiDiscord.getMessageManager(), getMessageId());
         }
-        replace(samuraiDiscord.getMessageManager(), getMessageId());
     }
 
     @Override

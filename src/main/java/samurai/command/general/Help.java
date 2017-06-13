@@ -41,7 +41,6 @@ public class Help extends Command {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("Samurai - help.txt", null, context.getSelfUser().getEffectiveAvatarUrl())
                     .setDescription(PREFIX_PATTERN.matcher(SamuraiStore.getHelp("cmdlist")).replaceAll(Matcher.quoteReplacement(context.getPrefix())));
-
             return new FixedMessage()
                     .setMessage(new MessageBuilder().setEmbed(embedBuilder.build()).build());
         } else {

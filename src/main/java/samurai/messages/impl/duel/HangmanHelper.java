@@ -57,6 +57,5 @@ public class HangmanHelper extends DynamicMessage implements ReactionListener {
     void kill(MessageChannel channel) {
         unregister();
         channel.getMessageById(String.valueOf(getMessageId())).queue(message -> message.delete().queue());
-        hangman = null;
     }
 }
