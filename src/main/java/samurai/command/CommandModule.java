@@ -18,10 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author TonTL
- * @version 5.x - 3/18/2017
- */
 public enum CommandModule {
     basic(0L),
     manage(1L),
@@ -60,7 +56,7 @@ public enum CommandModule {
     }
 
     public static long getDefault() {
-        return 0L;
+        return getEnabled(getVisible().toArray(new CommandModule[8]));
     }
 
     public long getValue() {

@@ -14,20 +14,14 @@
  *   limitations under the License.
  *
  */
+package samurai.qte.service.math;
 
-package samurai.qte;
+import samurai.qte.QuickTimeEventService;
+import samurai.qte.QuickTimeMessage;
 
-import samurai.command.Command;
-import samurai.command.basic.GenericCommand;
-import samurai.messages.listeners.CommandListener;
-
-public interface GenericCommandListener extends CommandListener {
+public class MathService implements QuickTimeEventService {
     @Override
-    default void onCommand(Command command) {
-        if (command instanceof GenericCommand) {
-            onGenericCommand(((GenericCommand) command));
-        }
+    public QuickTimeMessage provide() {
+        return null;
     }
-
-    void onGenericCommand(GenericCommand command);
 }

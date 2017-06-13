@@ -192,7 +192,4 @@ public class MessageManager implements ReactionListener, ChannelMessageListener,
         return listeners.values().stream().flatMap(Collection::stream).filter(dynamicMessage -> dynamicMessage instanceof Reloadable).map(dynamicMessage -> (Reloadable) dynamicMessage).collect(Collectors.toList());
     }
 
-    public boolean hasQuiz() {
-        return listeners.values().stream().flatMap(Collection::stream).anyMatch(dynamicMessage -> dynamicMessage instanceof QuizMessage);
-    }
 }

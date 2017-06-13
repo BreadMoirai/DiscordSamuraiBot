@@ -66,7 +66,6 @@ public class Ranking extends Command {
         int ranklen = Math.max(String.valueOf(idx).length(), String.valueOf(end).length());
         final String formatA = String.format("__#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - **%%s**__", ranklen, length);
         final String formatB = String.format("#`%%-%dd\u00AD`|`\u00AD%%%d.2f` - %%s", ranklen, length);
-        System.out.println("formatB = " + formatB);
         for (; idx < end; idx++) {
             String s;
             if (idx == target) {

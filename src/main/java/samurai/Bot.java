@@ -14,7 +14,6 @@
 */
 package samurai;
 
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -32,7 +31,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +77,6 @@ public class Bot {
         final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
-                .setAudioSendFactory(new NativeAudioSendFactory())
                 .addEventListener(new SamuraiDiscord());
 
         try {

@@ -19,23 +19,31 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.DV8FromTheWorld:JDA:55bddc2'
-    compile 'com.sedmelluq:jda-nas:1.0.5'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
+    //discord
+    compile 'com.github.DV8FromTheWorld:JDA:experimental~message-rw-SNAPSHOT'
     compile 'com.sedmelluq:lavaplayer:1.2.39'
-    compile 'org.codehaus.groovy:groovy:2.4.8'
-    compile 'org.reflections:reflections:0.9.10'
-    compile 'com.typesafe:config:1.3.1'
+
+    //api
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
+    compile 'ai.api:libai:1.4.8'
+
+    //database
     compile 'org.apache.derby:derby:10.13.1.1'
     compile 'org.jdbi:jdbi3:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-parent:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-sqlobject:3.0.0-beta1'
-    compile 'ai.api:libai:1.4.8'
+
+    //util
     compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'com.typesafe:config:1.3.1'
+    compile 'org.codehaus.groovy:groovy:2.4.8'
+    compile 'org.reflections:reflections:0.9.10'
     compile 'org.jetbrains:annotations:13.0'
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    //test
+    testCompile 'junit:junit:4.11'
 }
 
 tasks.create('incrementVersionCode', {
