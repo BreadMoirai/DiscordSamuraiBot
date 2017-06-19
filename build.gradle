@@ -8,8 +8,8 @@ plugins {
 
 idea.module.downloadJavadoc = true
 
-def majorVersion = 5
-def minorVersion = 6
+def majorVersion = 7
+def minorVersion = 0
 mainClassName = "samurai.Bot"
 
 repositories {
@@ -46,7 +46,7 @@ dependencies {
     testCompile 'junit:junit:4.11'
 }
 
-tasks.create('incrementVersionCode', {
+tasks.create('incrementVersionCode') {
     def file = file("version.txt")
     if (!file.exists()) {
         file.createNewFile()
@@ -59,31 +59,34 @@ tasks.create('incrementVersionCode', {
     println(":incrementVersionCode - previous:" + mVersionCode)
     println(":incrementVersionCode - current :" + mNextVersionCode)
     versionFile.write(mNextVersionCode as String)
-})
+}
 
 version = "${majorVersion}.${minorVersion}.${file("version.txt").getText()}".toString()
 import org.apache.tools.ant.filters.ReplaceTokens
-tasks.create('sourcesForRelease', Copy.class)
-sourcesForRelease.with {
+
+tasks.create('sourcesForRelease', Copy.class) {
     from 'src/main/java'
     from 'src/main/resources'
     into 'build/filteredSrc'
     filter(ReplaceTokens, tokens: [
-            buildVersion : version
+            buildVersion: version
     ])
+    doLast { tasks['incrementVersionCode']}
 }
-sourcesForRelease.doLast {incrementVersionCode}
 
 
 compileJava {
-    source = sourcesForRelease.destinationDir
-    classpath = sourceSets.main.compileClasspath
     options.encoding = 'UTF-8'
-    dependsOn sourcesForRelease
+    if (!project.hasProperty('testing')) {
+        source = (tasks['sourcesForRelease'] as Copy).destinationDir
+        classpath = sourceSets.main.compileClasspath
+        dependsOn tasks['sourcesForRelease']
+    }
 }
 
-run {
+run().with {
     if (project.hasProperty("appArgs")) {
-        args Eval.me(appArgs)
+        args = Eval.me(project.property("appArgs") as String)
     }
+    return run()
 }

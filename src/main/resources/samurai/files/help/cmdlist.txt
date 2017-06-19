@@ -1,10 +1,8 @@
 **--- General ---**
-`[prefix]help....` -displays help. Mentioning the bot will also display help.
-`[prefix]join....` -invite link for DreadMoirai's Samurais.
 `[prefix]invite..` -link to add Samurai to your server.
 
 **--- Games  ---**
-`[prefix]duel....` -starts a connectFour game.
+`[prefix]duel....` -starts a connect4 game.
 `[prefix]hangman.` -starts a hangman game.
 `[prefix]roll....` -Rolls a dice
 
