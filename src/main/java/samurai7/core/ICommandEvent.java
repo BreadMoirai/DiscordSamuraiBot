@@ -36,6 +36,14 @@ import java.util.stream.IntStream;
  * This holds the context of a command including arguments.
  */
 public interface ICommandEvent {
+
+    /**
+     * @return {@code true}
+     */
+    default boolean validate(String prefix) {
+        return true;
+    }
+
     /**
      * The command prefix.
      */

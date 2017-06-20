@@ -16,6 +16,10 @@
  */
 package samurai7.core.impl;
 
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,33 +29,53 @@ import samurai7.core.IModule;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class CommandEventProcessor {
 
-    private List<Pair<IModule, Method>> methods;
+    private final List<Pair<IModule, Method>> methods;
+    private final HashMap<Type, IModule> moduleTypeMap;
 
     public CommandEventProcessor(List<IModule> modules) {
-        for (IModule module : modules)
+        moduleTypeMap = new HashMap<>(modules.size());
+        final ArrayList<Pair<IModule, Method>> methodList = new ArrayList<>();
+        for (IModule module : modules) {
+            moduleTypeMap.put(module.getClass(), module);
             for (Method m : module.getClass().getDeclaredMethods())
                 if (m.isAnnotationPresent(SubscribeEvent.class)
                         && m.getParameterCount() == 1
                         && !Modifier.isStatic(m.getModifiers())
                         && m.getParameterTypes()[0] == ICommandEvent.class)
-                    methods.add(new ImmutablePair<>(module, m));
+                    methodList.add(new ImmutablePair<>(module, m));
+        }
+        methods = Collections.unmodifiableList(methodList);
     }
 
     private void fireCommandEvent(ICommandEvent event) {
         for (Pair<IModule, Method> pair : methods) {
             final Method method = pair.getValue();
-            method.setAccessible(true);
             try {
+                method.setAccessible(true);
                 method.invoke(pair.getKey(), event);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    private void buildCommandEvent(GenericGuildMessageEvent event, Message message) {
+        final ICommandEvent commandEvent = new MessageReceivedCommandEvent(event, message);
+    }
+
+    @SubscribeEvent
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+
+    }
+
 
 
 

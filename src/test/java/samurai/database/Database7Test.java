@@ -15,15 +15,17 @@
  *
  */
 
-package samurai7.core;
+package samurai.database;
 
-import samurai7.core.impl.CommandProcessorConfiguration;
+import org.junit.Test;
+import samurai7.core.*;
+import samurai7.core.Database;
 
-import java.util.EventListener;
+public class Database7Test {
 
-public interface IModule{
-
-   void init(CommandProcessorConfiguration config);
-
-   default Command getCommand(String key) {return null;}
+    @Test
+    public void testDatabaseTables() {
+        final boolean chart = Database.get().tableExists("chart");
+        System.out.println("chart = " + chart);
+    }
 }

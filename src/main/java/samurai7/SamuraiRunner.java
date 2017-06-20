@@ -29,7 +29,6 @@ public class SamuraiRunner {
                 .setSourceGuild(config.getLong("bot.source_guild"))
                 .setOwnerId(config.getLong("owner.id"))
                 .setAllowMentionPrefix(true)
-                .addModule()
                 .buildAsync();
 
     }

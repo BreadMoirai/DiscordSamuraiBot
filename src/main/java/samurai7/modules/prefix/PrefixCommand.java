@@ -15,15 +15,17 @@
  *
  */
 
-package samurai7.core;
+package samurai7.modules.prefix;
 
-import samurai7.core.impl.CommandProcessorConfiguration;
+import samurai.command.annotations.Key;
+import samurai7.core.Command;
+import samurai7.core.ICommandEvent;
+import samurai7.core.response.Response;
 
-import java.util.EventListener;
-
-public interface IModule{
-
-   void init(CommandProcessorConfiguration config);
-
-   default Command getCommand(String key) {return null;}
+@Key("prefix")
+public class PrefixCommand extends Command<PrefixModule> {
+    @Override
+    public Response execute(ICommandEvent event, PrefixModule module) {
+        if (!event.hasContent())
+    }
 }

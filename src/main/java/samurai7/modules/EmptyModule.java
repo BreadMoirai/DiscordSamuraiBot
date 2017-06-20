@@ -15,21 +15,22 @@
  *
  */
 
-package samurai7.core.impl;
+package samurai7.modules;
 
-import samurai7.core.ICommandEvent;
+import samurai7.core.Command;
 import samurai7.core.IModule;
-import samurai7.core.IModuleManager;
+import samurai7.core.impl.CommandProcessorConfiguration;
 
-import java.util.List;
-
-public class ModuleManagerImpl implements IModuleManager {
-
-    private List<IModule> modules;
-
-    public ModuleManagerImpl(List<IModule> modules) {
-        this.modules = modules;
+public class EmptyModule implements IModule {
+    @Override
+    public void init(CommandProcessorConfiguration config) {
 
     }
+
+    @Override
+    public Command getCommand(String key) {
+        return null;
+    }
+
 
 }

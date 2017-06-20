@@ -17,8 +17,10 @@
 
 package samurai7.core;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import samurai7.core.response.Response;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,19 +34,17 @@ public abstract class Command<M extends IModule> {
         return messageOptional;
     }
 
-    protected abstract Response execute(ICommandEvent event, M module);
+    public abstract Response execute(ICommandEvent event, M module);
 
     public ICommandEvent getEvent() {
         return event;
     }
 
-    public final void setModule(Map<Class<? extends IModule>, IModule> moduleMap) {
-        try {
-            final String module = this.getClass().getMethod("execute", ICommandEvent.class, Object.class).getParameterTypes()[1].getSimpleName();
-            System.out.println("module = " + module);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+    public final Type getModuleType() {
+        return TypeUtils.getTypeArguments(this.getClass(), Command.class).get(Command.class.getTypeParameters()[0]);
+    }
 
-        }
+    public final void setModule(M module) {
+        this.module = module;
     }
 }

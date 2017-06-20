@@ -24,6 +24,7 @@ public class DiscordPatterns {
     public static final Pattern LINES = Pattern.compile("[\n](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
     public static final Pattern URL = Pattern.compile("(?:<)?((?:http(s)?://.)?(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_+.~#?&/=]*))(?:>)?");
     public static final Pattern FORMATTED = Pattern.compile("<[@&!#:0-9a-zA-Z/]*>");
+    public static final Pattern USER_MENTION_PREFIX = Pattern.compile("(<@(?:!)?[0-9]+>(?:\\s)?).*");
     public static final Pattern HEX = Pattern.compile("^(0x|#)?[0-9A-Fa-f]+$");
     public static final Pattern WHITE_SPACE = Pattern.compile("\\s");
 }

@@ -15,8 +15,17 @@
  *
  */
 
-package samurai7.core;
+package samurai7.core.impl;
 
-public interface IModuleManager {
+import samurai7.core.Command;
+import samurai7.core.ICommandEvent;
+import samurai7.core.IModule;
+import samurai7.core.response.Response;
 
+public class UnknownCommand extends Command {
+
+    @Override
+    public Response execute(ICommandEvent event, IModule module) {
+        return null;
+    }
 }

@@ -23,8 +23,10 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import samurai7.core.IModule;
 import samurai7.core.impl.CommandEventProcessor;
+import samurai7.modules.prefix.PrefixModule;
 
 import javax.security.auth.login.LoginException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,7 +38,12 @@ public class SamuraiBuilder {
     private long ownerId;
     private boolean allowMentionPrefix;
     private String game;
-    private List<IModule> modules = new LinkedList<>();
+    private List<IModule> modules;
+
+    public SamuraiBuilder() {
+        modules = new LinkedList<>();
+
+    }
 
     public SamuraiBuilder setToken(String token) {
         this.token = token;
@@ -68,8 +75,8 @@ public class SamuraiBuilder {
         return this;
     }
 
-    public SamuraiBuilder installModule(IModule module) {
-        modules.add(module);
+    public SamuraiBuilder installModule(IModule... module) {
+        Collections.addAll(modules, module);
         return this;
     }
 
@@ -79,6 +86,7 @@ public class SamuraiBuilder {
     }
 
     public void buildAsync() {
+        modules.add(0, new PrefixModule(prefix));
         try {
             new JDABuilder(AccountType.BOT)
                     .setToken(token)

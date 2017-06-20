@@ -120,15 +120,6 @@ public class Database {
     }
 
 
-    public String getPrefix(long guildId) {
-        String s = jdbi.withExtension(GuildDao.class, extension -> extension.getPrefix(guildId));
-        final String prefix = Bot.info().DEFAULT_PREFIX;
-        if (s == null) {
-            new GuildBuilder().putPrefix(prefix).putGuildId(guildId).putModules(CommandModule.getDefault()).create();
-        } else return s;
-        return prefix;
-    }
-
     /**
      * @return true if database exists, false if database was created
      */

@@ -118,7 +118,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
 
         @Override
         public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**COPY STATE**\n" + event.getMessage().getContent()).queue());
+            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**COPY STATE**\n" + event.getMessage().getContentRaw()).queue());
         }
     }
 
@@ -127,7 +127,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
 
         @Override
         public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**REVERSE STATE**\n" + StringUtils.reverse(message.getContent())).queue());
+            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage("**REVERSE STATE**\n" + StringUtils.reverse(message.getContentRaw())).queue());
         }
 
     }
@@ -137,7 +137,7 @@ public class ExampleMessage extends DynamicMessage implements ReactionListener, 
 
         @Override
         public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(message.getContent().contains("APPEND STATE") ? "" : "**APPEND STATE**\n" + message.getContent() + '\n' + event.getMessage().getContent()).queue());
+            event.getChannel().getMessageById(String.valueOf(getMessageId())).queue(message -> message.editMessage(message.getContentRaw().contains("APPEND STATE") ? "" : "**APPEND STATE**\n" + message.getContentRaw() + '\n' + event.getMessage().getContentRaw()).queue());
         }
 
     }

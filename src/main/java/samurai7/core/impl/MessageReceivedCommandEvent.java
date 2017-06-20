@@ -20,10 +20,12 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import samurai7.core.ICommandEvent;
+import samurai7.util.DiscordPatterns;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class MessageReceivedCommandEvent implements ICommandEvent {
 
@@ -32,15 +34,31 @@ public class MessageReceivedCommandEvent implements ICommandEvent {
     private String prefix;
     private String key;
     private String content;
-    private User author;
 
-    public MessageReceivedCommandEvent(GenericGuildMessageEvent event, Message message, String prefix, String key, String content, User author) {
+    public MessageReceivedCommandEvent(GenericGuildMessageEvent event, Message message) {
         this.event = event;
         this.message = message;
+    }
+
+    @Override
+    public boolean validate(String prefix) {
         this.prefix = prefix;
-        this.key = key;
-        this.content = content;
-        this.author = author;
+        String contentRaw = message.getContentRaw();
+        final Matcher matcher = DiscordPatterns.USER_MENTION_PREFIX.matcher(contentRaw);
+        if (matcher.matches()) {
+            contentRaw = contentRaw.substring(matcher.end(1)).trim();
+            final String[] split = DiscordPatterns.WHITE_SPACE.split(contentRaw, 2);
+            key = split[0];
+            content = split[1].trim();
+            return true;
+        } else {
+            if (contentRaw.startsWith(prefix)) {
+                final String[] split = DiscordPatterns.WHITE_SPACE.split(contentRaw.substring(prefix.length()), 2);
+                key = split[0];
+                content = split[1].trim();
+                return true;
+            } return false;
+        }
     }
 
     @Override
@@ -60,7 +78,7 @@ public class MessageReceivedCommandEvent implements ICommandEvent {
 
     @Override
     public User getAuthor() {
-        return author;
+        return message.getAuthor();
     }
 
     @Override

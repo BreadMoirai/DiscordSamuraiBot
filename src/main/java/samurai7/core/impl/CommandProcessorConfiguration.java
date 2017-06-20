@@ -32,9 +32,9 @@ import java.util.function.Predicate;
 
 public class CommandProcessorConfiguration {
     Predicate<Message> preProcessPredicate;
-    Predicate<ICommandEvent> postProcessPredicate;
+    Predicate<Command> postProcessPredicate;
 
-    Map<String, Class<? extends Command<? extends IModule>>> commandMap;
+    Map<String, Class<? extends Command>> commandMap;
 
 
     public CommandProcessorConfiguration addPreProcessPredicate(Predicate<Message> predicate) {
@@ -44,14 +44,14 @@ public class CommandProcessorConfiguration {
         return this;
     }
 
-    public CommandProcessorConfiguration addPostProcessPredicate(Predicate<ICommandEvent> predicate) {
+    public CommandProcessorConfiguration addPostProcessPredicate(Predicate<Command> predicate) {
         if (postProcessPredicate == null) {
             postProcessPredicate = predicate;
         } else postProcessPredicate = postProcessPredicate.and(predicate);
         return this;
     }
 
-    public CommandProcessorConfiguration registerCommand(Class<? extends Command<? extends IModule>> commandClass, String... keys) {
+    public CommandProcessorConfiguration registerCommand(Class<? extends Command> commandClass, String... keys) {
         for (String key : keys) {
             if (key == null || keys.length == 0) {
                 System.err.println("No key found for " + commandClass.getSimpleName());
@@ -68,7 +68,7 @@ public class CommandProcessorConfiguration {
         return this;
     }
 
-    public CommandProcessorConfiguration registerCommand(Class<? extends Command<? extends IModule>> commandClass) {
+    public CommandProcessorConfiguration registerCommand(Class<? extends Command> commandClass) {
         if (commandClass.isAnnotationPresent(Key.class)) {
             final String[] keyArray = commandClass.getAnnotation(Key.class).value();
             registerCommand(commandClass, keyArray);
@@ -81,7 +81,7 @@ public class CommandProcessorConfiguration {
     public CommandProcessorConfiguration registerCommand(String commandPackage) {
         Reflections reflections = new Reflections(commandPackage);
         Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
-        for (Class<? extends Command<? extends IModule>> commandClass : classes) {
+        for (Class<? extends Command> commandClass : classes) {
             registerCommand(commandClass);
         }
         return this;
