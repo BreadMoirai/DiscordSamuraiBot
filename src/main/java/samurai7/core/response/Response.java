@@ -69,6 +69,12 @@ public abstract class Response {
         return new BasicResponse(new MessageBuilder().append(message).build());
     }
 
+    @Contract("null -> null")
+    public static BasicResponse ofFormat(String format, Object... args) {
+        if (format == null || format.isEmpty()) return null;
+        return new BasicResponse(new MessageBuilder().appendFormat(format, args).build());
+    }
+
     @Contract("null -> null; !null -> !null")
     public static BasicResponse of(MessageEmbed embed) {
         if (embed == null) return null;
