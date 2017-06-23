@@ -69,7 +69,8 @@ public abstract class Response {
         return new BasicResponse(new MessageBuilder().append(message).build());
     }
 
-    @Contract("null -> null")
+ 
+    @Contract("null, _ -> null")
     public static BasicResponse ofFormat(String format, Object... args) {
         if (format == null || format.isEmpty()) return null;
         return new BasicResponse(new MessageBuilder().appendFormat(format, args).build());
