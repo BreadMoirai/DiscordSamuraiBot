@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import samurai7.core.IModule;
-import samurai7.core.impl.CommandEventProcessor;
+import samurai7.core.CommandEventProcessor;
 import samurai7.modules.prefix.PrefixModule;
 
 import javax.security.auth.login.LoginException;

@@ -14,61 +14,51 @@
  *   limitations under the License.
  *
  */
-package samurai7.core.impl;
+package samurai7.core;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
-import samurai7.core.ICommandEvent;
+import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import samurai7.util.DiscordPatterns;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-@SuppressWarnings("Duplicates")
-public class SerializableCommandEvent implements ICommandEvent, Serializable {
+import java.util.regex.Matcher;
 
-    private static final long serialVersionUID = 1;
+public class MessageReceivedCommandEvent implements ICommandEvent {
 
-    private transient JDA jda;
+    private GenericGuildMessageEvent event;
+    private Message message;
+    private String prefix;
+    private String key;
+    private String content;
 
-    String prefix;
-    String key;
-    String content;
-    long authorId;
-    long guildId;
-    long channelId;
-    long messageId;
-    long[] mentionedUsers;
-    long[] mentionedRoles;
-    long[] mentionedChannels;
-    String attachment;
-    OffsetDateTime time;
-
-
-    /**
-     * public no-args constructor for serialization purposes only
-     */
-    public SerializableCommandEvent() {}
-
-    SerializableCommandEvent(MessageReceivedCommandEvent commandEvent) {
-        prefix = commandEvent.getPrefix();
-        key = commandEvent.getKey();
-        authorId = commandEvent.getAuthorId();
-        content = commandEvent.getContent();
-        guildId = commandEvent.getGuildId();
-        channelId = commandEvent.getChannelId();
-        messageId = commandEvent.getMessageId();
-        mentionedUsers = commandEvent.getMentionedUsers().stream().mapToLong(ISnowflake::getIdLong).toArray();
-        mentionedRoles = commandEvent.getMentionedRoles().stream().mapToLong(ISnowflake::getIdLong).toArray();
-        mentionedChannels = commandEvent.getMentionedChannels().stream().mapToLong(ISnowflake::getIdLong).toArray();
-        time = commandEvent.getTime();
+    MessageReceivedCommandEvent(GenericGuildMessageEvent event, Message message) {
+        this.event = event;
+        this.message = message;
     }
 
-    public void load(JDA jda) {
-        this.jda = jda;
+    @Override
+    public boolean validate(String prefix) {
+        if (this.prefix != null) return true;
+        this.prefix = prefix;
+        String contentRaw = message.getContentRaw();
+        final Matcher matcher = DiscordPatterns.USER_MENTION_PREFIX.matcher(contentRaw);
+        if (matcher.matches()) {
+            contentRaw = contentRaw.substring(matcher.end(1)).trim();
+            final String[] split = DiscordPatterns.WHITE_SPACE.split(contentRaw, 2);
+            key = split[0];
+            content = split[1].trim();
+            return true;
+        } else {
+            if (contentRaw.startsWith(prefix)) {
+                final String[] split = DiscordPatterns.WHITE_SPACE.split(contentRaw.substring(prefix.length()), 2);
+                key = split[0];
+                content = split[1].trim();
+                return true;
+            } return false;
+        }
     }
 
     @Override
@@ -88,17 +78,17 @@ public class SerializableCommandEvent implements ICommandEvent, Serializable {
 
     @Override
     public User getAuthor() {
-        return getJDA().getUserById(getAuthorId());
+        return message.getAuthor();
     }
 
     @Override
     public long getAuthorId() {
-        return authorId;
+        return getAuthor().getIdLong();
     }
 
     @Override
     public Member getMember() {
-        return getGuild().getMemberById(getAuthorId());
+        return getGuild().getMember(getAuthor());
     }
 
     @Override
@@ -113,32 +103,32 @@ public class SerializableCommandEvent implements ICommandEvent, Serializable {
 
     @Override
     public long getMessageId() {
-        return messageId;
+        return message.getIdLong();
     }
 
     @Override
     public Guild getGuild() {
-        return getJDA().getGuildById(guildId);
+        return event.getGuild();
     }
 
     @Override
     public long getGuildId() {
-        return guildId;
+        return getGuild().getIdLong();
     }
 
     @Override
     public TextChannel getChannel() {
-        return getJDA().getTextChannelById(channelId);
+        return event.getChannel();
     }
 
     @Override
     public long getChannelId() {
-        return channelId;
+        return getChannel().getIdLong();
     }
 
     @Override
     public OffsetDateTime getTime() {
-        return time;
+        return message.isEdited() ? message.getEditedTime() : message.getCreationTime();
     }
 
     @Override
@@ -148,31 +138,31 @@ public class SerializableCommandEvent implements ICommandEvent, Serializable {
 
     @Override
     public JDA getJDA() {
-        return jda;
+        return event.getJDA();
     }
 
     @Override
     public List<User> getMentionedUsers() {
-        return Arrays.stream(mentionedUsers).mapToObj(id -> getJDA().getUserById(id)).filter(Objects::nonNull).collect(Collectors.toList());
+        return message.getMentionedUsers();
     }
 
     @Override
     public List<Role> getMentionedRoles() {
-        return null;
+        return message.getMentionedRoles();
     }
 
     @Override
     public List<TextChannel> getMentionedChannels() {
-        return null;
+        return message.getMentionedChannels();
     }
 
     @Override
     public List<Member> getMentionedMembers() {
-        return null;
+        return message.getMentionedMembers();
     }
 
     @Override
     public ICommandEvent serialize() {
-        return this;
+        return new SerializableCommandEvent(this);
     }
 }

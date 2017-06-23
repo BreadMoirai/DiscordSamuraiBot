@@ -17,8 +17,9 @@
 package samurai.messages.listeners;
 
 import samurai.command.Command;
+import samurai7.core.response.listener.DynamicResponseEventListener;
 
-public interface CommandEventListener extends SamuraiMessageEventListener {
+public interface CommandEventListener extends DynamicResponseEventListener {
     @Override
     void onCommand(Command command);
 }

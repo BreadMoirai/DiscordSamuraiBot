@@ -1,5 +1,5 @@
 /*
- *       Copyright 2017 Ton Ly (BreadMoirai)
+ *       Copyright 2017 Ton Ly
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -14,23 +14,26 @@
  *   limitations under the License.
  *
  */
+
 package samurai7.core;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import samurai7.core.response.Response;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class Command<M extends IModule> implements ICommand{
+public abstract class BiCommand<M1 extends IModule, M2 extends IModule> implements ICommand {
 
-    private M module;
+    private M1 module1;
+    private M2 module2;
     private ICommandEvent event;
 
     @Override
     public final Optional<Response> call() {
-        final Response r = execute(getEvent(), module);
+        final Response r = execute(getEvent(), module1, module2);
         //noinspection Duplicates
         if (r != null) {
             if (r.getAuthorId() == 0) r.setAuthorId(getEvent().getAuthorId());
@@ -40,7 +43,7 @@ public abstract class Command<M extends IModule> implements ICommand{
         return Optional.ofNullable(r);
     }
 
-    protected abstract Response execute(ICommandEvent event, M module);
+    protected abstract Response execute(ICommandEvent event, M1 module1, M2 module2);
 
     @Override
     final public ICommandEvent getEvent() {
@@ -49,8 +52,12 @@ public abstract class Command<M extends IModule> implements ICommand{
 
     @Override
     final public void setModules(Map<Type, IModule> moduleTypeMap) {
+        final Map<TypeVariable<?>, Type> typeArguments = TypeUtils.getTypeArguments(this.getClass(), Command.class);
+        final TypeVariable<Class<Command>>[] typeParameters = Command.class.getTypeParameters();
         //noinspection unchecked
-        this.module = (M) moduleTypeMap.get(TypeUtils.getTypeArguments(this.getClass(), Command.class).get(Command.class.getTypeParameters()[0]));
+        this.module1 = (M1) moduleTypeMap.get(typeArguments.get(typeParameters[0]));
+        //noinspection unchecked
+        this.module2 = (M2) moduleTypeMap.get(typeArguments.get(typeParameters[1]));
     }
 
     @Override

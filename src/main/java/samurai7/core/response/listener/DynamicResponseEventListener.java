@@ -14,14 +14,13 @@
  *   limitations under the License.
  *
  */
-
-package samurai.messages.listeners;
+package samurai7.core.response.listener;
 
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 
-public interface SamuraiMessageEventListener extends MyEventListener {
+public interface DynamicResponseEventListener extends MyEventListener {
     long getMessageId();
     long getChannelId();
     long getAuthorId();

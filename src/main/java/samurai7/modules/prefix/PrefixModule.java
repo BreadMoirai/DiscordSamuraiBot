@@ -14,13 +14,11 @@
  *   limitations under the License.
  *
  */
-
 package samurai7.modules.prefix;
 
-import samurai7.core.Command;
 import samurai7.core.Database;
 import samurai7.core.IModule;
-import samurai7.core.impl.CommandProcessorConfiguration;
+import samurai7.core.CommandProcessorConfiguration;
 
 public class PrefixModule implements IModule {
 
@@ -41,7 +39,7 @@ public class PrefixModule implements IModule {
         config.registerCommand("samurai7.modules.prefix");
     }
 
-    String getPrefix(long guildId) {
+    private String getPrefix(long guildId) {
         return Database.get().withHandle(handle ->
                 handle.select("SELECT prefix FROM GuildPrefix WHERE guild = ?", guildId)
                         .mapTo(String.class)
@@ -54,11 +52,6 @@ public class PrefixModule implements IModule {
 
     void changePrefix(long guildId, String newPrefix) {
         Database.get().useHandle(handle -> handle.update("UPDATE Guild SET Prefix = ? WHERE GuildId = ?", newPrefix, guildId));
-    }
-
-    @Override
-    public Command getCommand(String key) {
-        return null;
     }
 
 }

@@ -22,44 +22,49 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.jetbrains.annotations.Contract;
 
-import java.util.function.Consumer;
+import java.io.Serializable;
 
-public abstract class Response {
+public abstract class Response implements Serializable {
 
     private long authorId, messageId, channelId, guildId;
 
-    public abstract Message getMessage();
-    public abstract void onSend(Message message);
+    abstract public Message getMessage();
 
-    public long getAuthorId() {
+    abstract public void onSend(Message message);
+
+    abstract public void register(ResponseHandler responseHandler);
+
+    abstract public void unregister();
+
+    public final long getAuthorId() {
         return authorId;
     }
 
-    public void setAuthorId(long authorId) {
+    public final void setAuthorId(long authorId) {
         this.authorId = authorId;
     }
 
-    public long getMessageId() {
+    public final long getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(long messageId) {
+    public final void setMessageId(long messageId) {
         this.messageId = messageId;
     }
 
-    public long getChannelId() {
+    public final long getChannelId() {
         return channelId;
     }
 
-    public void setChannelId(long channelId) {
+    public final void setChannelId(long channelId) {
         this.channelId = channelId;
     }
 
-    public long getGuildId() {
+    public final long getGuildId() {
         return guildId;
     }
 
-    public void setGuildId(long guildId) {
+    public final void setGuildId(long guildId) {
         this.guildId = guildId;
     }
 

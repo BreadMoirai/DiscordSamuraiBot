@@ -18,8 +18,9 @@ package samurai.messages.listeners;
 
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import samurai7.core.response.listener.DynamicResponseEventListener;
 
-public interface ChannelMessageEventListener extends SamuraiMessageEventListener {
+public interface ChannelMessageEventListener extends DynamicResponseEventListener {
     @Override
     void onChannelMessageReceived(GuildMessageReceivedEvent event);
 

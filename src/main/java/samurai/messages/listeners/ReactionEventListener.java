@@ -19,8 +19,9 @@ package samurai.messages.listeners;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
+import samurai7.core.response.listener.DynamicResponseEventListener;
 
-public interface ReactionEventListener extends SamuraiMessageEventListener {
+public interface ReactionEventListener extends DynamicResponseEventListener {
     @Override
     void onSelfReactionEvent(GenericMessageReactionEvent event);
 

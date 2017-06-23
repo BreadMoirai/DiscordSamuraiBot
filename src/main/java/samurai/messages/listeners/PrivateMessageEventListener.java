@@ -18,8 +18,9 @@ package samurai.messages.listeners;
 
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
+import samurai7.core.response.listener.DynamicResponseEventListener;
 
-public interface PrivateMessageEventListener extends SamuraiMessageEventListener {
+public interface PrivateMessageEventListener extends DynamicResponseEventListener {
     @Override
     void onPrivateMessageReceivedEvent(PrivateMessageReceivedEvent event);
 
