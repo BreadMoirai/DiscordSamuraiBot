@@ -14,12 +14,11 @@
  *   limitations under the License.
  *
  */
-package samurai7.core.impl;
+package samurai7.core;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
-import samurai7.core.ICommandEvent;
 import samurai7.util.DiscordPatterns;
 
 import java.time.Instant;
@@ -35,13 +34,14 @@ public class MessageReceivedCommandEvent implements ICommandEvent {
     private String key;
     private String content;
 
-    public MessageReceivedCommandEvent(GenericGuildMessageEvent event, Message message) {
+    MessageReceivedCommandEvent(GenericGuildMessageEvent event, Message message) {
         this.event = event;
         this.message = message;
     }
 
     @Override
     public boolean validate(String prefix) {
+        if (this.prefix != null) return true;
         this.prefix = prefix;
         String contentRaw = message.getContentRaw();
         final Matcher matcher = DiscordPatterns.USER_MENTION_PREFIX.matcher(contentRaw);

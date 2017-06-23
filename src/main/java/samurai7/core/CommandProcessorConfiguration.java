@@ -15,15 +15,12 @@
  *
  */
 
-package samurai7.core.impl;
+package samurai7.core;
 
 import net.dv8tion.jda.core.entities.Message;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.reflections.Reflections;
 import samurai.command.annotations.Key;
-import samurai7.core.Command;
-import samurai7.core.ICommandEvent;
-import samurai7.core.IModule;
 import samurai7.util.DuplicateCommandKeyError;
 
 import java.util.Map;
@@ -32,9 +29,9 @@ import java.util.function.Predicate;
 
 public class CommandProcessorConfiguration {
     Predicate<Message> preProcessPredicate;
-    Predicate<Command> postProcessPredicate;
+    Predicate<ICommand> postProcessPredicate;
 
-    Map<String, Class<? extends Command>> commandMap;
+    Map<String, Class<? extends ICommand>> commandMap;
 
 
     public CommandProcessorConfiguration addPreProcessPredicate(Predicate<Message> predicate) {
@@ -44,14 +41,14 @@ public class CommandProcessorConfiguration {
         return this;
     }
 
-    public CommandProcessorConfiguration addPostProcessPredicate(Predicate<Command> predicate) {
+    public CommandProcessorConfiguration addPostProcessPredicate(Predicate<ICommand> predicate) {
         if (postProcessPredicate == null) {
             postProcessPredicate = predicate;
         } else postProcessPredicate = postProcessPredicate.and(predicate);
         return this;
     }
 
-    public CommandProcessorConfiguration registerCommand(Class<? extends Command> commandClass, String... keys) {
+    public CommandProcessorConfiguration registerCommand(Class<? extends ICommand> commandClass, String... keys) {
         for (String key : keys) {
             if (key == null || keys.length == 0) {
                 System.err.println("No key found for " + commandClass.getSimpleName());
@@ -80,11 +77,22 @@ public class CommandProcessorConfiguration {
 
     public CommandProcessorConfiguration registerCommand(String commandPackage) {
         Reflections reflections = new Reflections(commandPackage);
-        Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
-        for (Class<? extends Command> commandClass : classes) {
+        Set<Class<? extends ICommand>> classes = reflections.getSubTypesOf(ICommand.class);
+        for (Class<? extends ICommand> commandClass : classes) {
             registerCommand(commandClass);
         }
         return this;
     }
 
+    Map<String, Class<? extends ICommand>> getCommandMap() {
+        return commandMap;
+    }
+
+    Predicate<Message> getPreProcessPredicate() {
+        return preProcessPredicate;
+    }
+
+    Predicate<ICommand> getPostProcessPredicate() {
+        return postProcessPredicate;
+    }
 }

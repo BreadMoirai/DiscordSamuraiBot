@@ -14,18 +14,30 @@
  *   limitations under the License.
  *
  */
-
 package samurai7.modules.prefix;
 
+import samurai.command.annotations.Admin;
 import samurai.command.annotations.Key;
 import samurai7.core.Command;
 import samurai7.core.ICommandEvent;
 import samurai7.core.response.Response;
+import samurai7.util.DiscordPatterns;
 
+@Admin
 @Key("prefix")
 public class PrefixCommand extends Command<PrefixModule> {
     @Override
     public Response execute(ICommandEvent event, PrefixModule module) {
         if (!event.hasContent())
+            return Response.of("The current prefix is `" + event.getPrefix() + "`");
+        final String content = event.getContent().trim().toLowerCase();
+        if (content.length() > 16) {
+            return Response.of("New prefix must be less than 16 characters.");
+        } else if (DiscordPatterns.WHITE_SPACE.matcher(content).find()) {
+            return Response.of("New prefix must not contain spaces");
+        } else {
+            module.changePrefix(event.getGuildId(), content);
+            return Response.of("Prefix set to `" + content + "`");
+        }
     }
 }

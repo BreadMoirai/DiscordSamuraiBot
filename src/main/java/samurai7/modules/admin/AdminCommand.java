@@ -12,12 +12,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.listeners;
+package samurai7.modules.admin;
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import samurai.command.annotations.Admin;
+import samurai.command.annotations.Key;
+import samurai7.core.Command;
+import samurai7.core.ICommandEvent;
+import samurai7.core.response.Response;
 
-public interface ChannelMessageListener extends SamuraiListener {
-    void onGuildMessageReceived(GuildMessageReceivedEvent event);
-    default void onGuildMessageUpdate(GuildMessageUpdateEvent event) {}
+@Admin
+@Key("admin")
+public class AdminCommand extends Command<AdminModule> {
+    @Override
+    public Response execute(ICommandEvent event, AdminModule module) {
+        return Response.of("**Administrative Members:** " + event.getGuild().getMembers().stream().filter(module::isAdmin));
+    }
 }

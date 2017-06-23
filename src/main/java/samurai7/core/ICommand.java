@@ -12,12 +12,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package samurai.messages.listeners;
+package samurai7.core;
 
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import samurai7.core.response.Response;
 
-public interface ChannelMessageListener extends SamuraiListener {
-    void onGuildMessageReceived(GuildMessageReceivedEvent event);
-    default void onGuildMessageUpdate(GuildMessageUpdateEvent event) {}
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Optional;
+
+public interface ICommand {
+
+    Optional<Response> call();
+
+    void setEvent(ICommandEvent event);
+
+    ICommandEvent getEvent();
+
+    void setModules(Map<Type, IModule> moduleTypeMap);
 }

@@ -14,11 +14,10 @@
  *   limitations under the License.
  *
  */
-package samurai7.core.impl;
+package samurai7.core;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
-import samurai7.core.ICommandEvent;
 
 import java.io.Serializable;
 import java.time.Instant;

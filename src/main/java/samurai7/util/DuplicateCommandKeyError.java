@@ -18,10 +18,11 @@ package samurai7.util;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import samurai7.core.Command;
+import samurai7.core.ICommand;
 import samurai7.core.IModule;
 
 public class DuplicateCommandKeyError extends Error {
-    public DuplicateCommandKeyError(String key, Class<? extends Command> existing, Class<? extends Command> duplicate) {
+    public DuplicateCommandKeyError(String key, Class<? extends ICommand> existing, Class<? extends ICommand> duplicate) {
         super("Key \"" + key + "\" for Command " + duplicate.getSimpleName() + " in Module " + TypeUtils.getTypeArguments(duplicate, Command.class).get(Command.class.getTypeParameters()[0]).getTypeName() + " is already mapped to Command " + existing.getSimpleName() + " in Module " + TypeUtils.getTypeArguments(existing, Command.class).get(Command.class.getTypeParameters()[0]).getTypeName());
     }
 }

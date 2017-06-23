@@ -40,6 +40,16 @@ public class BasicResponse extends Response {
         if (consumer != null) consumer.accept(message);
     }
 
+    @Override
+    public void register(ResponseHandler responseHandler) {
+        //do nothing
+    }
+
+    @Override
+    public void unregister(ResponseHandler responseHandler) {
+        //also do nothing
+    }
+
     public BasicResponse andThen(Consumer<Message> onSend) {
         if (consumer == null) consumer = onSend;
         else consumer = consumer.andThen(onSend);

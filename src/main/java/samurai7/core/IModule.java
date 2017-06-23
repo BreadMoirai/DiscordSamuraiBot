@@ -17,10 +17,6 @@
 
 package samurai7.core;
 
-import samurai7.core.impl.CommandProcessorConfiguration;
-
-import java.util.EventListener;
-
 public interface IModule{
 
    void init(CommandProcessorConfiguration config);
