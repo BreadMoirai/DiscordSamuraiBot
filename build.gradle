@@ -11,9 +11,8 @@ idea.module.downloadJavadoc = true
 
 def majorVersion = 7
 def minorVersion = 0
-mainClassName = "com.github.breadmoirai.samuraiBot"
+mainClassName = "com.github.breadmoirai.samurai.Runner"
 
-sourceSets.main.java.exclude('samurai')
 
 repositories {
     jcenter()
@@ -74,7 +73,10 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 
 tasks.create('sourcesForRelease', Copy.class) {
-    from 'src/main/java'
+    from('src/main/java') {
+        exclude 'src/main/java/samurai'
+        exclude 'samurai'
+    }
     from 'src/main/resources'
     into 'build/filteredSrc'
     filter(ReplaceTokens, tokens: [

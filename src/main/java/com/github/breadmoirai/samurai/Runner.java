@@ -12,12 +12,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samuraiBot;
+package com.github.breadmoirai.samurai;
 
+import com.github.breadmoirai.samurai.modules.music.MusicModule;
 import com.github.breadmoirai.samurai7.core.impl.SamuraiClientBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
+
+import javax.security.auth.login.LoginException;
 
 public class Runner {
     public static void main(String[] args) {
@@ -26,8 +32,18 @@ public class Runner {
         AnnotatedEventManager eventManager = new SamuraiClientBuilder()
                 .addDefaultAdminModule()
                 .addDefaultPrefixModule("!")
-                .addModule()
+                .addSourceModule(233097800722808832L)
+                .addModule(new MusicModule(30))
                 .buildAnnotated();
+
+        try {
+            new JDABuilder(AccountType.BOT)
+                    .setToken(config.getString("bot.testtoken"))
+                    .setEventManager(eventManager)
+                    .buildAsync();
+        } catch (LoginException | RateLimitedException e) {
+            e.printStackTrace();
+        }
 
 
     }

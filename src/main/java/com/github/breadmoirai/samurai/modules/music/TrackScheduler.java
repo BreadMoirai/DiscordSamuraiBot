@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package samurai.audio;
+package com.github.breadmoirai.samurai.modules.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -23,22 +23,23 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import samurai.command.music.History;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 public class TrackScheduler extends AudioEventAdapter {
-    private final AudioPlayer player;
+    private final MusicModule module;
+    private AudioPlayer player;
     private final List<AudioTrack> queue;
     private final Deque<AudioTrack> history;
     private AudioTrack current;
     private boolean autoPlay;
     private boolean repeat;
 
-    TrackScheduler(AudioPlayer player) {
+    TrackScheduler(AudioPlayer player, MusicModule module) {
         this.player = player;
+        this.module = module;
         this.queue = new ArrayList<>(20);
         history = new ArrayDeque<AudioTrack>(10) {
             @Override
@@ -74,7 +75,7 @@ public class TrackScheduler extends AudioEventAdapter {
                 }
                 if (track.getSourceManager().getSourceName().equalsIgnoreCase("youtube")) {
                     final List<String> related = YoutubeAPI.getRelated(track.getIdentifier(), 15L);
-                    SamuraiAudioManager.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoPlayHandler());
+                    module.loadItem(this, related.get(ThreadLocalRandom.current().nextInt(related.size())), new AutoPlayHandler());
                 }
                 current = null;
             } else {
@@ -110,6 +111,9 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         exception.printStackTrace();
+        player.destroy();
+        this.player = module.createPlayer();
+        this.current = null;
         nextTrack();
     }
 

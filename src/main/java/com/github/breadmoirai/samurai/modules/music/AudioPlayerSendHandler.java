@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package samurai.audio;
+package com.github.breadmoirai.samurai.modules.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
