@@ -24,7 +24,7 @@ import com.github.breadmoirai.samurai7.core.response.Responses;
 import com.github.breadmoirai.samurai7.modules.admin.Admin;
 import com.github.breadmoirai.samurai.modules.music.GuildMusicManager;
 import com.github.breadmoirai.samurai.modules.music.MusicModule;
-import com.github.breadmoirai.samurai.modules.util.Reactions;
+import com.github.breadmoirai.samurai.util.Reactions;
 
 @Admin
 @Key("leave")

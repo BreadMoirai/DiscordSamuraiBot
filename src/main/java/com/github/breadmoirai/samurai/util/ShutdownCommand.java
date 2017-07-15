@@ -13,24 +13,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.breadmoirai.samurai.modules;
+package com.github.breadmoirai.samurai.util;
 
 import com.github.breadmoirai.samurai7.core.CommandEvent;
-import com.github.breadmoirai.samurai7.core.IModule;
 import com.github.breadmoirai.samurai7.core.command.Command;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.response.Response;
-import com.github.breadmoirai.samurai7.core.response.Responses;
-@Key("help")
-public class HelpCommand extends Command {
+import com.github.breadmoirai.samurai7.modules.admin.Admin;
+
+@Admin
+@Key("shutdown")
+public class ShutdownCommand extends Command{
     @Override
     public Response execute(CommandEvent event) {
-        if (event.hasContent()) {
-            final String content = event.getContent();
-            return event.getClient().getModule(content.toLowerCase()).map(IModule::getHelp).orElse(Responses.of("No help found"));
-        } else {
-            return Responses.of("This is an in development bot. The only currently supported module is `music`. To view detailed help for music commands, use `" + event.getPrefix() + "help music`.");
-        }
+        event.getJDA().shutdown();
+        return null;
     }
-
 }

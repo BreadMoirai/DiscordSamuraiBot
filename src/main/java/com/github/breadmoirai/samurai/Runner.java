@@ -12,9 +12,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.modules;
+package com.github.breadmoirai.samurai;
 
 import com.github.breadmoirai.samurai.modules.music.MusicModule;
+import com.github.breadmoirai.samurai.util.HelpCommand;
+import com.github.breadmoirai.samurai.util.ShutdownCommand;
 import com.github.breadmoirai.samurai7.core.impl.SamuraiClientBuilder;
 import com.github.breadmoirai.samurai7.database.Database;
 import com.github.breadmoirai.samurai7.waiter.EventWaiter;
@@ -45,7 +47,7 @@ public class Runner {
                 .addSourceModule(233097800722808832L)
                 .addModule(new MusicModule(30, "AIzaSyCJyTMP8W9QHn5uMoT0cBJIX78znBhaw70", "SamuraiDiscordBot"))
                 .configure(ceb -> ceb.registerCommand(ShutdownCommand.class))
-                .configure(ceb -> ceb.registerCommand(com.github.breadmoirai.samurai.HelpCommand.class))
+                .configure(ceb -> ceb.registerCommand(HelpCommand.class))
                 .buildAnnotated();
 
         try {

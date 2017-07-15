@@ -16,7 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
-import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
+import com.github.breadmoirai.samurai.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleMultiCommand;

@@ -14,7 +14,7 @@
  *   limitations under the License.
  *
  */
-package com.github.breadmoirai.samurai.modules.util;
+package com.github.breadmoirai.samurai.util;
 
 import com.github.breadmoirai.samurai7.core.response.Response;
 import net.dv8tion.jda.core.MessageBuilder;

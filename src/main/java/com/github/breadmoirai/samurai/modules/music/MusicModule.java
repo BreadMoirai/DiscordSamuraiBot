@@ -23,7 +23,7 @@ import com.github.breadmoirai.samurai7.core.impl.CommandEngineBuilder;
 import com.github.breadmoirai.samurai7.core.response.Response;
 import com.github.breadmoirai.samurai7.core.response.Responses;
 import com.github.breadmoirai.samurai7.database.Database;
-import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
+import com.github.breadmoirai.samurai.util.PermissionFailureResponse;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
