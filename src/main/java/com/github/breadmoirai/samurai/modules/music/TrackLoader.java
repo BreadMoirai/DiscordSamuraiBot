@@ -112,13 +112,12 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
         track.setUserData(requester);
         if (finished) return;
         if (!loadAsPlaylist) {
-            boolean hyperLink = channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS);
             musicManager.getScheduler().queue(track);
             final int i = musicManager.getScheduler().getQueue().indexOf(track);
             if (i != -1) {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", MusicModule.trackInfoDisplay(track, true, hyperLink), i + 1)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", MusicModule.trackInfoDisplay(track, true), i + 1)).build()).queue();
             } else {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(MusicModule.trackInfoDisplay(track, true, hyperLink)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(MusicModule.trackInfoDisplay(track, true)).build()).queue();
             }
         } else {
             tracklist.add(track);
@@ -129,13 +128,17 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
                 if (request.size() > 10) {
                     channel.addReactionById(getMessageId(), PAGE_REACTION).queue();
                 }
-                final EventWaiter waiter = EventWaiter.get();
-                waiter.waitForEvent(GenericGuildMessageReactionEvent.class, this::onReaction, TrackLoader.TIME_OUT, TrackLoader.TIME_UNIT, this::cancel);
-                waiter.waitForEvent(CommandEvent.class, this::onCommand, TrackLoader.TIME_OUT, TrackLoader.TIME_UNIT, null);
+                waitForCommand();
             } else if (tracklist.size() == 8 || tracklist.size() == request.size()) {
                 channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
             }
         }
+    }
+
+    private void waitForCommand() {
+        final EventWaiter waiter = EventWaiter.get();
+        waiter.waitForEvent(GenericGuildMessageReactionEvent.class, this::onReaction, TrackLoader.TIME_OUT, TrackLoader.TIME_UNIT, this::cancel);
+        waiter.waitForEvent(CommandEvent.class, this::onCommand, TrackLoader.TIME_OUT, TrackLoader.TIME_UNIT, null);
     }
 
     @Override
@@ -155,6 +158,7 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
         if (tracklist.size() > 10) {
             channel.addReactionById(getMessageId(), PAGE_REACTION).queue();
         }
+        waitForCommand();
     }
 
     private Message buildPlaylistDisplay() {
@@ -166,9 +170,8 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
         if (page != 0) {
             sb.append("\n... `").append(start).append("` more tracks");
         }
-        boolean hyperLink = channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS);
         final int end = start + 10;
-        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(i -> String.format("%n`%d.` %s", i + 1, MusicModule.trackInfoDisplay(tracklist.get(i), false, hyperLink))).forEachOrdered(sb::append);
+        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(i -> String.format("%n`%d.` %s", i + 1, MusicModule.trackInfoDisplay(tracklist.get(i), false))).forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
         return new MessageBuilder().setEmbed(eb.build()).build();
@@ -196,10 +199,12 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
 
 
     public boolean onCommand(CommandEvent event) {
+        System.out.println("event = " + event);
         if (finished) return true;
         if (event.getChannelId() != this.getChannelId()) return false;
         if (event.getAuthorId() != this.getAuthorId()) return false;
         if (!event.hasContent()) return false;
+        System.out.println("event = " + event);
         page = 0;
         final String key = event.getKey().toLowerCase();
         final int size = tracklist.size();

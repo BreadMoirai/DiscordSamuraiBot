@@ -16,6 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
@@ -33,6 +34,9 @@ import java.util.Optional;
 public class Repeat extends ModuleCommand<MusicModule> {
     @Override
     public Response execute(CommandEvent event, MusicModule module) {
+        if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
+            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+        }
         final Optional<GuildMusicManager> managerOptional = module.retrieveManager(event.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildMusicManager guildAudioManager = managerOptional.get();
@@ -40,7 +44,7 @@ public class Repeat extends ModuleCommand<MusicModule> {
             if (current == null) return Responses.of("There is nothing to repeat");
             final boolean b = guildAudioManager.getScheduler().toggleRepeat();
             if (!b) return Responses.of("Repeat stopped");
-            else return Responses.of(new EmbedBuilder().appendDescription(MusicModule.trackInfoDisplay(current, true, event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) + " is now playing on repeat").build());
+            else return Responses.of(new EmbedBuilder().appendDescription(MusicModule.trackInfoDisplay(current, true) + " is now playing on repeat").build());
         }
         return Responses.of("There is nothing to repeat.");
     }

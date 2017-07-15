@@ -44,6 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
         history = new ArrayDeque<AudioTrack>(10) {
             @Override
             public void addFirst(AudioTrack audioTrack) {
+                if (audioTrack == null) return;
                 if (this.size() > 15)
                     super.removeLast();
                 super.addFirst(audioTrack);
@@ -68,7 +69,7 @@ public class TrackScheduler extends AudioEventAdapter {
         }
         if (queue.isEmpty()) {
             history.addFirst(current);
-            if (autoPlay) {
+            if (autoPlay && YoutubeAPI.isEnabled()) {
                 AudioTrack track = current;
                 if (track == null) {
                     return;

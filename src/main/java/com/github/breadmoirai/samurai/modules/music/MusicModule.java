@@ -23,7 +23,7 @@ import com.github.breadmoirai.samurai7.core.impl.CommandEngineBuilder;
 import com.github.breadmoirai.samurai7.core.response.Response;
 import com.github.breadmoirai.samurai7.core.response.Responses;
 import com.github.breadmoirai.samurai7.database.Database;
-import com.github.breadmoirai.samurai.util.PermissionFailureResponse;
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -54,7 +54,7 @@ public class MusicModule implements IModule {
     private final AudioPlayerManager playerManager;
     private final TLongObjectMap<GuildMusicManager> audioManagers;
 
-    public MusicModule(int defaultVolume) {
+    public MusicModule(int defaultVolume, String googleApiKey, String applicationName) {
         this.defaultVolume = defaultVolume;
         playerManager = new DefaultAudioPlayerManager();
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
@@ -66,11 +66,30 @@ public class MusicModule implements IModule {
         playerManager.registerSourceManager(new LocalAudioSourceManager());
         audioManagers = new TLongObjectHashMap<>();
         AudioSourceManagers.registerRemoteSources(playerManager);
+        YoutubeAPI.load(googleApiKey, applicationName);
+    }
+
+    @Override
+    public String getName() {
+        return "Music";
+    }
+
+    @Override
+    public Response getHelp() {
+        return Responses.of("The available commands for music are as follow:" +
+                "\n```" +
+                "\nqueue, play." +
+                "\nnowplaying, np, history." +
+                "\nvolume, vol, vol+, vol-." +
+                "\nprevious, skip, repeat." +
+                "\njoin, leave, pause, unpause." +
+                "\nautoplay, autoplay on, autoplay off." +
+                "\n```");
     }
 
     @Override
     public void init(CommandEngineBuilder commands, SamuraiClient samuraiClient) {
-        commands.registerCommand("com.github.breadmoirai.samuraiBot.modules.music.commands");
+        commands.registerCommand("com.github.breadmoirai.samurai.modules.music.commands");
 
         Database db = Database.get();
         if (!db.tableExists("GuildVolume"))
@@ -93,8 +112,8 @@ public class MusicModule implements IModule {
     public void updateVolume(long guildId, int vol) {
         Database.get().useHandle(handle -> {
             if (handle.createUpdate("UPDATE GuildVolume " +
-                    "SET vol = :? " +
-                    "WHERE id = :?")
+                    "SET vol = ? " +
+                    "WHERE id = ?")
                     .bind(0, vol)
                     .bind(1, guildId)
                     .execute() == 1) {
@@ -107,12 +126,12 @@ public class MusicModule implements IModule {
     public int getVolume(long guildId) {
         return Database.get().withHandle(handle -> handle
                 .createQuery("SELECT vol FROM GuildVolume " +
-                        "WHERE id = :?")
+                        "WHERE id = ?")
                 .bind(0, guildId)
                 .mapTo(Integer.class)
                 .findFirst()
                 .orElseGet(() -> {
-                    handle.createUpdate("INSERT INTO GuildVolume VALUES (:?, :?)")
+                    handle.createUpdate("INSERT INTO GuildVolume VALUES (?, ?)")
                             .bind(0, guildId)
                             .bind(1, defaultVolume)
                             .execute();
@@ -141,7 +160,7 @@ public class MusicModule implements IModule {
         return playerManager.createPlayer();
     }
 
-    public static String trackInfoDisplay(AudioTrack track, boolean displayName, boolean hyperLink) {
+    public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
         if (track == null) return "Nothing";
         AudioTrackInfo trackInfo = track.getInfo();
         String trackLengthDisp;
@@ -151,16 +170,9 @@ public class MusicModule implements IModule {
             trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
         }
         if (displayName && track.getUserData() != null) {
-            if (hyperLink) {
-                return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
-            } else {
-                return String.format("%s [%s] _%s_", trackInfo.title, trackLengthDisp, track.getUserData(String.class));
-            }
-        } else if (hyperLink) {
+            return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
+        } else
             return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
-        } else {
-            return String.format("%s [%s]", trackInfo.title, trackLengthDisp);
-        }
     }
 
     @Nullable

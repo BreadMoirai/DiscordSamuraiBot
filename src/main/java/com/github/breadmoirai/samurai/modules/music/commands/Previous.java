@@ -16,6 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
@@ -34,8 +35,10 @@ public class Previous extends ModuleCommand<MusicModule> {
 
     @Override
     public Response execute(CommandEvent event, MusicModule module) {
+        if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
+            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+        }
         final Optional<GuildMusicManager> managerOptional = module.retrieveManager(event.getGuildId());
-        final boolean hyperLink = event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
         if (managerOptional.isPresent()) {
             final GuildMusicManager guildAudioManager = managerOptional.get();
             guildAudioManager.getScheduler().prevTrack();
@@ -43,7 +46,7 @@ public class Previous extends ModuleCommand<MusicModule> {
             final EmbedBuilder embedBuilder = new EmbedBuilder();
             final StringBuilder sb = embedBuilder.getDescriptionBuilder();
             sb.append("Now playing:\n")
-                    .append(MusicModule.trackInfoDisplay(currentTrack, true, hyperLink));
+                    .append(MusicModule.trackInfoDisplay(currentTrack, true));
             return Responses.of(embedBuilder.build());
         }
         return null;

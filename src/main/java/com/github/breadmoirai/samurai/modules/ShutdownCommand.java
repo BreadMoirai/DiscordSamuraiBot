@@ -12,27 +12,21 @@
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
- *
  */
-package com.github.breadmoirai.samurai.modules.music.commands;
+package com.github.breadmoirai.samurai.modules;
 
 import com.github.breadmoirai.samurai7.core.CommandEvent;
+import com.github.breadmoirai.samurai7.core.command.Command;
 import com.github.breadmoirai.samurai7.core.command.Key;
-import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
 import com.github.breadmoirai.samurai7.core.response.Response;
-import com.github.breadmoirai.samurai7.core.response.Responses;
 import com.github.breadmoirai.samurai7.modules.admin.Admin;
-import com.github.breadmoirai.samurai.modules.music.GuildMusicManager;
-import com.github.breadmoirai.samurai.modules.music.MusicModule;
-import com.github.breadmoirai.samurai.modules.util.Reactions;
 
 @Admin
-@Key("leave")
-public class Leave extends ModuleCommand<MusicModule> {
-
+@Key("shutdown")
+public class ShutdownCommand extends Command{
     @Override
-    public Response execute(CommandEvent event, MusicModule module) {
-        module.retrieveManager(event.getGuildId()).ifPresent(GuildMusicManager::closeConnection);
-        return Responses.react(event.getMessageId(), Reactions.BYE);
+    public Response execute(CommandEvent event) {
+        event.getJDA().shutdown();
+        return null;
     }
 }

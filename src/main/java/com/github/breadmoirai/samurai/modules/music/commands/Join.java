@@ -21,7 +21,7 @@ import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
 import com.github.breadmoirai.samurai7.core.response.Responses;
 import com.github.breadmoirai.samurai.modules.music.MusicModule;
-import com.github.breadmoirai.samurai.util.PermissionFailureResponse;
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;

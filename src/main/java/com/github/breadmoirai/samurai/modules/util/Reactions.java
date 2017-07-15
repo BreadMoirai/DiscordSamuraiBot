@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.util;
+package com.github.breadmoirai.samurai.modules.util;
 
 public class Reactions {
     public static final String OK = "\uD83D\uDC4C", BYE = "\uD83D\uDC4B";

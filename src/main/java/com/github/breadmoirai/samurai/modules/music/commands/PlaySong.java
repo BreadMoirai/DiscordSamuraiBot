@@ -16,6 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleMultiCommand;
@@ -36,8 +37,12 @@ import java.util.regex.Pattern;
 
 public class PlaySong extends ModuleMultiCommand<MusicModule> {
 
-    @Key("nowplaying")
+    @Key({"nowplaying", "np"})
     public Response nowPlaying(CommandEvent event, MusicModule module) {
+        if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
+            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+        }
+
         Optional<GuildMusicManager> guildMusicManager = module.retrieveManager(event.getGuildId());
         if (!guildMusicManager.isPresent()) return Responses.of("Nothing is playing right now.");
         final GuildMusicManager audioManager = guildMusicManager.get();
@@ -45,15 +50,11 @@ public class PlaySong extends ModuleMultiCommand<MusicModule> {
         if (currentTrack == null)
             return Responses.of("Nothing is playing right now.");
 
-        final boolean hyperLink = event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
-
         final EmbedBuilder eb = new EmbedBuilder();
         final StringBuilder sb = eb.getDescriptionBuilder();
 
         sb.append(String.format("Now Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), (currentTrack.getPosition() / 1000) % 60, currentTrack.getDuration() / (60 * 1000), (currentTrack.getDuration() / 1000) % 60));
-        if (hyperLink)
-            sb.append("\n[").append(currentTrack.getInfo().title).append("](").append(currentTrack.getInfo().uri).append(")");
-        else sb.append("\n").append(currentTrack.getInfo().title);
+        sb.append("\n[").append(currentTrack.getInfo().title).append("](").append(currentTrack.getInfo().uri).append(")");
         final String userData = currentTrack.getUserData(String.class);
         if (userData != null)
             sb.append(" `").append(userData).append("`\n");
@@ -62,7 +63,7 @@ public class PlaySong extends ModuleMultiCommand<MusicModule> {
         if (!tracks.isEmpty()) {
             sb.append("Up Next:");
             final AtomicInteger i = new AtomicInteger();
-            tracks.stream().limit(10).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), MusicModule.trackInfoDisplay(audioTrackInfo, true, hyperLink))).forEachOrdered(sb::append);
+            tracks.stream().limit(10).map(audioTrackInfo -> String.format("%n`%d.` %s", i.incrementAndGet(), MusicModule.trackInfoDisplay(audioTrackInfo, true))).forEachOrdered(sb::append);
             final int tSize = tracks.size();
             if (tSize > 10) {
                 sb.append("\n... `").append(tSize - 10).append("` more tracks");

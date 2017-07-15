@@ -16,6 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
@@ -36,10 +37,12 @@ public class Skip extends ModuleCommand<MusicModule> {
 
     @Override
     public Response execute(CommandEvent event, MusicModule module) {
+        if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
+            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+        }
         return module.retrieveManager(event.getGuildId()).<Response>map(audioManager -> {
             final EmbedBuilder eb = new EmbedBuilder().appendDescription("Skipped: ");
             final List<AudioTrack> queue = audioManager.getScheduler().getQueue();
-            final boolean hyperLink = event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
             if (event.hasContent()) {
                 if (event.getContent().equalsIgnoreCase("all")) {
                     int size = queue.size();
@@ -52,18 +55,18 @@ public class Skip extends ModuleCommand<MusicModule> {
                     final int size = queue.size();
                     final ArrayDeque<AudioTrack> skip = audioManager.getScheduler().skip(argList.stream()).collect(Collectors.toCollection(ArrayDeque::new));
                     final IntStream intStream = argList.stream().distinct().mapToInt(Integer::intValue).sorted().map(operand -> operand - 1).filter(integer -> integer >= 0 && integer < size);
-                    intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, MusicModule.trackInfoDisplay(skip.removeLast(), true, hyperLink))));
+                    intStream.forEachOrdered(value -> eb.appendDescription(String.format("\n`%d.` %s", value + 1, MusicModule.trackInfoDisplay(skip.removeLast(), true))));
                 }
             } else {
                 AudioTrack current = audioManager.getScheduler().getCurrent();
-                eb.appendDescription(MusicModule.trackInfoDisplay(current, true, hyperLink));
+                eb.appendDescription(MusicModule.trackInfoDisplay(current, true));
                 audioManager.getScheduler().nextTrack();
                 if (queue.size() > 0) {
-                    eb.appendDescription("\nNow Playing: ").appendDescription(MusicModule.trackInfoDisplay(audioManager.getScheduler().getCurrent(), true, hyperLink));
+                    eb.appendDescription("\nNow Playing: ").appendDescription(MusicModule.trackInfoDisplay(audioManager.getScheduler().getCurrent(), true));
                 } else return Responses.of(eb.build()).andThen(message -> {
                     final AudioTrack currentTrack = audioManager.getScheduler().getCurrent();
                     if (currentTrack != null) {
-                        message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing:** ").appendDescription(MusicModule.trackInfoDisplay(currentTrack, false, hyperLink)).build()).queue();
+                        message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing:** ").appendDescription(MusicModule.trackInfoDisplay(currentTrack, false)).build()).queue();
                     }
                 });
             }

@@ -16,11 +16,12 @@
  */
 package com.github.breadmoirai.samurai.modules.music.commands;
 
+import com.github.breadmoirai.samurai.modules.util.PermissionFailureResponse;
 import com.github.breadmoirai.samurai7.core.CommandEvent;
 import com.github.breadmoirai.samurai7.core.command.Key;
 import com.github.breadmoirai.samurai7.core.command.ModuleCommand;
+import com.github.breadmoirai.samurai7.core.response.Response;
 import com.github.breadmoirai.samurai7.core.response.Responses;
-import com.github.breadmoirai.samurai7.core.response.simple.BasicResponse;
 import com.github.breadmoirai.samurai.modules.music.GuildMusicManager;
 import com.github.breadmoirai.samurai.modules.music.MusicModule;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -35,7 +36,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class History extends ModuleCommand<MusicModule> {
 
     @Override
-    public BasicResponse execute(CommandEvent event, MusicModule module) {
+    public Response execute(CommandEvent event, MusicModule module) {
+        if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
+            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+        }
         final Optional<GuildMusicManager> managerOptional = module.retrieveManager(event.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildMusicManager manager = managerOptional.get();
@@ -43,9 +47,8 @@ public class History extends ModuleCommand<MusicModule> {
             final EmbedBuilder eb = new EmbedBuilder();
             final StringBuilder sb = eb.getDescriptionBuilder();
             final AtomicInteger i = new AtomicInteger(0);
-            boolean hyperLink = event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
             sb.append("**History**");
-            history.stream().limit(10).map(track -> MusicModule.trackInfoDisplay(track, true, hyperLink)).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
+            history.stream().limit(10).map(track -> MusicModule.trackInfoDisplay(track, true)).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
             return Responses.of(eb.build());
         }
         return null;
