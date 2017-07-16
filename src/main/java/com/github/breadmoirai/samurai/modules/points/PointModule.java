@@ -33,6 +33,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -79,7 +80,9 @@ public class PointModule extends ListenerAdapter implements IModule {
         }
     }
 
-    public void load(ReadyEvent event) {
+    @Override
+    @SubscribeEvent
+    public void onReady(ReadyEvent event) {
         voiceChannels = new HashSet<>(20);
         final List<Guild> guilds = event.getJDA().getGuilds();
         guildPointMap = new ConcurrentHashMap<>(guilds.size());
@@ -93,6 +96,7 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
+    @SubscribeEvent
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
         if (event.getUser().isBot() || event.getUser().isFake()) return;
         final User user = event.getUser();
@@ -122,6 +126,7 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
+    @SubscribeEvent
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         ConcurrentHashMap<Long, PointSession> guildSessions = guildPointMap.get(event.getGuild().getIdLong());
         if (guildSessions != null) {
@@ -206,6 +211,7 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
+    @SubscribeEvent
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         voiceChannels.remove(event.getChannelLeft());
         if (event.getChannelLeft().getMembers().size() > 0)
@@ -213,6 +219,7 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
+    @SubscribeEvent
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         voiceChannels.remove(event.getChannelJoined());
         voiceChannels.add(event.getChannelJoined());
@@ -230,12 +237,14 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
+    @SubscribeEvent
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         voiceChannels.remove(event.getVoiceState().getChannel());
         voiceChannels.add(event.getVoiceState().getChannel());
     }
 
     @Override
+    @SubscribeEvent
     public void onGuildLeave(GuildLeaveEvent event) {
         final ConcurrentHashMap<Long, PointSession> guildPoints = guildPointMap.remove(event.getGuild().getIdLong());
         if (guildPoints != null) {
