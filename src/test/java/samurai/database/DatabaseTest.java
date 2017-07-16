@@ -58,7 +58,7 @@
 //    public void testPlayer() {
 //        final PlayerBuilder dreadMoirai = OsuAPI.getPlayer("BreadMoirai");
 //        Assert.assertNotNull(dreadMoirai);
-//        dreadMoirai.setDiscordId(USER_ID);
+//        dreadMoirai.setUserId(USER_ID);
 //
 //        final Player playerCreated = dreadMoirai.create();
 //        assertNotNull(playerCreated);
@@ -77,7 +77,7 @@
 //    public void testGuild() {
 //        final PlayerBuilder dreadMoirai = OsuAPI.getPlayer("BreadMoirai");
 //        Assert.assertNotNull(dreadMoirai);
-//        dreadMoirai.setDiscordId(USER_ID);
+//        dreadMoirai.setUserId(USER_ID);
 //        final Player playerCreated = dreadMoirai.create();
 //
 //        SamuraiGuild guildCreated = new GuildBuilder()

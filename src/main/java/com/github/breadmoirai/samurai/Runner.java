@@ -20,8 +20,11 @@ import com.github.breadmoirai.samurai.util.ShutdownCommand;
 import com.github.breadmoirai.samurai7.core.impl.SamuraiClientBuilder;
 import com.github.breadmoirai.samurai7.database.Database;
 import com.github.breadmoirai.samurai7.waiter.EventWaiter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 
@@ -41,18 +44,21 @@ public class Runner {
             return;
         }
 
+        final Config config = ConfigFactory.load();
+
         AnnotatedEventManager eventManager = new SamuraiClientBuilder()
-                .addDefaultAdminModule()
+                .addAdminModule(member -> member.getUser().getIdLong() == 232703415048732672L
+                        || (member.canInteract(member.getGuild().getSelfMember()) && member.hasPermission(Permission.KICK_MEMBERS)))
                 .addDefaultPrefixModule("[")
                 .addSourceModule(233097800722808832L)
-                .addModule(new MusicModule(30, "AIzaSyCJyTMP8W9QHn5uMoT0cBJIX78znBhaw70", "SamuraiDiscordBot"))
+                .addModule(new MusicModule(30, config.getString("api.google"), "SamuraiDiscordBot"))
                 .configure(ceb -> ceb.registerCommand(ShutdownCommand.class))
                 .configure(ceb -> ceb.registerCommand(HelpCommand.class))
                 .buildAnnotated();
 
         try {
             new JDABuilder(AccountType.BOT)
-                    .setToken("MzI4Mjc0OTk1NzE1MjQ0MDM0.DESTwQ.ioB0-PtE5eN91WCOpyElKG0bW5o")
+                    .setToken(config.getString("bot.testtoken"))
                     .setEventManager(eventManager)
                     .addEventListener(EventWaiter.get())
                     .buildAsync();

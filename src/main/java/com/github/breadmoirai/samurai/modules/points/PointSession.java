@@ -14,27 +14,27 @@
  *   limitations under the License.
  *
  */
-package samurai.points;
+package com.github.breadmoirai.samurai.modules.points;
 
+import com.github.breadmoirai.samurai7.database.Database;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Member;
 import samurai.database.Database;
 import samurai.database.dao.PointDao;
 
 public class PointSession {
-    private long discordId;
+    private long userId;
     private long guildId;
     private double points;
-    private OnlineStatus status;
-    private Member member;
+    private double pointsGained = 0;
     private long lastMessageSent;
 
-    public long getDiscordId() {
-        return discordId;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setDiscordId(long discordId) {
-        this.discordId = discordId;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getGuildId() {
@@ -53,23 +53,6 @@ public class PointSession {
         this.points = points;
     }
 
-    public OnlineStatus getStatus() {
-        return status;
-    }
-
-    public PointSession setStatus(OnlineStatus status) {
-        this.status = status;
-        return this;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
     public long getLastMessageSent() {
         return lastMessageSent;
     }
@@ -78,16 +61,8 @@ public class PointSession {
         this.lastMessageSent = lastMessageSent;
     }
 
-    /**
-     * deletes this member from the database.
-     * use with caution
-     */
-    public void delete() {
-        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.deleteUser(discordId, guildId));
-    }
-
     public void commit() {
-        Database.get().<PointDao>openDao(PointDao.class, pointDao -> pointDao.update(discordId, guildId, points));
+        Database.get().useExtension(PointDao.class, pointDao -> pointDao.update(userId, guildId, points));
     }
 
     public PointSession offsetPoints(double offset) {
@@ -107,13 +82,13 @@ public class PointSession {
 
         PointSession that = (PointSession) o;
 
-        if (discordId != that.discordId) return false;
+        if (userId != that.userId) return false;
         return guildId == that.guildId;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (discordId ^ (discordId >>> 32));
+        int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + (int) (guildId ^ (guildId >>> 32));
         return result;
     }
@@ -121,10 +96,9 @@ public class PointSession {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("PointSession{");
-        sb.append("discordId=").append(discordId);
+        sb.append("userId=").append(userId);
         sb.append(", guildId=").append(guildId);
         sb.append(", points=").append(points);
-        sb.append(", member=").append(member);
         sb.append('}');
         return sb.toString();
     }

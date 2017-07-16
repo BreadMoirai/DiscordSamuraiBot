@@ -14,8 +14,12 @@
  *   limitations under the License.
  *
  */
-package samurai.points;
+package com.github.breadmoirai.samurai.modules.points;
 
+import com.github.breadmoirai.samurai7.core.IModule;
+import com.github.breadmoirai.samurai7.core.SamuraiClient;
+import com.github.breadmoirai.samurai7.core.impl.CommandEngineBuilder;
+import com.github.breadmoirai.samurai7.database.Database;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -29,21 +33,16 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import samurai.Bot;
-import samurai.command.CommandModule;
-import samurai.database.Database;
-import samurai.database.objects.SamuraiGuild;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class PointTracker extends ListenerAdapter {
+public class PointModule extends ListenerAdapter implements IModule {
 
     private static final double MESSAGE_POINT = 4;
     private static final double MINUTE_POINT = .09;
@@ -59,21 +58,34 @@ public class PointTracker extends ListenerAdapter {
     private ConcurrentHashMap<Long, ConcurrentHashMap<Long, PointSession>> guildPointMap;
     private HashSet<VoiceChannel> voiceChannels;
 
+    @Override
+    public String getName() {
+        return "points";
+    }
+
+    @Override
+    public void init(CommandEngineBuilder commandEngineBuilder, SamuraiClient samuraiClient) {
+        final Database db = Database.get();
+        if (!db.tableExists("MemberPoints")) {
+            db.useHandle(handle -> {
+                handle.execute("CREATE TABLE MemberPoints (\n" +
+                        "  UserId  BIGINT NOT NULL,\n" +
+                        "  GuildId BIGINT NOT NULL,\n" +
+                        "  Points  DOUBLE DEFAULT 0,\n" +
+                        "  CONSTRAINT Points_PK PRIMARY KEY (DiscordId, GuildId)\n" +
+                        ");\n");
+            });
+        }
+    }
+
     public void load(ReadyEvent event) {
         voiceChannels = new HashSet<>(20);
         final List<Guild> guilds = event.getJDA().getGuilds();
         guildPointMap = new ConcurrentHashMap<>(guilds.size());
         for (Guild guild : guilds) {
             final long guildId = guild.getIdLong();
-            final Optional<SamuraiGuild> guildOptional = Database.get().getGuild(guildId);
-            if (!guildOptional.isPresent()) {
-                System.err.println("Database entry for Guild " + guild.toString() + " was not found!");
-                continue;
-            }
-            final SamuraiGuild samuraiGuild = guildOptional.get();
-            if (CommandModule.points.isEnabled(samuraiGuild.getModules())) {
-                enablePoints(guild);
-            }
+            enablePoints(guild);
+
         }
         pool.scheduleAtFixedRate(this::addMinutePoints, 2, 1, TimeUnit.MINUTES);
         pool.scheduleAtFixedRate(this::addVoicePoints, 2, 1, TimeUnit.MINUTES);
@@ -102,12 +114,7 @@ public class PointTracker extends ListenerAdapter {
             default: {
                 ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
                 if (guildSession != null) {
-                    PointSession pointSession = guildSession.get(userId);
-                    if (pointSession != null) {
-                        pointSession.setStatus(onlineStatus);
-                    } else {
-                        guildSession.put(userId, Database.get().getPointSession(guildId, userId));
-                    }
+                    guildSession.computeIfAbsent(userId, i -> getDBPointSession(guildId, i));
                 }
             }
         }
@@ -136,7 +143,7 @@ public class PointTracker extends ListenerAdapter {
         guildPointMap.values().parallelStream().map(ConcurrentHashMap::values).flatMap(Collection::stream).forEach(pointSession -> pointSession.offsetPoints(MINUTE_POINT));
     }
 
-    public PointSession getMemberPointSession(long guildId, long userId) {
+    public PointSession getPointSession(long guildId, long userId) {
         ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
         if (guildSession != null) {
             PointSession pointSession = guildSession.get(userId);
@@ -144,15 +151,27 @@ public class PointTracker extends ListenerAdapter {
                 return pointSession;
             }
         }
-        return Database.get().getPointSession(guildId, userId);
+        return getDBPointSession(guildId, userId);
     }
 
-    public PointSession getMemberPointSession(Member member) {
-        final PointSession memberPointSession = getMemberPointSession(member.getGuild().getIdLong(), member.getUser().getIdLong());
-        memberPointSession.setMember(member);
-        return memberPointSession;
+    private PointSession getDBPointSession(long guildId, long userId) {
+        return Database.get().withExtension(PointDao.class, pointDao -> {
+            final PointSession session = pointDao.getSession(userId, guildId);
+            if (session == null) {
+                pointDao.insertUser(userId, guildId);
+                final PointSession pointSession = new PointSession();
+                pointSession.setGuildId(guildId);
+                pointSession.setUserId(userId);
+                pointSession.setPoints(0);
+                return pointSession;
+            } else return session;
+        });
     }
 
+
+    public PointSession getPointSession(Member member) {
+        return getPointSession(member.getGuild().getIdLong(), member.getUser().getIdLong());
+    }
 
     public void offsetPoints(long guildId, long userId, double pointValue) {
         ConcurrentHashMap<Long, PointSession> guildSession = guildPointMap.get(guildId);
@@ -161,7 +180,7 @@ public class PointTracker extends ListenerAdapter {
             if (pointSession != null) {
                 pointSession.offsetPoints(pointValue);
             } else {
-                Database.get().getPointSession(guildId, userId).offsetPoints(pointValue).commit();
+                getDBPointSession(guildId, userId).offsetPoints(pointValue).commit();
             }
         }
     }
@@ -175,7 +194,7 @@ public class PointTracker extends ListenerAdapter {
     }
 
     public double transferPoints(long guildId, long fromUserId, long toUserId, double ratio) {
-        double transfer = (getMemberPointSession(guildId, fromUserId).getPoints() * ratio);
+        double transfer = (getPointSession(guildId, fromUserId).getPoints() * ratio);
         offsetPoints(guildId, fromUserId, -1 * transfer);
         offsetPoints(guildId, toUserId, transfer);
         return transfer;
@@ -231,12 +250,12 @@ public class PointTracker extends ListenerAdapter {
         guildPointMap.put(guildId, membersPoints);
         for (Member member : members) {
             if ((member.getUser().isBot() || member.getUser().isFake())
-                    && member.getUser().getIdLong() != Bot.info().ID)
+                    && member.getUser().getIdLong() != guild.getJDA().getSelfUser().getIdLong())
                 continue;
             final OnlineStatus onlineStatus = member.getOnlineStatus();
             if (onlineStatus != OnlineStatus.UNKNOWN && onlineStatus != OnlineStatus.OFFLINE) {
                 final long memberId = member.getUser().getIdLong();
-                membersPoints.put(memberId, Database.get().getPointSession(guildId, memberId).setStatus(onlineStatus));
+                membersPoints.put(memberId, getDBPointSession(guildId, memberId));
             }
         }
     }

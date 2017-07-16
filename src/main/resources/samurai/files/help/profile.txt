@@ -1,5 +1,5 @@
 ```cs
-Purpose: Get Osu! discordId statistics
+Purpose: Get Osu! userId statistics
 Restrictions: None
 Arguments:  '' get your profile.
             '{@mention}' get @mention's profile
