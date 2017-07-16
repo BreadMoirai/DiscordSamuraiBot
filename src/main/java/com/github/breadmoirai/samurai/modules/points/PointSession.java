@@ -26,7 +26,7 @@ public class PointSession {
     private long userId;
     private long guildId;
     private double points;
-    private double pointsGained = 0;
+    private double exp;
     private long lastMessageSent;
 
     public long getUserId() {
@@ -68,6 +68,18 @@ public class PointSession {
     public PointSession offsetPoints(double offset) {
         points += offset;
         return this;
+    }
+
+    public double getExp() {
+        return exp;
+    }
+
+    public void setExp(double exp) {
+        this.exp = exp;
+    }
+
+    public void offsetExp(double exp) {
+        this.exp += exp;
     }
 
     public double getLevel() {

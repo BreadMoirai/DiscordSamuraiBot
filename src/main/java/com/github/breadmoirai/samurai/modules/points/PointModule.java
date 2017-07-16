@@ -72,6 +72,7 @@ public class PointModule extends ListenerAdapter implements IModule {
                         "  UserId  BIGINT NOT NULL,\n" +
                         "  GuildId BIGINT NOT NULL,\n" +
                         "  Points  DOUBLE DEFAULT 0,\n" +
+                        "  Exp     DOUBLE DEFAULT 0,\n" +
                         "  CONSTRAINT Points_PK PRIMARY KEY (DiscordId, GuildId)\n" +
                         ");\n");
             });
