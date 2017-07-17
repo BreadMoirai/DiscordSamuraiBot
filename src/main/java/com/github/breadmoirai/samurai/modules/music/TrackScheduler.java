@@ -184,6 +184,15 @@ public class TrackScheduler extends AudioEventAdapter {
         return repeat;
     }
 
+    public void skipTrack() {
+        if (repeat) {
+            repeat = false;
+            nextTrack();
+            repeat = true;
+        }
+        else nextTrack();
+    }
+
     private class AutoPlayHandler implements AudioLoadResultHandler {
         @Override
         public void trackLoaded(AudioTrack track) {

@@ -60,7 +60,7 @@ public class Skip extends ModuleCommand<MusicModule> {
             } else {
                 AudioTrack current = audioManager.getScheduler().getCurrent();
                 eb.appendDescription(MusicModule.trackInfoDisplay(current, true));
-                audioManager.getScheduler().nextTrack();
+                audioManager.getScheduler().skipTrack();
                 if (queue.size() > 0) {
                     eb.appendDescription("\nNow Playing: ").appendDescription(MusicModule.trackInfoDisplay(audioManager.getScheduler().getCurrent(), true));
                 } else return Responses.of(eb.build()).andThen(message -> {
