@@ -11,24 +11,27 @@ idea.module.downloadJavadoc = true
 
 def majorVersion = 7
 def minorVersion = 0
-mainClassName = "com.github.breadmoirai.samurai.Runner"
+mainClassName = "net.breadmoirai.samurai.Runner"
 
 
 repositories {
     jcenter()
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://dl.bintray.com/breadmoirai/maven'}
 }
 
 dependencies {
     //discord
-    compile 'com.github.breadmoirai:samurai7:v0.3.0'
+    compile 'net.breadmoirai:SamuraiBotFramework:0.3.9'
+
+    compile 'com.sedmelluq:lavaplayer:1.2.42'
+
 //    compile 'com.github.DV8FromTheWorld:JDA:experimental~message-rw-SNAPSHOT'
-    compile 'com.sedmelluq:lavaplayer:1.2.39'
 
     //api
-    compile 'com.mashape.unirest:unirest-java:1.4.9'
-    compile 'ai.api:libai:1.4.8'
+//    compile 'com.mashape.unirest:unirest-java:1.4.9'
+//    compile 'ai.api:libai:1.4.8'
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
 
@@ -48,7 +51,7 @@ dependencies {
     compile 'org.slf4j:slf4j-simple:1.8.0-alpha2'
 
     //test
-    testCompile 'junit:junit:4.11'
+//    testCompile 'junit:junit:4.11'
 }
 
 
@@ -68,31 +71,12 @@ tasks.create('incrementVersionCode') {
 }
 
 version = "${majorVersion}.${minorVersion}.${file("version.txt").getText()}".toString()
-import org.apache.tools.ant.filters.ReplaceTokens
-
-
-tasks.create('sourcesForRelease', Copy.class) {
-    from('src/main/java') {
-        exclude 'src/main/java/samurai'
-        exclude 'samurai'
-    }
-    from 'src/main/resources'
-    into 'build/filteredSrc'
-    filter(ReplaceTokens, tokens: [
-            buildVersion: version
-    ])
-    doLast { tasks['incrementVersionCode'] }
-}
-
 
 compileJava {
     options.encoding = 'UTF-8'
-    if (!project.hasProperty('testing')) {
-        source = (tasks['sourcesForRelease'] as Copy).destinationDir
-        classpath = sourceSets.main.compileClasspath
-        dependsOn tasks['sourcesForRelease']
-    }
+    exclude('samurai')
 }
+
 
 tasks['run'].configure {
     if (project.hasProperty("appArgs")) {
