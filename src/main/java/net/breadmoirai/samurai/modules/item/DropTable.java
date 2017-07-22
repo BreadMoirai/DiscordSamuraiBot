@@ -20,10 +20,9 @@ package net.breadmoirai.samurai.modules.item;
 import gnu.trove.iterator.TIntIntIterator;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
+import net.breadmoirai.sbf.core.response.Response;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.RedPacketDrop;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -76,7 +75,7 @@ public class DropTable implements RowMapper<int[]>, Serializable {
         return new int[]{rs.getInt("DropId"), rs.getInt("Weight")};
     }
 
-    public SamuraiMessage createDrop(int count, Duration duration) {
+    public Response createDrop(int count, Duration duration) {
         final TIntIntHashMap map = new TIntIntHashMap();
         for (int i = 0; i < count; i++) {
             map.adjustOrPutValue(getDropId(), 1, 1);

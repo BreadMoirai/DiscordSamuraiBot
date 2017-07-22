@@ -14,9 +14,7 @@
  *     limitations under the License.
  *
  */
-
 package net.breadmoirai.samurai.modules.item.command;
-
 
 import net.breadmoirai.samurai.modules.item.Inventory;
 import net.breadmoirai.samurai.modules.item.ItemModule;

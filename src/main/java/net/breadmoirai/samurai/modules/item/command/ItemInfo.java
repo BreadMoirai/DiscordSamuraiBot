@@ -25,9 +25,9 @@ import net.breadmoirai.sbf.core.command.Command;
 import net.breadmoirai.sbf.core.command.Key;
 import net.breadmoirai.sbf.core.command.ModuleCommand;
 import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.core.response.Responses;
 import net.breadmoirai.sbf.database.Database;
 import net.dv8tion.jda.core.EmbedBuilder;
-
 
 @Key("item")
 public class ItemInfo extends ModuleCommand<ItemModule> {
@@ -37,7 +37,7 @@ public class ItemInfo extends ModuleCommand<ItemModule> {
         if (event.isNumeric()) {
             final int itemId = Integer.parseInt(event.getContent());
             final Item item = Database.get().withExtension(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
-            if (item == null) return FixedMessage.build("No such item exists with that ID");
+            if (item == null) return Responses.of("No such item exists with that ID");
             final ItemData data = item.getData();
             final EmbedBuilder eb = new EmbedBuilder()
                     .setTitle(data.getName())
@@ -45,7 +45,7 @@ public class ItemInfo extends ModuleCommand<ItemModule> {
                     .setFooter(String.valueOf(data.getItemId()), null)
                     .setColor(data.getRarity().getColor())
                     .setDescription(data.getDescription());
-            return FixedMessage.build(eb.build());
-        } else return FixedMessage.build("Please provide an Item ID");
+            return Responses.of(eb.build());
+        } else return Responses.of("Please provide an Item ID");
     }
 }

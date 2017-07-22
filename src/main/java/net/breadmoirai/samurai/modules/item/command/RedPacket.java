@@ -13,18 +13,10 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  *
- */
+ *//*
+
 package net.breadmoirai.samurai.modules.item.command;
 
-import samurai.command.Command;
-import samurai.command.CommandContext;
-import samurai.command.annotations.Creator;
-import samurai.command.annotations.Key;
-import samurai.command.manage.Schedule;
-import samurai.items.Item;
-import samurai.items.ItemFactory;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.RedPacketDrop;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -63,3 +55,4 @@ public class RedPacket extends Command {
         return new RedPacketDrop(duration, drops, dropQueue);
     }
 }
+*/

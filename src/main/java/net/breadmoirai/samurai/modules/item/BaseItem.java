@@ -16,7 +16,8 @@
  */
 package net.breadmoirai.samurai.modules.item;
 
-import samurai.messages.base.SamuraiMessage;
+
+import net.breadmoirai.sbf.core.response.Response;
 
 public class BaseItem implements Item {
 
@@ -32,7 +33,7 @@ public class BaseItem implements Item {
     }
 
     @Override
-    public SamuraiMessage useItem(ItemUseContext context) {
+    public Response useItem(ItemUseContext context) {
         return null;
     }
 

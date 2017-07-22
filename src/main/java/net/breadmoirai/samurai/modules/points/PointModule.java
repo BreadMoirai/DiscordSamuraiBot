@@ -269,4 +269,11 @@ public class PointModule extends ListenerAdapter implements IModule {
             }
         }
     }
+
+    public double getPoints(Member member) {
+        return getPointSession(member).getPoints();
+    }
+    public double getPoints(long guildId, long userId) {
+        return getPointSession(guildId, userId).getPoints();
+    }
 }

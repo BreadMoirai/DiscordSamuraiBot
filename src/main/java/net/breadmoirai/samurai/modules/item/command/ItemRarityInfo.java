@@ -17,6 +17,7 @@
 
 package net.breadmoirai.samurai.modules.item.command;
 
+import net.breadmoirai.samurai.modules.item.ItemRarity;
 import net.breadmoirai.sbf.core.CommandEvent;
 import net.breadmoirai.sbf.core.command.Command;
 import net.breadmoirai.sbf.core.command.Key;
@@ -31,6 +32,6 @@ public class ItemRarityInfo extends Command {
 
     @Override
     public Response execute(CommandEvent event) {
-        return Responses.of(net.breadmoirai.samurai.modules.item.items.ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
+        return Responses.of(Arrays.stream(ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
     }
 }

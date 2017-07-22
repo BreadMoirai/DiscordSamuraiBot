@@ -16,8 +16,7 @@
  */
 package net.breadmoirai.samurai.modules.item;
 
-import samurai.database.Database;
-import samurai.database.dao.ItemDao;
+import net.breadmoirai.sbf.database.Database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class Inventory {
     }
 
     public List<ItemSlot> getItemSlots() {
-        final ArrayList<ItemSlot> itemSlots = new ArrayList<>(Database.get().<ItemDao, List<ItemSlot>>openDao(ItemDao.class, itemDao -> itemDao.selectUserInventory(guildId, userId)));
+        final ArrayList<ItemSlot> itemSlots = new ArrayList<>(Database.get().withExtension(ItemDao.class, itemDao -> itemDao.selectUserInventory(guildId, userId)));
         itemSlots.sort(ItemSlot.comparator());
         return itemSlots;
     }
@@ -94,6 +93,6 @@ public class Inventory {
     }
 
     public void clear() {
-        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.deleteInventory(guildId, userId));
+        Database.get().useExtension(ItemDao.class, itemDao -> itemDao.deleteInventory(guildId, userId));
     }
 }
