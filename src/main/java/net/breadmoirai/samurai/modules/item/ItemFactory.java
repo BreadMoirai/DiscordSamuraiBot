@@ -14,22 +14,20 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import net.breadmoirai.sbf.database.Database;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
-import samurai.database.Database;
-import samurai.database.dao.ItemDao;
 
 import java.rmi.NoSuchObjectException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 public class ItemFactory implements RowMapper<Item>{
@@ -64,14 +62,14 @@ public class ItemFactory implements RowMapper<Item>{
     }
 
     public static Item getItemById(int itemId) {
-        return Database.get().<ItemDao, Item>openDao(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
+        return Database.get().withExtension(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
     }
 
     public static List<Item> getShopItems() {
-        return Database.get().openDao(ItemDao.class, ItemDao::selectShopItems);
+        return Database.get().withExtension(ItemDao.class, ItemDao::selectShopItems);
     }
 
-    public static List<Item> getAllItems() { return Database.get().openDao(ItemDao.class, ItemDao::selectAllItems);}
+    public static List<Item> getAllItems() { return Database.get().withExtension(ItemDao.class, ItemDao::selectAllItems);}
 
     public static void load(ReadyEvent event) throws NoSuchObjectException {
         final JDA jda = event.getJDA();

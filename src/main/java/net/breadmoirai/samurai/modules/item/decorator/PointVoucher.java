@@ -14,20 +14,20 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items.decorator;
+package net.breadmoirai.samurai.modules.item.decorator;
 
+
+import net.breadmoirai.samurai.modules.item.Item;
+import net.breadmoirai.samurai.modules.item.ItemRarity;
+import net.breadmoirai.samurai.modules.item.ItemSlot;
+import net.breadmoirai.samurai.modules.item.ItemUseContext;
+
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.core.response.Responses;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import samurai.items.Item;
-import samurai.items.ItemRarity;
-import samurai.items.ItemSlot;
-import samurai.items.ItemUseContext;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.FixedMessage;
-import samurai.messages.impl.util.Prompt;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -38,7 +38,7 @@ public class PointVoucher extends ItemDecorator {
     }
 
     @Override
-    public SamuraiMessage use(ItemUseContext context) {
+    public Response use(ItemUseContext context) {
         if (getData().getRarity().compareTo(ItemRarity.SALIENT) > 0) {
             final Emote emote = getData().getEmote();
             final Message redeemPrompt = new MessageBuilder().setEmbed(
@@ -51,18 +51,17 @@ public class PointVoucher extends ItemDecorator {
                             .setFooter(String.format("SlotId: %d | ItemId: %d", context.getItemSlot().getSlotId(), getData().getItemId()), null)
                             .build())
                     .build();
-            return new Prompt(redeemPrompt, prompt -> {
-                prompt.getChannel().deleteMessageById(prompt.getMessageId()).queue();
-                prompt.getChannel().sendMessage(redeem(context).getMessage()).queue();
-            }, prompt -> prompt.getJDA().getTextChannelById(prompt.getChannelId()).deleteMessageById(prompt.getMessageId()).queue());
+            return Responses.newPrompt()
+                    .onYes(menu -> menu.replaceWith(redeem(context)), null)
+                    .buildResponse(redeemPrompt);
         }
         return redeem(context);
     }
 
-    private FixedMessage redeem(ItemUseContext context) {
+    private Response redeem(ItemUseContext context) {
         final ItemSlot itemSlot = context.getItemSlot();
         if (itemSlot.getCount() == 1) {
-            if (!context.getInventory().removeItemSlot(itemSlot)) return FixedMessage.build("This item has already been used");
+            if (!context.getInventory().removeItemSlot(itemSlot)) return Responses.of("This item has already been used");
         } else {
             itemSlot.offset(-1);
         }
@@ -74,6 +73,6 @@ public class PointVoucher extends ItemDecorator {
             value = ThreadLocalRandom.current().nextDouble(properties[0], properties[1]);
         }
         context.getPointSession().offsetPoints(value);
-        return FixedMessage.build(String.format("**%s** redeemed a %s_%s_ for **%.2f** points", context.getMember().getEffectiveName(), getData().getEmote().getAsMention(), getData().getName(), value));
+        return Responses.ofFormat("**%s** redeemed a %s_%s_ for **%.2f** points", context.getMember().getEffectiveName(), getData().getEmote().getAsMention(), getData().getName(), value);
     }
 }

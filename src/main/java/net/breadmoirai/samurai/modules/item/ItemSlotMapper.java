@@ -14,7 +14,7 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
 import org.jdbi.v3.core.statement.StatementContext;
 

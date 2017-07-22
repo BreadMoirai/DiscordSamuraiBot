@@ -1,5 +1,5 @@
 /*
- *         Copyright 2017 Ton Ly (BreadMoirai)
+import net.breadmoirai.samurai.modules.item.Item;*         Copyright 2017 Ton Ly (BreadMoirai)
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -14,32 +14,41 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item.decorator;
 
-import samurai.messages.base.SamuraiMessage;
+import net.breadmoirai.samurai.modules.item.Item;
+import net.breadmoirai.samurai.modules.item.ItemData;
+import net.breadmoirai.samurai.modules.item.ItemUseContext;
+import net.breadmoirai.sbf.core.response.Response;
 
-public class BaseItem implements Item {
+public abstract class ItemDecorator implements Item {
 
-    private final ItemData data;
+    private final Item baseItem;
 
-    BaseItem(ItemData data) {
-        this.data = data;
+    ItemDecorator(Item baseItem) {
+        this.baseItem = baseItem;
     }
 
     @Override
-    public ItemData getData() {
-        return data;
+    public final ItemData getData() {
+        return baseItem.getData();
     }
 
     @Override
-    public SamuraiMessage useItem(ItemUseContext context) {
-        return null;
+    public final Response useItem(ItemUseContext context) {
+        final Response result = this.use(context);
+        if (result == null)
+            return baseItem.useItem(context);
+        else
+            return result;
     }
+
+    protected abstract Response use(ItemUseContext context);
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("BaseItem{");
-        sb.append(data);
+        final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + "{");
+        sb.append(baseItem);
         sb.append('}');
         return sb.toString();
     }
@@ -53,4 +62,5 @@ public class BaseItem implements Item {
     public int hashCode() {
         return getData().hashCode();
     }
+
 }

@@ -14,14 +14,13 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
-import net.dv8tion.jda.core.JDA;
-import samurai.messages.base.SamuraiMessage;
+import net.breadmoirai.sbf.core.response.Response;
 
 public interface Item {
 
-    SamuraiMessage useItem(ItemUseContext context);
+    Response useItem(ItemUseContext context);
 
     ItemData getData();
 

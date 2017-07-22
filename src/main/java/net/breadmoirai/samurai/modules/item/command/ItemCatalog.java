@@ -16,19 +16,22 @@
  */
 package net.breadmoirai.samurai.modules.item.command;
 
-import samurai.command.Command;
-import samurai.command.CommandContext;
-import samurai.command.annotations.Key;
-import samurai.items.ItemFactory;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.FixedMessage;
+
+import net.breadmoirai.samurai.modules.item.ItemFactory;
+import net.breadmoirai.samurai.modules.item.ItemModule;
+import net.breadmoirai.sbf.core.CommandEvent;
+import net.breadmoirai.sbf.core.command.Key;
+import net.breadmoirai.sbf.core.command.ModuleCommand;
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.core.response.Responses;
 
 import java.util.stream.Collectors;
 
 @Key("catalog")
-public class ItemCatalog extends Command{
+public class ItemCatalog extends ModuleCommand<ItemModule> {
+
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        return FixedMessage.build(ItemFactory.getAllItems().stream().map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()));
+    public Response execute(CommandEvent event, ItemModule module) {
+        return Responses.of(ItemFactory.getAllItems().stream().map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()));
     }
 }

@@ -17,20 +17,20 @@
 
 package net.breadmoirai.samurai.modules.item.command;
 
-import samurai.command.Command;
-import samurai.command.CommandContext;
-import samurai.command.annotations.Key;
-import samurai.items.ItemRarity;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.FixedMessage;
+import net.breadmoirai.sbf.core.CommandEvent;
+import net.breadmoirai.sbf.core.command.Command;
+import net.breadmoirai.sbf.core.command.Key;
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.core.response.Responses;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Key("rarity")
-public class ItemRarityInfo extends Command{
+public class ItemRarityInfo extends Command {
+
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        return FixedMessage.build(Arrays.stream(ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
+    public Response execute(CommandEvent event) {
+        return Responses.of(net.breadmoirai.samurai.modules.item.items.ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
     }
 }

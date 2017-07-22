@@ -14,43 +14,32 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items.decorator;
+package net.breadmoirai.samurai.modules.item;
 
-import samurai.items.Item;
-import samurai.items.ItemData;
-import samurai.items.ItemUseContext;
 import samurai.messages.base.SamuraiMessage;
 
-import java.lang.reflect.InvocationTargetException;
+public class BaseItem implements Item {
 
-public abstract class ItemDecorator implements Item {
+    private final ItemData data;
 
-    private final Item baseItem;
-
-    ItemDecorator(Item baseItem) {
-        this.baseItem = baseItem;
+    BaseItem(ItemData data) {
+        this.data = data;
     }
 
     @Override
-    public final ItemData getData() {
-        return baseItem.getData();
+    public ItemData getData() {
+        return data;
     }
 
     @Override
-    public final SamuraiMessage useItem(ItemUseContext context) {
-        final SamuraiMessage result = this.use(context);
-        if (result == null)
-            return baseItem.useItem(context);
-        else
-            return result;
+    public SamuraiMessage useItem(ItemUseContext context) {
+        return null;
     }
-
-    protected abstract SamuraiMessage use(ItemUseContext context);
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + "{");
-        sb.append(baseItem);
+        final StringBuilder sb = new StringBuilder("BaseItem{");
+        sb.append(data);
         sb.append('}');
         return sb.toString();
     }
@@ -64,5 +53,4 @@ public abstract class ItemDecorator implements Item {
     public int hashCode() {
         return getData().hashCode();
     }
-
 }

@@ -14,13 +14,12 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import samurai.items.*;
 
 import java.util.List;
 

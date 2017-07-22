@@ -14,11 +14,12 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
+import net.breadmoirai.samurai.modules.item.decorator.CrateVoucher;
+import net.breadmoirai.samurai.modules.item.decorator.PointVoucher;
 import net.dv8tion.jda.core.entities.Emote;
-import samurai.items.decorator.CrateVoucher;
-import samurai.items.decorator.PointVoucher;
+
 
 public class ItemBuilder {
     private int itemId;

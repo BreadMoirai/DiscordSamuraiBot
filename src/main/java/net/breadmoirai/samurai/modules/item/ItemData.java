@@ -14,9 +14,8 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 
 import java.util.Arrays;

@@ -14,10 +14,11 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
+import net.breadmoirai.samurai.modules.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
-import samurai.points.PointSession;
+
 
 import java.util.List;
 

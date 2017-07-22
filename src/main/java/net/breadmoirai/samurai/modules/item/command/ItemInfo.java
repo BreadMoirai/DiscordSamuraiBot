@@ -16,26 +16,27 @@
  */
 package net.breadmoirai.samurai.modules.item.command;
 
-import net.breadmoirai.samurai.modules.items.items.ItemDao;
+import net.breadmoirai.samurai.modules.item.Item;
+import net.breadmoirai.samurai.modules.item.ItemDao;
+import net.breadmoirai.samurai.modules.item.ItemData;
+import net.breadmoirai.samurai.modules.item.ItemModule;
+import net.breadmoirai.sbf.core.CommandEvent;
+import net.breadmoirai.sbf.core.command.Command;
+import net.breadmoirai.sbf.core.command.Key;
+import net.breadmoirai.sbf.core.command.ModuleCommand;
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.database.Database;
 import net.dv8tion.jda.core.EmbedBuilder;
-import samurai.command.Command;
-import samurai.command.CommandContext;
-import samurai.command.annotations.Key;
-import samurai.database.Database;
-import samurai.database.dao.ItemDao;
-import samurai.items.Item;
-import samurai.items.ItemData;
-import samurai.messages.base.SamuraiMessage;
-import samurai.messages.impl.FixedMessage;
+
 
 @Key("item")
-public class ItemInfo extends Command{
+public class ItemInfo extends ModuleCommand<ItemModule> {
 
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        if (context.isNumeric()) {
-            final int itemId = Integer.parseInt(context.getContent());
-            final Item item = Database.get().<ItemDao, Item>openDao(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
+    public Response execute(CommandEvent event, ItemModule module) {
+        if (event.isNumeric()) {
+            final int itemId = Integer.parseInt(event.getContent());
+            final Item item = Database.get().withExtension(ItemDao.class, itemDao -> itemDao.selectItem(itemId));
             if (item == null) return FixedMessage.build("No such item exists with that ID");
             final ItemData data = item.getData();
             final EmbedBuilder eb = new EmbedBuilder()

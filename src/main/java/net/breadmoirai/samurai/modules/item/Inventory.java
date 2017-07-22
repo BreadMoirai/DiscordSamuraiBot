@@ -14,7 +14,7 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
 import samurai.database.Database;
 import samurai.database.dao.ItemDao;

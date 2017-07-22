@@ -18,24 +18,31 @@
 package net.breadmoirai.samurai.modules.item.command;
 
 
+import net.breadmoirai.samurai.modules.item.Inventory;
 import net.breadmoirai.samurai.modules.item.ItemModule;
-import net.breadmoirai.samurai.modules.items.items.Inventory;
-import net.breadmoirai.samurai.modules.items.items.ItemSlot;
+
+import net.breadmoirai.samurai.modules.item.ItemSlot;
+import net.breadmoirai.sbf.core.CommandEvent;
 import net.breadmoirai.sbf.core.command.Key;
 import net.breadmoirai.sbf.core.command.ModuleCommand;
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.core.response.Responses;
+import net.dv8tion.jda.core.entities.Member;
 
 @Key("inventory")
 public class InventoryInfo extends ModuleCommand<ItemModule> {
+
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        final Inventory authorInventory = context.getAuthorInventory();
+    public Response execute(CommandEvent event, ItemModule module) {
+        final Member member = event.getMember();
+        final Inventory authorInventory = module.getInventory(member);
         final StringBuilder sb = new StringBuilder();
-        sb.append(String.format("__**%s's Inventory**__", context.getAuthor().getEffectiveName()));
+        sb.append(String.format("__**%s's Inventory**__", member.getEffectiveName()));
         int i = 0;
         for (ItemSlot itemSlot : authorInventory.getItemSlots()) {
             if (i++ % 10 == 0) sb.append('\n');
             sb.append(itemSlot.getItem().getData().getEmote().getAsMention());
         }
-        return FixedMessage.build(sb.toString());
+        return Responses.of(sb.toString());
     }
 }

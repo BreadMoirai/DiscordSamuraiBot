@@ -16,5 +16,11 @@
  */
 package net.breadmoirai.samurai.modules.item;
 
-public class ItemModule {
+import net.breadmoirai.sbf.core.IModule;
+import net.dv8tion.jda.core.entities.Member;
+
+public class ItemModule implements IModule{
+    public Inventory getInventory(Member member) {
+        return null;
+    }
 }

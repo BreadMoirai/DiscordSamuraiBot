@@ -14,10 +14,10 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
-import samurai.database.Database;
-import samurai.database.dao.ItemDao;
+
+import net.breadmoirai.sbf.database.Database;
 
 public class ItemSlotBuilder {
     private long guildId;
@@ -53,7 +53,7 @@ public class ItemSlotBuilder {
 
     public ItemSlot createItemSlot() {
         final ItemSlot itemSlot = new ItemSlot(guildId, userId, slotId, item, count);
-        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.insertItemSlot(itemSlot));
+        Database.get().useExtension(ItemDao.class, itemDao -> itemDao.insertItemSlot(itemSlot));
         return itemSlot;
     }
 

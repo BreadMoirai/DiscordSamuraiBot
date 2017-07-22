@@ -14,7 +14,7 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
 public enum ItemType {
     VANITY, CONSUMABLE, CRATE, SEED, EGG, LAND, CRAFTING;

@@ -14,10 +14,11 @@
  *     limitations under the License.
  *
  */
-package net.breadmoirai.samurai.modules.items.items;
+package net.breadmoirai.samurai.modules.item;
 
-import samurai.database.Database;
-import samurai.database.dao.ItemDao;
+
+
+import net.breadmoirai.sbf.database.Database;
 
 import java.util.Comparator;
 
@@ -57,12 +58,12 @@ public class ItemSlot {
 
     public void offset(int count) {
         this.count += count;
-        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.updateItemSlotCount(this));
+        Database.get().useExtension(ItemDao.class, itemDao -> itemDao.updateItemSlotCount(this));
     }
 
     void setSlotId(int slotId) {
         if (this.slotId == slotId) return;
-        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.updateItemSlotId(this, slotId));
+        Database.get().useExtension(ItemDao.class, itemDao -> itemDao.updateItemSlotId(this, slotId));
         this.slotId = slotId;
     }
 
@@ -105,6 +106,6 @@ public class ItemSlot {
     }
 
     public void destroy() {
-        Database.get().<ItemDao>openDao(ItemDao.class, itemDao -> itemDao.deleteItemSlot(getGuildId(), getUserId(), getSlotId()));
+        Database.get().useExtension(ItemDao.class, itemDao -> itemDao.deleteItemSlot(getGuildId(), getUserId(), getSlotId()));
     }
 }
