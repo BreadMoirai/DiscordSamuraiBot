@@ -13,23 +13,34 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  *
- *//*
-
+ */
 package net.breadmoirai.samurai.modules.item.command;
 
+
+import net.breadmoirai.samurai.modules.item.model.Item;
+import net.breadmoirai.samurai.modules.item.model.database.ItemFactory;
+import net.breadmoirai.samurai.modules.item.ItemModule;
+import net.breadmoirai.samurai.modules.item.responses.RedPacketDrop;
+import net.breadmoirai.samurai.util.TimeDurationUtil;
+import net.breadmoirai.sbf.core.CommandEvent;
+import net.breadmoirai.sbf.core.command.Key;
+import net.breadmoirai.sbf.core.command.ModuleCommand;
+import net.breadmoirai.sbf.core.response.Response;
+import net.breadmoirai.sbf.modules.owner.Owner;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Creator
+@Owner
 @Key("/rpd")
-public class RedPacket extends Command {
+public class RedPacket extends ModuleCommand<ItemModule> {
+
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        final List<String> args = context.getArgs();
-        final Duration duration = Schedule.getDuration(args);
+    public Response execute(CommandEvent event, ItemModule module) {
+        final List<String> args = event.getArgs();
+        final Duration duration = TimeDurationUtil.getDuration(args);
         if (duration.equals(Duration.ZERO)) return null;
         final int size = args.size();
         final int[] drops = new int[size];
@@ -37,7 +48,7 @@ public class RedPacket extends Command {
         for (int i = 0; i < size - 1; i += 2) {
             final String itemId = args.get(i);
             final String count = args.get(i + 1);
-            if (!CommandContext.isNumber(itemId) || !CommandContext.isNumber(count)) return null;
+            if (!CommandEvent.isNumber(itemId) || !CommandEvent.isNumber(count)) return null;
             final int count1 = Integer.parseInt(count);
             if (count1 == 0) continue;
             else if (count1 < 0) return null;
@@ -55,4 +66,3 @@ public class RedPacket extends Command {
         return new RedPacketDrop(duration, drops, dropQueue);
     }
 }
-*/

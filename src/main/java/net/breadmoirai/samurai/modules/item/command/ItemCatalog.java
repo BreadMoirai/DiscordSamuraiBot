@@ -17,7 +17,7 @@
 package net.breadmoirai.samurai.modules.item.command;
 
 
-import net.breadmoirai.samurai.modules.item.ItemFactory;
+import net.breadmoirai.samurai.modules.item.model.database.ItemFactory;
 import net.breadmoirai.samurai.modules.item.ItemModule;
 import net.breadmoirai.sbf.core.CommandEvent;
 import net.breadmoirai.sbf.core.command.Key;

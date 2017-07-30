@@ -21,7 +21,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AudioManager;
 
-
 /**
  * Holder for both the player and a track scheduler for one guild.
  */

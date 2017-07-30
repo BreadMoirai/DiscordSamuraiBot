@@ -200,12 +200,10 @@ public class TrackLoader extends Response implements AudioLoadResultHandler {
 
 
     public boolean onCommand(CommandEvent event) {
-        System.out.println("event = " + event);
         if (finished) return true;
         if (event.getChannelId() != this.getChannelId()) return false;
         if (event.getAuthorId() != this.getAuthorId()) return false;
         if (!event.hasContent()) return false;
-        System.out.println("event = " + event);
         page = 0;
         final String key = event.getKey().toLowerCase();
         final int size = tracklist.size();

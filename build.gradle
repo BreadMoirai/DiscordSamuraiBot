@@ -6,7 +6,7 @@ plugins {
     id 'com.sedmelluq.jdaction' version '1.0.1'
 }
 
-group = 'com.github.breadmoirai'
+group = 'net.breadmoirai'
 idea.module.downloadJavadoc = true
 
 def majorVersion = 7
@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     //discord
-    compile 'net.breadmoirai:SamuraiBotFramework:0.3.9'
+    compile 'net.breadmoirai:SamuraiBotFramework:0.3.11'
 
     compile 'com.sedmelluq:lavaplayer:1.2.42'
 

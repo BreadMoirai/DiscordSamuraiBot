@@ -95,13 +95,12 @@ CREATE TABLE CommandAlias (
   CONSTRAINT CommandAlias_PK PRIMARY KEY (GuildId, Alias)
 );
 
-
 CREATE TABLE MemberInventory (
-  DiscordId BIGINT NOT NULL,
-  GuildId   BIGINT NOT NULL,
-  SlotId    INT    NOT NULL,
-  ItemId    INT    NOT NULL,
-  Count     INT    NOT NULL,
+  DiscordId  BIGINT                   NOT NULL,
+  GuildId    BIGINT                   NOT NULL,
+  SlotId     INT                      NOT NULL,
+  ItemId     INT                      NOT NULL,
+  Durability VARCHAR(32) FOR BIT DATA NOT NULL,
   CONSTRAINT Inventory_PK PRIMARY KEY (DiscordId, GuildId, SlotId)
 );
 
@@ -111,15 +110,15 @@ CREATE TABLE ItemCatalog (
   Name        VARCHAR(64) NOT NULL,
   Rarity      SMALLINT    NOT NULL,
   Value       DOUBLE,
-  StackLimit  SMALLINT DEFAULT 99,
-  PropertyA   DOUBLE,
-  PropertyB   DOUBLE,
-  PropertyC   DOUBLE,
-  PropertyD   DOUBLE,
-  PropertyE   DOUBLE,
-  PropertyF   DOUBLE,
-  PropertyG   BIGINT,
-  PropertyH   BIGINT,
+  Durability  SMALLINT,
+  PropertyA   INT,
+  PropertyB   INT,
+  PropertyC   INT,
+  PropertyD   INT,
+  PropertyE   INT,
+  PropertyF   INT,
+  PropertyG   INT,
+  EmoteId     BIGINT,
   Description VARCHAR(2000)
 );
 

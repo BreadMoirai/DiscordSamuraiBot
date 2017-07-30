@@ -63,7 +63,7 @@ public class PointModule extends ListenerAdapter implements IModule {
 
     @Override
     public void init(CommandEngineBuilder ceb, SamuraiClient samuraiClient) {
-        ceb.registerCommand(this.getClass().getPackage().getName());
+        ceb.registerCommand(this.getClass().getPackage().getName() + ".command");
         if (!Database.hasTable("MemberPoints")) {
             Database.get().useHandle(handle -> handle
                     .execute("CREATE TABLE MemberPoints (\n" +

@@ -77,7 +77,7 @@ public class MusicModule implements IModule {
 
     @Override
     public Response getHelp() {
-        return Responses.of("The available commands for music are as follow:" +
+        return Responses.of("The available command for music are as follow:" +
                 "\n```" +
                 "\nqueue, play." +
                 "\nnowplaying, np, history." +
@@ -90,7 +90,7 @@ public class MusicModule implements IModule {
 
     @Override
     public void init(CommandEngineBuilder commands, SamuraiClient samuraiClient) {
-        commands.registerCommand(this.getClass().getPackage().getName());
+        commands.registerCommand(this.getClass().getPackage().getName() + ".command");
 
         if (!Database.hasTable("GuildVolume"))
             Database.get().useHandle(handle -> {

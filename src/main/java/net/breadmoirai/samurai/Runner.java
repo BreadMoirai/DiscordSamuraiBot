@@ -16,14 +16,15 @@
  */
 package net.breadmoirai.samurai;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import net.breadmoirai.samurai.modules.catdog.CatDogModule;
+import net.breadmoirai.samurai.modules.item.ItemModule;
 import net.breadmoirai.samurai.modules.music.MusicModule;
 import net.breadmoirai.samurai.modules.points.PointModule;
 import net.breadmoirai.samurai.util.HelpCommand;
 import net.breadmoirai.samurai.util.ShutdownCommand;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import net.breadmoirai.sbf.core.impl.SamuraiClientBuilder;
+import net.breadmoirai.sbf.core.SamuraiClientBuilder;
 import net.breadmoirai.sbf.database.Database;
 import net.breadmoirai.sbf.modules.admin.DefaultAdminModule;
 import net.breadmoirai.sbf.modules.owner.OwnerModule;
@@ -36,6 +37,9 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.slf4j.simple.SimpleLogger;
+import org.slf4j.simple.SimpleLoggerConfiguration;
+import org.slf4j.simple.SimpleLoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.sql.DriverManager;
@@ -64,6 +68,7 @@ public class Runner {
                 .addModule(new MusicModule(30, config.getString("api.google"), "SamuraiDiscordBot"))
                 .addModule(new CatDogModule())
                 .addModule(new PointModule())
+                .addModule(new ItemModule())
                 .registerCommand(ShutdownCommand.class)
                 .registerCommand(HelpCommand.class)
                 .buildAnnotated();

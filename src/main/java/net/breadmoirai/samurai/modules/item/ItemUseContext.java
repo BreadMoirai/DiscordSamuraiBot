@@ -16,35 +16,37 @@
  */
 package net.breadmoirai.samurai.modules.item;
 
+import net.breadmoirai.samurai.modules.item.model.database.Inventory;
+import net.breadmoirai.samurai.modules.item.model.database.ItemSlot;
+import net.breadmoirai.samurai.modules.points.PointModule;
 import net.breadmoirai.samurai.modules.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
 
-
-import java.util.List;
-
 public class ItemUseContext {
     private Member member;
-    private PointSession session;
+    private PointModule module;
     private Inventory inventory;
     private String key;
-    private ItemSlot itemSlot;
-    private List<Item> itemList;
+    private ItemSlot baseSlot;
+    private ItemSlot targetSlot;
+    private boolean bypassPrompt;
 
-    public ItemUseContext(Member member, PointSession session, Inventory inventory, String key, ItemSlot itemSlot, List<Item> itemList) {
+    public ItemUseContext(Member member, PointModule module, Inventory inventory, String key, ItemSlot baseSlot, ItemSlot targetSlot, boolean bypassPrompt) {
         this.member = member;
-        this.session = session;
+        this.module = module;
         this.inventory = inventory;
         this.key = key;
-        this.itemSlot = itemSlot;
-        this.itemList = itemList;
+        this.baseSlot = baseSlot;
+        this.targetSlot = targetSlot;
+        this.bypassPrompt = bypassPrompt;
     }
 
     public Member getMember() {
         return member;
     }
 
-    public PointSession getPointSession() {
-        return session;
+    public PointModule getPointModule() {
+        return module;
     }
 
     public Inventory getInventory() {
@@ -55,11 +57,15 @@ public class ItemUseContext {
         return key;
     }
 
-    public List<Item> getItemList() {
-        return itemList;
+    public ItemSlot getBaseSlot() {
+        return baseSlot;
     }
 
-    public ItemSlot getItemSlot() {
-        return itemSlot;
+    public ItemSlot getTargetSlot() {
+        return targetSlot;
+    }
+
+    public boolean isBypassPrompt() {
+        return bypassPrompt;
     }
 }

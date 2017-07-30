@@ -16,27 +16,28 @@
  */
 package net.breadmoirai.samurai.modules.item;
 
+import net.breadmoirai.samurai.modules.item.model.database.Inventory;
+import net.breadmoirai.samurai.modules.item.model.database.ItemSlot;
+import net.breadmoirai.samurai.modules.points.PointModule;
 import net.breadmoirai.samurai.modules.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
 
-
-import java.util.List;
-
 public class ItemUseContextBuilder {
     private Member member;
-    private PointSession session;
+    private PointModule pointModule;
     private Inventory inventory;
     private String key;
-    private List<Item> itemList;
-    private ItemSlot itemSlot;
+    private ItemSlot target;
+    private ItemSlot base;
+    private boolean bypassPrompt;
 
     public ItemUseContextBuilder setMember(Member member) {
         this.member = member;
         return this;
     }
 
-    public ItemUseContextBuilder setSession(PointSession session) {
-        this.session = session;
+    public ItemUseContextBuilder setPointModule(PointModule module) {
+        this.pointModule = module;
         return this;
     }
 
@@ -50,17 +51,23 @@ public class ItemUseContextBuilder {
         return this;
     }
 
-    public ItemUseContextBuilder setItemList(List<Item> itemList) {
-        this.itemList = itemList;
+
+    public ItemUseContextBuilder setBaseItemSlot(ItemSlot itemSlot) {
+        this.base = itemSlot;
         return this;
     }
 
-    public ItemUseContextBuilder setItemSlot(ItemSlot itemSlot) {
-        this.itemSlot = itemSlot;
+    public ItemUseContextBuilder setTargetItemSlot(ItemSlot target) {
+        this.target = target;
+        return this;
+    }
+
+    public ItemUseContextBuilder setBypassPrompt(boolean bypassPrompt) {
+        this.bypassPrompt = bypassPrompt;
         return this;
     }
 
     public ItemUseContext build() {
-        return new ItemUseContext(member, session, inventory, key, itemSlot, itemList);
+        return new ItemUseContext(member, pointModule, inventory, key, base, target, bypassPrompt);
     }
 }

@@ -14,7 +14,6 @@
  *     limitations under the License.
  *
  */
-
 package net.breadmoirai.samurai.modules.music;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -26,13 +25,15 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchProvider;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class YoutubeAPI {
+public class YoutubeAPI extends YoutubeSearchProvider{
     private static int calls;
     private static String key;
 
@@ -40,6 +41,13 @@ public class YoutubeAPI {
 
     private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+
+    /**
+     * @param sourceManager YouTube source manager used for created tracks.
+     */
+    public YoutubeAPI(YoutubeAudioSourceManager sourceManager) {
+        super(sourceManager);
+    }
 
     public static void load(String apiKey, String applicationName) {
         if (apiKey == null) return;

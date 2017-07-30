@@ -32,7 +32,7 @@ public class HelpCommand extends Command {
             final String content = event.getContent();
             return event.getClient().getModule(content.toLowerCase()).map(IModule::getHelp).orElse(Responses.of("No help found"));
         } else {
-            return Responses.of("This is an in development bot. The only currently supported module is `music`. To view detailed help for music commands, use `" + event.getPrefix() + "help music`.");
+            return Responses.of("This is an in development bot. The only currently supported module is `music`. To view detailed help for music command, use `" + event.getPrefix() + "help music`.");
         }
     }
 

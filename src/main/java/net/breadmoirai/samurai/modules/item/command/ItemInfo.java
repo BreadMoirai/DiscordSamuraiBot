@@ -16,12 +16,11 @@
  */
 package net.breadmoirai.samurai.modules.item.command;
 
-import net.breadmoirai.samurai.modules.item.Item;
-import net.breadmoirai.samurai.modules.item.ItemDao;
-import net.breadmoirai.samurai.modules.item.ItemData;
+import net.breadmoirai.samurai.modules.item.model.Item;
+import net.breadmoirai.samurai.modules.item.model.database.ItemDao;
+import net.breadmoirai.samurai.modules.item.model.data.ItemData;
 import net.breadmoirai.samurai.modules.item.ItemModule;
 import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Command;
 import net.breadmoirai.sbf.core.command.Key;
 import net.breadmoirai.sbf.core.command.ModuleCommand;
 import net.breadmoirai.sbf.core.response.Response;

@@ -17,8 +17,9 @@
 
 package net.breadmoirai.samurai.modules.item.command;
 
-import net.breadmoirai.samurai.modules.item.Item;
-import net.breadmoirai.samurai.modules.item.ItemFactory;
+import net.breadmoirai.samurai.modules.item.model.database.Inventory;
+import net.breadmoirai.samurai.modules.item.model.Item;
+import net.breadmoirai.samurai.modules.item.model.database.ItemFactory;
 import net.breadmoirai.samurai.modules.item.ItemModule;
 import net.breadmoirai.samurai.modules.points.PointModule;
 import net.breadmoirai.sbf.core.CommandEvent;
@@ -52,7 +53,7 @@ public class ItemShop extends BiModuleCommand<ItemModule, PointModule> {
                 if (pointModule.getPoints(event.getMember()) < item.getData().getValue())
                     return Responses.of(String.format("You require an additional **%.2f** points to buy %s", item.getData().getValue() - pointModule.getPointSession(event.getMember()).getPoints(), item.print()));
                 pointModule.offsetPoints(event.getMember(),item.getData().getValue() * -1);
-                itemModule.getInventory(event.getMember()).addItem(item);
+                Inventory.ofMember(event.getMember()).addItem(item);
                 return Responses.of("Thank you for your purchase of " + item.print());
             }
         }

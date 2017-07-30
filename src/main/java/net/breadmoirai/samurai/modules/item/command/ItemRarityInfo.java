@@ -17,7 +17,7 @@
 
 package net.breadmoirai.samurai.modules.item.command;
 
-import net.breadmoirai.samurai.modules.item.ItemRarity;
+import net.breadmoirai.samurai.modules.item.model.data.ItemRarity;
 import net.breadmoirai.sbf.core.CommandEvent;
 import net.breadmoirai.sbf.core.command.Command;
 import net.breadmoirai.sbf.core.command.Key;
