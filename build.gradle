@@ -17,17 +17,17 @@ mainClassName = "net.breadmoirai.samurai.Runner"
 repositories {
     jcenter()
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+//    maven { url 'https://jitpack.io' }
     maven { url 'https://dl.bintray.com/breadmoirai/maven'}
 }
 
 dependencies {
     //discord
-    compile 'net.breadmoirai:SamuraiBotFramework:0.3.11'
+    compile 'com.github.breadmoirai:SamuraiBotFramework:0.4.4'
 
     compile 'com.sedmelluq:lavaplayer:1.2.42'
 
-//    compile 'com.github.DV8FromTheWorld:JDA:experimental~message-rw-SNAPSHOT'
+   compile 'net.dv8tion:JDA:3.2.0_241'
 
     //api
 //    compile 'com.mashape.unirest:unirest-java:1.4.9'
