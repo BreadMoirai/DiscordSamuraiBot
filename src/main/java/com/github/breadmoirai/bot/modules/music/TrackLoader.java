@@ -17,9 +17,9 @@
 package com.github.breadmoirai.bot.modules.music;
 
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.Response;
-import com.github.breadmoirai.bot.framework.waiter.EventWaiter;
+import com.github.breadmoirai.bot.framework.Response;
+import com.github.breadmoirai.bot.framework.event.CommandEvent;
+import com.github.breadmoirai.bot.waiter.EventWaiter;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;

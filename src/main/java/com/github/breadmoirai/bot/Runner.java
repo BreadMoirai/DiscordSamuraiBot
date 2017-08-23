@@ -16,19 +16,16 @@
  */
 package com.github.breadmoirai.bot;
 
-import com.github.breadmoirai.bot.framework.core.SamuraiClientBuilder;
-import com.github.breadmoirai.bot.framework.database.Database;
-import com.github.breadmoirai.bot.framework.modules.admin.DefaultAdminModule;
-import com.github.breadmoirai.bot.framework.modules.owner.OwnerModule;
-import com.github.breadmoirai.bot.framework.modules.prefix.DynamicPrefixModule;
-import com.github.breadmoirai.bot.framework.modules.source.SourceModule;
-import com.github.breadmoirai.bot.framework.waiter.EventWaiter;
 import com.github.breadmoirai.bot.modules.catdog.CatDogModule;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
 import com.github.breadmoirai.bot.modules.points.PointModule;
+import com.github.breadmoirai.bot.modules.prefix.DynamicPrefixModule;
 import com.github.breadmoirai.bot.util.HelpCommand;
 import com.github.breadmoirai.bot.util.ShutdownCommand;
+import com.github.breadmoirai.database.Database;
+import com.github.breadmoirai.framework.core.SamuraiClientBuilder;
+import com.github.breadmoirai.framework.modules.admin.DefaultAdminModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -60,8 +57,8 @@ public class Runner {
         AnnotatedEventManager eventManager = new SamuraiClientBuilder()
                 .addModule(new DefaultAdminModule(member -> member.getUser().getIdLong() == ownerId || member.canInteract(member.getGuild().getSelfMember()) && member.hasPermission(Permission.KICK_MEMBERS)))
                 .addModule(new DynamicPrefixModule("["))
-                .addModule(new SourceModule(233097800722808832L))
-                .addModule(new OwnerModule(ownerId))
+//                .addModule(new SourceModule(233097800722808832L))
+//                .addModule(new OwnerModule(ownerId))
                 .addModule(new MusicModule(30, config.getString("api.google"), "SamuraiDiscordBot"))
                 .addModule(new CatDogModule())
                 .addModule(new PointModule())

@@ -16,12 +16,12 @@
  */
 package com.github.breadmoirai.bot.modules.music;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
 import com.github.breadmoirai.bot.framework.core.IModule;
 import com.github.breadmoirai.bot.framework.core.SamuraiClient;
 import com.github.breadmoirai.bot.framework.core.impl.CommandEngineBuilder;
-import com.github.breadmoirai.bot.framework.database.Database;
+import com.github.breadmoirai.bot.framework.event.CommandEvent;
 import com.github.breadmoirai.bot.util.PermissionFailureResponse;
+import com.github.breadmoirai.database.Database;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -43,6 +43,8 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Optional;
+
+;
 
 public class MusicModule implements IModule {
 
