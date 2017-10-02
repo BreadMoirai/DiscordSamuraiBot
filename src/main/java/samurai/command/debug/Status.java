@@ -18,7 +18,7 @@ package samurai.command.debug;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import samurai.Bot;
-import samurai.BotInfo;
+import com.github.breadmoirai.samurai.BotInfo;
 import samurai.command.Command;
 import samurai.command.CommandContext;
 import samurai.command.annotations.Key;

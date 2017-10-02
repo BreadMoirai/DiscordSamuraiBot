@@ -25,7 +25,6 @@ import samurai.messages.impl.FixedMessage;
 @Key("disabled")
 public class Disabled extends Command {
 
-
     @Override
     protected SamuraiMessage execute(CommandContext context) {
         return FixedMessage.build("This command is disabled");
