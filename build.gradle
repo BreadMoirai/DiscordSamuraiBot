@@ -23,11 +23,11 @@ repositories {
 
 dependencies {
     //discord
-    compile 'com.github.breadmoirai:SamuraiBotFramework:0.5.3'
+    compile 'com.github.breadmoirai:breadbot-framework:0.7.1'
 
     compile 'com.sedmelluq:lavaplayer:1.2.43'
 
-    compile 'net.dv8tion:JDA:3.2.1_284'
+    compile 'net.dv8tion:JDA:3.3.1_303'
 
     //api
 //    compile 'com.mashape.unirest:unirest-java:1.4.9'

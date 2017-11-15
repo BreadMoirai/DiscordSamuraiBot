@@ -14,16 +14,13 @@
 */
 package com.github.breadmoirai.samurai;
 
-import com.github.breadmoirai.bot.framework.BreadBotClient;
-import com.github.breadmoirai.bot.framework.BreadBotClientBuilder;
-import com.github.breadmoirai.bot.waiter.EventWaiter;
-import com.github.breadmoirai.samurai.database.Database;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import samurai.BotInfo;
 
 import javax.security.auth.login.LoginException;
 import java.io.FileNotFoundException;

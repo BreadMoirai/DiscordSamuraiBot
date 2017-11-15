@@ -16,12 +16,6 @@
  */
 package com.github.breadmoirai.bot.modules.item.command;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.command.BiModuleCommand;
-import com.github.breadmoirai.bot.framework.core.command.Key;
-import com.github.breadmoirai.bot.framework.core.impl.Response;
-import com.github.breadmoirai.bot.framework.core.response.Responses;
-import com.github.breadmoirai.bot.framework.core.response.simple.StringResponse;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
 import com.github.breadmoirai.bot.modules.item.ItemUseContextBuilder;
 import com.github.breadmoirai.bot.modules.item.model.Item;
@@ -29,19 +23,23 @@ import com.github.breadmoirai.bot.modules.item.model.database.Inventory;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemFactory;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemSlot;
 import com.github.breadmoirai.bot.modules.points.PointModule;
+import com.github.breadmoirai.breadbot.framework.Response;
+import com.github.breadmoirai.breadbot.framework.command.Command;
+import com.github.breadmoirai.breadbot.framework.event.Arguments;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.breadbot.framework.response.simple.StringResponse;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Key({"use", "open"})
-public class UseItem extends BiModuleCommand<ItemModule, PointModule> {
+public class UseItem {
 
     private static Pattern itemName = Pattern.compile("([a-zA-Z\\s]+)(?: (?i)(?:on |with )([a-zA-Z\\s]+))?");
     private static Pattern itemNum = Pattern.compile("([0-9]+)(?: (?i)(?:on |with )?([0-9]+))?");
 
-    @Override
+    @Command({"use", "open"})
     public void execute(CommandEvent event, ItemModule itemModule, PointModule pointModule) {
         final ItemUseContextBuilder iucb = new ItemUseContextBuilder();
         iucb.setKey(event.getKey().toLowerCase());
@@ -65,14 +63,14 @@ public class UseItem extends BiModuleCommand<ItemModule, PointModule> {
         final ItemSlot baseItemSlot;
         {
             final String baseItemIdx = number.group(1);
-            if (baseItemIdx == null || baseItemIdx.isEmpty() || !CommandEvent.isNumber(baseItemIdx)) return null;
+            if (baseItemIdx == null || baseItemIdx.isEmpty() || !Arguments.isNumber(baseItemIdx)) return null;
             baseItemSlot = authorInventory.getItemSlot(Integer.parseInt(baseItemIdx));
             if (baseItemSlot == null) return new StringResponse("There is no item in that slot");
             iucb.setBaseItemSlot(baseItemSlot);
         }
         {
             final String targetItemIdx = number.group(2);
-            if (targetItemIdx != null && !targetItemIdx.isEmpty() && CommandEvent.isNumber(targetItemIdx)) {
+            if (targetItemIdx != null && !targetItemIdx.isEmpty() && Arguments.isNumber(targetItemIdx)) {
                iucb.setTargetItemSlot(authorInventory.getItemSlot(Integer.parseInt(targetItemIdx)));
             }
         }
@@ -89,7 +87,7 @@ public class UseItem extends BiModuleCommand<ItemModule, PointModule> {
             final String baseItemName = name.group(1);
             System.out.println("baseItemName = " + baseItemName);
             if (baseItemName == null) return null;
-            baseItemOpt = ItemFactory.getByName(baseItemName);
+            baseItemOpt = ItemFactory.getItemByName(baseItemName);
             if (!baseItemOpt.isPresent()) return null;
         }
         final Optional<Item> targetItemOpt;
@@ -97,7 +95,7 @@ public class UseItem extends BiModuleCommand<ItemModule, PointModule> {
             final String targetItemName = name.group(2);
             System.out.println("targetItemName = " + targetItemName);
             if (targetItemName != null && !targetItemName.isEmpty()) {
-                ItemFactory.getByName(targetItemName).flatMap(authorInventory::findItemSlot).ifPresent(iucb::setTargetItemSlot);
+                ItemFactory.getItemByName(targetItemName).flatMap(authorInventory::findItemSlot).ifPresent(iucb::setTargetItemSlot);
             }
         }
         final Item item = baseItemOpt.get();

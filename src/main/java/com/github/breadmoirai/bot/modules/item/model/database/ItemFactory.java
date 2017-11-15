@@ -16,12 +16,12 @@
  */
 package com.github.breadmoirai.bot.modules.item.model.database;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import com.github.breadmoirai.bot.modules.item.model.Item;
 import com.github.breadmoirai.bot.modules.item.model.data.ItemRarity;
 import com.github.breadmoirai.bot.modules.item.model.data.ItemType;
-import com.github.breadmoirai.bot.framework.database.Database;
+import com.github.breadmoirai.database.Database;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -87,14 +87,14 @@ public class ItemFactory implements RowMapper<Item> {
         }
     }
 
-    public static Optional<Item> getByName(String query) {
+    public static Item getItemByName(String query) {
         final String finalQuery = query.toLowerCase()
                 .replace("box", "crate")
                 .replace("green", "common")
                 .replace("blue", "standard")
                 .replace("purple", "epic")
                 .replace("big", "large");
-        return Optional.ofNullable(Database.get().withExtension(ItemDao.class, itemDao -> itemDao.getByName(finalQuery)));
+        return Database.get().withExtension(ItemDao.class, itemDao -> itemDao.getByName(finalQuery));
     }
 
 }

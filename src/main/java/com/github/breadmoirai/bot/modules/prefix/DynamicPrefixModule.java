@@ -15,15 +15,14 @@
  */
 package com.github.breadmoirai.bot.modules.prefix;
 
+import com.github.breadmoirai.breadbot.framework.BreadBotClientBuilder;
+import com.github.breadmoirai.breadbot.modules.prefix.PrefixCommand;
+import com.github.breadmoirai.breadbot.modules.prefix.PrefixModule;
 import com.github.breadmoirai.database.Database;
-import com.github.breadmoirai.framework.core.SamuraiClient;
-import com.github.breadmoirai.framework.core.impl.CommandEngineBuilder;
-import com.github.breadmoirai.framework.modules.prefix.IPrefixModule;
-import com.github.breadmoirai.framework.modules.prefix.PrefixCommand;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DynamicPrefixModule implements IPrefixModule {
+public class DynamicPrefixModule implements PrefixModule {
 
     private final String defaultPrefix;
 
@@ -32,13 +31,13 @@ public class DynamicPrefixModule implements IPrefixModule {
     }
 
     @Override
-    public void init(CommandEngineBuilder engineBuilder, SamuraiClient client) {
+    public void initialize(BreadBotClientBuilder client) {
         if (!Database.hasTable("GuildPrefix")) {
             Database.get().useHandle(handle -> handle.execute("CREATE TABLE GuildPrefix ( " +
                     "guild BIGINT PRIMARY KEY, " +
                     "prefix VARCHAR(20))"));
         }
-        engineBuilder.registerCommand(PrefixCommand.class);
+        client.addCommand(PrefixCommand.class);
     }
 
     @Override
@@ -59,17 +58,17 @@ public class DynamicPrefixModule implements IPrefixModule {
     }
 
     @Override
-    public boolean isJSONconfigurable() {
+    public boolean isJSONConfigurable() {
         return true;
     }
 
     @Override
-    public void addJSONconfig(long guildId, JSONObject jsonObject) {
+    public void addJSONConfig(long guildId, JSONObject jsonObject) {
         jsonObject.put("prefix", getPrefix(guildId));
     }
 
     @Override
-    public boolean loadJSONconfig(long guildId, JSONObject jsonObject) {
+    public boolean loadJSONConfig(long guildId, JSONObject jsonObject) {
         if (!jsonObject.has("prefix")) return false;
         try {
             final String prefix = jsonObject.getString("prefix");

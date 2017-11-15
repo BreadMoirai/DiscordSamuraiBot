@@ -16,22 +16,16 @@
  */
 package com.github.breadmoirai.bot.modules.item.command;
 
-
-import com.github.breadmoirai.bot.modules.item.model.database.ItemFactory;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
-import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Key;
-import net.breadmoirai.sbf.core.command.ModuleCommand;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
+import com.github.breadmoirai.bot.modules.item.model.database.ItemFactory;
+import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 
 import java.util.stream.Collectors;
 
-@Key("catalog")
-public class ItemCatalog extends ModuleCommand<ItemModule> {
+public class ItemCatalog {
 
-    @Override
-    public Response execute(CommandEvent event, ItemModule module) {
-        return Responses.of(ItemFactory.getAllItems().stream().map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining()));
+    @MainCommand
+    public String catalog(ItemModule module) {
+        return ItemFactory.getAllItems().stream().map(item -> item.getData().getEmote().getAsMention()).collect(Collectors.joining());
     }
 }

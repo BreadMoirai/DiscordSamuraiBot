@@ -20,11 +20,8 @@ import com.github.breadmoirai.bot.util.PermissionFailureResponse;
 import com.github.breadmoirai.bot.modules.music.GuildMusicManager;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
 import com.github.breadmoirai.bot.modules.music.TrackLoader;
-import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Key;
-import net.breadmoirai.sbf.core.command.ModuleMultiCommand;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
+import com.github.breadmoirai.breadbot.framework.Response;
+import com.github.breadmoirai.breadbot.framework.command.Command;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -35,9 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PlaySong extends ModuleMultiCommand<MusicModule> {
+public class PlaySong {
 
-    @Key({"nowplaying", "np"})
+    @Command({"nowplaying", "np"})
     public Response nowPlaying(CommandEvent event, MusicModule module) {
         if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
             return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
@@ -72,7 +69,7 @@ public class PlaySong extends ModuleMultiCommand<MusicModule> {
         return Responses.of(eb.build());
     }
 
-    @Key({"queue", "play"})
+    @Command({"queue", "play"})
     public Response queue(CommandEvent event, MusicModule module) {
         if (!event.hasContent())
             return nowPlaying(event, module);

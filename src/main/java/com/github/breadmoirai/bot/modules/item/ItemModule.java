@@ -16,12 +16,12 @@
  */
 package com.github.breadmoirai.bot.modules.item;
 
-
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.IModule;
-import com.github.breadmoirai.bot.framework.core.SamuraiClient;
-import com.github.breadmoirai.bot.framework.core.impl.CommandEngineBuilder;
-import com.github.breadmoirai.bot.framework.database.Database;
+import com.github.breadmoirai.bot.modules.item.model.Item;
+import com.github.breadmoirai.bot.modules.item.model.database.ItemFactory;
+import com.github.breadmoirai.breadbot.framework.BreadBotClientBuilder;
+import com.github.breadmoirai.breadbot.framework.CommandModule;
+import com.github.breadmoirai.breadbot.util.Arguments;
+import com.github.breadmoirai.database.Database;
 import org.jdbi.v3.core.statement.PreparedBatch;
 
 import java.io.BufferedReader;
@@ -31,7 +31,7 @@ import java.sql.Types;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-public class ItemModule implements IModule {
+public class ItemModule implements CommandModule {
 
     public ItemModule() {
         this(false);
@@ -47,9 +47,16 @@ public class ItemModule implements IModule {
     }
 
     @Override
-    public void init(CommandEngineBuilder eb, SamuraiClient client) {
+    public void initialize(BreadBotClientBuilder builder) {
+        builder.registerArgumentMapper(Item.class, null, (arg, flags) -> {
+            if (arg.isNumeric()) {
+                return ItemFactory.getItemById(arg.parseInt());
+            } else {
+                return ItemFactory.getItemByName(arg.getArgument());
+            }
+        });
         checkTables();
-        eb.registerCommand(this.getClass().getPackage().getName() + ".command");
+        builder.addCommands(this.getClass().getPackage().getName() + ".command");
     }
 
     private void checkTables() {
@@ -95,7 +102,7 @@ public class ItemModule implements IModule {
                                     final String value = itemData[i];
                                     switch (i) {
                                         case 0:
-                                            if (!CommandEvent.isNumber(value)) continue;
+                                            if (!Arguments.isNumber(value)) continue;
                                             else itemBatch.bind(i, Integer.parseInt(value));
                                         case 1:
                                         case 2:
@@ -106,12 +113,12 @@ public class ItemModule implements IModule {
                                             break;
                                         case 3:
                                         case 5:
-                                            if (value == null || value.isEmpty() || !CommandEvent.isNumber(value)) {
+                                            if (value == null || value.isEmpty() || !Arguments.isNumber(value)) {
                                                 itemBatch.bindNull(i, Types.SMALLINT);
                                             } else itemBatch.bind(i, Short.parseShort(value));
                                             break;
                                         case 13:
-                                            if (value == null || value.isEmpty() || !CommandEvent.isNumber(value))
+                                            if (value == null || value.isEmpty() || !Arguments.isNumber(value))
                                                 itemBatch.bindNull(i, Types.BIGINT);
                                             else itemBatch.bind(i, Long.parseLong(value));
                                             break;
@@ -123,7 +130,7 @@ public class ItemModule implements IModule {
                                         case 10:
                                         case 11:
                                         case 12:
-                                            if (value == null || value.isEmpty() || !CommandEvent.isNumber(value))
+                                            if (value == null || value.isEmpty() || !Arguments.isNumber(value))
                                                 itemBatch.bindNull(i, Types.INTEGER);
                                             else itemBatch.bind(i, Integer.parseInt(value));
                                             break;
@@ -152,7 +159,7 @@ public class ItemModule implements IModule {
                     br.lines()
                             .map(s -> s.split(",", 0))
                             .filter(dropData -> dropData.length == 3)
-                            .filter(dropData -> Arrays.stream(dropData).allMatch(CommandEvent::isNumber))
+                            .filter(dropData -> Arrays.stream(dropData).allMatch(Arguments::isNumber))
                             .map(dropData -> Arrays.stream(dropData).mapToInt(Integer::parseInt).toArray())
                             .forEach(dropData -> {
                                 IntStream.range(0, 3).forEach(i -> dropRateBatch.bind(i, dropData[i]));

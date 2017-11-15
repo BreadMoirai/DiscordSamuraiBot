@@ -19,6 +19,7 @@ package com.github.breadmoirai.bot.modules.item.model;
 import com.github.breadmoirai.bot.modules.item.ItemUseContext;
 import com.github.breadmoirai.bot.modules.item.model.data.ItemData;
 import com.github.breadmoirai.bot.framework.core.Response;
+import com.github.breadmoirai.breadbot.framework.Response;
 
 public class BaseItem implements Item {
 

@@ -16,30 +16,20 @@
  */
 package com.github.breadmoirai.bot.modules.music.command;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.command.Key;
-import com.github.breadmoirai.bot.framework.core.command.ModuleCommand;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
 import com.github.breadmoirai.bot.util.PermissionFailureResponse;
+import com.github.breadmoirai.breadbot.framework.command.MainCommand;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
-import java.util.List;
+public class JoinCommand {
 
-@Key("join")
-public class Join extends ModuleCommand<MusicModule> {
-    @Override
-    public void execute(CommandEvent event, MusicModule module) {
-        VoiceChannel channel = null;
-        if (event.isNumeric()) {
-            channel = event.getGuild().getVoiceChannelById(event.getContent());
-        }
-        if (channel == null && event.hasContent()) {
-            final List<VoiceChannel> voiceChannelsByName = event.getGuild().getVoiceChannelsByName(event.getContent(), true);
-            if (!voiceChannelsByName.isEmpty())
-                channel = voiceChannelsByName.get(0);
-        } else channel = event.getMember().getVoiceState().getChannel();
+    @MainCommand
+    public void join(CommandEvent event, MusicModule module, VoiceChannel channel) {
+        if (channel == null)
+            channel = event.getMember().getVoiceState().getChannel();
         if (channel == null) {
             event.reply("Try joining a voice channel first");
             return;

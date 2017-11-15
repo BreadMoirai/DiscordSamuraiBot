@@ -16,11 +16,10 @@
  */
 package com.github.breadmoirai.bot.modules.music;
 
-import com.github.breadmoirai.bot.framework.core.IModule;
-import com.github.breadmoirai.bot.framework.core.SamuraiClient;
-import com.github.breadmoirai.bot.framework.core.impl.CommandEngineBuilder;
-import com.github.breadmoirai.bot.framework.event.CommandEvent;
 import com.github.breadmoirai.bot.util.PermissionFailureResponse;
+import com.github.breadmoirai.breadbot.framework.BreadBotClientBuilder;
+import com.github.breadmoirai.breadbot.framework.CommandModule;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.database.Database;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -46,7 +45,7 @@ import java.util.Optional;
 
 ;
 
-public class MusicModule implements IModule {
+public class MusicModule implements CommandModule {
 
     private final int defaultVolume;
 
@@ -74,22 +73,17 @@ public class MusicModule implements IModule {
     }
 
     @Override
-    public void getHelp(CommandEvent event) {
-        event.reply("The available command for music are as follow:" +
-                "\n```" +
-                "\nqueue, play." +
-                "\nnowplaying, np, history." +
-                "\nvolume, vol, vol+, vol-." +
-                "\nprevious, skip, repeat." +
-                "\njoin, leave, pause, unpause." +
-                "\nautoplay, autoplay on, autoplay off." +
-                "\n```");
-    }
-
-    @Override
-    public void init(CommandEngineBuilder commands, SamuraiClient samuraiClient) {
-        commands.registerCommand(this.getClass().getPackage().getName() + ".command");
-
+    public void initialize(BreadBotClientBuilder builder) {
+        builder.addCommands(this.getClass().getPackage().getName() + ".command")
+                .addCommand(event -> event.reply("The available command for music are as follow:" +
+                        "\n```" +
+                        "\nqueue, play." +
+                        "\nnowplaying, np, history." +
+                        "\nvolume, vol, vol+, vol-." +
+                        "\nprevious, skip, repeat." +
+                        "\njoin, leave, pause, unpause." +
+                        "\nautoplay, autoplay on, autoplay off." +
+                        "\n```"), handleBuilder -> handleBuilder.setName("music help").setKeys("music"));
         if (!Database.hasTable("GuildVolume"))
             Database.get().useHandle(handle -> {
                 handle.execute("CREATE TABLE GuildVolume (" +

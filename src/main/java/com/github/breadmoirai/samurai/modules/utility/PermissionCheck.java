@@ -16,7 +16,7 @@
  */
 package com.github.breadmoirai.samurai.modules.utility;
 
-import com.github.breadmoirai.bot.framework.event.CommandEvent;
+import com.github.breadmoirai.breadbot.framework.CommandEvent;
 import net.dv8tion.jda.core.Permission;
 
 import java.util.ArrayList;

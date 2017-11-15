@@ -18,20 +18,16 @@
 package com.github.breadmoirai.bot.modules.item.command;
 
 import com.github.breadmoirai.bot.modules.item.model.data.ItemRarity;
-import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Command;
-import net.breadmoirai.sbf.core.command.Key;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
+import com.github.breadmoirai.breadbot.framework.command.MainCommand;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-@Key("rarity")
-public class ItemRarityInfo extends Command {
+public class ItemRarityInfo {
 
-    @Override
-    public Response execute(CommandEvent event) {
-        return Responses.of(Arrays.stream(ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
+    @MainCommand
+    public void rarity(CommandEvent event) {
+        event.reply(Arrays.stream(ItemRarity.values()).map(itemRarity -> itemRarity.getEmote() + itemRarity.toString()).collect(Collectors.joining("\n")));
     }
 }

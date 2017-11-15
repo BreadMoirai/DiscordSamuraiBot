@@ -16,14 +16,11 @@
  */
 package com.github.breadmoirai.bot.modules.music.command;
 
-import com.github.breadmoirai.bot.util.PermissionFailureResponse;
-import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Key;
-import net.breadmoirai.sbf.core.command.ModuleCommand;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
 import com.github.breadmoirai.bot.modules.music.GuildMusicManager;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
+import com.github.breadmoirai.bot.util.PermissionFailureResponse;
+import com.github.breadmoirai.breadbot.framework.command.MainCommand;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -32,13 +29,12 @@ import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Key("history")
-public class History extends ModuleCommand<MusicModule> {
+public class History {
 
-    @Override
-    public Response execute(CommandEvent event, MusicModule module) {
+    @MainCommand
+    public void history(CommandEvent event, MusicModule module) {
         if (!event.getSelfMember().hasPermission(event.getChannel(), Permission.MESSAGE_EMBED_LINKS)) {
-            return new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS);
+            event.replyWith(new PermissionFailureResponse(event.getSelfMember(), event.getChannel(), Permission.MESSAGE_EMBED_LINKS));
         }
         final Optional<GuildMusicManager> managerOptional = module.retrieveManager(event.getGuildId());
         if (managerOptional.isPresent()) {
@@ -49,8 +45,7 @@ public class History extends ModuleCommand<MusicModule> {
             final AtomicInteger i = new AtomicInteger(0);
             sb.append("**History**");
             history.stream().limit(10).map(track -> MusicModule.trackInfoDisplay(track, true)).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
-            return Responses.of(eb.build());
+            event.reply(eb.build());
         }
-        return null;
     }
 }

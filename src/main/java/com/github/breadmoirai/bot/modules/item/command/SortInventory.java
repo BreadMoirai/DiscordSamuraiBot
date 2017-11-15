@@ -16,23 +16,21 @@
  */
 package com.github.breadmoirai.bot.modules.item.command;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.command.Key;
-import com.github.breadmoirai.bot.framework.core.command.ModuleCommand;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
 import com.github.breadmoirai.bot.modules.item.model.database.Inventory;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemSlot;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemSlotBuilder;
+import com.github.breadmoirai.breadbot.framework.command.Command;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Key("usebulk")
-public class SortInventory extends ModuleCommand<ItemModule> {
+public class SortInventory {
 
-    @Override
-    public void execute(CommandEvent event, ItemModule module) {
+    @Command
+    public void usebulk(CommandEvent event, ItemModule module) {
         final Member member = event.getMember();
         final Inventory inventory = Inventory.ofMember(member);
         final List<ItemSlot> itemSlots = inventory.getItemSlots();

@@ -16,7 +16,7 @@
  */
 package com.github.breadmoirai.bot.util;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
+import com.github.breadmoirai.bot.framework.event.Arguments;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.*;
@@ -43,41 +43,42 @@ public class TimeDurationUtil {
      * Ex. When passing a list of {@code ["hello", "1", "5", "days", "3", "hours", "1 minute"]} will return a {@link java.time.Duration Duration} of 5 days, 3 hours. The list will be modified to contain {@code ["hello", "1", "1 minute"]}
      * Supported interpretations of time units are as follows
      * <ul>
-     *     <li>Seconds</li>
-     *     <ul>
-     *         <li>"s"</li>
-     *         <li>"sec"</li>
-     *         <li>"secs"</li>
-     *         <li>"second"</li>
-     *         <li>"seconds"</li>
-     *     </ul>
-     *     <li>Minutes</li>
-     *     <ul>
- *             <li>"m"</li>
- *             <li>"min"</li>
- *             <li>"mins"</li>
- *             <li>"minute"</li>
- *             <li>"minutes"</li>
-     *     </ul>
-     *     <li>Hours</li>
-     *     <ul>
-     *         <li>"h"</li>
-     *         <li>"hour"</li>
-     *         <li>"hours"</li>
-     *     </ul>
-     *     <li>Days</li>
-     *     <ul>
-     *         <li>"d"</li>
-     *         <li>"day"</li>
-     *         <li>"days"</li>
-     *     </ul>
-     *     <li>Weeks</li>
-     *     <ul>
-     *         <li>"wk"</li>
-     *         <li>"week"</li>
-     *         <li>"weeks"</li>
-     *     </ul>
+     * <li>Seconds</li>
+     * <ul>
+     * <li>"s"</li>
+     * <li>"sec"</li>
+     * <li>"secs"</li>
+     * <li>"second"</li>
+     * <li>"seconds"</li>
      * </ul>
+     * <li>Minutes</li>
+     * <ul>
+     * <li>"m"</li>
+     * <li>"min"</li>
+     * <li>"mins"</li>
+     * <li>"minute"</li>
+     * <li>"minutes"</li>
+     * </ul>
+     * <li>Hours</li>
+     * <ul>
+     * <li>"h"</li>
+     * <li>"hour"</li>
+     * <li>"hours"</li>
+     * </ul>
+     * <li>Days</li>
+     * <ul>
+     * <li>"d"</li>
+     * <li>"day"</li>
+     * <li>"days"</li>
+     * </ul>
+     * <li>Weeks</li>
+     * <ul>
+     * <li>"wk"</li>
+     * <li>"week"</li>
+     * <li>"weeks"</li>
+     * </ul>
+     * </ul>
+     *
      * @param args a mutable list of strings
      * @return Duration
      */
@@ -88,7 +89,7 @@ public class TimeDurationUtil {
         for (int i = 0; i < args.size() - 1; i++) {
             long value;
             final String s1 = args.get(i);
-            if (CommandEvent.isNumber(s1)) {
+            if (Arguments.isNumber(s1)) {
                 value = Long.parseLong(s1);
             } else {
                 continue;
@@ -143,6 +144,7 @@ public class TimeDurationUtil {
 
     /**
      * Format required is {@code Month dayth}
+     *
      * @param args
      * @param base
      * @return
@@ -214,6 +216,7 @@ public class TimeDurationUtil {
 
     /**
      * This method has been copied from <a href="https://commons.apache.org/proper/commons-text/source-repository.html">Apache Commons</a>, <a href="https://git-wip-us.apache.org/repos/asf?p=commons-text.git;a=tree;f=src/main/java/org/apache/commons/text;hb=HEAD">org.apache.commons.text.WordUtils</a>
+     *
      * @param str a string
      * @return a capitalized string, Each letter preceded by a space is capitalized
      */

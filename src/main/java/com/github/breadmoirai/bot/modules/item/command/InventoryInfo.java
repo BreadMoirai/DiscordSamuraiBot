@@ -16,29 +16,27 @@
  */
 package com.github.breadmoirai.bot.modules.item.command;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.Response;
-import com.github.breadmoirai.bot.framework.core.command.Key;
-import com.github.breadmoirai.bot.framework.core.command.ModuleCommand;
-import com.github.breadmoirai.bot.framework.core.response.simple.StringResponse;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
 import com.github.breadmoirai.bot.modules.item.model.database.Inventory;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemSlot;
+import com.github.breadmoirai.breadbot.framework.CommandEvent;
+import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
+import com.github.breadmoirai.breadbot.framework.response.CommandResponse;
+import com.github.breadmoirai.breadbot.framework.response.Responses;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.List;
 
-@Key("inventory")
-public class InventoryInfo extends ModuleCommand<ItemModule> {
+public class InventoryInfo {
 
-    @Override
-    public void execute(CommandEvent event, ItemModule module) {
+    @MainCommand
+    public void inventory(CommandEvent event, ItemModule module) {
         final Member member = event.getMember();
         final List<ItemSlot> itemSlots = Inventory.ofMember(member).getItemSlots();
         event.replyWith(displayInventory(member, itemSlots));
     }
 
-    public Response displayInventory(Member member, List<ItemSlot> itemSlots) {
+    public CommandResponse displayInventory(Member member, List<ItemSlot> itemSlots) {
         final StringBuilder sb = new StringBuilder();
         sb.append(String.format("__**%s's Inventory**__", member.getEffectiveName()));
         int i = 0;
@@ -46,6 +44,6 @@ public class InventoryInfo extends ModuleCommand<ItemModule> {
             if (i++ % 10 == 0) sb.append('\n');
             sb.append(itemSlot.getItem().getData().getEmote().getAsMention());
         }
-        return new StringResponse(sb.toString());
+        return Responses.of(sb.toString());
     }
 }

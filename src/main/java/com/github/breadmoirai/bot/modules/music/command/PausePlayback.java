@@ -16,32 +16,26 @@
  */
 package com.github.breadmoirai.bot.modules.music.command;
 
-import net.breadmoirai.sbf.core.CommandEvent;
-import net.breadmoirai.sbf.core.command.Key;
-import net.breadmoirai.sbf.core.command.ModuleMultiCommand;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
 import com.github.breadmoirai.bot.modules.music.GuildMusicManager;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
+import com.github.breadmoirai.breadbot.framework.command.Command;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 
 import java.util.Optional;
 
-public class PausePlayback extends ModuleMultiCommand<MusicModule> {
+public class PausePlayback {
 
-    @Key("pause")
-    public Response pause(CommandEvent event, MusicModule module) {
-       if (setPaused(module, event.getGuildId(), true))
-        return Responses.of("Playback Paused");
-       return null;
+    @Command
+    public void pause(CommandEvent event, MusicModule module) {
+        if (setPaused(module, event.getGuildId(), true))
+            event.reply("Playback Paused");
     }
 
-    @Key({"unpause", "resume"})
-    public Response resume(CommandEvent event, MusicModule module) {
+    @Command({"unpause", "resume"})
+    public void resume(CommandEvent event, MusicModule module) {
         if (setPaused(module, event.getGuildId(), false))
-            return Responses.of("Playback Resumed");
-        return null;
+            event.reply("Playback Resumed");
     }
-
 
     private boolean setPaused(MusicModule module, long guildId, boolean value) {
         Optional<GuildMusicManager> musicManager = module.retrieveManager(guildId);

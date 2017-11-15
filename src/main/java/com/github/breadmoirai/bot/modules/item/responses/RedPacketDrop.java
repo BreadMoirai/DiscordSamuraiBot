@@ -16,16 +16,15 @@
  */
 package com.github.breadmoirai.bot.modules.item.responses;
 
-import com.typesafe.config.ConfigFactory;
-import com.github.breadmoirai.bot.modules.item.model.database.Inventory;
 import com.github.breadmoirai.bot.modules.item.model.Item;
+import com.github.breadmoirai.bot.modules.item.model.database.Inventory;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemFactory;
-import com.github.breadmoirai.bot.framework.core.Response;
-import com.github.breadmoirai.bot.framework.waiter.EventWaiter;
+import com.github.breadmoirai.breadbot.framework.Response;
+import com.github.breadmoirai.breadbot.waiter.EventWaiter;
+import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.core.requests.RequestFuture;

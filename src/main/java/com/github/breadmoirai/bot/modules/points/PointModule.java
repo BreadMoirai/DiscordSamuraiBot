@@ -16,10 +16,10 @@
  */
 package com.github.breadmoirai.bot.modules.points;
 
-import com.github.breadmoirai.bot.framework.core.IModule;
-import com.github.breadmoirai.bot.framework.core.SamuraiClient;
-import com.github.breadmoirai.bot.framework.core.impl.CommandEngineBuilder;
-import com.github.breadmoirai.bot.framework.database.Database;
+import com.github.breadmoirai.bot.framework.BreadBotClient;
+import com.github.breadmoirai.bot.framework.CommandEngineBuilder;
+import com.github.breadmoirai.bot.framework.ICommandModule;
+import com.github.breadmoirai.database.Database;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -44,7 +44,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class PointModule extends ListenerAdapter implements IModule {
+public class PointModule extends ListenerAdapter implements ICommandModule {
 
     private static final double MINIMUM = 1, LOWER_LIMIT = 4, UPPER_LIMIT = 15;
     private static final double MINUTE_POINT = .007;
@@ -61,7 +61,7 @@ public class PointModule extends ListenerAdapter implements IModule {
     }
 
     @Override
-    public void init(CommandEngineBuilder ceb, SamuraiClient samuraiClient) {
+    public void init(CommandEngineBuilder ceb, BreadBotClient samuraiClient) {
         ceb.registerCommand(this.getClass().getPackage().getName() + ".command");
         if (!Database.hasTable("MemberPoints")) {
             Database.get().useHandle(handle -> handle

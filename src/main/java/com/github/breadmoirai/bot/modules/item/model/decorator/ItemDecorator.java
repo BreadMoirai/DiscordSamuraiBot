@@ -19,6 +19,7 @@ package com.github.breadmoirai.bot.modules.item.model.decorator;
 import com.github.breadmoirai.bot.modules.item.ItemUseContext;
 import com.github.breadmoirai.bot.modules.item.model.Item;
 import com.github.breadmoirai.bot.modules.item.model.data.ItemData;
+import com.github.breadmoirai.breadbot.framework.Response;
 import net.breadmoirai.sbf.core.response.Response;
 
 public abstract class ItemDecorator implements Item {

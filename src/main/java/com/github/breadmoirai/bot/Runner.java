@@ -16,6 +16,7 @@
  */
 package com.github.breadmoirai.bot;
 
+
 import com.github.breadmoirai.bot.modules.catdog.CatDogModule;
 import com.github.breadmoirai.bot.modules.item.ItemModule;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
@@ -23,16 +24,18 @@ import com.github.breadmoirai.bot.modules.points.PointModule;
 import com.github.breadmoirai.bot.modules.prefix.DynamicPrefixModule;
 import com.github.breadmoirai.bot.util.HelpCommand;
 import com.github.breadmoirai.bot.util.ShutdownCommand;
+import com.github.breadmoirai.breadbot.framework.BreadBotClient;
+import com.github.breadmoirai.breadbot.framework.BreadBotClientBuilder;
+import com.github.breadmoirai.breadbot.framework.annotation.parameter.IfNotFound;
+import com.github.breadmoirai.breadbot.modules.admin.DefaultAdminModule;
+import com.github.breadmoirai.breadbot.waiter.EventWaiter;
 import com.github.breadmoirai.database.Database;
-import com.github.breadmoirai.framework.core.SamuraiClientBuilder;
-import com.github.breadmoirai.framework.modules.admin.DefaultAdminModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
 import javax.security.auth.login.LoginException;
@@ -54,13 +57,16 @@ public class Runner {
 
         final Config config = ConfigFactory.load();
 
-        AnnotatedEventManager eventManager = new SamuraiClientBuilder()
+        final BreadBotClient breadbot = new BreadBotClientBuilder()
+                .putParameterModifier(IfAbsentReply.class, (a, cpb) -> {
+                    final String value = a.value();
+                    cpb.setRequired(true).setOnParamNotFound((event, missing) -> event.reply(value));
+                })
                 .addModule(new DefaultAdminModule(member -> member.getUser().getIdLong() == ownerId || member.canInteract(member.getGuild().getSelfMember()) && member.hasPermission(Permission.KICK_MEMBERS)))
                 .addModule(new DynamicPrefixModule("["))
 //                .addModule(new SourceModule(233097800722808832L))
 //                .addModule(new OwnerModule(ownerId))
                 .addModule(new MusicModule(30, config.getString("api.google"), "SamuraiDiscordBot"))
-                .addModule(new CatDogModule())
                 .addModule(new PointModule())
                 .addModule(new ItemModule())
                 .registerCommand(ShutdownCommand.class)
@@ -70,7 +76,7 @@ public class Runner {
         try {
             new JDABuilder(AccountType.BOT)
                     .setToken(config.getString("bot.testtoken"))
-                    .setEventManager(eventManager)
+                    .setEventManager(breadbot.getEventManager())
                     .addEventListener(EventWaiter.get())
                     .buildAsync();
         } catch (LoginException | RateLimitedException e) {

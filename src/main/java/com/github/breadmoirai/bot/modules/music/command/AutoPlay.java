@@ -16,43 +16,40 @@
  */
 package com.github.breadmoirai.bot.modules.music.command;
 
-import com.github.breadmoirai.bot.framework.core.CommandEvent;
-import com.github.breadmoirai.bot.framework.core.command.Key;
-import com.github.breadmoirai.bot.framework.core.command.ModuleMultiSubCommand;
-import com.github.breadmoirai.bot.framework.core.response.simple.StringResponse;
+
 import com.github.breadmoirai.bot.modules.music.GuildMusicManager;
 import com.github.breadmoirai.bot.modules.music.MusicModule;
+import com.github.breadmoirai.breadbot.framework.command.Command;
+import com.github.breadmoirai.breadbot.framework.command.MainCommand;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 
 import java.util.Optional;
 
-@Key( "autoplay")
-public class AutoPlay extends ModuleMultiSubCommand<MusicModule> {
+public class AutoPlay {
 
-    @Key("")
-    public void executeDefault(CommandEvent event, MusicModule module) {
+    @MainCommand
+    public void autoplay(CommandEvent event, MusicModule module) {
         Optional<GuildMusicManager> guildMusicManager = module.retrieveManager(event.getGuildId());
         guildMusicManager.ifPresent(guildMusicManager1 -> event.replyFormat("AutoPlay is currently `%s`", guildMusicManager1.getScheduler().isAutoPlay() ? "enabled" : "disabled"));
     }
 
 
-    @Key({"on", "enable"})
-    public StringResponse enable(CommandEvent event, MusicModule module) {
+    @Command({"on", "enable"})
+    public void enable(CommandEvent event, MusicModule module) {
         Optional<GuildMusicManager> guildMusicManager = module.retrieveManager(event.getGuildId());
         if (guildMusicManager.isPresent()) {
             guildMusicManager.get().getScheduler().setAutoPlay(true);
-            return event.respond("AutoPlay is now `enabled`");
+            event.reply("AutoPlay is now `enabled`");
         }
-        return null;
     }
 
-    @Key({"off", "disable"})
-    public StringResponse disable(CommandEvent event, MusicModule module) {
+    @Command({"off", "disable"})
+    public void disable(CommandEvent event, MusicModule module) {
         Optional<GuildMusicManager> guildMusicManager = module.retrieveManager(event.getGuildId());
         if (guildMusicManager.isPresent()) {
             guildMusicManager.get().getScheduler().setAutoPlay(false);
-            return event.respond("AutoPlay is now `disabled`");
+            event.reply("AutoPlay is now `disabled`");
         }
-        return null;
     }
 
 }

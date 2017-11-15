@@ -16,13 +16,12 @@
  */
 package com.github.breadmoirai.bot.modules.item.model.decorator;
 
-
 import com.github.breadmoirai.bot.modules.item.ItemUseContext;
 import com.github.breadmoirai.bot.modules.item.model.Item;
 import com.github.breadmoirai.bot.modules.item.model.data.ItemRarity;
 import com.github.breadmoirai.bot.modules.item.model.database.ItemSlot;
-import net.breadmoirai.sbf.core.response.Response;
-import net.breadmoirai.sbf.core.response.Responses;
+import com.github.breadmoirai.breadbot.framework.Response;
+import com.github.breadmoirai.breadbot.framework.response.Responses;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Emote;

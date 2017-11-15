@@ -16,7 +16,7 @@
  */
 package com.github.breadmoirai.bot.util;
 
-import com.github.breadmoirai.bot.framework.core.Response;
+import com.github.breadmoirai.breadbot.framework.Response;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
