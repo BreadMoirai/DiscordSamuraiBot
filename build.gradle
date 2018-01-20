@@ -6,28 +6,26 @@ plugins {
     id 'com.sedmelluq.jdaction' version '1.0.1'
 }
 
-group = 'net.breadmoirai'
+group = 'com.github.breadmoirai'
 idea.module.downloadJavadoc = true
 
 def majorVersion = 7
 def minorVersion = 0
-mainClassName = "net.breadmoirai.samurai.Runner"
+mainClassName = "com.github.breadmoirai.discord.bot.Runner"
 
 
 repositories {
     jcenter()
     mavenCentral()
-//    maven { url 'https://jitpack.io' }
-    maven { url 'https://dl.bintray.com/breadmoirai/maven' }
 }
 
 dependencies {
     //discord
-    compile 'com.github.breadmoirai:breadbot-framework:0.7.1'
+    compile 'com.github.breadmoirai:breadbot-framework:0.11.1'
 
-    compile 'com.sedmelluq:lavaplayer:1.2.43'
-
-    compile 'net.dv8tion:JDA:3.3.1_303'
+    compile 'com.sedmelluq:lavaplayer:1.2.45'
+    compile 'com.jagrosh:JDA-Utilities:1.9'
+    compile 'net.dv8tion:JDA:3.5.0_327'
 
     //api
 //    compile 'com.mashape.unirest:unirest-java:1.4.9'
