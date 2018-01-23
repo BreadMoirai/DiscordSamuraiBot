@@ -14,14 +14,9 @@
 */
 package com.github.breadmoirai.samurai.command;
 
-import com.github.breadmoirai.samurai.Bot;
-import com.github.breadmoirai.samurai.database.dao.GuildDao;
-import com.github.breadmoirai.samurai.database.objects.GuildUpdater;
-import com.github.breadmoirai.samurai.database.objects.SamuraiGuild;
 import com.github.breadmoirai.samurai.items.Inventory;
-import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
-import com.github.breadmoirai.samurai.points.PointSession;
-import com.github.breadmoirai.samurai.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -59,7 +54,6 @@ public class CommandContext {
     private final List<TextChannel> mentionedChannels;
     private List<Member> mentionedMembers;
     private List<String> args;
-    private SamuraiGuild samuraiGuild;
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
@@ -138,16 +132,6 @@ public class CommandContext {
         return messageId;
     }
 
-    public SamuraiGuild getSamuraiGuild() {
-        if (samuraiGuild == null) {
-            samuraiGuild = DerbyDatabase.get().<GuildDao, SamuraiGuild>openDao(GuildDao.class, guildDao -> guildDao.getGuild(getGuildId()));
-        }
-        return samuraiGuild;
-    }
-
-    public GuildUpdater getSamuraiGuildUpdater() {
-        return GuildUpdater.of(getGuildId());
-    }
 
     public OffsetDateTime getTime() {
         return time;
@@ -300,7 +284,7 @@ public class CommandContext {
         return getGuild().getMembers().stream()
                 .filter(member ->
                         !((member.getUser().isBot() || member.getUser().isFake())
-                                && member.getUser().getIdLong() != Bot.info().ID))
+                                && member.getUser().getIdLong() != member.getJDA().getSelfUser().getIdLong()))
                 .map(member -> pointTracker.getMemberPointSession(member))
                 .sorted(Comparator.comparingDouble(PointSession::getPoints).reversed());
     }

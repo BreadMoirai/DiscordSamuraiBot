@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.Guild;
 public class DerbyPrefixPlugin implements PrefixPlugin {
 
     private final String defaultPrefix;
-    private PrefixJdbiExtension extension;
+    private DerbyPrefixExtension extension;
 
     public DerbyPrefixPlugin(String defaultPrefix) {
         this.defaultPrefix = defaultPrefix;
@@ -21,7 +21,7 @@ public class DerbyPrefixPlugin implements PrefixPlugin {
             throw new MissingDerbyPluginException();
         }
         final DerbyDatabase database = builder.getPlugin(DerbyDatabase.class);
-        this.extension = database.getExtension(jdbi -> new PrefixJdbiExtension(jdbi, defaultPrefix));
+        this.extension = database.getExtension(jdbi -> new DerbyPrefixExtension(jdbi, defaultPrefix));
 
         builder.addCommand(DerbyPrefixCommand::new);
     }

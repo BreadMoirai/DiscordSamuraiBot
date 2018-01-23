@@ -5,14 +5,14 @@ import org.jdbi.v3.core.Jdbi;
 
 import java.util.Optional;
 
-public class PrefixJdbiExtension extends JdbiExtension {
+public class DerbyPrefixExtension extends JdbiExtension {
 
     private final String defaultPrefix;
 
-    public PrefixJdbiExtension(Jdbi jdbi, String defaultPrefix) {
+    public DerbyPrefixExtension(Jdbi jdbi, String defaultPrefix) {
         super(jdbi);
         this.defaultPrefix = defaultPrefix;
-        if (tableAbsent("PREFIX")) {
+        if (tableAbsent("Prefix")) {
             execute("CREATE TABLE Prefix (\n" +
                     "  Id       BIGINT      NOT NULL PRIMARY KEY,\n" +
                     "  Value    VARCHAR(16) NOT NULL,\n" +
@@ -21,7 +21,7 @@ public class PrefixJdbiExtension extends JdbiExtension {
     }
 
     public String getPrefix(long guildId) {
-        final Optional<String> prefix = selectOnly(String.class, "SELECT Value FROM PREFIX WHERE Id = ?", guildId);
+        final Optional<String> prefix = selectOnly(String.class, "SELECT Value FROM Prefix WHERE Id = ?", guildId);
         if (prefix.isPresent()) {
             return prefix.get();
         } else {

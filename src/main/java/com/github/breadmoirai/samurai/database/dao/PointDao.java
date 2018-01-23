@@ -14,7 +14,7 @@
 */
 package com.github.breadmoirai.samurai.database.dao;
 
-import com.github.breadmoirai.samurai.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;

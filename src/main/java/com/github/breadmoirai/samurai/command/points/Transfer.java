@@ -19,7 +19,7 @@ import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
 import com.github.breadmoirai.samurai.messages.impl.FixedMessage;
-import com.github.breadmoirai.samurai.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.List;
@@ -37,12 +37,12 @@ public class Transfer extends Command {
             final List<Member> mentionedMembers = context.getMentionedMembers();
             if (mentionedMembers.size() > 0) {
                 final Member member = mentionedMembers.get(0);
-                context.getPointTracker().offsetPoints(context.getGuildId(), member.getUser().getIdLong(), value);
+                context.getPointTracker().offsetPoints(member.getUser().getIdLong(), value);
                 authorPoints.offsetPoints(-1 * value);
                 return FixedMessage.build(String.format("%s has received your transfer of **%.2f** points.", member.getEffectiveName(), value));
             } else {
                 authorPoints.offsetPoints(-1 * value);
-                context.getPointTracker().offsetPoints(context.getGuildId(), context.getSelfUser().getIdLong(), value);
+                context.getPointTracker().offsetPoints(context.getSelfUser().getIdLong(), value);
                 return FixedMessage.build(String.format("Thanks for your donation of **%.2f** points", value));
             }
         }

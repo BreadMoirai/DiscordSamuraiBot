@@ -5,11 +5,11 @@ import com.github.breadmoirai.samurai.command.Command;
 import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
 import com.github.breadmoirai.samurai.messages.base.Reloadable;
 import com.github.breadmoirai.samurai.messages.listeners.CommandListener;
-import com.sun.xml.internal.ws.util.StringUtils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.time.Instant;

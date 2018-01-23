@@ -19,7 +19,7 @@ import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.database.SQLUtil;
 import com.github.breadmoirai.samurai.database.dao.PointDao;
-import com.github.breadmoirai.samurai.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;

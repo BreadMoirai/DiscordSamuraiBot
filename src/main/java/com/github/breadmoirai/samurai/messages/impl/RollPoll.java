@@ -4,7 +4,7 @@ import com.github.breadmoirai.samurai.SamuraiDiscord;
 import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
 import com.github.breadmoirai.samurai.messages.base.Reloadable;
 import com.github.breadmoirai.samurai.messages.listeners.ReactionListener;
-import com.github.breadmoirai.samurai.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -141,7 +141,7 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
         for (Map.Entry<Long, Integer> memberRoll : toSort) {
             int pos = i;
             value *= (double) memberRoll.getValue() / (double) previous;
-            pointTracker.offsetPoints(guildId, memberRoll.getKey(), value);
+            pointTracker.offsetPoints(memberRoll.getKey(), value);
 
             if (pos <= 3) description.append(MEDAL[pos - 1]).append(' ');
             else description.append(String.format("`%02d.` ", pos));

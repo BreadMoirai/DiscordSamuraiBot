@@ -15,10 +15,10 @@
 package com.github.breadmoirai.samurai;
 
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
-import com.github.breadmoirai.samurai.osu.tracker.OsuTracker;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
+import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
-import com.github.breadmoirai.samurai.points.PointTracker;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -30,10 +30,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.lang.System.out;
 
 /**
  * Main Class
@@ -49,63 +52,48 @@ public class Bot {
         shards = new ArrayList<>(SHARD_COUNT);
     }
 
-    public static void main(String[] args) {
-        Bot.start(args);
-    }
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException, SQLException, LoginException {
 
-    private static void start(String[] args) {
         final List<String> argList = Arrays.stream(args).map(String::toLowerCase).collect(Collectors.toList());
-        if (argList.contains("ext"))
-            try {
-                PrintStream out = new PrintStream(new FileOutputStream("out.txt"), false, "UTF-8");
-                System.setOut(out);
-                PrintStream err = new PrintStream(new FileOutputStream("err.txt"), false, "UTF-8");
-                System.setErr(err);
-            } catch (FileNotFoundException | UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-        if (argList.contains("items")) {
-            DerbyDatabase.get().loadItems(true);
-            DerbyDatabase.close();
-            System.exit(0);
+        if (argList.contains("ext")) {
+            PrintStream out = new PrintStream(new FileOutputStream("out.txt"), false, "UTF-8");
+            System.setOut(out);
+            PrintStream err = new PrintStream(new FileOutputStream("err.txt"), false, "UTF-8");
+            System.setErr(err);
         }
+//
+//        if (argList.contains("items")) {
+//            DerbyDatabase.get().loadItems(true);
+//            DerbyDatabase.close();
+//            System.exit(0);
+//        }
 
         final Config config = ConfigFactory.load();
 
         new BreadBotBuilder()
-//                .addPlugin(new DerbyPrefixPlugin("!"))
+                .addPlugin(new DerbyDatabase("botdata"))
+                .addPlugin(new DerbyPrefixPlugin("!"))
                 .addPlugin(new MusicPlugin(config.getString("api.google")));
 
 
-
-
-
-
-        final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
+        new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
-                .addEventListener();
-
-        try {
-            jdaBuilder.buildAsync();
-        } catch (LoginException e) {
-            e.printStackTrace();
-        }
+                .addEventListener()
+                .buildAsync();
     }
 
+
     public static void shutdown() {
-        System.out.println("Shutting Down");
+        out.println("Shutting Down");
         for (JDA shard : shards) {
             shard.removeEventListener(shard.getRegisteredListeners());
         }
-        DerbyDatabase.close();
-        OsuTracker.close();
         PointTracker.close();
         for (JDA jda : shards) {
             jda.shutdown();
         }
-        System.out.println("Complete");
+        out.println("Complete");
     }
 
 
