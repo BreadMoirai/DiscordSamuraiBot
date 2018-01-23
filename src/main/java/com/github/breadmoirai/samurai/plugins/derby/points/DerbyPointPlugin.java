@@ -42,7 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class PointTracker extends ListenerAdapter implements CommandPlugin {
+public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
 
     private static final double MESSAGE_POINT = 2;
     private static final double MINUTE_POINT = .09;
