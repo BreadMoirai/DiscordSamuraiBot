@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.database;
+package com.github.breadmoirai.samurai.plugins.derby;
 
 import java.sql.SQLException;
 import java.util.Arrays;

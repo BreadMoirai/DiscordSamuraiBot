@@ -14,6 +14,15 @@ mainClassName = "samurai.Bot"
 
 def forRelease = false;
 
+sourceSets.main.java {
+    exclude 'com/github/breadmoirai/samurai/command'
+    exclude 'com/github/breadmoirai/samurai/database'
+    exclude 'com/github/breadmoirai/samurai/files'
+    exclude 'com/github/breadmoirai/samurai/items'
+    exclude 'com/github/breadmoirai/samurai/messages'
+
+}
+
 repositories {
     jcenter()
     mavenCentral()

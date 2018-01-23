@@ -16,7 +16,7 @@ package com.github.breadmoirai.samurai.command;
 
 import com.github.breadmoirai.samurai.items.Inventory;
 import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -57,7 +57,7 @@ public class CommandContext {
     private final TextChannel channel;
     private final OffsetDateTime time;
     private int shardId;
-    private PointTracker pointTracker;
+    private DerbyPointPlugin pointTracker;
     private CommandScheduler commandScheduler;
     private transient Inventory authorInventory;
 
@@ -268,11 +268,11 @@ public class CommandContext {
     }
 
 
-    public void setPointTracker(PointTracker pointTracker) {
+    public void setPointTracker(DerbyPointPlugin pointTracker) {
         this.pointTracker = pointTracker;
     }
 
-    public PointTracker getPointTracker() {
+    public DerbyPointPlugin getPointTracker() {
         return pointTracker;
     }
 

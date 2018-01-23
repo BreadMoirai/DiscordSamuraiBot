@@ -1,4 +1,4 @@
-package com.github.breadmoirai.samurai.database.dao;
+package com.github.breadmoirai.samurai.plugins.derby.prefix;
 
 import org.jdbi.v3.sqlobject.customizer.Bind;
 

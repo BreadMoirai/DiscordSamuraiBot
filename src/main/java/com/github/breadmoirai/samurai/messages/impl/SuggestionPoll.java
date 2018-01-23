@@ -1,7 +1,6 @@
 package com.github.breadmoirai.samurai.messages.impl;
 
 import com.github.breadmoirai.samurai.Bot;
-import com.github.breadmoirai.samurai.SamuraiDiscord;
 import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.basic.GenericCommand;
 import com.github.breadmoirai.samurai.messages.base.DynamicMessage;

@@ -130,10 +130,11 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
                 pointSession.offsetPoints(MESSAGE_POINT);
             } else {
                 final double U = diff / 90;
+                final double sU = (U - .5) * .6 + .5;
                 final int sigma = 2;
-                final double X = sigma * Math.sqrt(-2 * Math.log(U));
-                final double r = X * 10 + MESSAGE_POINT;
-                pointSession.offsetPoints(ThreadLocalRandom.current().nextDouble(r));
+                final double X = sigma * Math.sqrt(-2 * Math.log(sU));
+                final double r = X * 10;
+                pointSession.offsetPoints(MESSAGE_POINT + ThreadLocalRandom.current().nextDouble(r));
             }
             pointSession.setLastMessageSent(now);
         }

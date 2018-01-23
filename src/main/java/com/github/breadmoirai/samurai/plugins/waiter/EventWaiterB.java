@@ -193,7 +193,7 @@ public class EventWaiterB implements EventListener {
         private final Predicate<T> predicate;
         private boolean passed;
 
-        public PredicateTracker(Predicate<T> predicate) {
+        PredicateTracker(Predicate<T> predicate) {
             this.predicate = predicate;
         }
 
@@ -207,7 +207,7 @@ public class EventWaiterB implements EventListener {
             }
         }
 
-        public boolean isPassed() {
+        boolean isPassed() {
             return passed;
         }
 

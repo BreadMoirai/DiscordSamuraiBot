@@ -12,8 +12,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.messages.impl.music;
+package com.github.breadmoirai.samurai.plugins.music;
 
+import com.github.breadmoirai.breadbot.framework.command.Command;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.samurai.command.Command;
 import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.basic.GenericCommand;
@@ -21,6 +23,7 @@ import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
 import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
+import com.github.breadmoirai.samurai.plugins.waiter.EventWaiterB;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -40,7 +43,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TrackLoader extends DynamicMessage implements AudioLoadResultHandler {
+public class TrackLoader implements AudioLoadResultHandler {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
     private static final String CANCEL_REACTION = "\u23cf";
@@ -59,6 +62,9 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
     private MessageChannel channel;
     private boolean closed;
     private String requester;
+
+    private long authorId;
+    private long messageId;
 
     public TrackLoader(MusicPlugin plugin, GuildAudioManager audioManager, List<String> content, String playlistName) {
         this.plugin = plugin;
@@ -81,8 +87,26 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
         this.closed = false;
     }
 
-    @Override
-    protected Message initialize() {
+    public void dispatch(CommandEvent event, EventWaiterB waiter, MessageChannel channel) {
+        Message initialMessage = initialize();
+        requester = event.getMember().getEffectiveName();
+        authorId = event.getAuthorId();
+        event.reply(initialMessage)
+                .onSuccess(message -> this.messageId = message.getIdLong())
+                .appendSuccess(message -> this.channel = message.getChannel())
+                .appendSuccess(message -> waitForEvents(waiter));
+
+    }
+
+    private void waitForEvents(EventWaiterB waiter) {
+
+    }
+
+    private void unregister() {
+
+    }
+
+    private Message initialize() {
         if (!request.isEmpty()) {
             if (request.get(0).startsWith("ytsearch:")) {
                 return new MessageBuilder().append("Searching Youtube...").build();
@@ -91,13 +115,6 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
             }
         }
         return new MessageBuilder().append("Loading tracks...").build();
-    }
-
-    @Override
-    protected void onReady(Message message) {
-        channel = message.getChannel();
-        request.forEach(s -> plugin.loadItem(audioManager, s, this));
-        requester = message.getGuild().getMemberById(getAuthorId()).getEffectiveName();
     }
 
     @Override
@@ -273,5 +290,13 @@ public class TrackLoader extends DynamicMessage implements AudioLoadResultHandle
                 .appendDescription("Track Loading Canceled").build())
                 .queue(message -> message.clearReactions().queue());
         unregister();
+    }
+
+    public long getAuthorId() {
+        return authorId;
+    }
+
+    public long getMessageId() {
+        return messageId;
     }
 }

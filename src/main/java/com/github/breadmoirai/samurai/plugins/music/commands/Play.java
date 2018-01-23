@@ -16,9 +16,9 @@ package com.github.breadmoirai.samurai.plugins.music.commands;
 
 import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
-import com.github.breadmoirai.samurai.messages.impl.music.TrackLoader;
 import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.github.breadmoirai.samurai.plugins.music.TrackLoader;
 import com.github.breadmoirai.samurai.util.MiscUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;

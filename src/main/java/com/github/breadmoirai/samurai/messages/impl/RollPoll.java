@@ -4,7 +4,7 @@ import com.github.breadmoirai.samurai.SamuraiDiscord;
 import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
 import com.github.breadmoirai.samurai.messages.base.Reloadable;
 import com.github.breadmoirai.samurai.messages.listeners.ReactionListener;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -38,13 +38,13 @@ public class RollPoll extends DynamicMessage implements ReactionListener, Reload
     private transient TimeUnit unit;
     private Instant endTime;
     private long pointValue;
-    private transient PointTracker pointTracker;
+    private transient DerbyPointPlugin pointTracker;
 
     {
         rolls = new HashMap<>();
     }
 
-    public RollPoll(long time, TimeUnit unit, long pointValue, PointTracker pointTracker) {
+    public RollPoll(long time, TimeUnit unit, long pointValue, DerbyPointPlugin pointTracker) {
         this.time = time;
         this.unit = unit;
         this.pointValue = pointValue;

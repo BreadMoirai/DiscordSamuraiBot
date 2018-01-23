@@ -15,7 +15,6 @@
 package com.github.breadmoirai.samurai.plugins.music.commands;
 
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
-import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.plugins.music.AbstractMusicCommand;
 import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -29,7 +28,6 @@ import java.util.Optional;
  * @author TonTL
  * @version 4/14/2017
  */
-@Key({"prev", "previous"})
 public class Previous extends AbstractMusicCommand {
 
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};

@@ -14,22 +14,19 @@
 */
 package com.github.breadmoirai.samurai.plugins.music.commands;
 
-import com.github.breadmoirai.samurai.command.Command;
-import com.github.breadmoirai.samurai.command.CommandContext;
-import com.github.breadmoirai.samurai.command.annotations.Key;
-import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.samurai.plugins.music.AbstractMusicCommand;
 import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
-import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 import java.util.Optional;
 
-@Key("repeat")
-public class Repeat extends Command {
+public class Repeat extends AbstractMusicCommand {
+
     @Override
-    protected SamuraiMessage execute(CommandContext context) {
-        final Optional<GuildAudioManager> managerOptional = MusicPlugin.retrieveManager(context.getGuildId());
+    public void onCommand(CommandEvent event) {
+        final Optional<GuildAudioManager> managerOptional = getPlugin(event).retrieveManager(event.getGuildId());
         if (managerOptional.isPresent()) {
             final GuildAudioManager guildAudioManager = managerOptional.get();
             final AudioTrack current = guildAudioManager.scheduler.getCurrent();
@@ -37,7 +34,11 @@ public class Repeat extends Command {
             final boolean b = guildAudioManager.scheduler.toggleRepeat();
             if (!b) event.reply("Repeat stopped");
             else
-                event.reply(new EmbedBuilder().appendDescription(Play.trackInfoDisplay(current, true) + " is now playing on repeat").build());
+                event.reply()
+                        .setEmbed(new EmbedBuilder()
+                                .appendDescription(Play.trackInfoDisplay(current, true))
+                                .appendDescription(" is now playing on repeat")
+                                .build());
         }
         event.reply("There is nothing to repeat.");
     }

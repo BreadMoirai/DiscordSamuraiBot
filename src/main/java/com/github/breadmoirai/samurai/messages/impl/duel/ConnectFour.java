@@ -21,7 +21,7 @@ import com.github.breadmoirai.samurai.messages.impl.duel.strategy.ConnectFourStr
 import com.github.breadmoirai.samurai.messages.impl.duel.strategy.MiniMaxStrategy;
 import com.github.breadmoirai.samurai.messages.listeners.CommandListener;
 import com.github.breadmoirai.samurai.messages.listeners.ReactionListener;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -62,9 +62,9 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
 
     private ConnectFourStrategy ai;
 
-    private PointTracker pointTracker;
+    private DerbyPointPlugin pointTracker;
 
-    public ConnectFour(Member seeking, PointTracker pointTracker) {
+    public ConnectFour(Member seeking, DerbyPointPlugin pointTracker) {
         userA = seeking.getUser().getIdLong();
         nameA = seeking.getEffectiveName();
         avatarA = seeking.getUser().getEffectiveAvatarUrl();
@@ -76,7 +76,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
         state = new InitialState(this);
     }
 
-    public ConnectFour(Member instigator, Member challenged, PointTracker pointTracker) {
+    public ConnectFour(Member instigator, Member challenged, DerbyPointPlugin pointTracker) {
         userA = instigator.getUser().getIdLong();
         nameA = instigator.getEffectiveName();
         avatarA = instigator.getUser().getEffectiveAvatarUrl();
@@ -377,7 +377,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
                 MessageBuilder titleMessage = game.buildTitle();
                 EmbedBuilder boardEmbed = game.buildBoard();
                 if (game.pointTracker != null) {
-                    double points = game.pointTracker.transferPoints(game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, PointTracker.DUEL_POINT_RATIO);
+                    double points = game.pointTracker.transferPoints(game.winner.equals(game.userA) ? game.userB : game.userA, game.winner, DerbyPointPlugin.DUEL_POINT_RATIO);
                     boardEmbed.addField("The Winner is:", String.format("\uD83C\uDF89<@%d> who gained **%.2f** points from %s", game.winner, points, game.winner.equals(game.userA) ? game.nameB : game.nameA), false).setImage(getWinnerAvatar());
                     event.getChannel().editMessageById(game.getMessageId(), titleMessage.setEmbed(boardEmbed.build()).build()).queue();
                     event.getTextChannel().clearReactionsById(game.getMessageId()).queue();

@@ -16,9 +16,10 @@ package com.github.breadmoirai.samurai;
 
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointTracker;
+import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.github.breadmoirai.samurai.plugins.waiter.EventWaiterB;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -44,14 +45,6 @@ import static java.lang.System.out;
  */
 public class Bot {
 
-    private static final int SHARD_COUNT = 1;
-    private static final ArrayList<JDA> shards;
-    private static BotInfo info;
-
-    static {
-        shards = new ArrayList<>(SHARD_COUNT);
-    }
-
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException, SQLException, LoginException {
 
         final List<String> argList = Arrays.stream(args).map(String::toLowerCase).collect(Collectors.toList());
@@ -70,30 +63,21 @@ public class Bot {
 
         final Config config = ConfigFactory.load();
 
-        new BreadBotBuilder()
+        EventWaiterB waiter = new EventWaiterB();
+
+        BreadBotBuilder bread = new BreadBotBuilder()
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))
-                .addPlugin(new MusicPlugin(config.getString("api.google")));
+                .addPlugin(new MusicPlugin(config.getString("api.google")))
+                .addTypeModifier(EventWaiterB.class, parameter -> parameter.setParser((parameter1, list, parser) -> waiter));
 
 
         new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
-                .addEventListener()
+                .addEventListener(waiter)
+                .addEventListener(bread)
                 .buildAsync();
-    }
-
-
-    public static void shutdown() {
-        out.println("Shutting Down");
-        for (JDA shard : shards) {
-            shard.removeEventListener(shard.getRegisteredListeners());
-        }
-        PointTracker.close();
-        for (JDA jda : shards) {
-            jda.shutdown();
-        }
-        out.println("Complete");
     }
 
 
