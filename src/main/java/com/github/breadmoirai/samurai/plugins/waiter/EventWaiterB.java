@@ -25,6 +25,8 @@ import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +47,7 @@ import java.util.stream.Collectors;
  */
 public class EventWaiterB implements EventListener {
 
-    private final HashMap<Class<?>, List<Predicate>> waitingEvents;
+    private final Map<Class<?>, List<EventAction>> waitingEvents;
 
     private final ScheduledExecutorService threadpool;
 
@@ -57,16 +59,14 @@ public class EventWaiterB implements EventListener {
         threadpool = Executors.newSingleThreadScheduledExecutor();
     }
 
-    /**
-     * Waits an indefinite amount of time for an {@link net.dv8tion.jda.core.events.Event Event} of the specified type.
-     * Then the {@link net.dv8tion.jda.core.events.Event Event} is applied to the {@link java.util.function.Predicate Predicate}. If the {@link java.util.function.Predicate Predicate} returns {@code false}, the EventWaiter will wait for the next event of the specified type. Otherwise the action is considered satisfied and removed from the EventWaiter.
-     *
-     * @param <T>       The type of Event to wait for
-     * @param classType The {@link java.lang.Class} of the Event to wait for
-     * @param action    A Predicate. Should return {@code true} when action is complete, else {@code false} if action is not satisfied and should wait for additional events.
-     */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> action) {
-        waitForEvent(classType, action, -1, null, null);
+    private <T extends Event> List<EventAction> getActions(Class<T> eventType) {
+        final List<EventAction> list = waitingEvents.get(eventType);
+        if (list != null) {
+            return list;
+        }
+        final List<EventAction> newList = new ArrayList<>();
+        waitingEvents.put(eventType, newList);
+        return newList;
     }
 
     /**
@@ -75,46 +75,23 @@ public class EventWaiterB implements EventListener {
      * <p>When this occurs, the provided {@link java.util.function.Consumer Consumer} will accept and
      * handle using the same {@link net.dv8tion.jda.core.events.Event Event}.
      *
-     * @param <T>       The type of Event to wait for
-     * @param classType The {@link java.lang.Class} of the {@link net.dv8tion.jda.core.events.Event Event} to wait for
-     * @param condition A {@link java.util.function.Predicate Predicate}. Should return {@code true} when the {@link net.dv8tion.jda.core.events.Event Event} should be passed to the {@code action}, else {@code false} if the EventWaiter continue waiting event.
-     * @param action    This is a Consumer that is run when the {@code condition} is satisfied.
+     * @param <T>
+     *         The type of Event to wait for
+     * @param eventType
+     *         The {@link java.lang.Class} of the {@link net.dv8tion.jda.core.events.Event Event} to wait for
+     * @param condition
+     *         A {@link java.util.function.Predicate Predicate}. Should return {@code true} when the {@link net.dv8tion.jda.core.events.Event Event} should be passed to the {@code action}, else {@code false} if the EventWaiter continue waiting event.
+     * @param action
+     *         This is a Consumer that is run when the {@code condition} is satisfied.
      */
-    public <T extends Event> void waitForEvent(Class<T> classType, Predicate<T> condition, Consumer<T> action) {
-        waitForEvent(classType,
-                condition,
-                action,
-                -1,
-                null,
-                null);
-    }
+    public <T extends Event> EventActionFuture waitForEvent(Class<T> eventType, Predicate<T> condition, Consumer<T> action) {
+        final CompletableFuture<Object> future = new CompletableFuture<>();
 
-    /**
-     * Waits a predetermined amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that is of the specified {@code eventType} and uses the provided {@link java.util.function.Predicate} {@code action}. If {@code action} returns {@code true}, it will be removed from this EventWaiter. If {@code action} returns {@code false}, Events of the same type will continue to be passed to it.
-     * <p>
-     * <p>If by the time it times out and {@code action} has not yet returned {@code true}, the {@code timeoutAction} will be executed.
-     *
-     * @param <T>           The type of Event to wait for
-     * @param eventType     The {@link java.lang.Class} of the Event to wait for
-     * @param action        The Predicate that is run with the Event, returning {@code true} if it is satisfied
-     * @param timeout       The maximum amount of time to wait for
-     * @param unit          The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
-     * @param timeoutAction The Runnable to run if the time runs out before a correct Event is thrown
-     */
-    public <T extends Event> void waitForEvent(Class<T> eventType, Predicate<T> action, long timeout, TimeUnit unit, Runnable timeoutAction) {
-        List<Predicate> list;
-        if (waitingEvents.containsKey(eventType))
-            list = waitingEvents.get(eventType);
-        else {
-            list = new ArrayList<>();
-            waitingEvents.put(eventType, list);
-        }
-        list.add(action);
-        if (timeout > 0 && unit != null)
-            threadpool.schedule(() -> {
-                if (list.remove(action) && timeoutAction != null)
-                    timeoutAction.run();
-            }, timeout, unit);
+
+        final List<EventActionFuture> actions = getActions(eventType);
+        final IndefiniteEventAction<T> f = new IndefiniteEventAction<>(condition, action, actions);
+        actions.add(f);
+        return f;
     }
 
     /**
@@ -124,52 +101,32 @@ public class EventWaiterB implements EventListener {
      * <p>
      * <p>Once the this times out, if {@code condition} has ever returned {@code true}, the {@code timeoutAction} will not be run. If {@code condition} has never returned {@code true}, the {@code timeoutAction} will be run.
      *
-     * @param <T>           The type of Event to wait for
-     * @param eventType     The {@link java.lang.Class} of the Event to wait for
-     * @param condition     The Predicate that tests the Event
-     * @param action        The Consumer that is run when {@code condition} returns {@code true}
-     * @param timeout       The maximum amount of time to wait for
-     * @param unit          The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
-     * @param timeoutAction The Runnable to run if the time runs out before a correct Event is thrown
+     * @param <T>
+     *         The type of Event to wait for
+     * @param eventType
+     *         The {@link java.lang.Class} of the Event to wait for
+     * @param condition
+     *         The Predicate that tests the Event
+     * @param action
+     *         The Consumer that is run when {@code condition} returns {@code true}
+     * @param timeout
+     *         The maximum amount of time to wait for
+     * @param unit
+     *         The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
+     * @param timeoutAction
+     *         The Runnable to run if the time runs out before a correct Event is thrown
      */
     public <T extends Event> void waitForEvent(Class<T> eventType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit, Runnable timeoutAction) {
-        waitForEvent(eventType,
-                t -> {
-                    if (condition.test(t)) {
-                        action.accept(t);
-                        return true;
-                    }
-                    return false;
-                },
-                timeout,
-                unit,
-                timeoutAction);
+
+
     }
 
-    /**
-     * Waits a predetermined amount of time for an {@link net.dv8tion.jda.core.events.Event Event} that is of the specified {@code eventType} and uses the provided {@link java.util.function.Predicate} {@code action}. If {@code action} returns {@code true}, it will be removed from this EventWaiter. If {@code action} returns {@code false}, Events of the same type will continue to be passed to it.
-     * <p>
-     * <p>If by the time it times out and {@code condition} has not yet returned {@code true}, the {@code timeoutAction} will be executed.
-     *
-     * @param <T>           The type of Event to wait for
-     * @param eventType     The {@link java.lang.Class} of the Event to wait for
-     * @param condition     The Predicate that tests the Event
-     * @param action        The Predicate that is run when {@code condition} returns {@code true}, returning {@code true} if it is satisfied
-     * @param timeout       The maximum amount of time to wait for
-     * @param unit          The {@link java.util.concurrent.TimeUnit TimeUnit} measurement of the timeout
-     * @param timeoutAction The Runnable to run if the time runs out before a correct Event is thrown
-     */
-    public <T extends Event> void waitForEvent(Class<T> eventType, Predicate<T> condition, Predicate<T> action, long timeout, TimeUnit unit, Runnable timeoutAction) {
-        final PredicateTracker<T> trackedCondition = new PredicateTracker<>(condition);
-        waitForEvent(eventType,
-                t -> trackedCondition.test(t) && action.test(t),
-                timeout,
-                unit,
-                () -> {
-                    if (!trackedCondition.isPassed()) {
-                        timeoutAction.run();
-                    }
-                });
+    public <T extends Event> EventActionBuilder actionBuilder(Class<T> eventClass) {
+        return new EventActionBuilderImpl(this, threadpool);
+    }
+
+    void addActionFuture(Class<? extends Event> eventClass, EventAction<?> action) {
+        getActions(eventClass).add(action);
     }
 
     @SubscribeEvent
@@ -178,9 +135,10 @@ public class EventWaiterB implements EventListener {
         Class c = event.getClass();
         while (c != Object.class) {
             if (waitingEvents.containsKey(c)) {
-                List<Predicate> list = waitingEvents.get(c);
-                //noinspection unchecked
-                list.removeAll(list.stream().filter(i -> i.test(event)).collect(Collectors.toList()));
+                List<EventAction<?>> list = waitingEvents.get(c);
+                list.removeAll(list.stream()
+                        .filter(i -> i.acceptEvent(event))
+                        .collect(Collectors.toList()));
             }
             if (event instanceof ShutdownEvent) {
                 threadpool.shutdown();
@@ -189,43 +147,5 @@ public class EventWaiterB implements EventListener {
         }
     }
 
-    private class PredicateTracker<T> implements Predicate<T> {
-        private final Predicate<T> predicate;
-        private boolean passed;
-
-        PredicateTracker(Predicate<T> predicate) {
-            this.predicate = predicate;
-        }
-
-        @Override
-        public boolean test(T t) {
-            if (!passed) {
-                passed = predicate.test(t);
-                return passed;
-            } else {
-                return predicate.test(t);
-            }
-        }
-
-        boolean isPassed() {
-            return passed;
-        }
-
-        @Override
-        public Predicate<T> and(Predicate<? super T> other) {
-            return predicate.and(other);
-        }
-
-        @Override
-        public Predicate<T> negate() {
-            return predicate.negate();
-        }
-
-        @Override
-        public Predicate<T> or(Predicate<? super T> other) {
-            return predicate.or(other);
-        }
-
-    }
 
 }
