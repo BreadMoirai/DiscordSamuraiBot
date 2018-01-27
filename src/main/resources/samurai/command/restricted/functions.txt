@@ -1,0 +1,29 @@
+List<Integer> gen(int size) {
+    return IntStream.range(0, size).mapToObj({value -> ThreadLocalRandom.current().nextInt(100)}).collect(Collectors.toList())
+};
+
+byte[] hexToByte(String s) {
+    byte[] b = new byte[s.length() / 2];
+    for (int i = 0; i < b.length; i++) {
+        int index = i * 2;
+        int v = Integer.parseInt(s.substring(index, index + 2), 16);
+        b[i] = (byte) v;
+    }
+    return b;
+};
+
+List<RollPoll> getRollPolls() {
+    mm.listeners.values().stream().flatMap({a -> a.stream()}).filter({b -> b instanceof RollPoll}).collect(Collectors.toList());
+};
+
+Member getMember(long id) {
+    return context.getGuild().getMemberById(id)
+};
+
+def rp() {
+    getRollPolls().stream().map({a -> Hex.encodeHexString(a.download())}).collect(Collectors.toList())
+};
+
+def up(String s) {
+    RollPoll.upload(hexToByte(s), mm, context.getPointTracker())
+};
