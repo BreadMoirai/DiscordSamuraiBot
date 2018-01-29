@@ -14,8 +14,11 @@
 */
 package com.github.breadmoirai.samurai.plugins.music;
 
+import com.github.breadmoirai.breadbot.framework.BreadBot;
 import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.framework.error.BreadBotException;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -46,6 +49,8 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     private final ConcurrentHashMap<Long, ScheduledFuture> terminationTask;
     private final ScheduledExecutorService terminationExecutor;
 
+    private TrackLoaderHandler handler;
+
     public MusicPlugin(String youtubeKey) {
         youtube = new YoutubeAPI(youtubeKey);
         playerManager = new DefaultAudioPlayerManager();
@@ -53,6 +58,27 @@ public class MusicPlugin implements CommandPlugin, EventListener {
         audioManagers = new ConcurrentHashMap<>();
         terminationExecutor = Executors.newSingleThreadScheduledExecutor();
         terminationTask = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public void initialize(BreadBotBuilder builder) {
+        handler = new TrackLoaderHandler();
+        builder.bindResultHandler(TrackLoader.class, handler);
+    }
+
+    @Override
+    public void onBreadReady(BreadBot client) {
+        if (!client.hasPlugin(EventWaiterPlugin.class)) {
+            throw new BreadBotException("The MusicPlugin requires an EventWaiterPlugin");
+        }
+        handler.waiter = client.getPlugin(EventWaiterPlugin.class).getEventWaiter();
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        if (event instanceof ShutdownEvent) {
+            close();
+        }
     }
 
     public List<String> getRelated(String videoID, long size) {
@@ -109,17 +135,5 @@ public class MusicPlugin implements CommandPlugin, EventListener {
         audioManagers.forEachValue(1000L, GuildAudioManager::destroy);
         audioManagers.clear();
         playerManager.shutdown();
-    }
-
-    @Override
-    public void initialize(BreadBotBuilder builder) {
-
-    }
-
-    @Override
-    public void onEvent(Event event) {
-        if (event instanceof ShutdownEvent) {
-            close();
-        }
     }
 }

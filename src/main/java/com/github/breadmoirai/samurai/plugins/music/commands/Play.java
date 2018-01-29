@@ -34,24 +34,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Play {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
 
-    public static String trackInfoDisplay(AudioTrack track) {
-        return trackInfoDisplay(track, true);
-    }
-
-    public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
-        if (track == null) return "Nothing";
-        AudioTrackInfo trackInfo = track.getInfo();
-        String trackLengthDisp;
-        if (trackInfo.length == Long.MAX_VALUE) {
-            trackLengthDisp = "\u221e";
-        } else {
-            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
-        }
-        if (displayName && track.getUserData() != null)
-            return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
-        else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
-    }
-
     @MainCommand({"queue", "play", "nowplaying"})
     public TrackLoader onCommand(CommandEvent event, MusicPlugin plugin) {
         if (event.requirePermission(PERMISSIONS)) {
@@ -98,6 +80,24 @@ public class Play {
             event.reply().setEmbed(embed);
         }
         return null;
+    }
+
+    public static String trackInfoDisplay(AudioTrack track) {
+        return trackInfoDisplay(track, true);
+    }
+
+    public static String trackInfoDisplay(AudioTrack track, boolean displayName) {
+        if (track == null) return "Nothing";
+        AudioTrackInfo trackInfo = track.getInfo();
+        String trackLengthDisp;
+        if (trackInfo.length == Long.MAX_VALUE) {
+            trackLengthDisp = "\u221e";
+        } else {
+            trackLengthDisp = String.format("%d:%02d", trackInfo.length / (60 * 1000), trackInfo.length / 1000 % 60);
+        }
+        if (displayName && track.getUserData() != null)
+            return String.format("[%s](%s) [%s] _%s_", trackInfo.title, trackInfo.uri, trackLengthDisp, track.getUserData(String.class));
+        else return String.format("[%s](%s) [%s]", trackInfo.title, trackInfo.uri, trackLengthDisp);
     }
 
     private MessageEmbed nowPlaying(GuildAudioManager audioManager) {

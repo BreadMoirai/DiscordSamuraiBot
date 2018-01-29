@@ -14,16 +14,11 @@
 */
 package com.github.breadmoirai.samurai.plugins.music;
 
-import com.github.breadmoirai.breadbot.framework.command.Command;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
-import com.github.breadmoirai.samurai.command.Command;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.basic.GenericCommand;
-import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
-import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
-import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
-import com.github.breadmoirai.samurai.plugins.waiter.EventWaiterB;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -54,9 +49,8 @@ public class TrackLoader implements AudioLoadResultHandler {
     private final GuildAudioManager audioManager;
     private final List<String> request;
     private final boolean lucky;
-    private int page;
     private final boolean loadAsPlaylist;
-
+    private int page;
     private AudioPlaylist playlist;
     private List<AudioTrack> tracklist;
     private MessageChannel channel;
@@ -87,18 +81,19 @@ public class TrackLoader implements AudioLoadResultHandler {
         this.closed = false;
     }
 
-    public void dispatch(CommandEvent event, EventWaiterB waiter, MessageChannel channel) {
+    public void dispatch(CommandEvent event, EventWaiter waiter, MessageChannel channel) {
         Message initialMessage = initialize();
         requester = event.getMember().getEffectiveName();
         authorId = event.getAuthorId();
         event.reply(initialMessage)
-                .onSuccess(message -> this.messageId = message.getIdLong())
-                .appendSuccess(message -> this.channel = message.getChannel())
-                .appendSuccess(message -> waitForEvents(waiter));
-
+                .onSuccess(message -> {
+                    this.messageId = message.getIdLong();
+                    this.channel = message.getChannel();
+                    waitForEvents(waiter);
+                });
     }
 
-    private void waitForEvents(EventWaiterB waiter) {
+    private void waitForEvents(EventWaiter waiter) {
 
     }
 
@@ -213,7 +208,7 @@ public class TrackLoader implements AudioLoadResultHandler {
             final List<Integer> integerList = IntStream.rangeClosed(1, size).map(i -> size - i + 1).boxed().collect(Collectors.toList());
             integerList.removeAll(context.getIntArgs().boxed().collect(Collectors.toList()));
             integerList.forEach(integer -> tracklist.remove(integer - 1));
-        } else if ((key.startsWith("remove") || key.startsWith("rm")) && context.hasContent()) {
+        } else if ((key.startsWith("remove") || key.startsWith("rm"))) {
             context.getIntArgs().filter(value -> value <= size && value > 0).boxed().distinct().sorted((o1, o2) -> o2 - o1).forEachOrdered(integer -> tracklist.remove(integer - 1));
         } else if (key.startsWith("filter")) {
             final List<String> args = context.getArgs();

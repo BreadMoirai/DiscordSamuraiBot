@@ -15,15 +15,13 @@
 package com.github.breadmoirai.samurai;
 
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
-import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
-import com.github.breadmoirai.samurai.plugins.waiter.EventWaiterB;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 
 import javax.security.auth.login.LoginException;
@@ -32,12 +30,9 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.lang.System.out;
 
 /**
  * Main Class
@@ -63,19 +58,18 @@ public class Bot {
 
         final Config config = ConfigFactory.load();
 
-        EventWaiterB waiter = new EventWaiterB();
+
 
         BreadBotBuilder bread = new BreadBotBuilder()
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))
                 .addPlugin(new MusicPlugin(config.getString("api.google")))
-                .addTypeModifier(EventWaiterB.class, parameter -> parameter.setParser((parameter1, list, parser) -> waiter));
+                .addPlugin(new EventWaiterPlugin());
 
 
         new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
-                .addEventListener(waiter)
                 .addEventListener(bread)
                 .buildAsync();
     }
