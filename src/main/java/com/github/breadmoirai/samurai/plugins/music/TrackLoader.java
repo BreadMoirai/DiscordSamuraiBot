@@ -15,26 +15,26 @@
 package com.github.breadmoirai.samurai.plugins.music;
 
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
-import com.github.breadmoirai.samurai.command.CommandContext;
-import com.github.breadmoirai.samurai.command.basic.GenericCommand;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
+import gnu.trove.set.hash.TIntHashSet;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -59,6 +59,8 @@ public class TrackLoader implements AudioLoadResultHandler {
 
     private long authorId;
     private long messageId;
+
+    private final EventActionFuture[] futures = new EventActionFuture[6];
 
     public TrackLoader(MusicPlugin plugin, GuildAudioManager audioManager, List<String> content, String playlistName) {
         this.plugin = plugin;
@@ -93,14 +95,6 @@ public class TrackLoader implements AudioLoadResultHandler {
                 });
     }
 
-    private void waitForEvents(EventWaiter waiter) {
-
-    }
-
-    private void unregister() {
-
-    }
-
     private Message initialize() {
         if (!request.isEmpty()) {
             if (request.get(0).startsWith("ytsearch:")) {
@@ -110,6 +104,94 @@ public class TrackLoader implements AudioLoadResultHandler {
             }
         }
         return new MessageBuilder().append("Loading tracks...").build();
+    }
+
+    private void waitForEvents(EventWaiter waiter) {
+        futures[0] = waiter.waitForCommand()
+                .withKeys("select", "selectp", "sel", "selp")
+                .inChannel(channel.getIdLong())
+                .fromUsers(authorId)
+                .matching(CommandEvent::hasContent)
+                .action(this::onSelect)
+                .stopIf(this::commandIsPlay)
+                .finish(this::stopListeners)
+                .build();
+
+        futures[1] = waiter.waitForCommand()
+                .withKeys("remove", "removep", "rm", "rmp")
+                .inChannel(channel.getIdLong())
+                .fromUsers(authorId)
+                .matching(CommandEvent::hasContent)
+                .action(this::onRemove)
+                .stopIf(this::commandIsPlay)
+                .finish(this::stopListeners)
+                .build();
+
+
+    }
+
+    private void onRemove(CommandEvent event) {
+        onFilter(event, false);
+    }
+
+    private void onSelect(CommandEvent event) {
+        onFilter(event, true);
+    }
+
+    private void onFilter(CommandEvent event, boolean select) {
+        page = 0;
+        final int size = tracklist.size();
+        final boolean isInts = event.getArguments().stream().allMatch(arg -> arg.isInteger() || arg.isRange());
+        if (isInts) {
+            final TIntHashSet argInts = event.getArguments().ints().collect(TIntHashSet::new, TIntHashSet::add, TIntHashSet::addAll);
+            final IntPredicate contains = argInts::contains;
+            final List<AudioTrack> collect = IntStream.rangeClosed(1, size)
+                    .map(i -> size - i + 1)
+                    .filter(select ? contains.negate() : contains)
+                    .mapToObj(tracklist::get)
+                    .collect(Collectors.toList());
+            tracklist.removeAll(collect);
+        }
+    }
+
+    private boolean commandIsPlay(CommandEvent event, @SuppressWarnings("unused") int ignored) {
+        if (!checkPlaySuffix(event)) {
+            resetMessage(true);
+            return false;
+        }
+        return true;
+    }
+
+    private void stopListeners() {
+        for (EventActionFuture future : futures) {
+            future.cancel();
+        }
+
+    }
+
+    private void resetMessage(boolean listChanged) {
+        page = 0;
+        channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+        if (listChanged && tracklist.size() <= 10) {
+            channel.getMessageById(getMessageId()).queue(
+                    message -> message.getReactions().stream().filter(
+                            messageReaction -> messageReaction.getReactionEmote().getName().equals(PAGE_REACTION)).findAny().ifPresent(
+                            pageReaction -> pageReaction.getUsers().queue(users -> users.forEach(
+                                    user -> pageReaction.removeReaction(user).queue()))));
+        }
+    }
+
+    private boolean checkPlaySuffix(CommandEvent event) {
+        if (event.getKey().endsWith("p")) {
+            confirmReaction();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void unregister() {
+
     }
 
     @Override
@@ -196,83 +278,35 @@ public class TrackLoader implements AudioLoadResultHandler {
         unregister();
     }
 
-    public void onCommand(Command command) {
-        if (!(command instanceof GenericCommand)) return;
-        if (command.getContext().getAuthorId() != this.getAuthorId()) return;
-        final CommandContext context = command.getContext();
-        if (!context.hasContent()) return;
-        page = 0;
-        final String key = context.getKey().toLowerCase();
-        final int size = tracklist.size();
-        if (key.startsWith("select") || key.startsWith("sel")) {
-            final List<Integer> integerList = IntStream.rangeClosed(1, size).map(i -> size - i + 1).boxed().collect(Collectors.toList());
-            integerList.removeAll(context.getIntArgs().boxed().collect(Collectors.toList()));
-            integerList.forEach(integer -> tracklist.remove(integer - 1));
-        } else if ((key.startsWith("remove") || key.startsWith("rm"))) {
-            context.getIntArgs().filter(value -> value <= size && value > 0).boxed().distinct().sorted((o1, o2) -> o2 - o1).forEachOrdered(integer -> tracklist.remove(integer - 1));
-        } else if (key.startsWith("filter")) {
-            final List<String> args = context.getArgs();
-            Predicate<AudioTrack> trackPredicate;
-            if (key.contains("out"))
-                trackPredicate = audioTrack -> args.stream().anyMatch(audioTrack.getInfo().title.toLowerCase()::contains);
-            else
-                trackPredicate = audioTrack -> args.stream().noneMatch(audioTrack.getInfo().title.toLowerCase()::contains);
-            final List<AudioTrack> collect = tracklist.stream().filter(trackPredicate).collect(Collectors.toList());
-            tracklist.removeAll(collect);
-        }
-        if (key.endsWith("p")) {
-            channel.editMessageById(getMessageId(), buildFinishedDisplay()).queue();
-            channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
-            unregister();
-            audioManager.scheduler.queue(tracklist);
-            return;
-        }
-        channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
-        if (tracklist.size() <= 10) {
-            channel.getMessageById(getMessageId()).queue(
-                    message -> message.getReactions().stream().filter(
-                            messageReaction -> messageReaction.getReactionEmote().getName().equals(PAGE_REACTION)).findAny().ifPresent(
-                            pageReaction -> pageReaction.getUsers().queue(users -> users.forEach(
-                                    user -> pageReaction.removeReaction(user).queue()))));
+    private void confirmReaction() {
+        channel.editMessageById(getMessageId(), buildFinishedDisplay()).queue();
+        channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
+        unregister();
+        audioManager.scheduler.queue(tracklist);
+    }
+
+    private void pageReaction(GenericMessageReactionEvent event) {
+        int tSize = tracklist.size();
+        if (tSize > 10) {
+            page = (page + 1) % ((tSize / 10) + 1);
+            channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
+            event.getReaction().removeReaction(event.getUser()).queue();
         }
     }
 
-    public void onReaction(MessageReactionAddEvent event) {
-        final String name = event.getReactionEmote().getName();
-        final int tSize = tracklist.size();
-        switch (name) {
-            case SHUFFLE_REACTION:
-                if (event.getUser().getIdLong() != this.getAuthorId()) break;
-                Collections.shuffle(tracklist);
-                page = 0;
-                channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
-                event.getReaction().removeReaction(event.getUser()).queue();
-                break;
-            case CANCEL_REACTION:
-                if (event.getUser().getIdLong() != this.getAuthorId()) break;
-                channel.editMessageById(getMessageId(), new EmbedBuilder()
-                        .appendDescription("**")
-                        .appendDescription(playlist.getName())
-                        .appendDescription("**\n")
-                        .appendDescription("Track Loading Canceled").build())
-                        .queue(message -> message.clearReactions().queue());
-                unregister();
-                break;
-            case PAGE_REACTION:
-                if (tSize > 10) {
-                    page = (page + 1) % ((tSize / 10) + 1);
-                    channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
-                    event.getReaction().removeReaction(event.getUser()).queue();
-                }
-                break;
-            case CONFIRM_REACTION:
-                if (event.getUser().getIdLong() != this.getAuthorId()) break;
-                channel.editMessageById(getMessageId(), buildFinishedDisplay()).queue();
-                channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
-                unregister();
-                audioManager.scheduler.queue(tracklist);
-                break;
-        }
+    private void resetReaction() {
+        Collections.shuffle(tracklist);
+        resetMessage(false);
+    }
+
+    private void cancelReaction() {
+        channel.editMessageById(getMessageId(), new EmbedBuilder()
+                .appendDescription("**")
+                .appendDescription(playlist.getName())
+                .appendDescription("**\n")
+                .appendDescription("Track Loading Canceled").build())
+                .queue(message -> message.clearReactions().queue());
+        unregister();
     }
 
 
