@@ -76,18 +76,18 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     public void initialize(BreadBotBuilder builder) {
         handler = new TrackLoaderHandler();
         builder.bindResultHandler(TrackLoader.class, handler);
-        builder.addCommand(AutoPlay::new)
-                .addCommand(CanPlay::new)
-                .addCommand(History::new)
-                .addCommand(Join::new)
-                .addCommand(Leave::new)
-                .addCommand(Pause::new)
-                .addCommand(Play::new)
-                .addCommand(Previous::new)
-                .addCommand(Related::new)
-                .addCommand(Repeat::new)
-                .addCommand(Shuffle::new)
-                .addCommand(Skip::new);
+        builder.addCommand(new AutoPlay())
+                .addCommand(new CanPlay())
+                .addCommand(new History())
+                .addCommand(new Join())
+                .addCommand(new Leave())
+                .addCommand(new Pause())
+                .addCommand(new Play())
+                .addCommand(new Previous())
+                .addCommand(new Related())
+                .addCommand(new Repeat())
+                .addCommand(new Shuffle())
+                .addCommand(new Skip());
     }
 
     @Override

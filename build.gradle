@@ -37,7 +37,8 @@ dependencies {
     compile 'com.sedmelluq:lavaplayer:1.2.45'
 
 //    compile 'com.github.breadmoirai:breadbot-framework:0.11.4'
-    compile 'com.github.BreadMoirai:BreadBotFramework:plugin~waiter-SNAPSHOT'
+//    compile 'com.github.BreadMoirai:BreadBotFramework:plugin~waiter-SNAPSHOT'
+    compile files('C:\\Users\\TonTL\\Desktop\\Git\\BreadBotFramework\\build\\libs\\BreadBotFramework-0.12.0.jar')
 
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'org.reflections:reflections:0.9.10'

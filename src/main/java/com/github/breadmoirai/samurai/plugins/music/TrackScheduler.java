@@ -102,7 +102,7 @@ public class TrackScheduler extends AudioEventAdapter {
         autoFuture = plugin.getExecutor().schedule(() -> {
             final List<String> related = plugin.getRelated(identifier, 15L);
             plugin.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoPlayHandler());
-        }, 5, TimeUnit.SECONDS);
+        }, 2, TimeUnit.SECONDS);
     }
 
     public void prevTrack() {

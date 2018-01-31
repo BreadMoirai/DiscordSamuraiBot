@@ -76,8 +76,9 @@ public class Play {
             final MessageEmbed embed = nowPlaying(audioManager);
             if (embed == null) {
                 event.reply("Nothing is playing right now.");
+            } else {
+                event.reply().setEmbed(embed);
             }
-            event.reply().setEmbed(embed);
         }
         return null;
     }

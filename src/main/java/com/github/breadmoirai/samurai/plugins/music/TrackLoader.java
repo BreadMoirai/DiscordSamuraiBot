@@ -70,6 +70,7 @@ public class TrackLoader implements AudioLoadResultHandler {
         this.page = 0;
         this.loadAsPlaylist = true;
         this.playlist = new BasicAudioPlaylist(playlistName, new ArrayList<>(20), null, true);
+        this.tracklist = playlist.getTracks();
         this.closed = false;
     }
 
@@ -91,8 +92,10 @@ public class TrackLoader implements AudioLoadResultHandler {
                 .onSuccess(message -> {
                     this.messageId = message.getIdLong();
                     this.channel = message.getChannel();
+                    request.forEach(s -> plugin.loadItem(audioManager, s, this));
                     waitForEvents(waiter);
                 });
+
     }
 
     private Message initialize() {
@@ -156,11 +159,8 @@ public class TrackLoader implements AudioLoadResultHandler {
                 .onMessages(getMessageId())
                 .withName(CANCEL_REACTION)
                 .action(this::cancelReaction)
-                .stopIf((e, i) -> true)
                 .finish(this::unregister)
                 .build();
-
-
     }
 
     private void onRemove(CommandEvent event) {
@@ -181,20 +181,24 @@ public class TrackLoader implements AudioLoadResultHandler {
             final List<AudioTrack> collect = IntStream.rangeClosed(1, size)
                     .map(i -> size - i + 1)
                     .filter(select ? contains.negate() : contains)
+                    .map(i -> i - 1)
                     .mapToObj(tracklist::get)
                     .collect(Collectors.toList());
-            tracklist.removeAll(collect);
+            if (!collect.isEmpty()) {
+                tracklist.removeAll(collect);
+                resetMessage(true);
+            }
         }
     }
 
     private boolean commandIsPlay(CommandEvent event, @SuppressWarnings("unused") int ignored) {
-        if (!checkPlaySuffix(event)) {
-            resetMessage(true);
-            return false;
+        if (event.getKey().endsWith("p")) {
+            confirmReaction(null);
+            return true;
         }
-        return true;
+        return false;
     }
-    
+
 
     private void resetMessage(boolean listChanged) {
         page = 0;
@@ -208,18 +212,10 @@ public class TrackLoader implements AudioLoadResultHandler {
         }
     }
 
-    private boolean checkPlaySuffix(CommandEvent event) {
-        if (event.getKey().endsWith("p")) {
-            confirmReaction(null);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void unregister() {
         for (EventActionFuture future : futures) {
-            future.cancel();
+            if (future != null)
+                future.cancel();
         }
     }
 
@@ -284,7 +280,7 @@ public class TrackLoader implements AudioLoadResultHandler {
         IntStream.range(start, end).filter(value -> value < tSize).mapToObj(i -> String.format("%n`%d.` %s", i + 1, Play.trackInfoDisplay(tracklist.get(i), false))).forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
-        return new MessageBuilder().setEmbed(eb.build()).build();
+        return new MessageBuilder().setContent("").setEmbed(eb.build()).build();
     }
 
     private Message buildFinishedDisplay() {

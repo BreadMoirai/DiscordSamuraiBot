@@ -23,12 +23,16 @@ import java.util.Optional;
 public class Pause extends AbstractMusicCommand {
 
     public Pause() {
-        setKeys("pause", "unpause");
+        setKeys("pause", "unpause", "resume");
     }
 
     @Override
     public void onCommand(CommandEvent event) {
         final Optional<GuildAudioManager> managerOptional = getPlugin(event).retrieveManager(event.getGuildId());
-        managerOptional.ifPresent(audioManager -> audioManager.player.setPaused(!event.getKeys()[0].toLowerCase().startsWith("un")));
+        managerOptional.ifPresent(audioManager -> {
+            final boolean paused = event.getKey().equalsIgnoreCase("pause");
+            audioManager.player.setPaused(paused);
+            event.reply("Playback has `").append(paused ? "paused" : "resumed").append('`');
+        });
     }
 }

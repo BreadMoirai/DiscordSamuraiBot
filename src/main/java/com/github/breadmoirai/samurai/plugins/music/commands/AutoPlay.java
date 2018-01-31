@@ -33,14 +33,16 @@ public class AutoPlay extends AbstractMusicCommand {
                 switch (event.getContent().toLowerCase()) {
                     case "true":
                     case "on":
+                    case "enable":
                         audioManager.scheduler.setAutoPlay(true);
                         event.reply("AutoPlay set to `true`");
+                        break;
                     case "false":
                     case "off":
+                    case "disable":
                         audioManager.scheduler.setAutoPlay(false);
                         event.reply("AutoPlay set to `false`");
-                    default:
-                        return;
+                        break;
                 }
             } else {
                 event.reply("AutoPlay is currently `" + (audioManager.scheduler.isAutoPlay() ? "enabled`" : "disabled`"));

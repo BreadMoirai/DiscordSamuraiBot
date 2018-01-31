@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.List;
+import java.util.Optional;
 
 public class Join extends AbstractMusicCommand {
 
@@ -28,16 +29,21 @@ public class Join extends AbstractMusicCommand {
     public void onCommand(CommandEvent event) {
         final VoiceChannel channel;
         if (event.hasContent()) {
-            final List<VoiceChannel> voiceChannelsByName = event.getGuild().getVoiceChannelsByName(event.getContent(), true);
-            if (voiceChannelsByName.isEmpty()) {
+            final Optional<VoiceChannel> voiceChannelsByName = event.getGuild().getVoiceChannels().stream()
+                    .filter(voiceChannel -> voiceChannel.getName().toLowerCase().contains(event.getContent().toLowerCase()))
+                    .findAny();
+            if (!voiceChannelsByName.isPresent()) {
                 event.reply("The specified Voice Channel was not found.");
+                return;
             }
-            channel = voiceChannelsByName.get(0);
-        } else channel = event.getMember().getVoiceState().getChannel();
+            channel = voiceChannelsByName.get();
+        } else {
+            channel = event.getMember().getVoiceState().getChannel();
+        }
         if (channel == null) {
             event.reply("Try joining a voice channel first");
+            return;
         }
-        final Member selfMember = event.getSelfMember();
         if (event.requirePermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK))
             return;
         getPlugin(event).openConnection(channel);

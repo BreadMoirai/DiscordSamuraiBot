@@ -7,7 +7,7 @@ public abstract class AbstractMusicCommand extends AbstractCommand {
 
     public AbstractMusicCommand() {
         setName(this.getClass().getSimpleName().replace("Command", ""));
-        setKeys(getName());
+        setKeys(getName().toLowerCase());
         setGroup("music");
     }
 
