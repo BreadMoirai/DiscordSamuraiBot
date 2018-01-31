@@ -10,7 +10,7 @@ idea.module.downloadJavadoc = true
 
 def majorVersion = 6
 def minorVersion = 0
-mainClassName = "samurai.Bot"
+mainClassName = "com.github.breadmoirai.samurai.Bot"
 
 def forRelease = false;
 
@@ -30,9 +30,10 @@ repositories {
 }
 
 dependencies {
+    compile 'org.slf4j:slf4j-simple:1.7.5'
     compile 'org.codehaus.groovy:groovy:2.4.8'
 
-    compile 'net.dv8tion:JDA:3.5.0_329'
+    compile 'net.dv8tion:JDA:3.5.0_331'
     compile 'com.sedmelluq:lavaplayer:1.2.45'
 
 //    compile 'com.github.breadmoirai:breadbot-framework:0.11.4'

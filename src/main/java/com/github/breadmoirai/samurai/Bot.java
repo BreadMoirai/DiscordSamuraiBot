@@ -14,7 +14,9 @@
 */
 package com.github.breadmoirai.samurai;
 
+import com.github.breadmoirai.breadbot.framework.BreadBot;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.plugins.owner.ApplicationOwnerPlugin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
@@ -60,11 +62,14 @@ public class Bot {
 
 
 
-        BreadBotBuilder bread = new BreadBotBuilder()
+        BreadBot bread = new BreadBotBuilder()
+                .addPlugin(new ApplicationOwnerPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))
                 .addPlugin(new MusicPlugin(config.getString("api.google")))
-                .addPlugin(new EventWaiterPlugin());
+                .addPlugin(new EventWaiterPlugin())
+                .addCommand(new ShutdownCommand())
+                .build();
 
 
         new JDABuilder(AccountType.BOT)

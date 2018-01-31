@@ -15,8 +15,8 @@ public class DerbyPrefixExtension extends JdbiExtension {
         if (tableAbsent("Prefix")) {
             execute("CREATE TABLE Prefix (\n" +
                     "  Id       BIGINT      NOT NULL PRIMARY KEY,\n" +
-                    "  Value    VARCHAR(16) NOT NULL,\n" +
-                    "}");
+                    "  Value    VARCHAR(16) NOT NULL\n" +
+                    ")");
         }
     }
 

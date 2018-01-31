@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *     Modifications Copyright 2017 Ton Ly
  */
  package com.github.breadmoirai.samurai.util;
 
@@ -63,7 +62,7 @@ public class SearchResult
                 StringEscapeUtils.unescapeHtml4(
                         uncleanString
                                 .replaceAll("\\s+", " ")
-                                .replaceAll("\\<.*?>", "")
+                                .replaceAll("<.*?>", "")
                                 .replaceAll("\"", "")));
     }
 
