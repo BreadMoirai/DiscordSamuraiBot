@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class TrackScheduler extends AudioEventAdapter {
@@ -37,6 +39,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private AudioTrack current;
     private boolean autoPlay;
     private boolean repeat;
+    private Future<?> autoFuture;
 
     TrackScheduler(MusicPlugin plugin, AudioPlayer player) {
         this.plugin = plugin;
@@ -55,6 +58,8 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public AudioTrack queue(AudioTrack audioTrack) {
         if (player.startTrack(audioTrack, true)) {
+            if (autoFuture != null)
+                autoFuture.cancel(false);
             current = audioTrack;
         } else queue.add(audioTrack);
         return audioTrack;
@@ -74,9 +79,9 @@ public class TrackScheduler extends AudioEventAdapter {
                 if (track == null) {
                     return;
                 }
+
                 if (track.getSourceManager().getSourceName().equalsIgnoreCase("youtube")) {
-                    final List<String> related = plugin.getRelated(track.getIdentifier(), 15L);
-                    plugin.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoPlayHandler());
+                    scheduleAutoPlay(track.getIdentifier());
                 }
                 current = null;
             } else {
@@ -91,6 +96,13 @@ public class TrackScheduler extends AudioEventAdapter {
             }
             current = track;
         }
+    }
+
+    private void scheduleAutoPlay(String identifier) {
+        autoFuture = plugin.getExecutor().schedule(() -> {
+            final List<String> related = plugin.getRelated(identifier, 15L);
+            plugin.loadItem(this, related.get((int) (Math.random() * related.size())), new AutoPlayHandler());
+        }, 5, TimeUnit.SECONDS);
     }
 
     public void prevTrack() {

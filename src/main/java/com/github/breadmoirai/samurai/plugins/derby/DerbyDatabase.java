@@ -16,6 +16,7 @@ package com.github.breadmoirai.samurai.plugins.derby;
 
 import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.util.Arguments;
 import com.github.breadmoirai.samurai.plugins.derby.points.PointDao;
 import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import org.jdbi.v3.core.Jdbi;
@@ -139,7 +140,7 @@ public class DerbyDatabase implements CommandPlugin {
                         final String value = values[i];
                         switch (i) {
                             case 0:
-                                if (CommandContext.isNumber(value)) itemBatch.bind(i, Integer.parseInt(value));
+                                if (Arguments.isNumber(value)) itemBatch.bind(i, Integer.parseInt(value));
                                 break;
                             case 1:
                             case 2:
@@ -150,18 +151,18 @@ public class DerbyDatabase implements CommandPlugin {
                             case 3:
                             case 5:
                                 System.out.println("value = " + value);
-                                if (value == null || value.isEmpty() || !CommandContext.isNumber(value)) {
+                                if (value == null || value.isEmpty() || !Arguments.isNumber(value)) {
                                     itemBatch.bindNull(i, Types.SMALLINT);
                                 } else itemBatch.bind(i, Short.parseShort(value));
                                 break;
                             case 12:
                             case 13:
-                                if (value == null || value.isEmpty() || !CommandContext.isNumber(value))
+                                if (value == null || value.isEmpty() || !Arguments.isNumber(value))
                                     itemBatch.bindNull(i, Types.BIGINT);
                                 else itemBatch.bind(i, Long.parseLong(value));
                                 break;
                             default:
-                                if (value == null || value.isEmpty() || !CommandContext.isFloat(value))
+                                if (value == null || value.isEmpty() || !Arguments.isFloat(value))
                                     itemBatch.bindNull(i, Types.DOUBLE);
                                 else itemBatch.bind(i, Double.parseDouble(value));
                                 break;

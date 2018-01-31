@@ -19,6 +19,18 @@ import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.breadbot.framework.error.BreadBotException;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
+import com.github.breadmoirai.samurai.plugins.music.commands.AutoPlay;
+import com.github.breadmoirai.samurai.plugins.music.commands.CanPlay;
+import com.github.breadmoirai.samurai.plugins.music.commands.History;
+import com.github.breadmoirai.samurai.plugins.music.commands.Join;
+import com.github.breadmoirai.samurai.plugins.music.commands.Leave;
+import com.github.breadmoirai.samurai.plugins.music.commands.Pause;
+import com.github.breadmoirai.samurai.plugins.music.commands.Play;
+import com.github.breadmoirai.samurai.plugins.music.commands.Previous;
+import com.github.breadmoirai.samurai.plugins.music.commands.Related;
+import com.github.breadmoirai.samurai.plugins.music.commands.Repeat;
+import com.github.breadmoirai.samurai.plugins.music.commands.Shuffle;
+import com.github.breadmoirai.samurai.plugins.music.commands.Skip;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -47,7 +59,7 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     private final AudioPlayerManager playerManager;
     private final ConcurrentHashMap<Long, GuildAudioManager> audioManagers;
     private final ConcurrentHashMap<Long, ScheduledFuture> terminationTask;
-    private final ScheduledExecutorService terminationExecutor;
+    private final ScheduledExecutorService executor;
 
     private TrackLoaderHandler handler;
 
@@ -56,7 +68,7 @@ public class MusicPlugin implements CommandPlugin, EventListener {
         playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
-        terminationExecutor = Executors.newSingleThreadScheduledExecutor();
+        executor = Executors.newSingleThreadScheduledExecutor();
         terminationTask = new ConcurrentHashMap<>();
     }
 
@@ -64,6 +76,18 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     public void initialize(BreadBotBuilder builder) {
         handler = new TrackLoaderHandler();
         builder.bindResultHandler(TrackLoader.class, handler);
+        builder.addCommand(AutoPlay::new)
+                .addCommand(CanPlay::new)
+                .addCommand(History::new)
+                .addCommand(Join::new)
+                .addCommand(Leave::new)
+                .addCommand(Pause::new)
+                .addCommand(Play::new)
+                .addCommand(Previous::new)
+                .addCommand(Related::new)
+                .addCommand(Repeat::new)
+                .addCommand(Shuffle::new)
+                .addCommand(Skip::new);
     }
 
     @Override
@@ -113,7 +137,7 @@ public class MusicPlugin implements CommandPlugin, EventListener {
             if (managerOptional.get().player.isPaused()) {
                 return;
             }
-            final ScheduledFuture<?> scheduledFuture = terminationExecutor.schedule(() -> {
+            final ScheduledFuture<?> scheduledFuture = executor.schedule(() -> {
                 removeManager(idLong).ifPresent(GuildAudioManager::destroy);
                 terminationTask.remove(idLong);
             }, 5, TimeUnit.MINUTES);
@@ -129,9 +153,13 @@ public class MusicPlugin implements CommandPlugin, EventListener {
         }
     }
 
+    public ScheduledExecutorService getExecutor() {
+        return executor;
+    }
+
     public void close() {
         terminationTask.clear();
-        terminationExecutor.shutdown();
+        executor.shutdown();
         audioManagers.forEachValue(1000L, GuildAudioManager::destroy);
         audioManagers.clear();
         playerManager.shutdown();

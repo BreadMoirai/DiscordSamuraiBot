@@ -114,7 +114,7 @@ public class TrackLoader implements AudioLoadResultHandler {
                 .matching(CommandEvent::hasContent)
                 .action(this::onSelect)
                 .stopIf(this::commandIsPlay)
-                .finish(this::stopListeners)
+                .finish(this::unregister)
                 .build();
 
         futures[1] = waiter.waitForCommand()
@@ -124,7 +124,40 @@ public class TrackLoader implements AudioLoadResultHandler {
                 .matching(CommandEvent::hasContent)
                 .action(this::onRemove)
                 .stopIf(this::commandIsPlay)
-                .finish(this::stopListeners)
+                .finish(this::unregister)
+                .build();
+
+        futures[2] = waiter.waitForReaction()
+                .fromUsers(getAuthorId())
+                .onMessages(getMessageId())
+                .withName(CONFIRM_REACTION)
+                .action(this::confirmReaction)
+                .finish(this::unregister)
+                .build();
+
+        futures[3] = waiter.waitForReaction()
+                .fromUsers(getAuthorId())
+                .onMessages(getMessageId())
+                .withName(PAGE_REACTION)
+                .action(this::pageReaction)
+                .stopIf((e, i) -> false)
+                .build();
+
+        futures[4] = waiter.waitForReaction()
+                .fromUsers(getAuthorId())
+                .onMessages(getMessageId())
+                .withName(SHUFFLE_REACTION)
+                .action(this::shuffleReaction)
+                .stopIf((e, i) -> false)
+                .build();
+
+        futures[5] = waiter.waitForReaction()
+                .fromUsers(getAuthorId())
+                .onMessages(getMessageId())
+                .withName(CANCEL_REACTION)
+                .action(this::cancelReaction)
+                .stopIf((e, i) -> true)
+                .finish(this::unregister)
                 .build();
 
 
@@ -161,13 +194,7 @@ public class TrackLoader implements AudioLoadResultHandler {
         }
         return true;
     }
-
-    private void stopListeners() {
-        for (EventActionFuture future : futures) {
-            future.cancel();
-        }
-
-    }
+    
 
     private void resetMessage(boolean listChanged) {
         page = 0;
@@ -183,7 +210,7 @@ public class TrackLoader implements AudioLoadResultHandler {
 
     private boolean checkPlaySuffix(CommandEvent event) {
         if (event.getKey().endsWith("p")) {
-            confirmReaction();
+            confirmReaction(null);
             return true;
         } else {
             return false;
@@ -191,7 +218,9 @@ public class TrackLoader implements AudioLoadResultHandler {
     }
 
     private void unregister() {
-
+        for (EventActionFuture future : futures) {
+            future.cancel();
+        }
     }
 
     @Override
@@ -278,7 +307,7 @@ public class TrackLoader implements AudioLoadResultHandler {
         unregister();
     }
 
-    private void confirmReaction() {
+    private void confirmReaction(GenericMessageReactionEvent event) {
         channel.editMessageById(getMessageId(), buildFinishedDisplay()).queue();
         channel.getMessageById(getMessageId()).queue(message -> message.clearReactions().queue());
         unregister();
@@ -294,12 +323,12 @@ public class TrackLoader implements AudioLoadResultHandler {
         }
     }
 
-    private void resetReaction() {
+    private void shuffleReaction(GenericMessageReactionEvent event) {
         Collections.shuffle(tracklist);
         resetMessage(false);
     }
 
-    private void cancelReaction() {
+    private void cancelReaction(GenericMessageReactionEvent event) {
         channel.editMessageById(getMessageId(), new EmbedBuilder()
                 .appendDescription("**")
                 .appendDescription(playlist.getName())
