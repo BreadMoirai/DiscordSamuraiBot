@@ -26,7 +26,6 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import org.apache.commons.codec.binary.Hex;
-import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,7 +89,7 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
         }
     }
 
-    public String runScript(String script) throws CompilationFailedException {
+    public String runScript(String script) throws Exception {
 
         final Object result = groovyShell.evaluate(script);
         if (result != null) {

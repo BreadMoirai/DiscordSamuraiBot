@@ -16,6 +16,7 @@ package com.github.breadmoirai.samurai.plugins.music.commands;
 
 import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.plugins.music.GuildAudioManager;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.github.breadmoirai.samurai.plugins.music.TrackLoader;
@@ -35,7 +36,7 @@ public class Play {
     private static final Permission[] PERMISSIONS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
 
     @MainCommand({"queue", "play", "nowplaying"})
-    public TrackLoader onCommand(CommandEvent event, MusicPlugin plugin) {
+    public Dispatchable onCommand(CommandEvent event, MusicPlugin plugin) {
         if (event.requirePermission(PERMISSIONS)) {
             return null;
         }

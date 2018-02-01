@@ -16,25 +16,14 @@ package com.github.breadmoirai.samurai.plugins.derby;
 
 import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
-import com.github.breadmoirai.breadbot.util.Arguments;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointDao;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.statement.PreparedBatch;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DerbyDatabase implements CommandPlugin {
 

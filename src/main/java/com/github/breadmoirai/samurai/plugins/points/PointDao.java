@@ -12,9 +12,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.plugins.derby.points;
+package com.github.breadmoirai.samurai.plugins.points;
 
-import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;

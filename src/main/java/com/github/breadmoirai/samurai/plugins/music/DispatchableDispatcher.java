@@ -20,12 +20,17 @@ import com.github.breadmoirai.breadbot.framework.command.Command;
 import com.github.breadmoirai.breadbot.framework.command.CommandResultHandler;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import com.github.breadmoirai.samurai.Dispatchable;
 
-public class TrackLoaderHandler implements CommandResultHandler<TrackLoader> {
-    EventWaiter waiter;
+public class DispatchableDispatcher implements CommandResultHandler<Dispatchable> {
+    private EventWaiter waiter;
+
+    public DispatchableDispatcher(EventWaiter waiter) {
+        this.waiter = waiter;
+    }
 
     @Override
-    public void handleResult(Command command, CommandEvent event, TrackLoader result) {
+    public void handleResult(Command command, CommandEvent event, Dispatchable result) {
         result.dispatch(event, waiter, event.getChannel());
     }
 }

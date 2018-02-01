@@ -20,7 +20,6 @@ import com.github.breadmoirai.breadbot.framework.annotation.parameter.Content;
 import com.github.breadmoirai.breadbot.framework.annotation.parameter.Required;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import groovy.lang.Binding;
-import org.codehaus.groovy.control.CompilationFailedException;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,7 @@ public class EvalCommand {
         final String result;
         try {
             result = plugin.runScript(scriptFull);
-        } catch (CompilationFailedException e) {
+        } catch (Exception e) {
             return "```java\n" + e.getMessage() + "```";
         }
         removeVariables(plugin.getBinding());
@@ -80,7 +79,7 @@ public class EvalCommand {
         String importStatement = "import " + content;
         try {
             plugin.runScript(importStatement);
-        } catch (CompilationFailedException e) {
+        } catch (Exception e) {
             return "```java\n" + e.getMessage() + "```";
         }
         plugin.getImports().add(importStatement);
@@ -100,16 +99,16 @@ public class EvalCommand {
                 sb.append(function).append("\n");
             }
         }
+        sb.append(script);
+        final String scriptFull = sb.toString();
         try {
-            sb.append(script);
-            final String scriptFull = sb.toString();
             plugin.runScript(scriptFull);
-            functions.removeIf(s -> getFunctionName(s).equals(getFunctionName(script)));
-            functions.add(script);
-            return "Function Added: " + getFunctionName(script);
-        } catch (CompilationFailedException e) {
+        } catch (Exception e) {
             return "```java\n" + e.getMessage() + "```";
         }
+        functions.removeIf(s -> getFunctionName(s).equals(getFunctionName(script)));
+        functions.add(script);
+        return "Function Added: " + getFunctionName(script);
     }
 
     @Command

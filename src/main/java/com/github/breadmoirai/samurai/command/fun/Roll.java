@@ -16,11 +16,12 @@ package com.github.breadmoirai.samurai.command.fun;
 
 import com.github.breadmoirai.samurai.command.Command;
 import com.github.breadmoirai.samurai.command.CommandContext;
+import com.github.breadmoirai.samurai.command.annotations.Admin;
 import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.command.manage.Schedule;
 import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
 import com.github.breadmoirai.samurai.messages.impl.FixedMessage;
-import com.github.breadmoirai.samurai.messages.impl.RollPoll;
+import com.github.breadmoirai.samurai.plugins.rollpoll.RollPoll;
 
 import java.time.Duration;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 @Key({"roll", "rollpoll"})
+@Admin
 public class Roll extends Command {
 
     @Override
@@ -41,9 +43,9 @@ public class Roll extends Command {
             }
             if (!duration.isZero())
                 if (context.getAuthor().canInteract(context.getSelfMember()))
-                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null);
+                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null, );
                 else
-                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, -1, null);
+                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, -1, null, );
             return new RollPoll();
         }
         if (context.hasContent()) {

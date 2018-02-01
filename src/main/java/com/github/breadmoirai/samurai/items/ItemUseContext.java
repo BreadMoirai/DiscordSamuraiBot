@@ -1,6 +1,6 @@
 package com.github.breadmoirai.samurai.items;
 
-import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.List;

@@ -17,6 +17,7 @@ package com.github.breadmoirai.samurai.plugins.music;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -38,7 +39,7 @@ import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class TrackLoader implements AudioLoadResultHandler {
+public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
 
     private static final String SHUFFLE_REACTION = "\uD83D\uDD00";
     private static final String CANCEL_REACTION = "\u23cf";
@@ -84,6 +85,7 @@ public class TrackLoader implements AudioLoadResultHandler {
         this.closed = false;
     }
 
+    @Override
     public void dispatch(CommandEvent event, EventWaiter waiter, MessageChannel channel) {
         Message initialMessage = initialize();
         requester = event.getMember().getEffectiveName();

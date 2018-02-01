@@ -21,6 +21,7 @@ import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
+import com.github.breadmoirai.samurai.plugins.music.DispatchableDispatcher;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
@@ -63,10 +64,11 @@ public class Bot {
         final Config config = ConfigFactory.load();
 
 
-
+        final EventWaiterPlugin eventWaiter = new EventWaiterPlugin();
         BreadBot bread = new BreadBotBuilder()
                 .addPlugin(new ApplicationOwnerPlugin())
-                .addPlugin(new EventWaiterPlugin())
+                .addPlugin(eventWaiter)
+                .bindResultHandler(Dispatchable.class, new DispatchableDispatcher(eventWaiter.getEventWaiter()))
                 .addPlugin(new GroovyvalPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))

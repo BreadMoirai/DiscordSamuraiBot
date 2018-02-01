@@ -19,6 +19,7 @@ import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.breadbot.framework.error.BreadBotException;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
+import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.plugins.music.commands.AutoPlay;
 import com.github.breadmoirai.samurai.plugins.music.commands.CanPlay;
 import com.github.breadmoirai.samurai.plugins.music.commands.History;
@@ -62,7 +63,7 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     private final ConcurrentHashMap<Long, ScheduledFuture> terminationTask;
     private final ScheduledExecutorService executor;
 
-    private TrackLoaderHandler handler;
+    private DispatchableDispatcher handler;
 
     public MusicPlugin(String youtubeKey) {
         youtube = new YoutubeAPI(youtubeKey);
@@ -75,8 +76,6 @@ public class MusicPlugin implements CommandPlugin, EventListener {
 
     @Override
     public void initialize(BreadBotBuilder builder) {
-        handler = new TrackLoaderHandler();
-        builder.bindResultHandler(TrackLoader.class, handler);
         builder.addCommand(new AutoPlay())
                 .addCommand(new CanPlay())
                 .addCommand(new History())
@@ -98,7 +97,9 @@ public class MusicPlugin implements CommandPlugin, EventListener {
         if (!client.hasPlugin(EventWaiterPlugin.class)) {
             throw new BreadBotException("The MusicPlugin requires an EventWaiterPlugin");
         }
-        handler.waiter = client.getPlugin(EventWaiterPlugin.class).getEventWaiter();
+        if (client.getResultManager().getResultHandler(Dispatchable.class) == null) {
+            throw new BreadBotException("The MusicPlugin requires a DispatchableDispatcher");
+        }
     }
 
     @Override

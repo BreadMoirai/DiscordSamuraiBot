@@ -19,7 +19,7 @@ import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
 import com.github.breadmoirai.samurai.messages.impl.FixedMessage;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
+import com.github.breadmoirai.samurai.plugins.points.PointSession;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.util.List;

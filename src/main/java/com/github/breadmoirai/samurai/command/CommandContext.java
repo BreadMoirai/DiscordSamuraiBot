@@ -15,8 +15,8 @@
 package com.github.breadmoirai.samurai.command;
 
 import com.github.breadmoirai.samurai.items.Inventory;
-import com.github.breadmoirai.samurai.plugins.derby.points.PointSession;
-import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
+import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
+import com.github.breadmoirai.samurai.plugins.points.PointSession;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;

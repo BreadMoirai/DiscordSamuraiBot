@@ -21,7 +21,7 @@ import com.github.breadmoirai.samurai.messages.impl.duel.strategy.ConnectFourStr
 import com.github.breadmoirai.samurai.messages.impl.duel.strategy.MiniMaxStrategy;
 import com.github.breadmoirai.samurai.messages.listeners.CommandListener;
 import com.github.breadmoirai.samurai.messages.listeners.ReactionListener;
-import com.github.breadmoirai.samurai.plugins.derby.points.DerbyPointPlugin;
+import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;

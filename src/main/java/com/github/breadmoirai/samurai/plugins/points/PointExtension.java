@@ -1,4 +1,4 @@
-package com.github.breadmoirai.samurai.plugins.derby.points;
+package com.github.breadmoirai.samurai.plugins.points;
 
 import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
 import net.dv8tion.jda.core.OnlineStatus;
