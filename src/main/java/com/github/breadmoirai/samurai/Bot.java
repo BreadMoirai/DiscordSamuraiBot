@@ -20,7 +20,9 @@ import com.github.breadmoirai.breadbot.plugins.owner.ApplicationOwnerPlugin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
+import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import net.dv8tion.jda.core.AccountType;
@@ -64,10 +66,11 @@ public class Bot {
 
         BreadBot bread = new BreadBotBuilder()
                 .addPlugin(new ApplicationOwnerPlugin())
+                .addPlugin(new EventWaiterPlugin())
+                .addPlugin(new GroovyvalPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))
                 .addPlugin(new MusicPlugin(config.getString("api.google")))
-                .addPlugin(new EventWaiterPlugin())
                 .addCommand(new ShutdownCommand())
                 .build();
 
@@ -75,6 +78,7 @@ public class Bot {
         new JDABuilder(AccountType.BOT)
                 .setToken(config.getString("bot.token"))
                 .setAudioEnabled(true)
+                .setAudioSendFactory(new NativeAudioSendFactory())
                 .addEventListener(bread)
                 .buildAsync();
     }

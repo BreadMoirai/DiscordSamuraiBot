@@ -24,6 +24,7 @@ import com.github.breadmoirai.samurai.plugins.music.commands.CanPlay;
 import com.github.breadmoirai.samurai.plugins.music.commands.History;
 import com.github.breadmoirai.samurai.plugins.music.commands.Join;
 import com.github.breadmoirai.samurai.plugins.music.commands.Leave;
+import com.github.breadmoirai.samurai.plugins.music.commands.MusicHelp;
 import com.github.breadmoirai.samurai.plugins.music.commands.Pause;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
 import com.github.breadmoirai.samurai.plugins.music.commands.Previous;
@@ -87,7 +88,9 @@ public class MusicPlugin implements CommandPlugin, EventListener {
                 .addCommand(new Related())
                 .addCommand(new Repeat())
                 .addCommand(new Shuffle())
-                .addCommand(new Skip());
+                .addCommand(new Skip())
+                .addCommand(event -> event.reply("Sorry, but I'm too poor for this. My free amazon AWS trial is over and changing volume is the single most computationally expensive part of this bot."), command -> command.setKeys("volume", "vol"))
+                .addCommand(new MusicHelp());
     }
 
     @Override

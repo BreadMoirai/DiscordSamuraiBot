@@ -41,7 +41,6 @@ public class GuildAudioManager {
 
     GuildAudioManager(AudioPlayerManager manager, AudioManager audiomanager, MusicPlugin plugin) {
         player = manager.createPlayer();
-        player.setVolume(30);
         scheduler = new TrackScheduler(plugin, player);
         player.addListener(scheduler);
         this.audioManager = audiomanager;

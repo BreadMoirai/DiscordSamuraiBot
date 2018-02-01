@@ -56,11 +56,6 @@ public class PointSession {
         points += offset;
     }
 
-    public double getLevel() {
-        return 0.0;
-        //todo
-    }
-
     public OnlineStatus getStatus() {
         return status;
     }
