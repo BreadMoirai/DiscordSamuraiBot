@@ -19,13 +19,11 @@ public class PointExtension extends JdbiExtension {
     }
 
     public double getPoints(long userId) {
-        final Optional<Double> points = selectOnly(Double.class, "SELECT Value FROM Points WHERE Id = ?", userId);
-        if (points.isPresent()) {
-            return points.get();
-        } else {
-            execute("INSERT INTO Prefix (Id) VALUES (?)", userId);
-            return 0.0;
-        }
+        return selectDouble("SELECT Value FROM Points WHERE Id = ?", userId)
+                .orElseGet(() -> {
+                    execute("INSERT INTO Prefix (Id) VALUES (?)", userId);
+                    return 0.0;
+                });
     }
 
     public PointSession getPointSession(long userId, OnlineStatus status) {

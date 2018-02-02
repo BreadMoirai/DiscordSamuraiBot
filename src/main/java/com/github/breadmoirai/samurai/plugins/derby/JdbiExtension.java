@@ -9,6 +9,9 @@ import org.jdbi.v3.core.extension.NoSuchExtensionException;
 
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 public abstract class JdbiExtension {
 
@@ -34,8 +37,32 @@ public abstract class JdbiExtension {
         jdbi.useExtension(extensionType, callback);
     }
 
-    protected final <R> Optional<R> selectOnly(Class<R> resultType, String sql, Object... args) {
+    protected final <R> Optional<R> selectFirst(Class<R> resultType, String sql, Object... args) {
         return withHandle(handle -> handle.select(sql, args).mapTo(resultType).findFirst());
+    }
+
+    protected final OptionalInt selectInt(String sql, Object... args) {
+        return withHandle(handle -> handle
+                .select(sql, args)
+                .map((r, ctx) -> OptionalInt.of(r.getInt(1)))
+                .findFirst())
+                .orElse(OptionalInt.empty());
+    }
+
+    protected final OptionalLong selectLong(String sql, Object... args) {
+        return withHandle(handle -> handle
+                .select(sql, args)
+                .map((r, ctx) -> OptionalLong.of(r.getLong(1)))
+                .findFirst())
+                .orElse(OptionalLong.empty());
+    }
+
+    protected final OptionalDouble selectDouble(String sql, Object... args) {
+        return withHandle(handle -> handle
+                .select(sql, args)
+                .map((r, ctx) -> OptionalDouble.of(r.getDouble(1)))
+                .findFirst())
+                .orElse(OptionalDouble.empty());
     }
 
     protected final void execute(String sql, Object... args) {

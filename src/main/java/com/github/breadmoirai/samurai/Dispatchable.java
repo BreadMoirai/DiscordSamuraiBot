@@ -19,7 +19,8 @@ package com.github.breadmoirai.samurai;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 public interface Dispatchable {
-    void dispatch(CommandEvent event, EventWaiter waiter, MessageChannel channel);
+    void dispatch(TextChannel channel);
 }

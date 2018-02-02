@@ -21,7 +21,7 @@ import com.github.breadmoirai.samurai.command.CommandContext;
 import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
 import com.github.breadmoirai.samurai.messages.impl.FixedMessage;
-import com.github.breadmoirai.samurai.plugins.music.AiAPI;
+import com.github.breadmoirai.samurai.command.AiAPI;
 import net.dv8tion.jda.core.entities.Member;
 import org.apache.logging.log4j.util.Strings;
 

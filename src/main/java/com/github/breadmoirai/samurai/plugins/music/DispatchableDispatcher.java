@@ -23,14 +23,12 @@ import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.samurai.Dispatchable;
 
 public class DispatchableDispatcher implements CommandResultHandler<Dispatchable> {
-    private EventWaiter waiter;
 
-    public DispatchableDispatcher(EventWaiter waiter) {
-        this.waiter = waiter;
+    public DispatchableDispatcher() {
     }
 
     @Override
     public void handleResult(Command command, CommandEvent event, Dispatchable result) {
-        result.dispatch(event, waiter, event.getChannel());
+        result.dispatch(event.getTextChannel());
     }
 }

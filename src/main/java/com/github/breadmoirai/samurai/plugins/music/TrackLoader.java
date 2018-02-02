@@ -17,6 +17,7 @@ package com.github.breadmoirai.samurai.plugins.music;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.plugins.music.commands.Play;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -62,8 +63,9 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
     private long messageId;
 
     private final EventActionFuture[] futures = new EventActionFuture[6];
+    private EventWaiter waiter;
 
-    public TrackLoader(MusicPlugin plugin, GuildAudioManager audioManager, List<String> content, String playlistName) {
+    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, List<String> content, String playlistName) {
         this.plugin = plugin;
         this.audioManager = audioManager;
         this.request = content;
@@ -73,9 +75,14 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
         this.playlist = new BasicAudioPlaylist(playlistName, new ArrayList<>(20), null, true);
         this.tracklist = playlist.getTracks();
         this.closed = false;
+
+        requester = event.getMember().getEffectiveName();
+        authorId = event.getAuthorId();
+
+        waiter = event.getClient().getPlugin(EventWaiterPlugin.class).getEventWaiter();
     }
 
-    public TrackLoader(MusicPlugin plugin, GuildAudioManager audioManager, boolean lucky, String query) {
+    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, boolean lucky, String query) {
         this.plugin = plugin;
         this.audioManager = audioManager;
         this.request = Collections.singletonList(query);
@@ -83,15 +90,18 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
         this.page = 0;
         this.loadAsPlaylist = !lucky;
         this.closed = false;
+
+        requester = event.getMember().getEffectiveName();
+        authorId = event.getAuthorId();
+
+        waiter = event.getClient().getPlugin(EventWaiterPlugin.class).getEventWaiter();
     }
 
     @Override
-    public void dispatch(CommandEvent event, EventWaiter waiter, MessageChannel channel) {
+    public void dispatch(TextChannel channel) {
         Message initialMessage = initialize();
-        requester = event.getMember().getEffectiveName();
-        authorId = event.getAuthorId();
-        event.reply(initialMessage)
-                .onSuccess(message -> {
+        channel.sendMessage(initialMessage)
+                .queue(message -> {
                     this.messageId = message.getIdLong();
                     this.channel = message.getChannel();
                     request.forEach(s -> plugin.loadItem(audioManager, s, this));

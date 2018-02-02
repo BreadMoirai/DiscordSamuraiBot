@@ -19,52 +19,53 @@ package com.github.breadmoirai.samurai.plugins.rollpoll;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.samurai.Dispatchable;
+import com.github.breadmoirai.samurai.util.IntObjectFunction;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.ToIntFunction;
 
-public class RollPoll implements Dispatchable {
+public class RollPollMessage implements Dispatchable {
 
     private static final long serialVersionUID = 777L;
 
     private static final String DICE = "\uD83C\uDFB2", END = "\uD83C\uDFC1";
     private static final String[] MEDAL = {"\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"};
 
-    private final Map<Long, Integer> rolls;
+    private final List<Roll> rolls;
     private final String message;
-    private final Function<RollPoll, Stack<String>> endAction;
+    private final IntObjectFunction<Roll, String> endAction;
     private final Instant endTime;
+    private final EventWaiter waiter;
 
-    public RollPoll(String message, Function<RollPoll, Stack<String>> endResultProducer, Instant endTime) {
-        this.rolls = new HashMap<>();
+
+    public RollPollMessage(EventWaiter waiter, String message, IntObjectFunction<Roll, String> endResultProducer, Instant endTime) {
+        this.waiter = waiter;
+        this.rolls = new ArrayList<>();
         this.message = message;
         this.endAction = endResultProducer;
         this.endTime = endTime;
     }
 
     @Override
-    public void dispatch(CommandEvent event, EventWaiter waiter, MessageChannel channel) {
-        event.reply(message)
-                .setEmbed(buildScoreBoard(event.getGuild()))
-                .onSuccess(m -> {
+    public void dispatch(TextChannel channel) {
+        channel.sendMessage(new MessageBuilder().setContent(message).setEmbed(buildScoreBoard(channel.getGuild())).build())
+                .queue(m -> {
                     m.addReaction(DICE).queue();
                     waitForEvent(m, waiter);
                 });
@@ -79,7 +80,10 @@ public class RollPoll implements Dispatchable {
                 .onMessages(messageId)
                 .action(event -> {
                     final Member member = event.getMember();
-                    rolls.putIfAbsent(member.getUser().getIdLong(), ThreadLocalRandom.current().nextInt(101));
+                    final Roll roll = new Roll(member.getUser().getIdLong());
+                    if (!rolls.contains(roll)) {
+                        rolls.add(roll);
+                    }
                     event.getTextChannel().editMessageById(messageId, buildScoreBoard(event.getGuild())).queue();
                 })
                 .waitFor(Instant.now().until(endTime, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
@@ -112,45 +116,45 @@ public class RollPoll implements Dispatchable {
         embedBuilder.setFooter("End Time", null);
         embedBuilder.setTimestamp(endTime);
         final StringBuilder description = embedBuilder.getDescriptionBuilder();
-        AtomicInteger i = new AtomicInteger(1);
-        rolls.entrySet().stream().sorted(Comparator.comparingInt((ToIntFunction<Map.Entry<Long, Integer>>) Map.Entry::getValue).reversed()).forEachOrdered(memberIntegerEntry -> {
-            final int pos = i.getAndIncrement();
-            if (pos <= 3) {
-                description.append(MEDAL[pos - 1]).append(' ');
+        Collections.sort(rolls);
+        for (int i = 0; i < rolls.size(); i++) {
+            if (i < 3) {
+                description.append(MEDAL[i]).append(' ');
             } else {
-                description.append(String.format("`%02d.` ", pos));
+                description.append(String.format("`%02d.` ", i + 1));
             }
-            final Member memberById = guild.getMemberById(memberIntegerEntry.getKey());
+            final Roll roll = rolls.get(i);
+            final Member memberById = guild.getMemberById(roll.getMemberId());
             description
                     .append((memberById != null ? memberById.getEffectiveName() : "unknown"))
                     .append(" rolled a **")
-                    .append(memberIntegerEntry.getValue())
+                    .append(roll.getRoll())
                     .append("**\n");
-        });
+        }
         return embedBuilder.build();
     }
 
     private MessageEmbed distDispPoints(Guild guild) {
-        final Stack<String> apply = endAction.apply(this);
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setFooter("Ended at", null);
         embedBuilder.setTimestamp(endTime);
         final StringBuilder description = embedBuilder.getDescriptionBuilder();
-        List<Map.Entry<Long, Integer>> toSort = new ArrayList<>(rolls.entrySet());
-        toSort.sort(Comparator.comparingInt((ToIntFunction<Map.Entry<Long, Integer>>) Map.Entry::getValue).reversed());
-        for (int i = 0; i < toSort.size(); i++) {
+        Collections.sort(rolls);
+        for (int i = 0; i < rolls.size(); i++) {
             if (i < 3)
                 description.append(MEDAL[i]);
             else
-                description.append(String.format("`%02d.`", i));
+                description.append(String.format("`%02d.`", i + 1));
             description.append(' ');
-            final Map.Entry<Long, Integer> memberRoll = toSort.get(i);
-            final Member memberById = guild.getMemberById(memberRoll.getKey());
-            description.append((memberById != null ? memberById.getEffectiveName() : "unknown"))
-                    .append(" rolled a **").append(memberRoll.getValue())
+            final Roll roll = rolls.get(i);
+            final Member memberById = guild.getMemberById(roll.getMemberId());
+            description
+                    .append((memberById != null ? memberById.getEffectiveName() : "unknown"))
+                    .append(" rolled a **")
+                    .append(roll.getRoll())
                     .append("** ");
-            description.append(apply.pop());
-            if (i != toSort.size() - 1)
+            description.append(endAction.apply(i, roll));
+            if (i != rolls.size() - 1)
                 description.append('\n');
         }
         return embedBuilder.build();
@@ -185,4 +189,41 @@ public class RollPoll implements Dispatchable {
 //            unregister();
 //        }
 //    }
+
+    public class Roll implements Comparable<Roll> {
+        private final long memberId;
+        private final int roll;
+
+        private Roll(long memberId) {
+            this.memberId = memberId;
+            this.roll = ThreadLocalRandom.current().nextInt(101);
+        }
+
+        public long getMemberId() {
+            return memberId;
+        }
+
+        public int getRoll() {
+            return roll;
+        }
+
+        @Override
+        public int compareTo(@NotNull Roll o) {
+            return o.getRoll() - getRoll();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Roll roll = (Roll) o;
+            return getMemberId() == roll.getMemberId();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getMemberId());
+        }
+    }
+
 }

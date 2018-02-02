@@ -21,7 +21,7 @@ import com.github.breadmoirai.samurai.command.annotations.Key;
 import com.github.breadmoirai.samurai.command.manage.Schedule;
 import com.github.breadmoirai.samurai.messages.base.SamuraiMessage;
 import com.github.breadmoirai.samurai.messages.impl.FixedMessage;
-import com.github.breadmoirai.samurai.plugins.rollpoll.RollPoll;
+import com.github.breadmoirai.samurai.plugins.rollpoll.RollPollMessage;
 
 import java.time.Duration;
 import java.util.List;
@@ -43,10 +43,10 @@ public class Roll extends Command {
             }
             if (!duration.isZero())
                 if (context.getAuthor().canInteract(context.getSelfMember()))
-                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null, );
+                    return new RollPollMessage(duration.getSeconds(), TimeUnit.SECONDS, pointValue, pointValue > 0 ? context.getPointTracker() : null, );
                 else
-                    return new RollPoll(duration.getSeconds(), TimeUnit.SECONDS, -1, null, );
-            return new RollPoll();
+                    return new RollPollMessage(duration.getSeconds(), TimeUnit.SECONDS, -1, null, );
+            return new RollPollMessage();
         }
         if (context.hasContent()) {
             long limit;

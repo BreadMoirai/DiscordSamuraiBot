@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.plugins.music;
+package com.github.breadmoirai.samurai.command;
 
 import ai.api.AIConfiguration;
 import ai.api.AIDataService;

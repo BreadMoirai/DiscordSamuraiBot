@@ -21,7 +21,7 @@ public class DerbyPrefixExtension extends JdbiExtension {
     }
 
     public String getPrefix(long guildId) {
-        final Optional<String> prefix = selectOnly(String.class, "SELECT Value FROM Prefix WHERE Id = ?", guildId);
+        final Optional<String> prefix = selectFirst(String.class, "SELECT Value FROM Prefix WHERE Id = ?", guildId);
         if (prefix.isPresent()) {
             return prefix.get();
         } else {

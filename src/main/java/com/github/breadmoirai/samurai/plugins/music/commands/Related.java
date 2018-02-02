@@ -47,7 +47,7 @@ public class Related {
                         event.reply("No related tracks exist");
                         return null;
                     }
-                    return new TrackLoader(plugin, audioManager, related, String.format("Tracks related to [%s](%s)", playingTrack.getInfo().title, uri));
+                    return new TrackLoader(event, plugin, audioManager, related, String.format("Tracks related to [%s](%s)", playingTrack.getInfo().title, uri));
                 } else event.reply("Related tracks are not available for sources other than youtube");
             }
         }

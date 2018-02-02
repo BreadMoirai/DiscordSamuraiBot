@@ -17,16 +17,20 @@
 package com.github.breadmoirai.samurai.plugins.rollpoll;
 
 import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
+import gnu.trove.map.TLongLongMap;
+import gnu.trove.map.hash.TLongLongHashMap;
 import org.jdbi.v3.core.Jdbi;
 
 import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.stream.Collector;
 
 public class RollPollExtension extends JdbiExtension {
 
     public RollPollExtension(Jdbi jdbi) {
         super(jdbi);
-        if (tableAbsent("RollPollChannels")) {
-            execute("CREATE TABLE RollPollChannels (\n" +
+        if (tableAbsent("DailyRollPollChannels")) {
+            execute("CREATE TABLE DailyRollPollChannels (\n" +
                     "  GuildId       BIGINT NOT NULL PRIMARY KEY,\n" +
                     "  ChannelId     BIGINT NOT NULL,\n" +
                     "}");
@@ -34,19 +38,31 @@ public class RollPollExtension extends JdbiExtension {
 
     }
 
-    public long selectRollPollChannel(long guildId) {
-        final Optional<Long> channelId = selectOnly(Long.class, "SELECT ChannelId FROM RollPollChannels WHERE GuildId = ?", guildId);
-        return channelId.orElse(0L);
+    public OptionalLong selectRollPollChannel(long guildId) {
+        return selectLong("SELECT ChannelId FROM DailyRollPollChannels WHERE GuildId = ?", guildId);
     }
 
     public void updateRollPollChannel(long guildId, long channelId) {
-        execute("UPDATE RollPollChannels SET ChannelId = ? WHERE GuildId ?", channelId, guildId);
+        execute("UPDATE DailyRollPollChannels SET ChannelId = ? WHERE GuildId = ?", channelId, guildId);
     }
 
 
     public void insertRollPollChannel(long guildId, long channelId) {
-        execute("INSERT INTO RollPollChannels VALUES (?, ?)", guildId, channelId);
+        execute("INSERT INTO DailyRollPollChannels VALUES (?, ?)", guildId, channelId);
     }
 
+    public void deleteRollPollChannel(long guildId) {
+        execute("DELETE FROM DailyRollPollChannels WHERE GuildId = ?", guildId);
+    }
+
+    public TLongLongMap getRollPollChannels() {
+        return withHandle(handle -> handle
+                .select("SELECT * FROM DailyRollPollChannels")
+                .map((r, ctx) -> new long[]{r.getLong(1), r.getLong(2)})
+                .collect(Collector.<long[], TLongLongMap>of(TLongLongHashMap::new, (map, longs) -> map.put(longs[0], longs[1]), (map1, map2) -> {
+                    map1.putAll(map2);
+                    return map1;
+                })));
+    }
 
 }

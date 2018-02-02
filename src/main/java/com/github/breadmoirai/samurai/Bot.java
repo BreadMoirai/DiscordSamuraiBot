@@ -23,6 +23,7 @@ import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
 import com.github.breadmoirai.samurai.plugins.music.DispatchableDispatcher;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.github.breadmoirai.samurai.plugins.rollpoll.RollPollPlugin;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -37,6 +38,8 @@ import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -63,16 +66,18 @@ public class Bot {
 
         final Config config = ConfigFactory.load();
 
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
         final EventWaiterPlugin eventWaiter = new EventWaiterPlugin();
         BreadBot bread = new BreadBotBuilder()
                 .addPlugin(new ApplicationOwnerPlugin())
                 .addPlugin(eventWaiter)
-                .bindResultHandler(Dispatchable.class, new DispatchableDispatcher(eventWaiter.getEventWaiter()))
+                .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .addPlugin(new GroovyvalPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPrefixPlugin("!"))
                 .addPlugin(new MusicPlugin(config.getString("api.google")))
+                .addPlugin(new RollPollPlugin(service))
                 .addCommand(new ShutdownCommand())
                 .build();
 
