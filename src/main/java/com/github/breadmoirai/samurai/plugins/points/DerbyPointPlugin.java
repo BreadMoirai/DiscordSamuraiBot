@@ -53,6 +53,7 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
     private TLongObjectMap<PointSession> pointMap;
     private HashSet<VoiceChannel> voiceChannels;
     private PointExtension database;
+    private long selfId;
 
     @Override
     public void initialize(BreadBotBuilder builder) {
@@ -96,20 +97,20 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
 
     @SubscribeEvent
     public void onReady(ReadyEvent event) {
+        selfId = event.getJDA().getSelfUser().getIdLong();
         voiceChannels = new HashSet<>(20);
-        final List<Guild> guilds = event.getJDA().getGuilds();
-        pointMap = TCollections.synchronizedMap(new TLongObjectHashMap<>(guilds.size() + 5));
-
-        for (Guild guild : guilds) {
-            for (Member member : guild.getMembers()) {
-
-                final OnlineStatus onlineStatus = member.getOnlineStatus();
-                if (onlineStatus == OnlineStatus.ONLINE || onlineStatus == OnlineStatus.IDLE) {
-
-                    final long idLong = member.getUser().getIdLong();
-                    if (!pointMap.containsKey(idLong)) {
-                        pointMap.put(idLong, database.getPointSession(idLong, onlineStatus));
-                    }
+        final List<User> users = event.getJDA().getUsers();
+        pointMap = TCollections.synchronizedMap(new TLongObjectHashMap<>(users.size() * 2));
+        for (User user : users) {
+            if (!checkUser(user)) continue;
+            final List<Guild> mutualGuilds = event.getJDA().getMutualGuilds(user);
+            if (mutualGuilds.isEmpty()) continue;
+            final Guild guild = mutualGuilds.get(0);
+            final OnlineStatus onlineStatus = guild.getMember(user).getOnlineStatus();
+            if (onlineStatus == OnlineStatus.ONLINE || onlineStatus == OnlineStatus.IDLE) {
+                final long idLong = user.getIdLong();
+                if (!pointMap.containsKey(idLong)) {
+                    pointMap.put(idLong, database.getPointSession(idLong, onlineStatus));
                 }
             }
         }
@@ -119,7 +120,7 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
 
     @SubscribeEvent
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
-        if (event.getUser().isBot() || event.getUser().isFake()) return;
+        if (!checkUser(event.getUser())) return;
         final User user = event.getUser();
         long userId = user.getIdLong();
         final OnlineStatus onlineStatus = event.getGuild().getMember(user).getOnlineStatus();
@@ -153,12 +154,15 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
 
     @SubscribeEvent
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        PointSession pointSession = pointMap.get(event.getAuthor().getIdLong());
-        if (pointSession != null) {
+        final User author = event.getAuthor();
+        if (checkUser(author)) {
             final double v = ThreadLocalRandom.current().nextGaussian() / 160.00;
-            pointSession.offsetPoints(Math.abs(v));
+            offsetPoints(author.getIdLong(), Math.abs(v));
         }
+    }
 
+    private boolean checkUser(User author) {
+        return author.getIdLong() == selfId || !author.isBot() && !author.isFake();
     }
 
     private void addMinutePoints() {
@@ -209,7 +213,7 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
             final List<Member> members = voiceChannel.getMembers();
             if (members.stream().filter(member -> !member.getUser().isBot()).count() >= 2)
                 for (Member member : members) {
-                    if (!member.getVoiceState().isMuted() && !member.getUser().isBot())
+                    if (!member.getVoiceState().isMuted() && checkUser(member.getUser()))
                         offsetPoints(member, VOICE_POINT);
                 }
         }
