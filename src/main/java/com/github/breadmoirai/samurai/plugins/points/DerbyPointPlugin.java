@@ -155,7 +155,7 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         PointSession pointSession = pointMap.get(event.getAuthor().getIdLong());
         if (pointSession != null) {
-            final double v = ThreadLocalRandom.current().nextGaussian() / 120.00;
+            final double v = ThreadLocalRandom.current().nextGaussian() / 160.00;
             pointSession.offsetPoints(Math.abs(v));
         }
 
