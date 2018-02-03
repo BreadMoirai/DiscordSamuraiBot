@@ -110,10 +110,10 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
     }
 
     private void initializeImports() {
-        final InputStream resourceAsStream = EvalCommand.class.getResourceAsStream("imports.txt");
+        final InputStream resourceAsStream = GroovyvalPlugin.class.getResourceAsStream("imports.txt");
         if (resourceAsStream != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
-                imports.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split(";")));
+                imports.addAll(br.lines().collect(Collectors.toList()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -121,7 +121,7 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
     }
 
     private void initializeFunctions() {
-        final InputStream resourceAsStream = EvalCommand.class.getResourceAsStream("functions.txt");
+        final InputStream resourceAsStream = GroovyvalPlugin.class.getResourceAsStream("functions.txt");
         if (resourceAsStream != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8))) {
                 functions.addAll(Arrays.asList(br.lines().collect(Collectors.joining()).split("(?:});\n\n")));

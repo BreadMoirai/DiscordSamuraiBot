@@ -4,8 +4,6 @@ import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
 import net.dv8tion.jda.core.OnlineStatus;
 import org.jdbi.v3.core.Jdbi;
 
-import java.util.Optional;
-
 public class PointExtension extends JdbiExtension {
 
     public PointExtension(Jdbi jdbi) {
@@ -13,15 +11,15 @@ public class PointExtension extends JdbiExtension {
         if (tableAbsent("Points")) {
             execute("CREATE TABLE Points (\n" +
                     "  Id       BIGINT NOT NULL PRIMARY KEY,\n" +
-                    "  Value    DOUBLE DEFAULT 0,\n" +
-                    "}");
+                    "  Value    DOUBLE DEFAULT 0\n" +
+                    ")");
         }
     }
 
     public double getPoints(long userId) {
         return selectDouble("SELECT Value FROM Points WHERE Id = ?", userId)
                 .orElseGet(() -> {
-                    execute("INSERT INTO Prefix (Id) VALUES (?)", userId);
+                    execute("INSERT INTO Points (Id) VALUES (?)", userId);
                     return 0.0;
                 });
     }

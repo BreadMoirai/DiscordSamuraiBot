@@ -15,12 +15,13 @@ public class ArrayUtil {
      * @param extractor  Function that takes in object T and returns value V
      * @param comparator Comparator that compares V
      * @param equals     Predicate that may be null. Used to find a specific object if array is not unique
-     * @param <T>
-     * @param <V>
+     * @param <T> The Array Type
+     * @param <V> The Comparing Type
      * @return the index of object found
      */
     public static <T, V> int binarySearch(T[] array, V value, Function<T, V> extractor, Comparator<V> comparator, Predicate<T> equals) {
         final int idx = binarySearch(array, value, extractor, comparator);
+        if (idx == -1) return idx;
         return equals == null ? idx : bidirectionalSearch(array, equals, idx, value, extractor, comparator);
     }
 

@@ -20,8 +20,9 @@ import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
 import gnu.trove.map.TLongLongMap;
 import gnu.trove.map.hash.TLongLongHashMap;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.Update;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.OptionalLong;
 import java.util.stream.Collector;
 
@@ -32,10 +33,17 @@ public class RollPollExtension extends JdbiExtension {
         if (tableAbsent("DailyRollPollChannels")) {
             execute("CREATE TABLE DailyRollPollChannels (\n" +
                     "  GuildId       BIGINT NOT NULL PRIMARY KEY,\n" +
-                    "  ChannelId     BIGINT NOT NULL,\n" +
-                    "}");
+                    "  ChannelId     BIGINT NOT NULL\n" +
+                    ")");
         }
-
+        if (tableAbsent("DailyRollPollStorage")) {
+            execute("CREATE TABLE DailyRollPollStorage (\n" +
+                    "  GuildId      BIGINT NOT NULL,\n" +
+                    "  MemberId     BIGINT NOT NULL,\n" +
+                    "  Roll         INT NOT NULL,\n" +
+                    "  CONSTRAINT   DRPS_PK PRIMARY KEY (GuildId, MemberId)\n" +
+                    ")");
+        }
     }
 
     public OptionalLong selectRollPollChannel(long guildId) {
@@ -63,6 +71,25 @@ public class RollPollExtension extends JdbiExtension {
                     map1.putAll(map2);
                     return map1;
                 })));
+    }
+
+    public void storeRolls(long guildId, List<RollPollMessage.Roll> rolls) {
+        execute("DELETE FROM DailyRollPollStorage WHERE GuildId = ?", guildId);
+        useHandle(handle -> {
+            final Update update = handle.createUpdate("INSERT INTO DailyRollPollStorage VALUES (?, ?, ?)");
+            update.bind(0, guildId);
+            for (RollPollMessage.Roll roll : rolls) {
+                update.bind(1, roll.getMemberId());
+                update.bind(2, roll.getRoll());
+                update.execute();
+            }
+        });
+    }
+
+    public List<RollPollMessage.Roll> getStoredRolls(long guildId) {
+        return withHandle(handle -> handle.select("SELECT MemberId, Roll FROM DailyRollPollStorage WHERE GuildId = ?", guildId)
+                .map((r, ctx) -> new RollPollMessage.Roll(r.getLong(1), r.getInt(2)))
+                .list());
     }
 
 }

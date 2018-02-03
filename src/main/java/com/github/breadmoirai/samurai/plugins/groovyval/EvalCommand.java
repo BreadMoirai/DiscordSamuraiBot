@@ -50,6 +50,7 @@ public class EvalCommand {
             return "```java\n" + e.getMessage() + "```";
         }
         removeVariables(plugin.getBinding());
+        if (result.isEmpty()) return "\"\"";
         return result;
     }
 

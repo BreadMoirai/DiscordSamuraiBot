@@ -16,7 +16,6 @@
 
 package com.github.breadmoirai.samurai.plugins.rollpoll;
 
-import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.util.IntObjectFunction;
@@ -25,9 +24,9 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.ShutdownEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -47,19 +45,26 @@ public class RollPollMessage implements Dispatchable {
     private static final String DICE = "\uD83C\uDFB2", END = "\uD83C\uDFC1";
     private static final String[] MEDAL = {"\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"};
 
-    private final List<Roll> rolls;
+    private final RollPollExtension database;
+    private final EventWaiter waiter;
+    private final long guildId;
     private final String message;
+    private final List<Roll> rolls;
     private final IntObjectFunction<Roll, String> endAction;
     private final Instant endTime;
-    private final EventWaiter waiter;
 
-
-    public RollPollMessage(EventWaiter waiter, String message, IntObjectFunction<Roll, String> endResultProducer, Instant endTime) {
+    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message, List<Roll> rolls, IntObjectFunction<Roll, String> endAction, Instant endTime) {
+        this.database = database;
         this.waiter = waiter;
-        this.rolls = new ArrayList<>();
+        this.guildId = guildId;
         this.message = message;
-        this.endAction = endResultProducer;
+        this.rolls = rolls;
+        this.endAction = endAction;
         this.endTime = endTime;
+    }
+
+    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message, IntObjectFunction<Roll, String> endResultProducer, Instant endTime) {
+        this(database, waiter, guildId, message, new ArrayList<>(), endResultProducer, endTime);
     }
 
     @Override
@@ -86,11 +91,17 @@ public class RollPollMessage implements Dispatchable {
                     }
                     event.getTextChannel().editMessageById(messageId, buildScoreBoard(event.getGuild())).queue();
                 })
+                .stopIf((e, i) -> false)
                 .waitFor(Instant.now().until(endTime, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
                 .timeout(() -> {
                     channel.editMessageById(messageId, distDispPoints(channel.getGuild())).queue();
                     channel.clearReactionsById(messageId).queue();
-                });
+                })
+                .build();
+
+        waiter.waitFor(ShutdownEvent.class)
+                .action(event -> database.storeRolls(guildId, rolls))
+                .build();
     }
 //
 //    @Override
@@ -190,13 +201,18 @@ public class RollPollMessage implements Dispatchable {
 //        }
 //    }
 
-    public class Roll implements Comparable<Roll> {
+    public static class Roll implements Comparable<Roll> {
         private final long memberId;
         private final int roll;
 
         private Roll(long memberId) {
             this.memberId = memberId;
             this.roll = ThreadLocalRandom.current().nextInt(101);
+        }
+
+        public Roll(long memberId, int roll) {
+            this.memberId = memberId;
+            this.roll = roll;
         }
 
         public long getMemberId() {

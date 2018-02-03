@@ -23,6 +23,7 @@ import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
 import com.github.breadmoirai.samurai.plugins.music.DispatchableDispatcher;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.rollpoll.RollPollPlugin;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
@@ -68,17 +69,17 @@ public class Bot {
 
         final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
-        final EventWaiterPlugin eventWaiter = new EventWaiterPlugin();
         BreadBot bread = new BreadBotBuilder()
                 .addPlugin(new ApplicationOwnerPlugin())
-                .addPlugin(eventWaiter)
-                .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
+                .addPlugin(new EventWaiterPlugin(service))
                 .addPlugin(new GroovyvalPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
+                .addPlugin(new DerbyPointPlugin())
                 .addPlugin(new DerbyPrefixPlugin("!"))
-                .addPlugin(new MusicPlugin(config.getString("api.google")))
+                .addPlugin(new MusicPlugin(config.getString("api.google"), service))
                 .addPlugin(new RollPollPlugin(service))
-                .addCommand(new ShutdownCommand())
+                .addCommand(new ShutdownCommand(service))
+                .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .build();
 
 

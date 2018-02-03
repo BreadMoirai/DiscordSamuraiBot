@@ -45,10 +45,8 @@ import net.dv8tion.jda.core.hooks.EventListener;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author TonTL
@@ -65,12 +63,12 @@ public class MusicPlugin implements CommandPlugin, EventListener {
 
     private DispatchableDispatcher handler;
 
-    public MusicPlugin(String youtubeKey) {
+    public MusicPlugin(String youtubeKey, ScheduledExecutorService executor) {
         youtube = new YoutubeAPI(youtubeKey);
+        this.executor = executor;
         playerManager = new DefaultAudioPlayerManager();
         AudioSourceManagers.registerRemoteSources(playerManager);
         audioManagers = new ConcurrentHashMap<>();
-        executor = Executors.newSingleThreadScheduledExecutor();
         terminationTask = new ConcurrentHashMap<>();
     }
 
@@ -134,28 +132,28 @@ public class MusicPlugin implements CommandPlugin, EventListener {
     public Optional<GuildAudioManager> removeManager(long guildId) {
         return Optional.ofNullable(audioManagers.remove(guildId));
     }
-
-    public void scheduleLeave(long idLong) {
-        final Optional<GuildAudioManager> managerOptional = retrieveManager(idLong);
-        if (managerOptional.isPresent()) {
-            if (managerOptional.get().player.isPaused()) {
-                return;
-            }
-            final ScheduledFuture<?> scheduledFuture = executor.schedule(() -> {
-                removeManager(idLong).ifPresent(GuildAudioManager::destroy);
-                terminationTask.remove(idLong);
-            }, 5, TimeUnit.MINUTES);
-            terminationTask.put(idLong, scheduledFuture);
-        }
-    }
-
-    public void cancelLeave(long idLong) {
-        final ScheduledFuture leaveFuture = terminationTask.get(idLong);
-        if (leaveFuture != null) {
-            terminationTask.remove(idLong);
-            leaveFuture.cancel(false);
-        }
-    }
+//
+//    public void scheduleLeave(long idLong) {
+//        final Optional<GuildAudioManager> managerOptional = retrieveManager(idLong);
+//        if (managerOptional.isPresent()) {
+//            if (managerOptional.get().player.isPaused()) {
+//                return;
+//            }
+//            final ScheduledFuture<?> scheduledFuture = executor.schedule(() -> {
+//                removeManager(idLong).ifPresent(GuildAudioManager::destroy);
+//                terminationTask.remove(idLong);
+//            }, 5, TimeUnit.MINUTES);
+//            terminationTask.put(idLong, scheduledFuture);
+//        }
+//    }
+//
+//    public void cancelLeave(long idLong) {
+//        final ScheduledFuture leaveFuture = terminationTask.get(idLong);
+//        if (leaveFuture != null) {
+//            terminationTask.remove(idLong);
+//            leaveFuture.cancel(false);
+//        }
+//    }
 
     public ScheduledExecutorService getExecutor() {
         return executor;
@@ -163,7 +161,6 @@ public class MusicPlugin implements CommandPlugin, EventListener {
 
     public void close() {
         terminationTask.clear();
-        executor.shutdown();
         audioManagers.forEachValue(1000L, GuildAudioManager::destroy);
         audioManagers.clear();
         playerManager.shutdown();

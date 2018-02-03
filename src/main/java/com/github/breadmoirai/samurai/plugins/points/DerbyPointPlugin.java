@@ -26,6 +26,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -33,7 +34,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMuteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
 import java.util.HashSet;
 import java.util.List;
@@ -42,17 +43,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
+public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListener, CommandPlugin {
 
-    private static final double MESSAGE_POINT = 2;
-    private static final double MINUTE_POINT = .09;
-    private static final double VOICE_POINT = 3;
+    private static final double MESSAGE_POINT = .02;
+    private static final double MINUTE_POINT = .0002;
+    private static final double VOICE_POINT = .001;
 
     private final ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor();
     private TLongObjectMap<PointSession> pointMap;
     private HashSet<VoiceChannel> voiceChannels;
     private PointExtension database;
-
 
     @Override
     public void initialize(BreadBotBuilder builder) {
@@ -61,9 +61,40 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
         }
         final DerbyDatabase database = builder.getPlugin(DerbyDatabase.class);
         this.database = database.getExtension(PointExtension::new);
+        builder.addCommand(PointsCommand::new)
+                .addCommand(Ranking::new);
+    }
+
+
+    public PointSession getPoints(long userId) {
+        if (pointMap.containsKey(userId)) {
+            return pointMap.get(userId);
+        } else {
+            return database.getPointSession(userId, OnlineStatus.UNKNOWN);
+        }
     }
 
     @Override
+    public void onEvent(Event event) {
+        if (event instanceof ReadyEvent) {
+            onReady(((ReadyEvent) event));
+        } else if (event instanceof GuildMessageReceivedEvent) {
+            onGuildMessageReceived(((GuildMessageReceivedEvent) event));
+        } else if (event instanceof GuildVoiceJoinEvent) {
+            onGuildVoiceJoin(((GuildVoiceJoinEvent) event));
+        } else if (event instanceof GuildVoiceLeaveEvent) {
+            onGuildVoiceLeave(((GuildVoiceLeaveEvent) event));
+        } else if (event instanceof GuildVoiceMuteEvent) {
+            onGuildVoiceMute(((GuildVoiceMuteEvent) event));
+        } else if (event instanceof UserOnlineStatusUpdateEvent) {
+            onUserOnlineStatusUpdate(((UserOnlineStatusUpdateEvent) event));
+        } else if (event instanceof ShutdownEvent) {
+            onShutdown(((ShutdownEvent) event));
+        }
+    }
+
+
+    @SubscribeEvent
     public void onReady(ReadyEvent event) {
         voiceChannels = new HashSet<>(20);
         final List<Guild> guilds = event.getJDA().getGuilds();
@@ -86,7 +117,7 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
         pool.scheduleAtFixedRate(this::addVoicePoints, 2, 1, TimeUnit.MINUTES);
     }
 
-    @Override
+    @SubscribeEvent
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
         if (event.getUser().isBot() || event.getUser().isFake()) return;
         final User user = event.getUser();
@@ -120,23 +151,12 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         PointSession pointSession = pointMap.get(event.getAuthor().getIdLong());
         if (pointSession != null) {
-            final long now = event.getMessage().getCreationTime().toInstant().getEpochSecond();
-            final long diff = now - pointSession.getLastMessageSent();
-            if (diff < 5 || diff > 95) {
-                pointSession.offsetPoints(MESSAGE_POINT);
-            } else {
-                final double U = diff / 90;
-                final double sU = (U - .5) * .6 + .5;
-                final int sigma = 2;
-                final double X = sigma * Math.sqrt(-2 * Math.log(sU));
-                final double r = X * 10;
-                pointSession.offsetPoints(MESSAGE_POINT + ThreadLocalRandom.current().nextDouble(r));
-            }
-            pointSession.setLastMessageSent(now);
+            final double v = ThreadLocalRandom.current().nextGaussian() / 120.00;
+            pointSession.offsetPoints(Math.abs(v));
         }
 
     }
@@ -144,7 +164,6 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
     private void addMinutePoints() {
         pointMap.valueCollection().parallelStream().forEach(pointSession -> pointSession.offsetPoints(MINUTE_POINT));
     }
-
 
     public void offsetPoints(long userId, double pointValue) {
         PointSession pointSession = pointMap.get(userId);
@@ -166,19 +185,20 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
         offsetPoints(to, amount);
     }
 
-    @Override
+    @SubscribeEvent
     public void onShutdown(ShutdownEvent event) {
         pointMap.valueCollection().parallelStream().forEach(PointSession::commit);
+        pool.shutdownNow();
     }
 
-    @Override
+    @SubscribeEvent
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         voiceChannels.remove(event.getChannelLeft());
         if (event.getChannelLeft().getMembers().size() > 0)
             voiceChannels.add(event.getChannelLeft());
     }
 
-    @Override
+    @SubscribeEvent
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         voiceChannels.remove(event.getChannelJoined());
         voiceChannels.add(event.getChannelJoined());
@@ -195,10 +215,9 @@ public class DerbyPointPlugin extends ListenerAdapter implements CommandPlugin {
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         voiceChannels.remove(event.getVoiceState().getChannel());
         voiceChannels.add(event.getVoiceState().getChannel());
     }
-
 }

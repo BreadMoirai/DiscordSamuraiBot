@@ -61,6 +61,7 @@ public class DerbyDatabase implements CommandPlugin {
             DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
             final String url = protocol + dbName + ";";
             initialConnection = DriverManager.getConnection(url);
+            initialConnection.close();
         } catch (SQLException e) {
             if (e.getErrorCode() == 40000
                     && e.getSQLState().equalsIgnoreCase("XJ004")) {
@@ -156,4 +157,5 @@ public class DerbyDatabase implements CommandPlugin {
     public void initialize(BreadBotBuilder builder) {
 
     }
+
 }

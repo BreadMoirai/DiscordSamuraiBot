@@ -18,13 +18,24 @@ import com.github.breadmoirai.breadbot.framework.annotation.Name;
 import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.owner.Owner;
+import com.sedmelluq.discord.lavaplayer.tools.ExecutorTools;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 public class ShutdownCommand {
+
+    private final ScheduledExecutorService service;
+
+    public ShutdownCommand(ScheduledExecutorService service) {
+        this.service = service;
+    }
 
     @Owner
     @MainCommand("shutdown")
     @Name("shutdown")
     public void onCommand(CommandEvent event) {
-        event.getJDA().shutdown();
+        event.getJDA().shutdownNow();
+
+        ExecutorTools.shutdownExecutor(service, "shared bread executor");
     }
 }

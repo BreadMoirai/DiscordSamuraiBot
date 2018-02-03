@@ -30,21 +30,18 @@ import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayDeque;
+import java.util.List;
 import java.util.OptionalLong;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks.EventListener {
 
-    private RollPollExtension database;
-
     private final ScheduledExecutorService service;
+    private RollPollExtension database;
     private JDA jda;
     private EventWaiter waiter;
 
@@ -56,6 +53,7 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
     public void initialize(BreadBotBuilder builder) {
         final DerbyDatabase database = builder.getPlugin(DerbyDatabase.class);
         this.database = database.getExtension(RollPollExtension::new);
+        builder.addCommand(RollPollCommand::new);
     }
 
     @Override
@@ -81,14 +79,27 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
 
     private void onReadyEvent(ReadyEvent event) {
         jda = event.getJDA();
-        service.scheduleAtFixedRate(this::dispatchRollPolls, LocalTime.now().until(LocalTime.MIDNIGHT, ChronoUnit.MILLIS), ChronoUnit.DAYS.getDuration().toMillis(), TimeUnit.MILLISECONDS);
+        service.scheduleAtFixedRate(this::dispatchRollPolls, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).plusSeconds(1).toInstant().toEpochMilli(), ChronoUnit.DAYS.getDuration().toMillis(), TimeUnit.MILLISECONDS);
+
+        database.getRollPollChannels().forEachEntry((a, b) -> {
+            final List<RollPollMessage.Roll> storedRolls = database.getStoredRolls(a);
+            if (storedRolls != null && !storedRolls.isEmpty()) {
+                final TextChannel textChannelById = jda.getTextChannelById(b);
+                if (textChannelById != null) {
+                    final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, (i, roll) -> "wow", OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
+                    rollPoll.dispatch(textChannelById);
+                }
+
+            }
+            return true;
+        });
     }
 
-    private void dispatchRollPolls() {
+    public void dispatchRollPolls() {
         database.getRollPollChannels().forEachEntry((a, b) -> {
             final TextChannel textChannelById = jda.getTextChannelById(b);
             if (textChannelById != null) {
-                final RollPollMessage rollPoll = new RollPollMessage(waiter, "Roll Today!", (i, roll) -> "wow", Instant.from(LocalDateTime.of(LocalDate.now(), LocalTime.MAX)));
+                final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", (i, roll) -> "wow", OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                 rollPoll.dispatch(textChannelById);
             }
             return true;
