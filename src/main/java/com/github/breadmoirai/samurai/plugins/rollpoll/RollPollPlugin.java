@@ -24,12 +24,13 @@ import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.MissingDerbyPluginException;
+import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.ShutdownEvent;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -44,6 +45,7 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
     private RollPollExtension database;
     private JDA jda;
     private EventWaiter waiter;
+    private DerbyPointPlugin points;
 
     public RollPollPlugin(ScheduledExecutorService service) {
         this.service = service;
@@ -65,28 +67,27 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
             throw new BreadBotException("The RollPollPlugin requires an EventWaiterPlugin");
         }
         waiter = client.getPlugin(EventWaiterPlugin.class).getEventWaiter();
-
+        points = client.getPlugin(DerbyPointPlugin.class);
     }
 
     @Override
     public void onEvent(Event event) {
         if (event instanceof ReadyEvent) {
             onReadyEvent(((ReadyEvent) event));
-        } else if (event instanceof ShutdownEvent) {
-            onShutdownEvent(((ShutdownEvent) event));
+            event.getJDA().removeEventListener(this);
         }
     }
 
     private void onReadyEvent(ReadyEvent event) {
         jda = event.getJDA();
-        service.scheduleAtFixedRate(this::dispatchRollPolls, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).plusSeconds(1).toInstant().toEpochMilli(), ChronoUnit.DAYS.getDuration().toMillis(), TimeUnit.MILLISECONDS);
+        service.scheduleAtFixedRate(this::dispatchRollPolls, Instant.now().until(OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).plusSeconds(1).toInstant(), ChronoUnit.MILLIS), ChronoUnit.DAYS.getDuration().toMillis(), TimeUnit.MILLISECONDS);
 
         database.getRollPollChannels().forEachEntry((a, b) -> {
             final List<RollPollMessage.Roll> storedRolls = database.getStoredRolls(a);
             if (storedRolls != null && !storedRolls.isEmpty()) {
                 final TextChannel textChannelById = jda.getTextChannelById(b);
                 if (textChannelById != null) {
-                    final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, (i, roll) -> "wow", OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
+                    final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, this::calculateWin, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                     rollPoll.dispatch(textChannelById);
                 }
 
@@ -95,19 +96,21 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
         });
     }
 
+    private String calculateWin(int i, RollPollMessage.Roll roll) {
+        if (i == 0) {
+
+        }
+    }
+
     public void dispatchRollPolls() {
         database.getRollPollChannels().forEachEntry((a, b) -> {
             final TextChannel textChannelById = jda.getTextChannelById(b);
             if (textChannelById != null) {
-                final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", (i, roll) -> "wow", OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
+                final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", this::calculateWin, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                 rollPoll.dispatch(textChannelById);
             }
             return true;
         });
-    }
-
-    private void onShutdownEvent(ShutdownEvent event) {
-
     }
 
     public OptionalLong getDesignatedChannel(long guildId) {

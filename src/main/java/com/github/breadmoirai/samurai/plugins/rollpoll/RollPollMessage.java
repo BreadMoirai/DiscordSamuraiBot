@@ -16,6 +16,7 @@
 
 package com.github.breadmoirai.samurai.plugins.rollpoll;
 
+import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.samurai.Dispatchable;
 import com.github.breadmoirai.samurai.util.IntObjectFunction;
@@ -31,12 +32,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class RollPollMessage implements Dispatchable {
 
@@ -52,6 +58,7 @@ public class RollPollMessage implements Dispatchable {
     private final List<Roll> rolls;
     private final IntObjectFunction<Roll, String> endAction;
     private final Instant endTime;
+    private EventActionFuture<Void> shutdownFuture;
 
     public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message, List<Roll> rolls, IntObjectFunction<Roll, String> endAction, Instant endTime) {
         this.database = database;
@@ -96,36 +103,20 @@ public class RollPollMessage implements Dispatchable {
                 .timeout(() -> {
                     channel.editMessageById(messageId, distDispPoints(channel.getGuild())).queue();
                     channel.clearReactionsById(messageId).queue();
+                    shutdownFuture.cancel();
                 })
                 .build();
 
-        waiter.waitFor(ShutdownEvent.class)
+        shutdownFuture = waiter.waitFor(ShutdownEvent.class)
                 .action(event -> database.storeRolls(guildId, rolls))
                 .build();
     }
-//
-//    @Override
-//    protected void onReady(Message message) {
-//        message.addReaction(DICE).queue();
-//        message.getChannel().getMessageById(getMessageId()).queueAfter(time, unit, message1 -> {
-//            final Map.Entry<Long, Integer> memberIntegerEntry = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElse(null);
-////                if (pointTracker != null && pointValue > 0) {
-////                    final Member memberById = message1.getGuild().getMemberById(winner);
-////                    message1.editMessage(new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append((memberById != null ? memberById.getAsMention() : "unknown")).append("\uD83C\uDF8A").setEmbed(distDispPoints(pointValue, message1.getGuild())).build()).queue();
-////                } else {
-////                    final Member memberById = message1.getGuild().getMemberById(winner);
-////                    message1.editMessage("Winner is \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
-////                }
-//            message1.clearReactions().queue();
-//        });
-//    }
-//
-//}
 
     private MessageEmbed buildScoreBoard(Guild guild) {
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setFooter("End Time", null);
         embedBuilder.setTimestamp(endTime);
+        embedBuilder.setColor(new java.awt.Color(114, 137, 218));
         final StringBuilder description = embedBuilder.getDescriptionBuilder();
         Collections.sort(rolls);
         for (int i = 0; i < rolls.size(); i++) {
@@ -149,57 +140,38 @@ public class RollPollMessage implements Dispatchable {
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setFooter("Ended at", null);
         embedBuilder.setTimestamp(endTime);
-        final StringBuilder description = embedBuilder.getDescriptionBuilder();
-        Collections.sort(rolls);
-        for (int i = 0; i < rolls.size(); i++) {
-            if (i < 3)
-                description.append(MEDAL[i]);
-            else
-                description.append(String.format("`%02d.`", i + 1));
-            description.append(' ');
-            final Roll roll = rolls.get(i);
-            final Member memberById = guild.getMemberById(roll.getMemberId());
-            description
-                    .append((memberById != null ? memberById.getEffectiveName() : "unknown"))
-                    .append(" rolled a **")
-                    .append(roll.getRoll())
-                    .append("** ");
-            description.append(endAction.apply(i, roll));
-            if (i != rolls.size() - 1)
-                description.append('\n');
+        final ArrayDeque<List<Roll>> rollStack = rolls.stream()
+                .collect(Collectors.groupingBy(o -> o.roll))
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toCollection(ArrayDeque::new));
+        StringJoiner sj = new StringJoiner("\n");
+        int i = -1;
+        while (!rollStack.isEmpty()) {
+            final List<Roll> pop = rollStack.pop();
+            i += pop.size();
+            for (Roll roll : pop) {
+                StringBuilder sb = new StringBuilder();
+                if (i < 3)
+                    sb.append(MEDAL[i]);
+                else
+                    sb.append(String.format("`%02d.`", i + 1));
+                sb.append(' ');
+                final Member memberById = guild.getMemberById(roll.getMemberId());
+                sb
+                        .append((memberById != null ? memberById.getEffectiveName() : "unknown"))
+                        .append(" rolled a **")
+                        .append(roll.getRoll())
+                        .append("** ")
+                        .append(endAction.apply(i, roll));
+                sj.add(sb.toString());
+            }
         }
+        embedBuilder.setDescription(sj.toString());
         return embedBuilder.build();
     }
-
-//    @Override
-//    public void onReaction(MessageReactionAddEvent event) {
-//        if (event.getReaction().getEmote().getName().equals(DICE)) {
-//
-//        } else if (event.getUser().getIdLong() == getAuthorId() && event.getReactionEmote().getName().equals(END)) {
-//            final Map.Entry<Long, Integer> memberIntegerEntry = rolls.entrySet().stream().max(Comparator.comparingInt(Map.Entry::<Integer>getValue)).orElse(null);
-//            TextChannel textChannel = event.getTextChannel();
-//            if (textChannel != null) {
-//                if (memberIntegerEntry == null) {
-//                    textChannel.editMessageById(getMessageId(), "No Winner...").queue();
-//                    textChannel.clearReactionsById(getMessageId()).queue();
-//                    unregister();
-//                    return;
-//                }
-//                long winner = memberIntegerEntry.getKey();
-//                final Guild guild = textChannel.getGuild();
-//                if (pointTracker != null && pointValue > 0) {
-//                    final Member memberById = guild.getMemberById(winner);
-//                    textChannel.editMessageById(getMessageId(), new MessageBuilder().append("The Winner is... \uD83C\uDF8A").append((memberById != null ? memberById.getAsMention() : "unknown")).append("\uD83C\uDF8A").setEmbed(distDispPoints(pointValue, guild)).build()).queue();
-//                } else {
-//                    final Member memberById = guild.getMemberById(winner);
-//                    textChannel.editMessageById(getMessageId(), "Winner is \uD83C\uDF8A" + (memberById != null ? memberById.getAsMention() : "unknown") + "\uD83C\uDF8A").queue();
-//                }
-//                textChannel.clearReactionsById(getMessageId()).queue();
-//                unregister();
-//            }
-//            unregister();
-//        }
-//    }
 
     public static class Roll implements Comparable<Roll> {
         private final long memberId;
