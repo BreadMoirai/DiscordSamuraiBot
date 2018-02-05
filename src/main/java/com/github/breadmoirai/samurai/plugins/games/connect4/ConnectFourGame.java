@@ -1,33 +1,33 @@
-/*    Copyright 2017 Ton Ly
- 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
- 
-      http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
-package com.github.breadmoirai.samurai.messages.impl.duel;
+/*
+ *     Copyright 2017-2018 Ton Ly
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+package com.github.breadmoirai.samurai.plugins.games.connect4;
 
 import com.github.breadmoirai.samurai.Bot;
-import com.github.breadmoirai.samurai.command.Command;
-import com.github.breadmoirai.samurai.messages.base.DynamicMessage;
-import com.github.breadmoirai.samurai.messages.impl.duel.strategy.ConnectFourStrategy;
-import com.github.breadmoirai.samurai.messages.impl.duel.strategy.MiniMaxStrategy;
-import com.github.breadmoirai.samurai.messages.listeners.CommandListener;
-import com.github.breadmoirai.samurai.messages.listeners.ReactionListener;
+import com.github.breadmoirai.samurai.Dispatchable;
+import com.github.breadmoirai.samurai.plugins.games.connect4.strategy.ConnectFourStrategy;
+import com.github.breadmoirai.samurai.plugins.games.connect4.strategy.MiniMaxStrategy;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
+import javafx.util.Pair;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
@@ -36,74 +36,56 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ConnectFour extends DynamicMessage implements ReactionListener, CommandListener {
+public class ConnectFourGame implements Dispatchable {
 
-
+    public static final int X_BOUND = 7, Y_BOUND = 6;
     private static final List<String> REACTIONS = Collections.unmodifiableList(Arrays.asList("1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3"));
     private static final String DUEL_REACTION = "\u2694";
-
     private static final String EMOTE_A = "\uD83D\uDD34";
     private static final String EMOTE_B = "\uD83D\uDD35";
-
-    private static final int X_BOUND = 7, Y_BOUND = 6;
-
     private final char[][] board;
+    private final Member instigator;
+    private final ConnectFourStrategy strategy;
+    private final Member challenged;
+    private final long messageId;
+    private final EventWaiter waiter;
+    private final BiConsumer<Pair<Member, Member>, EmbedBuilder> onWin;
+    private final String selfAvatar;
+    private Member next;
 
-    private Long userA, userB, winner, next;
-    private String avatarA;
-    private String avatarB;
-    private String nameA, nameB;
 
-    private GameState state;
-
-    private boolean selfOpp;
-
-    private ConnectFourStrategy ai;
-
-    private DerbyPointPlugin pointTracker;
-
-    public ConnectFour(Member seeking, DerbyPointPlugin pointTracker) {
-        userA = seeking.getUser().getIdLong();
-        nameA = seeking.getEffectiveName();
-        avatarA = seeking.getUser().getEffectiveAvatarUrl();
-        this.pointTracker = pointTracker;
-        userB = null;
-        nameB = null;
-        winner = null;
+    public ConnectFourGame(Member instigator, Member challenged, long messageId, EventWaiter waiter, BiConsumer<Pair<Member, Member>, EmbedBuilder> onWin) {
+        this.instigator = instigator;
+        this.challenged = challenged;
+        this.messageId = messageId;
+        this.waiter = waiter;
+        this.onWin = onWin;
+        next = ThreadLocalRandom.current().nextBoolean() ? instigator : challenged;
         board = new char[X_BOUND][Y_BOUND];
-        state = new InitialState(this);
+        strategy = null;
+        selfAvatar = instigator.getJDA().getSelfUser().getAvatarUrl();
     }
 
-    public ConnectFour(Member instigator, Member challenged, DerbyPointPlugin pointTracker) {
-        userA = instigator.getUser().getIdLong();
-        nameA = instigator.getEffectiveName();
-        avatarA = instigator.getUser().getEffectiveAvatarUrl();
-        userB = challenged.getUser().getIdLong();
-        nameB = challenged.getEffectiveName();
-        avatarB = challenged.getUser().getEffectiveAvatarUrl();
-        this.pointTracker = pointTracker;
-        next = ThreadLocalRandom.current().nextBoolean() ? userA : userB;
+    public ConnectFourGame(Member instigator, ConnectFourStrategy strategy, long messageId, EventWaiter waiter, BiConsumer<Pair<Member, Member>, EmbedBuilder> onWin) {
+        this.instigator = instigator;
+        this.strategy = strategy;
+        this.challenged = instigator.getGuild().getSelfMember();
+        this.messageId = messageId;
+        this.waiter = waiter;
+        this.onWin = onWin;
+        next = ThreadLocalRandom.current().nextBoolean() ? instigator : null;
         board = new char[X_BOUND][Y_BOUND];
-        state = new BuildState(this);
-        selfOpp = challenged.getUser().getIdLong() == Bot.info().ID;
+        selfAvatar = instigator.getJDA().getSelfUser().getAvatarUrl();
     }
 
     @Override
-    protected Message initialize() {
-        return state.buildMessage();
-    }
-
-    @Override
-    protected void onReady(Message message) {
-        state.buildConsumer().accept(message);
-    }
-
-    @Override
-    public void onReaction(MessageReactionAddEvent event) {
-        if (state.isValid(event)) state.onReaction(event);
-        setActive();
+    public void dispatch(TextChannel channel) {
+        channel.editMessageFormatById(messageId,
+                "Building %s's game against %s.", instigator, challenged)
+                .queue();
     }
 
     private EmbedBuilder buildBoard() {
@@ -126,7 +108,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
         return new EmbedBuilder()
                 .addField("Connect 4", sb.toString(), true)
                 .setColor(Color.BLACK)
-                .setFooter("SamuraiGames\u2122", Bot.info().AVATAR);
+                .setFooter("SamuraiGames\u2122", selfAvatar);
     }
 
     private boolean hasEnded() {
@@ -206,7 +188,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
                     .append("> ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(' ')
                     .append(nameB)
                     .append("\n");
-        } else if (next.equals(userB)){
+        } else if (next.equals(userB)) {
             mb.append(nameA)
                     .append(" ").append(EMOTE_A).append(" \uD83C\uDD9A ").append(EMOTE_B).append(" <@")
                     .append(userB)
@@ -243,25 +225,22 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
             }
         }
     }
-    //todo let's make these singleton eh?
-    private static abstract class GameState implements ReactionListener {
-        ConnectFour game;
 
-        GameState(ConnectFour game) {
-            this.game = game;
+    private void selfMove(JDA jda, long responseNumber) {
+        String move;
+        if (ai == null) {
+            ai = new MiniMaxStrategy(X_BOUND, Y_BOUND, 4);
         }
-
-        abstract boolean isValid(MessageReactionAddEvent event);
-
-        abstract Message buildMessage();
-
-        abstract Consumer<Message> buildConsumer();
+        final int i = ai.makeMove(board);
+        move = REACTIONS.get(i);
+        this.onReaction(new MessageReactionAddEvent(jda, responseNumber, jda.getSelfUser(), new MessageReaction(jda.getTextChannelById(getChannelId()), new MessageReaction.ReactionEmote(move, 0L, jda), this.getMessageId(), true, 2)));
     }
+
 
     private static class InitialState extends GameState {
 
 
-        InitialState(ConnectFour game) {
+        InitialState(ConnectFourGame game) {
             super(game);
         }
 
@@ -299,7 +278,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
 
     private static class BuildState extends GameState {
 
-        BuildState(ConnectFour game) {
+        BuildState(ConnectFourGame game) {
             super(game);
         }
 
@@ -311,7 +290,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
         @Override
         Message buildMessage() {
             return new MessageBuilder()
-                    .append(String.format("Building <@%d>'s game against <@%d>.", game.userA, game.userB))
+                    .append()
                     .build();
         }
 
@@ -332,7 +311,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
 
     private static class PlayState extends GameState {
 
-        PlayState(ConnectFour game) {
+        PlayState(ConnectFourGame game) {
             super(game);
         }
 
@@ -397,7 +376,7 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
             } else {
                 event.getChannel().getMessageById(event.getMessageId()).queue(message -> message.editMessage(buildMessage()).queue(message1 -> {
                     if (game.selfOpp && game.next.equals(Bot.info().ID)) {
-                        game.selfMove(message1.getJDA(), event.getResponseNumber()+1);
+                        game.selfMove(message1.getJDA(), event.getResponseNumber() + 1);
                     }
                 }));
 
@@ -413,16 +392,6 @@ public class ConnectFour extends DynamicMessage implements ReactionListener, Com
                 return Bot.info().AVATAR;
             }
         }
-    }
-
-    private void selfMove(JDA jda, long responseNumber) {
-        String move;
-        if (ai == null) {
-            ai = new MiniMaxStrategy(X_BOUND, Y_BOUND, 4);
-        }
-        final int i = ai.makeMove(board);
-        move = REACTIONS.get(i);
-        this.onReaction(new MessageReactionAddEvent(jda, responseNumber, jda.getSelfUser(), new MessageReaction(jda.getTextChannelById(getChannelId()), new MessageReaction.ReactionEmote(move, 0L, jda), this.getMessageId(), true, 2)));
     }
 
 

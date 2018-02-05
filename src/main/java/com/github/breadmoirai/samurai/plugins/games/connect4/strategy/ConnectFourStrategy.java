@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package com.github.breadmoirai.samurai.messages.impl.duel.strategy;
+package com.github.breadmoirai.samurai.plugins.games.connect4.strategy;
 
 import org.jetbrains.annotations.Contract;
 

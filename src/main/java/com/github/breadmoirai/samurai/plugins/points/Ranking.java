@@ -47,8 +47,8 @@ public class Ranking {
             idx = 0;
             end = Math.min(pointSessions.length, MAX_RESULTS);
         } else {
-            idx = Math.max(0, target - MAX_RESULTS/2);
-            end = Math.min(pointSessions.length, target + MAX_RESULTS/2);
+            idx = Math.max(0, target - MAX_RESULTS / 2);
+            end = Math.min(pointSessions.length, target + MAX_RESULTS / 2);
         }
         final int length = String.format("%.2f", pointSessions[idx].getPoints()).length();
         final StringJoiner sj = new StringJoiner("\n");
@@ -58,11 +58,8 @@ public class Ranking {
         System.out.println("formatB = " + formatB);
         for (; idx < end; idx++) {
             String s;
-            if (idx == target) {
-                s = String.format(formatA, idx + 1, pointSessions[idx].getPoints(), context.getGuild().getMemberById(pointSessions[idx].getId()).getEffectiveName());
-            } else {
-                s = String.format(formatB, idx + 1, pointSessions[idx].getPoints(), context.getGuild().getMemberById(pointSessions[idx].getId()).getEffectiveName());
-            }
+            final Member memberById = context.getGuild().getMemberById(pointSessions[idx].getId());
+            s = String.format(idx == target ? formatA : formatB, idx + 1, pointSessions[idx].getPoints(), memberById.getEffectiveName());
             if (sj.length() + s.length() >= 2000) {
                 break;
             }
