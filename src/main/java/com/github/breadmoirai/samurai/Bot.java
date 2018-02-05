@@ -20,9 +20,11 @@ import com.github.breadmoirai.breadbot.plugins.owner.ApplicationOwnerPlugin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
+import com.github.breadmoirai.samurai.plugins.google.GooglePlugin;
 import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
 import com.github.breadmoirai.samurai.plugins.music.DispatchableDispatcher;
 import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
+import com.github.breadmoirai.samurai.plugins.personal.BreadMoiraiSamuraiPlugin;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.rollpoll.RollPollPlugin;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
@@ -76,8 +78,10 @@ public class Bot {
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPointPlugin())
                 .addPlugin(new DerbyPrefixPlugin("!"))
-                .addPlugin(new MusicPlugin(config.getString("api.google"), service))
+                .addPlugin(new MusicPlugin(config.getString("google.key"), service))
                 .addPlugin(new RollPollPlugin(service))
+                .addPlugin(new BreadMoiraiSamuraiPlugin())
+                .addPlugin(new GooglePlugin(config.getString("google.key"), config.getString("google.engine")))
                 .addCommand(new ShutdownCommand(service))
                 .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .build();

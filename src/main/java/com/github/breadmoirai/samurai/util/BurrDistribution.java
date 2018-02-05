@@ -22,9 +22,9 @@ public class BurrDistribution {
 
     }
 
-    double getTransformedInverse(double u) {
+    public static double getTransformedInverse(double u, double offset) {
         final double burr = Math.pow(u / (1 - u), 1 / 3);
-        return burr * -2 + 1.5;
+        return burr * -0.01;
     }
 
 }

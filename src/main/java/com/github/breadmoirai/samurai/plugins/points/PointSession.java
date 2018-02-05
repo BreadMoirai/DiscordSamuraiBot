@@ -16,6 +16,8 @@ package com.github.breadmoirai.samurai.plugins.points;
 
 import net.dv8tion.jda.core.OnlineStatus;
 
+import java.time.Instant;
+
 public class PointSession {
     private final PointExtension database;
     private final long id;
@@ -23,7 +25,7 @@ public class PointSession {
     private OnlineStatus status;
     private double points;
 
-    private long lastMessageSent;
+    private Instant lastMessageSent;
 
     public PointSession(long id, double points, OnlineStatus status, PointExtension database) {
         this.id = id;
@@ -40,11 +42,11 @@ public class PointSession {
         return points;
     }
 
-    public long getLastMessageSent() {
+    public Instant getLastMessageSent() {
         return lastMessageSent;
     }
 
-    public void setLastMessageSent(long lastMessageSent) {
+    public void setLastMessageSent(Instant lastMessageSent) {
         this.lastMessageSent = lastMessageSent;
     }
 

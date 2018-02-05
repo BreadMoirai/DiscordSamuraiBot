@@ -36,6 +36,8 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -45,9 +47,9 @@ import java.util.concurrent.TimeUnit;
 
 public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListener, CommandPlugin {
 
-    private static final double MESSAGE_POINT = .02;
-    private static final double MINUTE_POINT = .0002;
-    private static final double VOICE_POINT = .001;
+    //    private static final double MESSAGE_POINT = .018;
+    private static final double MINUTE_POINT = .0001;
+    private static final double VOICE_POINT = .0003;
 
     private final ScheduledExecutorService pool = Executors.newSingleThreadScheduledExecutor();
     private TLongObjectMap<PointSession> pointMap;
@@ -156,9 +158,26 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         final User author = event.getAuthor();
         if (checkUser(author)) {
-            final double v = ThreadLocalRandom.current().nextGaussian() / 160.00;
-            offsetPoints(author.getIdLong(), Math.abs(v));
+            final PointSession points = getPoints(author.getIdLong());
+            final Instant last = points.getLastMessageSent();
+            final Instant time = event.getMessage().getCreationTime().toInstant();
+            if (last == null) {
+                offsetPoints(author.getIdLong(), getRandomBurr() * -1 + .018);
+            } else {
+                final Duration between = Duration.between(last, time);
+                if (between.compareTo(Duration.ofSeconds(9)) > 0) {
+                    offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + .018);
+                } else {
+                    offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + between.toMillis() / 500_000);
+                }
+            }
+            points.setLastMessageSent(time);
         }
+    }
+
+    private double getRandomBurr() {
+        final double u = ThreadLocalRandom.current().nextDouble();
+        return Math.pow(u / (1 - u), 1 / 3);
     }
 
     private boolean checkUser(User author) {

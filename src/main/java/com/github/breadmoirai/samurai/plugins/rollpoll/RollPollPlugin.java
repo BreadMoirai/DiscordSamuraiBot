@@ -25,6 +25,7 @@ import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.MissingDerbyPluginException;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
+import com.github.breadmoirai.samurai.util.IntObjectFunction;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
@@ -87,7 +88,7 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
             if (storedRolls != null && !storedRolls.isEmpty()) {
                 final TextChannel textChannelById = jda.getTextChannelById(b);
                 if (textChannelById != null) {
-                    final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, this::calculateWin, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
+                    final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, new WinCalculator(), OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                     rollPoll.dispatch(textChannelById);
                 }
 
@@ -96,17 +97,11 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
         });
     }
 
-    private String calculateWin(int i, RollPollMessage.Roll roll) {
-        if (i == 0) {
-
-        }
-    }
-
     public void dispatchRollPolls() {
         database.getRollPollChannels().forEachEntry((a, b) -> {
             final TextChannel textChannelById = jda.getTextChannelById(b);
             if (textChannelById != null) {
-                final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", this::calculateWin, OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
+                final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", new WinCalculator(), OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                 rollPoll.dispatch(textChannelById);
             }
             return true;
@@ -129,4 +124,35 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
         database.deleteRollPollChannel(guildId);
     }
 
+    private class WinCalculator implements IntObjectFunction<RollPollMessage.Roll, String> {
+        private int first = -1;
+        private int last = -1;
+        private double max;
+        private double curve;
+
+        @Override
+        public String apply(int i, RollPollMessage.Roll roll) {
+            final double value;
+            if (first == -1) {
+                first = i;
+                curve = roll.getRoll();
+                max = (0.5 + (roll.getRoll() / 100.0)) / 2.0;
+                value = max;
+            } else if (i == first) {
+                value = max;
+            } else if (i < 10) {
+                value = (10 - i) / 15 * roll.getRoll() / curve * max;
+            } else if (last == -1) {
+                last = i;
+                curve = roll.getRoll();
+                value = 0;
+            } else if (i == last) {
+                value = 0;
+            } else {
+                value = (i - last) / 5 * (curve - roll.getRoll()) / curve * max;
+            }
+            points.offsetPoints(roll.getMemberId(), value);
+            return String.format("and gained `%.2f` points", value);
+        }
+    }
 }
