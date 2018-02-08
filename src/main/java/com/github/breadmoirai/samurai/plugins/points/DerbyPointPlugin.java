@@ -165,10 +165,10 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
                 offsetPoints(author.getIdLong(), getRandomBurr() * -1 + .018);
             } else {
                 final Duration between = Duration.between(last, time);
-                if (between.compareTo(Duration.ofSeconds(9)) > 0) {
+                if (between.compareTo(Duration.ofSeconds(2)) > 0) {
                     offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + .018);
                 } else {
-                    offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + between.toMillis() / 500_000);
+                    offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + between.toMillis() / 111_111.111);
                 }
             }
             points.setLastMessageSent(time);

@@ -20,6 +20,7 @@ import com.github.breadmoirai.breadbot.plugins.owner.ApplicationOwnerPlugin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
+import com.github.breadmoirai.samurai.plugins.games.GamePlugin;
 import com.github.breadmoirai.samurai.plugins.google.GooglePlugin;
 import com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin;
 import com.github.breadmoirai.samurai.plugins.music.DispatchableDispatcher;
@@ -82,6 +83,7 @@ public class Bot {
                 .addPlugin(new RollPollPlugin(service))
                 .addPlugin(new BreadMoiraiSamuraiPlugin())
                 .addPlugin(new GooglePlugin(config.getString("google.key"), config.getString("google.engine")))
+                .addPlugin(new GamePlugin())
                 .addCommand(new ShutdownCommand(service))
                 .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .build();

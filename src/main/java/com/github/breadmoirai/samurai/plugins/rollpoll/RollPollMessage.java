@@ -108,7 +108,10 @@ public class RollPollMessage implements Dispatchable {
                 .build();
 
         shutdownFuture = waiter.waitFor(ShutdownEvent.class)
-                .action(event -> database.storeRolls(guildId, rolls))
+                .action(event -> {
+                    if (database != null)
+                        database.storeRolls(guildId, rolls);
+                })
                 .build();
     }
 
@@ -144,7 +147,7 @@ public class RollPollMessage implements Dispatchable {
                 .collect(Collectors.groupingBy(o -> o.roll))
                 .entrySet()
                 .stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .sorted(Comparator.<Map.Entry<Integer, List<Roll>>>comparingInt(Map.Entry::getKey).reversed())
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toCollection(ArrayDeque::new));
         StringJoiner sj = new StringJoiner("\n");

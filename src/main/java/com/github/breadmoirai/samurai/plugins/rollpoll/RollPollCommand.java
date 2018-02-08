@@ -15,10 +15,21 @@
 package com.github.breadmoirai.samurai.plugins.rollpoll;
 
 import com.github.breadmoirai.breadbot.framework.annotation.command.Command;
+import com.github.breadmoirai.breadbot.framework.annotation.parameter.Required;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import com.github.breadmoirai.samurai.Dispatchable;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class RollPollCommand {
+
+    @Command
+    public Dispatchable rollpoll(TextChannel channel, @Required Duration duration, EventWaiter waiter) {
+        return new RollPollMessage(null, waiter, channel.getGuild().getIdLong(), "RollPoll!", (i, roll) -> "", Instant.now().plus(duration));
+    }
 
     @Command
     public String setupRollPoll(RollPollPlugin plugin, TextChannel channel, Guild guild) {
@@ -32,5 +43,7 @@ public class RollPollCommand {
     public String stopRollPoll(RollPollPlugin plugin, Guild guild) {
         plugin.deleteDesignatedChannel(guild.getIdLong());
         return "RollPolls will no longer appear.";
-    };
+    }
+
+    ;
 }

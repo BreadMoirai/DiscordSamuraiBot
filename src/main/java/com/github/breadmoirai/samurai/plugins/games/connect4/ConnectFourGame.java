@@ -43,7 +43,7 @@ public class ConnectFourGame implements Dispatchable {
     private final Member playerA;
     private final ConnectFourStrategy strategy;
     private final Member playerB;
-    private final long messageId;
+    private long messageId;
     private final EventWaiter waiter;
     private final BiConsumer<Pair<Member, Member>, EmbedBuilder> onWin;
     private final String selfAvatar;
@@ -71,18 +71,26 @@ public class ConnectFourGame implements Dispatchable {
         this.messageId = messageId;
         this.waiter = waiter;
         this.onWin = onWin;
-        next = ThreadLocalRandom.current().nextBoolean() ? playerA : null;
+        next = playerA;
         board = new char[X_BOUND][Y_BOUND];
         selfAvatar = playerA.getJDA().getSelfUser().getAvatarUrl();
     }
 
     @Override
     public void dispatch(TextChannel channel) {
-        channel.editMessageFormatById(messageId, "Building %s's game against %s.", playerA, playerB)
-                .queue(this::setupReactions);
+        if (messageId == 0) {
+            channel.sendMessageFormat("Building %s's game against %s.", playerA, playerB)
+                    .queue(this::setupReactions);
+        } else {
+            channel.editMessageFormatById(messageId, "Building %s's game against %s.", playerA, playerB)
+                    .queue(this::setupReactions);
+        }
     }
 
     public void setupReactions(Message message) {
+        if (messageId == 0) {
+            messageId = message.getIdLong();
+        }
         for (int i = 0; i < REACTIONS.length; i++) {
             if (i != REACTIONS.length - 1) {
                 message.addReaction(REACTIONS[i]).queue();
@@ -120,7 +128,7 @@ public class ConnectFourGame implements Dispatchable {
     }
 
     public void onReaction(GenericMessageReactionEvent reactionEvent) {
-        reactionEvent.getReaction().removeReaction().queue();
+        reactionEvent.getReaction().removeReaction(reactionEvent.getUser()).queue();
         final Member member = reactionEvent.getMember();
         int move = getReactionIdx(reactionEvent.getReactionEmote().getName());
         makeMove(member, move);
@@ -129,6 +137,7 @@ public class ConnectFourGame implements Dispatchable {
             makeMove(playerB, i);
             next = playerA;
         }
+        reactionEvent.getTextChannel().editMessageById(messageId, buildTitle().setEmbed(buildBoard().build()).build()).queue();
     }
 
     public void makeMove(Member member, int move) {
@@ -150,7 +159,7 @@ public class ConnectFourGame implements Dispatchable {
 
     private boolean isValid(GenericMessageReactionEvent event) {
         int i;
-        return next.equals(event.getMember())
+        return next != null & next.equals(event.getMember())
                 && (i = getReactionIdx(event.getReactionEmote().getName())) != -1
                 && board[i][Y_BOUND - 1] == '\u0000';
     }
