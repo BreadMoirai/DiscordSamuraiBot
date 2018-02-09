@@ -45,5 +45,4 @@ public class RollPollCommand {
         return "RollPolls will no longer appear.";
     }
 
-    ;
 }
