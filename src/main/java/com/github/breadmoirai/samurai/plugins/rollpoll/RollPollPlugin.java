@@ -141,7 +141,7 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
             } else if (i == first) {
                 value = max;
             } else if (i < 10) {
-                value = (10 - i) / 15 * roll.getRoll() / curve * max;
+                value = (10.0 - i) / 15.0 * roll.getRoll() / curve * max;
             } else if (last == -1) {
                 last = i;
                 curve = roll.getRoll();
@@ -149,7 +149,7 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
             } else if (i == last) {
                 value = 0;
             } else {
-                value = (i - last) / 5 * (curve - roll.getRoll()) / curve * max;
+                value = (i - last) / 5.0 * (curve - roll.getRoll()) / curve * max;
             }
             points.offsetPoints(roll.getMemberId(), value);
             return String.format("and gained `%.2f` points", value);
