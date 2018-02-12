@@ -162,7 +162,7 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
             final Instant last = points.getLastMessageSent();
             final Instant time = event.getMessage().getCreationTime().toInstant();
             if (last == null) {
-                offsetPoints(author.getIdLong(), getRandomBurr() * -1 + .018);
+                offsetPoints(author.getIdLong(), getRandomBurr() * -0.01 + .018);
             } else {
                 final Duration between = Duration.between(last, time);
                 if (between.compareTo(Duration.ofSeconds(2)) > 0) {
