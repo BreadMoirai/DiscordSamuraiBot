@@ -58,6 +58,11 @@ public class DerbyPointPlugin implements net.dv8tion.jda.core.hooks.EventListene
     private long selfId;
 
     @Override
+    public String getName() {
+        return "point";
+    }
+
+    @Override
     public void initialize(BreadBotBuilder builder) {
         if (!builder.hasPlugin(DerbyDatabase.class)) {
             throw new MissingDerbyPluginException();

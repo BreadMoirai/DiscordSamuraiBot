@@ -78,6 +78,9 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
         binding.setVariable("bread", client);
         final List<CommandPlugin> plugins = client.getPlugins();
         binding.setVariable("plugins", plugins);
+        for (final CommandPlugin plugin : plugins) {
+            binding.setVariable(plugin.getName().toLowerCase(), plugin);
+        }
     }
 
     @SubscribeEvent

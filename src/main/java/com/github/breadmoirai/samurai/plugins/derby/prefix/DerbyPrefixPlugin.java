@@ -27,6 +27,11 @@ public class DerbyPrefixPlugin implements PrefixPlugin {
     }
 
     @Override
+    public String getName() {
+        return "prefix";
+    }
+
+    @Override
     public String getPrefix(Guild guild) {
         return extension.getPrefix(guild.getIdLong());
     }
