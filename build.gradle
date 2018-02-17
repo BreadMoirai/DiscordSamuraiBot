@@ -30,7 +30,6 @@ repositories {
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-simple:1.7.5'
     compile 'org.codehaus.groovy:groovy:2.4.8'
 
     compile 'net.dv8tion:JDA:3.5.0_335'
@@ -44,11 +43,18 @@ dependencies {
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
 
+    //webparsing
     compile 'org.jsoup:jsoup:1.11.2'
 
+    //logging
+    compile 'io.sentry:sentry:1.6.8'
+    compile 'io.sentry:sentry-logback:1.6.8'
+
+    //google
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
 
+    //database
     compile 'org.apache.derby:derby:10.13.1.1'
     compile 'org.jdbi:jdbi3:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-parent:3.0.0-beta1'
