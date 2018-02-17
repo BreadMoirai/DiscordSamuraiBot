@@ -37,7 +37,8 @@ import java.util.concurrent.TimeUnit;
 public class TriviaManager {
 
     private static final String SKIP = "\u23ed";
-    private static final int SKIP_THRESHOLD = 3;
+    private static double VALUE = .007;
+    private static int SKIP_THRESHOLD = 3;
     //    private static final int WRONG_COOLDOWN = 5;
     private final TextChannel channel;
     private final EventWaiter waiter;
@@ -133,7 +134,7 @@ public class TriviaManager {
                                                     .append(" answered correctly and gains .04 points")
                                                     .setEmbed(session.getAnswer(true))
                                                     .build()).queue();
-            points.offsetPoints(author.getUser().getIdLong(), .04);
+            points.offsetPoints(author.getUser().getIdLong(), VALUE);
             if (session.hasNext())
                 channel.sendMessage(getNext()).queue(this::waitForSkip);
             else
