@@ -37,7 +37,7 @@ dependencies {
     compile 'com.sedmelluq:jda-nas:1.0.5'
 
 //    compile 'com.github.breadmoirai:breadbot-framework:0.12.5'
-    compile 'com.github.BreadMoirai:BreadBotFramework:development-SNAPSHOT'
+    compile 'com.github.BreadMoirai:BreadBotFramework:919e75e5359f58867cad17813ddf76537c4024eb'
 
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'org.reflections:reflections:0.9.10'

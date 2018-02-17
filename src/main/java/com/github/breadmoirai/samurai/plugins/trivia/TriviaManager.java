@@ -23,6 +23,7 @@ import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -40,6 +41,7 @@ public class TriviaManager {
     private static double VALUE = .007;
     private static int SKIP_THRESHOLD = 3;
     //    private static final int WRONG_COOLDOWN = 5;
+    private final Emote minusOne;
     private final TextChannel channel;
     private final EventWaiter waiter;
     private final TriviaPlugin trivia;
@@ -53,11 +55,12 @@ public class TriviaManager {
 //    private TLongObjectMap<Instant> wrongAnswers;
 
     public TriviaManager(TextChannel channel, EventWaiter waiter,
-                         TriviaPlugin trivia, DerbyPointPlugin points) {
+                         TriviaPlugin trivia, DerbyPointPlugin points, Emote minusOne) {
         this.channel = channel;
         this.waiter = waiter;
         this.trivia = trivia;
         this.points = points;
+        this.minusOne = minusOne;
         setup();
     }
 
@@ -131,7 +134,7 @@ public class TriviaManager {
     public void answer(String s, Message m, Member author) {
         if (session.checkAnswer(s)) {
             channel.sendMessage(new MessageBuilder().append(author)
-                                                    .append(" answered correctly and gains .04 points")
+                                                    .appendFormat(" answered correctly and gains %.2f points", VALUE)
                                                     .setEmbed(session.getAnswer(true))
                                                     .build()).queue();
             points.offsetPoints(author.getUser().getIdLong(), VALUE);
@@ -140,7 +143,7 @@ public class TriviaManager {
             else
                 endSession();
         } else {
-
+            m.addReaction(minusOne).queue();
         }
     }
 

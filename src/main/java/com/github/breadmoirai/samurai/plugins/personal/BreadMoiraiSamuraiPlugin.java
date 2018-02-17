@@ -26,7 +26,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks.EventListener {
 
     private Emote check, xmark;
-    private Emote checkEmote;
+    private Emote minusOne;
 
     @Override
     public void initialize(BreadBotBuilder builder) {
@@ -38,19 +38,27 @@ public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.
         if (event instanceof ReadyEvent) {
             check = event.getJDA().getEmoteById(409928211258933249L);
             xmark = event.getJDA().getEmoteById(409928210978045955L);
+            minusOne = event.getJDA().getEmoteById(414526596700176417L);
         } else if (event instanceof GuildMemberJoinEvent) {
             final GuildMemberJoinEvent e = (GuildMemberJoinEvent) event;
             if (e.getGuild().getIdLong() == 233097800722808832L) {
-                e.getGuild().getController().addSingleRoleToMember(e.getMember(), e.getGuild().getRoleById(267924616574533634L)).queue();
+                e.getGuild()
+                 .getController()
+                 .addSingleRoleToMember(e.getMember(), e.getGuild().getRoleById(267924616574533634L))
+                 .queue();
             }
         }
     }
 
     public Emote getCheckEmote() {
-        return checkEmote;
+        return check;
     }
 
     public Emote getXMarkEmote() {
         return xmark;
+    }
+
+    public Emote getMinusOne() {
+        return minusOne;
     }
 }
