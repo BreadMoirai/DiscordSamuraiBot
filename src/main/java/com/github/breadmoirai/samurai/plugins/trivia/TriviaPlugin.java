@@ -22,6 +22,7 @@ import com.github.breadmoirai.breadbot.framework.annotation.command.Command;
 import com.github.breadmoirai.breadbot.framework.annotation.parameter.Author;
 import com.github.breadmoirai.breadbot.framework.annotation.parameter.Content;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
@@ -126,6 +127,16 @@ public class TriviaPlugin implements CommandPlugin {
         }
         database.removeTriviaChannel(guild.getIdLong());
         return "Trivia has been disabled on this server";
+    }
+
+    @Command
+    public void question(CommandEvent event, Guild guild) {
+        final TriviaManager triviaManager = managers.get(guild.getIdLong());
+        if (triviaManager == null) {
+            event.reply("Trivia is not enabled");
+        } else {
+            event.reply(triviaManager.question());
+        }
     }
 
     @Command

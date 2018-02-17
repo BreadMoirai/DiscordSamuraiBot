@@ -100,3 +100,9 @@ out.txt
 /tasks.ser
 /src/main/resources/samurai/database/~$SamuraiItems.xlsx
 /botdata
+/src/main/resources/sentry.properties
+src/main/java/com/github/breadmoirai/samurai/command/music/
+src/main/java/com/github/breadmoirai/samurai/messages/impl/duel/
+src/main/java/org/
+src/main/resources/sentry.properties
+src/test/resources/

@@ -22,7 +22,6 @@ import com.github.breadmoirai.breadbot.plugins.waiter.ReactionEventActionBuilder
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -38,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 public class TriviaManager {
 
     private static final String SKIP = "\u23ed";
-    private static final int SKIP_THRESHOLD = 1;
-    private static final int WRONG_COOLDOWN = 5;
+    private static final int SKIP_THRESHOLD = 3;
+    //    private static final int WRONG_COOLDOWN = 5;
     private final TextChannel channel;
     private final EventWaiter waiter;
     private final TriviaPlugin trivia;
@@ -132,7 +131,7 @@ public class TriviaManager {
         if (session.checkAnswer(s)) {
             channel.sendMessage(new MessageBuilder().append(author)
                                                     .append(" answered correctly and gains .04 points")
-                                                    .setEmbed(new EmbedBuilder(session.getAnswer(true)).build())
+                                                    .setEmbed(session.getAnswer(true))
                                                     .build()).queue();
             points.offsetPoints(author.getUser().getIdLong(), .04);
             if (session.hasNext())
@@ -141,6 +140,14 @@ public class TriviaManager {
                 endSession();
         } else {
 
+        }
+    }
+
+    public Message question() {
+        if (session != null) {
+            return new MessageBuilder().setEmbed(session.getQuestion()).build();
+        } else {
+            return new MessageBuilder().append("There is no question").build();
         }
     }
 }
