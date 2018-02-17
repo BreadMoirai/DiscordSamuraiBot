@@ -19,6 +19,7 @@ package com.github.breadmoirai.samurai.plugins.trivia;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.ReactionEventActionBuilder;
+import com.github.breadmoirai.samurai.plugins.personal.BreadMoiraiSamuraiPlugin;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
@@ -55,12 +56,12 @@ public class TriviaManager {
 //    private TLongObjectMap<Instant> wrongAnswers;
 
     public TriviaManager(TextChannel channel, EventWaiter waiter,
-                         TriviaPlugin trivia, DerbyPointPlugin points, Emote minusOne) {
+                         TriviaPlugin trivia, DerbyPointPlugin points) {
         this.channel = channel;
         this.waiter = waiter;
         this.trivia = trivia;
         this.points = points;
-        this.minusOne = minusOne;
+        this.minusOne = BreadMoiraiSamuraiPlugin.minusOne;
         setup();
     }
 

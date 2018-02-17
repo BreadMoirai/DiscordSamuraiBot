@@ -25,8 +25,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 
 public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks.EventListener {
 
-    private Emote check, xmark;
-    private Emote minusOne;
+    public static Emote check, xmark, minusOne;
 
     @Override
     public void initialize(BreadBotBuilder builder) {
@@ -50,15 +49,4 @@ public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.
         }
     }
 
-    public Emote getCheckEmote() {
-        return check;
-    }
-
-    public Emote getXMarkEmote() {
-        return xmark;
-    }
-
-    public Emote getMinusOne() {
-        return minusOne;
-    }
 }

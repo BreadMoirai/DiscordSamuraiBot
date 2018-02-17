@@ -26,14 +26,12 @@ import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
-import com.github.breadmoirai.samurai.plugins.personal.BreadMoiraiSamuraiPlugin;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.trivia.triviaquestionsdotnet.TriviaQuestionsDotNetProvider;
 import com.sedmelluq.discord.lavaplayer.tools.ExecutorTools;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -56,7 +54,6 @@ public class TriviaPlugin implements CommandPlugin {
     private JDA jda;
     private EventWaiter waiter;
     private DerbyPointPlugin points;
-    private Emote minusOne;
 
     public TriviaPlugin() {
         this.providers = new ArrayList<>();
@@ -80,8 +77,6 @@ public class TriviaPlugin implements CommandPlugin {
 
         waiter.waitFor(ReadyEvent.class).action(this::onReady);
         waiter.waitFor(ShutdownEvent.class).action(event -> ExecutorTools.shutdownExecutor(service, "Trivia Service"));
-
-        minusOne = client.getPlugin(BreadMoiraiSamuraiPlugin.class).getMinusOne();
     }
 
     public void registerProvider(TriviaProvider provider) {
@@ -96,7 +91,7 @@ public class TriviaPlugin implements CommandPlugin {
             if (channel == null) {
                 return true;
             }
-            managers.put(a, new TriviaManager(channel, waiter, this, points, minusOne));
+            managers.put(a, new TriviaManager(channel, waiter, this, points));
             return true;
         });
     }
@@ -119,7 +114,7 @@ public class TriviaPlugin implements CommandPlugin {
 
     @Command
     public String enableTrivia(TextChannel channel) {
-        managers.put(channel.getGuild().getIdLong(), new TriviaManager(channel, waiter, this, points, minusOne));
+        managers.put(channel.getGuild().getIdLong(), new TriviaManager(channel, waiter, this, points));
         database.setTriviaChannel(channel.getGuild().getIdLong(), channel.getIdLong());
         return "Trivia has been enabled in this channel";
     }

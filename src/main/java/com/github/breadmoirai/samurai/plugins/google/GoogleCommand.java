@@ -32,8 +32,7 @@ public class GoogleCommand {
     public void google(CommandEvent event,
                        @Content String content,
                        GooglePlugin plugin,
-                       EventWaiter waiter,
-                       BreadMoiraiSamuraiPlugin emotes) {
+                       EventWaiter waiter) {
 
         if (event.requirePermission(Permission.MESSAGE_MANAGE) || !event.hasContent()) {
             return;
@@ -50,9 +49,9 @@ public class GoogleCommand {
                 event.reply("No results found. Did you mean __")
                         .append(correction).append("__?")
                         .onSuccess(message -> {
-                            final Emote checkEmote = emotes.getCheckEmote();
+                            final Emote checkEmote = BreadMoiraiSamuraiPlugin.check;
                             message.addReaction(checkEmote).queue();
-                            final Emote xMarkEmote = emotes.getXMarkEmote();
+                            final Emote xMarkEmote = BreadMoiraiSamuraiPlugin.xmark;
                             message.addReaction(xMarkEmote).queue(aVoid -> {
                                 waiter.waitForReaction()
                                         .onMessages(message.getIdLong())
@@ -61,7 +60,7 @@ public class GoogleCommand {
                                         .action(reaction -> {
                                             if (reaction.getReactionEmote().getEmote().equals(checkEmote)) {
                                                 message.delete().queue();
-                                                new GoogleCommand().google(event, content, plugin, null, emotes);
+                                                new GoogleCommand().google(event, content, plugin, null);
                                             }
                                         });
                             });
