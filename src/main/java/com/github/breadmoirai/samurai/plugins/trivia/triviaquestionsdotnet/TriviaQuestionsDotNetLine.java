@@ -25,6 +25,7 @@ import java.io.IOException;
 
 public class TriviaQuestionsDotNetLine implements TriviaLine {
 
+    private static int DISTANCE = 2;
     private final String url;
     private String question;
     private String answer;
@@ -69,11 +70,7 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
                                          .replaceAll(",\\s*", " ")
                                          .replaceAll("&", "and");
         }
-        if (answer.length() > 10) {
-            return WagnerFischer.getLevenshteinDistance(answer, s) < 3;
-        } else {
-            return WagnerFischer.getLevenshteinDistance(answer, s) < 2;
-        }
+        return WagnerFischer.getLevenshteinDistance(answer, s) < DISTANCE;
     }
 
     @Override
