@@ -8,6 +8,7 @@ import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -19,6 +20,10 @@ public abstract class JdbiExtension {
 
     public JdbiExtension(Jdbi jdbi) {
         this.jdbi = jdbi;
+    }
+
+    protected final Jdbi getJdbi() {
+        return jdbi;
     }
 
     protected final <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
@@ -63,6 +68,20 @@ public abstract class JdbiExtension {
                 .map((r, ctx) -> OptionalDouble.of(r.getDouble(1)))
                 .findFirst())
                 .orElse(OptionalDouble.empty());
+    }
+
+    protected final Optional<String> selectString(String sql, Object... args) {
+        return withHandle(handle -> handle
+                .select(sql, args)
+                .map((r, ctx) -> r.getString(1))
+                .findFirst());
+    }
+
+    protected final Optional<Timestamp> selectTimeStamp(String sql, Object... args) {
+        return withHandle(handle -> handle
+                .select(sql, args)
+                .map((r, ctx) -> r.getTimestamp(1))
+                .findFirst());
     }
 
     protected final void execute(String sql, Object... args) {

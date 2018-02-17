@@ -37,6 +37,7 @@ public class DerbyDatabase implements CommandPlugin {
         boolean databaseExists = connectElseCreate();
         jdbi = Jdbi.create(protocol + dbName + ";");
         jdbi.installPlugin(new SqlObjectPlugin());
+        getExtension(DummyExtension::new).run();
     }
 
     public <T, R> R openDao(Class<T> tClass, Function<T, R> function) {

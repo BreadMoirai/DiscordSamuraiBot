@@ -28,6 +28,7 @@ import com.github.breadmoirai.samurai.plugins.music.MusicPlugin;
 import com.github.breadmoirai.samurai.plugins.personal.BreadMoiraiSamuraiPlugin;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import com.github.breadmoirai.samurai.plugins.rollpoll.RollPollPlugin;
+import com.github.breadmoirai.samurai.plugins.trivia.TriviaPlugin;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -84,6 +85,7 @@ public class Bot {
                 .addPlugin(new BreadMoiraiSamuraiPlugin())
                 .addPlugin(new GooglePlugin(config.getString("google.key"), config.getString("google.engine")))
                 .addPlugin(new GamePlugin())
+                .addPlugin(new TriviaPlugin())
                 .addCommand(new ShutdownCommand(service))
                 .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .build();
