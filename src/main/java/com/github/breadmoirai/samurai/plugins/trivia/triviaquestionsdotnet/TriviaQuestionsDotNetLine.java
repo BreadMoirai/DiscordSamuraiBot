@@ -32,9 +32,17 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
     private String category;
     private String next;
     private String checkedAnswer;
+    private TriviaQuestionsDotNetDatabase database;
 
     public TriviaQuestionsDotNetLine(String url) {
         this.url = url;
+    }
+
+    public TriviaQuestionsDotNetLine(String url, String question, String answer, String category) {
+        this.url = url;
+        this.question = question;
+        this.answer = answer;
+        this.category = category;
     }
 
     @Override
@@ -54,6 +62,7 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
             category = document.selectFirst("meta[property=\"article:section\"]")
                                .attr("content")
                                .replace(" Trivia Questions", "");
+            database.addQuestion(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,7 +70,7 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
 
     @Override
     public boolean checkAnswer(String s) {
-        if (checkedAnswer != null) {
+        if (checkedAnswer == null) {
             checkedAnswer = answer.toLowerCase();
             if (checkedAnswer.startsWith("the ")) {
                 checkedAnswer = checkedAnswer.substring(4);
@@ -70,7 +79,7 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
                                          .replaceAll(",\\s*", " ")
                                          .replaceAll("&", "and");
         }
-        return WagnerFischer.getLevenshteinDistance(answer, s) < DISTANCE;
+        return WagnerFischer.getLevenshteinDistance(checkedAnswer, s) < DISTANCE;
     }
 
     @Override
@@ -98,7 +107,12 @@ public class TriviaQuestionsDotNetLine implements TriviaLine {
     }
 
     public TriviaQuestionsDotNetLine getNext() {
+        if (next == null)
+            return null;
         return new TriviaQuestionsDotNetLine(next);
     }
 
+    public void setDatabase(TriviaQuestionsDotNetDatabase database) {
+        this.database = database;
+    }
 }

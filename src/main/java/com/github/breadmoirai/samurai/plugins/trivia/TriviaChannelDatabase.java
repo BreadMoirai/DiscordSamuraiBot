@@ -43,7 +43,7 @@ public class TriviaChannelDatabase extends JdbiExtension {
 
     public TLongLongMap getTriviaChannels() {
         return withHandle(handle -> {
-            return handle.createQuery("SELECT * FROM TriviaChannels")
+            return handle.createQuery("SELECT GuildId, ChannelId FROM TriviaChannels")
                          .map((r, ctx) -> new long[]{r.getLong(1), r.getLong(2)})
                          .collect(Collector.<long[], TLongLongMap>of(TLongLongHashMap::new,
                                                                      (map, longs) -> map.put(longs[0], longs[1]),
@@ -54,18 +54,16 @@ public class TriviaChannelDatabase extends JdbiExtension {
         });
     }
 
-    public OptionalLong getTriviaChannel(long guildId) {
-        return selectLong("SELECT * FROM TriviaChannels WHERE GuildId = ?", guildId);
+    public void setTriviaChannel(long guildId, long channelId) {
+        if (getTriviaChannel(guildId).isPresent()) {
+            execute("UPDATE TriviaChannels SET ChannelId = ? WHERE GuildId = ?", channelId, guildId);
+        } else {
+            execute("INSERT INTO TriviaChannels (GuildId, ChannelId) VALUES (?, ?)", guildId, channelId);
+        }
     }
 
-    public void setTriviaChannel(long guildId, long channelId) {
-        execute("MERGE INTO TriviaChannels " +
-                        "USING Dummy " +
-                        "ON TriviaChannels.GuildId = ? " +
-                        "WHEN MATCHED THEN " +
-                        "    UPDATE SET ChannelId = ? " +
-                        "WHEN NOT MATCHED THEN " +
-                        "    INSERT (GuildId, ChannelId) VALUES (?, ?) ", guildId, channelId, guildId, channelId);
+    public OptionalLong getTriviaChannel(long guildId) {
+        return selectLong("SELECT ChannelId FROM TriviaChannels WHERE GuildId = ?", guildId);
     }
 
     public void removeTriviaChannel(long guildId) {
@@ -74,7 +72,7 @@ public class TriviaChannelDatabase extends JdbiExtension {
 
     public void setNextTime(long guildId, Instant time) {
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.ofInstant(time, ZoneOffset.UTC));
-        execute("UPDATE TriviaChannels WHERE GuildId = ? SET NextTime = ?", guildId, timestamp);
+        execute("UPDATE TriviaChannels SET NextTime = ? WHERE GuildId = ? ", timestamp, guildId);
     }
 
     public Instant getNextTime(long guildId) {

@@ -23,6 +23,7 @@ import com.github.breadmoirai.samurai.plugins.personal.BreadMoiraiSamuraiPlugin;
 import com.github.breadmoirai.samurai.plugins.points.DerbyPointPlugin;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Member;
@@ -33,6 +34,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +55,7 @@ public class TriviaManager {
     private Instant nextQuizTime;
     private ScheduledFuture<?> futureQuiz;
     private TLongSet skips;
-    private EventActionFuture<Void> reactionFuture;
+    private Set<EventActionFuture<Void>> reactionFutures;
 //    private TLongObjectMap<Instant> wrongAnswers;
 
     public TriviaManager(TextChannel channel, EventWaiter waiter,
@@ -62,6 +65,7 @@ public class TriviaManager {
         this.trivia = trivia;
         this.points = points;
         this.minusOne = BreadMoiraiSamuraiPlugin.minusOne;
+        this.reactionFutures = new HashSet<>();
         setup();
     }
 
@@ -87,11 +91,8 @@ public class TriviaManager {
         channel.sendMessage(getNext()).queue(this::waitForSkip);
     }
 
-    private MessageEmbed getNext() {
-        skips = new TLongHashSet();
-        if (reactionFuture != null)
-            reactionFuture.cancel();
-        return session.nextQuestion();
+    public long getChannelId() {
+        return channel.getIdLong();
     }
 
     private void waitForSkip(Message message) {
@@ -110,26 +111,36 @@ public class TriviaManager {
                                else
                                    endSession();
                            });
-        reactionFuture = reaction.build();
+        reactionFutures.add(reaction.build());
+    }
+
+    private MessageEmbed getNext() {
+        skips = new TLongHashSet();
+        if (reactionFutures != null)
+            reactionFutures.forEach(EventActionFuture::cancel);
+        reactionFutures = new HashSet<>();
+        return session.nextQuestion();
     }
 
     private void endSession() {
         session = null;
-        if (reactionFuture != null) {
-            reactionFuture.cancel();
-            reactionFuture = null;
+        if (reactionFutures != null) {
+            reactionFutures.forEach(EventActionFuture::cancel);
+            reactionFutures = null;
         }
         skips = null;
         nextQuizTime = Instant.now().plus(Duration.ofHours(3));
         trivia.getService().schedule(this::dispatchTrivia, 3, TimeUnit.HOURS);
+        repeatQuestion();
     }
 
-    public void shutdown() {
-        futureQuiz.cancel(true);
-        if (reactionFuture != null) {
-            reactionFuture.cancel();
+    public void repeatQuestion() {
+        if (session != null) {
+            channel.sendMessage(session.getAnswer(true)).queue(this::waitForSkip);
+        } else {
+            channel.sendMessage(new EmbedBuilder().setTitle("Next Trivia Session").setTimestamp(nextQuizTime).build())
+                   .queue();
         }
-        trivia.setNextTime(getGuildId(), nextQuizTime);
     }
 
     public void answer(String s, Message m, Member author) {
@@ -148,11 +159,15 @@ public class TriviaManager {
         }
     }
 
-    public Message question() {
-        if (session != null) {
-            return new MessageBuilder().setEmbed(session.getQuestion()).build();
-        } else {
-            return new MessageBuilder().append("There is no question").build();
+    public void shutdown() {
+        futureQuiz.cancel(true);
+        if (reactionFutures != null) {
+            reactionFutures.forEach(EventActionFuture::cancel);
         }
+        trivia.setNextTime(getGuildId(), nextQuizTime);
+    }
+
+    public boolean isActive() {
+        return session != null;
     }
 }

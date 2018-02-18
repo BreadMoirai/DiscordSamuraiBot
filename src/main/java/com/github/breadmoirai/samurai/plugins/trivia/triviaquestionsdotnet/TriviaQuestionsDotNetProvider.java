@@ -48,6 +48,7 @@ public class TriviaQuestionsDotNetProvider implements TriviaProvider {
         final List<String> links = document.select("h2.entry-title > a").eachAttr("href");
         final Deque<TriviaQuestionsDotNetLine> questions = links.stream()
                                                                 .map(TriviaQuestionsDotNetLine::new)
+                                                                .limit(5)
                                                                 .collect(Collectors.toCollection(ArrayDeque::new));
         return new TriviaQuestionsDotNetSession(questions, database);
     }

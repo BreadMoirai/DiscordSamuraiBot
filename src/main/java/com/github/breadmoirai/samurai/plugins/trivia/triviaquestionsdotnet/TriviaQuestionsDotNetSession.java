@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 
 import java.awt.*;
 import java.util.Deque;
+import java.util.Optional;
 
 public class TriviaQuestionsDotNetSession implements TriviaSession {
 
@@ -75,9 +76,14 @@ public class TriviaQuestionsDotNetSession implements TriviaSession {
 
     @Override
     public MessageEmbed nextQuestion() {
-        if (current != null)
-            database.addQuestion(current);
         current = questions.pop();
+        final String url = current.getUrl();
+        final Optional<TriviaQuestionsDotNetLine> line = database.getLine(url);
+        if (line.isPresent()) {
+            current = line.get();
+        } else {
+            current.setDatabase(database);
+        }
         i++;
         return getQuestion();
     }

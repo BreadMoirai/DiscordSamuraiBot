@@ -22,7 +22,7 @@ import com.github.breadmoirai.breadbot.framework.annotation.command.Command;
 import com.github.breadmoirai.breadbot.framework.annotation.parameter.Author;
 import com.github.breadmoirai.breadbot.framework.annotation.parameter.Content;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
-import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.breadbot.plugins.admin.Admin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
@@ -112,9 +112,12 @@ public class TriviaPlugin implements CommandPlugin {
         return database.getNextTime(guildId);
     }
 
+    @Admin
     @Command
     public String enableTrivia(TextChannel channel) {
-        managers.put(channel.getGuild().getIdLong(), new TriviaManager(channel, waiter, this, points));
+        final TriviaManager triviaManager = managers.get(channel.getGuild().getIdLong());
+        if (triviaManager == null || triviaManager.getChannelId() != channel.getIdLong())
+            managers.put(channel.getGuild().getIdLong(), new TriviaManager(channel, waiter, this, points));
         database.setTriviaChannel(channel.getGuild().getIdLong(), channel.getIdLong());
         return "Trivia has been enabled in this channel";
     }
@@ -130,20 +133,18 @@ public class TriviaPlugin implements CommandPlugin {
     }
 
     @Command
-    public void question(CommandEvent event, Guild guild) {
-        final TriviaManager triviaManager = managers.get(guild.getIdLong());
-        if (triviaManager == null) {
-            event.reply("Trivia is not enabled");
-        } else {
-            event.reply(triviaManager.question());
-        }
-    }
-
-    @Command
     public void answer(Guild guild, Message m, @Content String ans, @Author Member author) {
         if (ans == null)
             return;
         final TriviaManager triviaManager = managers.get(guild.getIdLong());
+        if (triviaManager == null) {
+            m.getTextChannel().sendMessage("Trivia is not enabled").queue();
+            return;
+        }
+        if (!triviaManager.isActive()) {
+            question(m.getTextChannel(), guild);
+            return;
+        }
         String s = ans.toLowerCase()
                       .replaceAll("\\s+", " ")
                       .replaceAll(",\\s*", " ")
@@ -152,6 +153,16 @@ public class TriviaPlugin implements CommandPlugin {
             s = s.substring(4);
         }
         triviaManager.answer(s, m, author);
+    }
+
+    @Command
+    public void question(TextChannel channel, Guild guild) {
+        final TriviaManager triviaManager = managers.get(guild.getIdLong());
+        if (triviaManager == null) {
+            channel.sendMessage("Trivia is not enabled").queue();
+        } else if (channel.getIdLong() == triviaManager.getChannelId()) {
+            triviaManager.repeatQuestion();
+        }
     }
 
 }

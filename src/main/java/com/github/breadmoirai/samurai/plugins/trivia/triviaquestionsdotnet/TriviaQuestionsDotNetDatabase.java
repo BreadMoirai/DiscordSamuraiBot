@@ -19,6 +19,8 @@ package com.github.breadmoirai.samurai.plugins.trivia.triviaquestionsdotnet;
 import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
 import org.jdbi.v3.core.Jdbi;
 
+import java.util.Optional;
+
 public class TriviaQuestionsDotNetDatabase extends JdbiExtension {
 
     public TriviaQuestionsDotNetDatabase(Jdbi jdbi) {
@@ -42,12 +44,20 @@ public class TriviaQuestionsDotNetDatabase extends JdbiExtension {
                                  "WHERE Url=?", url).isPresent();
     }
 
+    public Optional<TriviaQuestionsDotNetLine> getLine(String url) {
+        return withHandle(handle -> handle
+                .createQuery("SELECT Question, Answer, Category " +
+                                     "FROM TriviaQuestionsDotNet " +
+                                     "WHERE Url = ?")
+                .bind(0, url)
+                .map((r, ctx) -> new TriviaQuestionsDotNetLine(url, r.getString(1), r.getString(2),
+                                                               r.getString(3)))
+                .findFirst());
+    }
+
     public void addQuestion(TriviaQuestionsDotNetLine line) {
-        execute("MERGE INTO TriviaQuestionsDotNet a \n" +
-                        "USING TriviaQuestionsDotNetBlackList b " +
-                        "ON a.Url = ? " +
-                        "WHEN NOT MATCHED THEN INSERT values (?, ?, ?, ?)",
-                line.getUrl(), line.getUrl(), line.getQuestion(), line.getAnswer(), line.getCategory());
+        execute("INSERT INTO TriviaQuestionsDotNet VALUES (?, ?, ?, ?)",
+                line.getUrl(), line.getQuestion(), line.getAnswer(), line.getCategory());
     }
 
 }
