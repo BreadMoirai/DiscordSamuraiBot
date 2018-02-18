@@ -136,7 +136,7 @@ public class TriviaManager {
 
     public void repeatQuestion() {
         if (session != null) {
-            channel.sendMessage(session.getAnswer(true)).queue(this::waitForSkip);
+            channel.sendMessage(session.getQuestion()).queue(this::waitForSkip);
         } else {
             channel.sendMessage(new EmbedBuilder().setTitle("Next Trivia Session").setTimestamp(nextQuizTime).build())
                    .queue();
