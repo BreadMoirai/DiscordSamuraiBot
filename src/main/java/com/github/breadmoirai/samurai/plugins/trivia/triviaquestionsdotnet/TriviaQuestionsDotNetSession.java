@@ -45,7 +45,7 @@ public class TriviaQuestionsDotNetSession implements TriviaSession {
     public MessageEmbed getQuestion() {
         final EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(new Color(0, 121, 214))
-             .setTitle(String.format("**%s**", current.getQuestion()))
+             .setDescription(String.format("**%s**", current.getQuestion()))
              .setAuthor(current.getCategory())
              .setFooter(String.format("SamuraiGames\u2122 | Trivia-Questions.net | Question %d/%d", i, size),
                         selfAvatar);
@@ -61,9 +61,9 @@ public class TriviaQuestionsDotNetSession implements TriviaSession {
     public MessageEmbed getAnswer(boolean success) {
         final EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(success ? new Color(78, 235, 48) : new Color(203, 66, 0))
-             .setTitle(String.format("**%s**", current.getQuestion()))
              .setAuthor(current.getCategory())
-             .addField("ANSWER", current.getAnswer(), false)
+             .setDescription(String.format("**%s**", current.getQuestion()))
+             .addField("", current.getAnswer(), false)
              .setFooter(String.format("SamuraiGames\u2122 | Trivia-Questions.net | Question %d/%d", i, size),
                         selfAvatar);
         return embed.build();
