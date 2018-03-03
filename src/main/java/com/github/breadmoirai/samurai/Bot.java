@@ -88,6 +88,7 @@ public class Bot {
                 .addPlugin(new TriviaPlugin())
                 .addCommand(new ShutdownCommand(service))
                 .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
+                .setEvaluateCommandOnMessageUpdate(true)
                 .build();
 
 

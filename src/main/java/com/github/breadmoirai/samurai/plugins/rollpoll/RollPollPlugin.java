@@ -91,7 +91,6 @@ public class RollPollPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks
                     final RollPollMessage rollPoll = new RollPollMessage(database, waiter, a, "Roll Today!", storedRolls, new WinCalculator(), OffsetDateTime.now(ZoneId.of("America/Los_Angeles")).truncatedTo(ChronoUnit.DAYS).plusDays(1).minusSeconds(1).toInstant());
                     rollPoll.dispatch(textChannelById);
                 }
-
             }
             return true;
         });

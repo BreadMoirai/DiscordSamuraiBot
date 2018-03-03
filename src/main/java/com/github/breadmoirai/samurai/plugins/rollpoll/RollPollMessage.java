@@ -30,6 +30,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayDeque;
@@ -39,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +52,7 @@ public class RollPollMessage implements Dispatchable {
 
     private static final String DICE = "\uD83C\uDFB2", END = "\uD83C\uDFC1";
     private static final String[] MEDAL = {"\uD83E\uDD47", "\uD83E\uDD48", "\uD83E\uDD49"};
+    private static final Color COLOR = new Color(114, 137, 218);
 
     private final RollPollExtension database;
     private final EventWaiter waiter;
@@ -58,9 +61,12 @@ public class RollPollMessage implements Dispatchable {
     private final List<Roll> rolls;
     private final IntObjectFunction<Roll, String> endAction;
     private final Instant endTime;
+    private final boolean isContinue;
     private EventActionFuture<Void> shutdownFuture;
 
-    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message, List<Roll> rolls, IntObjectFunction<Roll, String> endAction, Instant endTime) {
+    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message,
+                           List<Roll> rolls,
+                           IntObjectFunction<Roll, String> endAction, Instant endTime, boolean isContinue) {
         this.database = database;
         this.waiter = waiter;
         this.guildId = guildId;
@@ -68,58 +74,88 @@ public class RollPollMessage implements Dispatchable {
         this.rolls = rolls;
         this.endAction = endAction;
         this.endTime = endTime;
+        this.isContinue = isContinue;
     }
 
-    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message, IntObjectFunction<Roll, String> endResultProducer, Instant endTime) {
-        this(database, waiter, guildId, message, new ArrayList<>(), endResultProducer, endTime);
+    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message,
+                           List<Roll> rolls, IntObjectFunction<Roll, String> endAction, Instant endTime) {
+        this(database, waiter, guildId, message, rolls, endAction, endTime, true);
+    }
+
+    public RollPollMessage(RollPollExtension database, EventWaiter waiter, long guildId, String message,
+                           IntObjectFunction<Roll, String> endResultProducer, Instant endTime) {
+        this(database, waiter, guildId, message, new ArrayList<>(), endResultProducer, endTime, false);
     }
 
     @Override
     public void dispatch(TextChannel channel) {
-        channel.sendMessage(new MessageBuilder().setContent(message).setEmbed(buildScoreBoard(channel.getGuild())).build())
-                .queue(m -> {
-                    m.addReaction(DICE).queue();
+        if (isContinue) {
+            channel.getHistory().retrievePast(10).queue(messages -> {
+                final Optional<Message> first;
+                first = messages.stream()
+                                .filter(m -> m.getAuthor().getIdLong() == m.getJDA().getSelfUser().getIdLong())
+                                .filter(m -> m.getEmbeds().size() == 1)
+                                .filter(m -> m.getEmbeds().get(0).getColor().equals(COLOR))
+                                .findFirst();
+                if (first.isPresent()) {
+                    final Message m = first.get();
+                    m.editMessage(buildScoreBoard(channel.getGuild())).queue();
                     waitForEvent(m, waiter);
-                });
+                } else {
+                    sendNewMessage(channel);
+                }
+            });
+        } else {
+            sendNewMessage(channel);
+        }
+    }
+
+    private void sendNewMessage(TextChannel channel) {
+        channel.sendMessage(
+                new MessageBuilder().setContent(message).setEmbed(buildScoreBoard(channel.getGuild())).build())
+               .queue(m -> {
+                   m.addReaction(DICE).queue();
+                   waitForEvent(m, waiter);
+               });
     }
 
     private void waitForEvent(Message m, EventWaiter waiter) {
         final TextChannel channel = m.getTextChannel();
         final long messageId = m.getIdLong();
         waiter.waitForReaction()
-                .withName(DICE)
-                .in(channel)
-                .onMessages(messageId)
-                .action(event -> {
-                    final Member member = event.getMember();
-                    final Roll roll = new Roll(member.getUser().getIdLong());
-                    if (!rolls.contains(roll)) {
-                        rolls.add(roll);
-                    }
-                    event.getTextChannel().editMessageById(messageId, buildScoreBoard(event.getGuild())).queue();
-                })
-                .stopIf((e, i) -> false)
-                .waitFor(Instant.now().until(endTime, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
-                .timeout(() -> {
-                    channel.editMessageById(messageId, distDispPoints(channel.getGuild())).queue();
-                    channel.clearReactionsById(messageId).queue();
-                    shutdownFuture.cancel();
-                })
-                .build();
+              .withName(DICE)
+              .in(channel)
+              .onMessages(messageId)
+              .action(event -> {
+                  final Member member = event.getMember();
+                  final Roll roll = new Roll(member.getUser().getIdLong());
+                  if (!rolls.contains(roll)) {
+                      rolls.add(roll);
+                  }
+                  event.getTextChannel().editMessageById(messageId, buildScoreBoard(event.getGuild())).queue();
+              })
+              .stopIf((e, i) -> false)
+              .waitFor(Instant.now().until(endTime, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
+              .timeout(() -> {
+                  channel.editMessageById(messageId, distDispPoints(channel.getGuild())).queue();
+                  channel.clearReactionsById(messageId).queue();
+                  shutdownFuture.cancel();
+              })
+              .build();
 
         shutdownFuture = waiter.waitFor(ShutdownEvent.class)
-                .action(event -> {
-                    if (database != null)
-                        database.storeRolls(guildId, rolls);
-                })
-                .build();
+                               .action(event -> {
+                                   if (database != null)
+                                       database.storeRolls(guildId, rolls);
+                               })
+                               .build();
     }
 
     private MessageEmbed buildScoreBoard(Guild guild) {
         final EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setFooter("End Time", null);
         embedBuilder.setTimestamp(endTime);
-        embedBuilder.setColor(new java.awt.Color(114, 137, 218));
+        embedBuilder.setColor(COLOR);
         final StringBuilder description = embedBuilder.getDescriptionBuilder();
         Collections.sort(rolls);
         for (int i = 0; i < rolls.size(); i++) {
@@ -144,12 +180,13 @@ public class RollPollMessage implements Dispatchable {
         embedBuilder.setFooter("Ended at", null);
         embedBuilder.setTimestamp(endTime);
         final ArrayDeque<List<Roll>> rollStack = rolls.stream()
-                .collect(Collectors.groupingBy(o -> o.roll))
-                .entrySet()
-                .stream()
-                .sorted(Comparator.<Map.Entry<Integer, List<Roll>>>comparingInt(Map.Entry::getKey).reversed())
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toCollection(ArrayDeque::new));
+                                                      .collect(Collectors.groupingBy(o -> o.roll))
+                                                      .entrySet()
+                                                      .stream()
+                                                      .sorted(Comparator.<Map.Entry<Integer, List<Roll>>>comparingInt(
+                                                              Map.Entry::getKey).reversed())
+                                                      .map(Map.Entry::getValue)
+                                                      .collect(Collectors.toCollection(ArrayDeque::new));
         StringJoiner sj = new StringJoiner("\n");
         int i = -1;
         while (!rollStack.isEmpty()) {
@@ -177,6 +214,7 @@ public class RollPollMessage implements Dispatchable {
     }
 
     public static class Roll implements Comparable<Roll> {
+
         private final long memberId;
         private final int roll;
 
@@ -205,8 +243,10 @@ public class RollPollMessage implements Dispatchable {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             Roll roll = (Roll) o;
             return getMemberId() == roll.getMemberId();
         }

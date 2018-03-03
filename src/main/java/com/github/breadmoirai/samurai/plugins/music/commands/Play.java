@@ -62,7 +62,7 @@ public class Play {
             boolean lucky = event.getKey().equalsIgnoreCase("play");
             final String asUrl = MiscUtil.getAsUrl(event.getContent());
             if (asUrl != null) {
-                return new TrackLoader(event, plugin, audioManager, true, asUrl);
+                return new TrackLoader(event, plugin, audioManager, false, asUrl);
             }
             String content = event.getContent();
             if (content.startsWith("yt ")) {
