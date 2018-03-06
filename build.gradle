@@ -32,8 +32,8 @@ repositories {
 dependencies {
     compile 'org.codehaus.groovy:groovy:2.4.8'
 
-    compile 'net.dv8tion:JDA:3.5.0_335'
-    compile 'com.sedmelluq:lavaplayer:1.2.47'
+    compile 'net.dv8tion:JDA:3.5.1_345'
+    compile 'com.sedmelluq:lavaplayer:1.2.56'
     compile 'com.sedmelluq:jda-nas:1.0.5'
 
 //    compile 'com.github.breadmoirai:breadbot-framework:0.12.5'

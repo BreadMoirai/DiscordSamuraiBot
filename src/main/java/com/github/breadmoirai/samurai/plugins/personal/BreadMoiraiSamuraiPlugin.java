@@ -16,12 +16,19 @@
 
 package com.github.breadmoirai.samurai.plugins.personal;
 
+import com.github.breadmoirai.breadbot.framework.BreadBot;
 import com.github.breadmoirai.breadbot.framework.CommandPlugin;
+import com.github.breadmoirai.breadbot.framework.annotation.command.Command;
+import com.github.breadmoirai.breadbot.framework.annotation.parameter.Required;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.plugins.owner.Owner;
+import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+
 
 public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.core.hooks.EventListener {
 
@@ -30,6 +37,14 @@ public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.
     @Override
     public void initialize(BreadBotBuilder builder) {
         builder.addCommand(ColorRoleCommand::new);
+        builder.addCommand(this);
+        builder.addCommand(ChannelViewCommand::new);
+    }
+
+    @Override
+    public void onBreadReady(BreadBot client) {
+        final DerbyDatabase d = client.getPlugin(DerbyDatabase.class);
+        final MemberControlPanelDatabase controlPanelData = d.getExtension(MemberControlPanelDatabase::new);
     }
 
     @Override
@@ -47,6 +62,12 @@ public class BreadMoiraiSamuraiPlugin implements CommandPlugin, net.dv8tion.jda.
                  .queue();
             }
         }
+    }
+
+    @Command
+    @Owner
+    public void clear(TextChannel channel, @Required int amount) {
+        channel.deleteMessages(channel.getHistory().retrievePast(amount).complete()).queue();
     }
 
 }
