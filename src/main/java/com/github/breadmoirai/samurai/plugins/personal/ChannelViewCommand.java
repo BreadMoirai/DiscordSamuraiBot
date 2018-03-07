@@ -19,18 +19,18 @@ package com.github.breadmoirai.samurai.plugins.personal;
 import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 import com.github.breadmoirai.breadbot.plugins.admin.Admin;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.stream.Collector;
 
 public class ChannelViewCommand {
 
@@ -38,55 +38,31 @@ public class ChannelViewCommand {
     @Admin
     public String viewas(Member member, Role role, Guild guild) {
         if (role != null) {
-            final List<Channel> channels = getChannels(guild);
-            StringJoiner joiner = getStringJoiner();
-            for (Channel channel : channels) {
-                String s = channelWRDiff(channel, PermissionUtil.getEffectivePermission(channel, role));
-                if (s != null) {
-                    joiner.add(s);
-                }
-            }
-            return joiner.toString();
+            return guild.getCategories()
+                        .stream()
+                        .map(Category::getChannels)
+                        .flatMap(List::stream)
+                        .map(channel -> channelWRDiff(channel, PermissionUtil.getEffectivePermission(channel, role)))
+                        .filter(Objects::nonNull)
+                        .collect(getCollector());
         } else if (member != null) {
-            final List<Channel> channels = getChannels(guild);
-            StringJoiner joiner = getStringJoiner();
-            for (Channel channel : channels) {
-                String s = channelWRDiff(channel, PermissionUtil.getEffectivePermission(channel, member));
-                if (s != null) {
-                    joiner.add(s);
-                }
-            }
-            return joiner.toString();
+            return guild.getCategories()
+                        .stream()
+                        .map(Category::getChannels)
+                        .flatMap(List::stream)
+                        .map(channel -> channelWRDiff(channel, PermissionUtil.getEffectivePermission(channel, member)))
+                        .filter(Objects::nonNull)
+                        .collect(getCollector());
         } else {
-            final List<Channel> channels = getChannels(guild);
-            StringJoiner joiner = getStringJoiner();
-            for (Channel channel : channels) {
-                String s = channelWRDiff(channel,
-                                         PermissionUtil.getEffectivePermission(channel, guild.getPublicRole()));
-                if (s != null) {
-                    joiner.add(s);
-                }
-            }
-            return joiner.toString();
+            return guild.getCategories()
+                        .stream()
+                        .map(Category::getChannels)
+                        .flatMap(List::stream)
+                        .map(channel -> channelWRDiff(channel, PermissionUtil.getEffectivePermission(channel,
+                                                                                                     guild.getPublicRole())))
+                        .filter(Objects::nonNull)
+                        .collect(getCollector());
         }
-    }
-
-    @NotNull
-    private StringJoiner getStringJoiner() {
-        StringJoiner joiner = new StringJoiner("\n", "```diff\n", "```");
-        joiner.setEmptyValue(
-                "```You find yourself in a strange place. You don't have access to any text channels, or there are " +
-                        "none in this server.```");
-        return joiner;
-    }
-
-    @NotNull
-    private List<Channel> getChannels(Guild guild) {
-        final List<Channel> channels = new ArrayList<>();
-        channels.addAll(guild.getVoiceChannels());
-        channels.addAll(guild.getTextChannels());
-        channels.sort(Comparator.comparingInt(Channel::getPositionRaw));
-        return channels;
     }
 
     @Nullable
@@ -97,4 +73,14 @@ public class ChannelViewCommand {
         return (write ? "+ " : "- ") + channel.getName();
     }
 
+    private Collector<CharSequence, ?, String> getCollector() {
+        return Collector.of(() -> {
+            final StringJoiner sj = new StringJoiner("\n", "```diff\n", "```");
+            sj.setEmptyValue(
+                    "```You find yourself in a strange place. " +
+                            "You don't have access to any text channels, " +
+                            "or there are none in this server.```");
+            return sj;
+        }, StringJoiner::add, StringJoiner::merge, StringJoiner::toString);
+    }
 }
