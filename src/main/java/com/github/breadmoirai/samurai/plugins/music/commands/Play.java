@@ -62,7 +62,7 @@ public class Play {
             boolean lucky = event.getKey().equalsIgnoreCase("play");
             final String asUrl = MiscUtil.getAsUrl(event.getContent());
             if (asUrl != null) {
-                return new TrackLoader(event, plugin, audioManager, false, asUrl);
+                return new TrackLoader(event, plugin, audioManager, false, false, asUrl);
             }
             String content = event.getContent();
             if (content.startsWith("yt ")) {
@@ -72,7 +72,7 @@ public class Play {
             } else {
                 content = "ytsearch:" + content;
             }
-            return new TrackLoader(event, plugin, audioManager, lucky, content);
+            return new TrackLoader(event, plugin, audioManager, lucky, !lucky, content);
         } else {
             final MessageEmbed embed = nowPlaying(audioManager);
             if (embed == null) {

@@ -82,13 +82,14 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
         waiter = event.getClient().getPlugin(EventWaiterPlugin.class).getEventWaiter();
     }
 
-    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, boolean lucky, String query) {
+    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, boolean lucky,
+                       boolean loadAsPlaylist, String query) {
         this.plugin = plugin;
         this.audioManager = audioManager;
         this.request = Collections.singletonList(query);
         this.lucky = lucky;
         this.page = 0;
-        this.loadAsPlaylist = !lucky;
+        this.loadAsPlaylist = loadAsPlaylist;
         this.closed = false;
 
         requester = event.getMember().getEffectiveName();
