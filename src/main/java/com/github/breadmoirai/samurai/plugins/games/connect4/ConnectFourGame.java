@@ -128,7 +128,6 @@ public class ConnectFourGame implements Dispatchable {
     }
 
     public void onReaction(GenericMessageReactionEvent reactionEvent) {
-        reactionEvent.getReaction().removeReaction(reactionEvent.getUser()).queue();
         final Member member = reactionEvent.getMember();
         int move = getReactionIdx(reactionEvent.getReactionEmote().getName());
         makeMove(member, move);
