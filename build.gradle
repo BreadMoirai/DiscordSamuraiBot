@@ -8,9 +8,20 @@ plugins {
 
 idea.module.downloadJavadoc = true
 
-def majorVersion = 5
-def minorVersion = 5
-mainClassName = "samurai.Bot"
+def majorVersion = 6
+def minorVersion = 0
+mainClassName = "com.github.breadmoirai.samurai.Bot"
+
+def forRelease = false;
+
+sourceSets.main.java {
+    exclude 'com/github/breadmoirai/samurai/command'
+    exclude 'com/github/breadmoirai/samurai/database'
+    exclude 'com/github/breadmoirai/samurai/files'
+    exclude 'com/github/breadmoirai/samurai/items'
+    exclude 'com/github/breadmoirai/samurai/messages'
+
+}
 
 repositories {
     jcenter()
@@ -19,22 +30,42 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.DV8FromTheWorld:JDA:55bddc2'
-    compile 'com.sedmelluq:jda-nas:1.0.5'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
-    compile 'com.sedmelluq:lavaplayer:1.2.39'
     compile 'org.codehaus.groovy:groovy:2.4.8'
+
+    compile 'net.dv8tion:JDA:3.5.1_345'
+    compile 'com.sedmelluq:lavaplayer:1.2.56'
+    compile 'com.sedmelluq:jda-nas:1.0.5'
+
+//    compile 'com.github.breadmoirai:breadbot-framework:0.12.5'
+    compile 'com.github.BreadMoirai:BreadBotFramework:c7c041baa48c68f3ab153d3b7a3df3becf9e1647'
+
+    compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'org.reflections:reflections:0.9.10'
     compile 'com.typesafe:config:1.3.1'
+
+    //webparsing
+    compile 'org.jsoup:jsoup:1.11.2'
+
+    //logging
+    compile 'io.sentry:sentry:1.6.8'
+    compile 'io.sentry:sentry-logback:1.6.8'
+
+    //google
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
-    compile 'org.apache.derby:derby:10.13.1.1'
+
+    //database
+    compile 'org.apache.derby:derby:10.14.1.0'
     compile 'org.jdbi:jdbi3:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-parent:3.0.0-beta1'
     compile 'org.jdbi:jdbi3-sqlobject:3.0.0-beta1'
+
     compile 'ai.api:libai:1.4.8'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
+
     compile 'org.jetbrains:annotations:13.0'
+
+    compile 'org.apache.commons:commons-text:1.2'
+
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
@@ -54,28 +85,16 @@ tasks.create('incrementVersionCode', {
 })
 
 version = "${majorVersion}.${minorVersion}.${file("version.txt").getText()}".toString()
-import org.apache.tools.ant.filters.ReplaceTokens
-tasks.create('sourcesForRelease', Copy.class)
-sourcesForRelease.with {
-    from 'src/main/java'
-    from 'src/main/resources'
-    into 'build/filteredSrc'
-    filter(ReplaceTokens, tokens: [
-            buildVersion : version
-    ])
-}
-sourcesForRelease.doLast {incrementVersionCode}
 
-
-compileJava {
-    source = sourcesForRelease.destinationDir
-    classpath = sourceSets.main.compileClasspath
-    options.encoding = 'UTF-8'
-    dependsOn sourcesForRelease
-}
 
 run {
     if (project.hasProperty("appArgs")) {
         args Eval.me(appArgs)
     }
 }
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'
+}
+
+shadowJar.dependsOn(incrementVersionCode)
