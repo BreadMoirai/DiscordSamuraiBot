@@ -78,7 +78,8 @@ public class ConnectFourCommand {
     }
 
     @NotNull
-    public Consumer<Message> closedChallenge(CommandEvent event, @Author Member player, Member opponent, EventWaiter waiter, double pointWager, DerbyPointPlugin points) {
+    private Consumer<Message> closedChallenge(CommandEvent event, @Author Member player, Member opponent,
+                                              EventWaiter waiter, double pointWager, DerbyPointPlugin points) {
         return message -> {
             message.addReaction(CROSSED_SWORDS).queue();
             message.addReaction(Emoji.SHIELD.getUtf8()).queue();
@@ -100,7 +101,8 @@ public class ConnectFourCommand {
     }
 
     @NotNull
-    public Consumer<Message> openChallenge(CommandEvent event, @Author Member player, EventWaiter waiter, double pointWager, DerbyPointPlugin points) {
+    private Consumer<Message> openChallenge(CommandEvent event, @Author Member player, EventWaiter waiter,
+                                            double pointWager, DerbyPointPlugin points) {
         return message -> {
             message.addReaction(CROSSED_SWORDS).queue();
             waiter.waitForReaction()

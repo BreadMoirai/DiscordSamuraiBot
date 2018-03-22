@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
+ * Using arbitrary values weighted towards the center.
+ * This strategy can be categorized as medium difficulty.
+ *
  * @author TonTL
  * @version 4/16/2017
  */
@@ -44,22 +47,22 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
         double value = Integer.MIN_VALUE;
         for (int x = 0; x < board.length; x++) {
             int y = height(board[x]);
-            if (y == -1) continue;
+            if (y == -1)
+                continue;
             final double i = minimax(x, y, 'b', board, 1) - (2 * (Math.abs(xCenter - x) + 1));
-            //System.out.println("col: " + (x + 1) + " = " + i);
             if (i >= value) {
                 bestCol = x;
                 value = i;
             }
         }
-        //System.out.println("Chose col: " + (bestCol + 1) + "\n");
         return bestCol;
     }
 
     @Contract(pure = true)
     private int height(char[] column) {
         for (int i = 0; i < column.length; i++) {
-            if (column[i] == '\u0000') return i;
+            if (column[i] == '\u0000')
+                return i;
         }
         return -1;
     }
@@ -79,7 +82,11 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
             return p == 'b' ? 500.0 / depth : -500.0 / depth;
         } else {
             final char[][] testBoard = testMove(x, y, p, board);
-            return IntStream.range(0, xBound).parallel().mapToDouble(testX -> minimax(testX, height(testBoard[testX]), opp, testBoard, depth + 1)).average().orElse(0.0);
+            return IntStream.range(0, xBound)
+                            .parallel()
+                            .mapToDouble(testX -> minimax(testX, height(testBoard[testX]), opp, testBoard, depth + 1))
+                            .average()
+                            .orElse(0.0);
         }
     }
 
@@ -112,7 +119,6 @@ public class MiniMaxStrategy implements ConnectFourStrategy {
         chars[x][y] = p;
         return chars;
     }
-
 
     @Contract(pure = true)
     private boolean hasEnded(char[][] board) {

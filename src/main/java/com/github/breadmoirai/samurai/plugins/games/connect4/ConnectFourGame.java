@@ -87,7 +87,7 @@ public class ConnectFourGame implements Dispatchable {
         }
     }
 
-    public void setupReactions(Message message) {
+    private void setupReactions(Message message) {
         if (messageId == 0) {
             messageId = message.getIdLong();
         }
@@ -104,7 +104,7 @@ public class ConnectFourGame implements Dispatchable {
         }
     }
 
-    public EventActionFuture<Void> waitForReactions(Message message) {
+    private EventActionFuture<Void> waitForReactions(Message message) {
         return waiter
                 .waitForReaction()
                 .withName(REACTIONS)
@@ -116,7 +116,7 @@ public class ConnectFourGame implements Dispatchable {
                 .build();
     }
 
-    public void onFinish(Message message) {
+    private void onFinish(Message message) {
         next = null;
         final EmbedBuilder embedBuilder = buildBoard();
         onWin.accept(new Pair<>(winner, winner.equals(playerA) ? playerB : playerA), embedBuilder);
@@ -127,7 +127,7 @@ public class ConnectFourGame implements Dispatchable {
         message.clearReactions().queue();
     }
 
-    public void onReaction(GenericMessageReactionEvent reactionEvent) {
+    private void onReaction(GenericMessageReactionEvent reactionEvent) {
         final Member member = reactionEvent.getMember();
         int move = getReactionIdx(reactionEvent.getReactionEmote().getName());
         makeMove(member, move);
@@ -139,7 +139,7 @@ public class ConnectFourGame implements Dispatchable {
         reactionEvent.getTextChannel().editMessageById(messageId, buildTitle().setEmbed(buildBoard().build()).build()).queue();
     }
 
-    public void makeMove(Member member, int move) {
+    private void makeMove(Member member, int move) {
         for (int y = 0; y < Y_BOUND; y++) {
             if (board[move][y] == '\u0000') {
                 if (playerA.equals(member)) {
@@ -170,7 +170,7 @@ public class ConnectFourGame implements Dispatchable {
         return -1;
     }
 
-    MessageBuilder buildTitle() {
+    private MessageBuilder buildTitle() {
         MessageBuilder mb = new MessageBuilder();
         if (playerA.equals(next)) {
             mb.append(playerA)
