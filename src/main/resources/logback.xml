@@ -11,6 +11,7 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
+
     </appender>
 
     <!-- Enable the Console and Sentry appenders, Console is provided as an example
