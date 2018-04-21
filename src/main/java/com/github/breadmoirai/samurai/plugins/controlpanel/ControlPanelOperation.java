@@ -14,19 +14,12 @@
  *   limitations under the License.
  */
 
-package com.github.breadmoirai.samurai.util;
+package com.github.breadmoirai.samurai.plugins.controlpanel;
 
-import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.Member;
 
-public interface MenuReaction {
+public interface ControlPanelOperation {
 
-    static MenuReaction of(String emoji) {
-        return new MenuReactionEmoji(emoji);
-    }
+    void operate(long target, Member member, boolean enable);
 
-    static MenuReaction of(long emoteId) {
-        return new MenuReactionEmote(emoteId);
-    }
-
-    boolean matches(MessageReaction.ReactionEmote reaction);
 }

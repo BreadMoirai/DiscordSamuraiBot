@@ -14,20 +14,12 @@
  *   limitations under the License.
  */
 
-package com.github.breadmoirai.samurai.util;
+package com.github.breadmoirai.samurai.plugins.controlpanel;
 
-import net.dv8tion.jda.core.entities.MessageReaction;
+import java.util.List;
 
-public class MenuReactionEmote implements MenuReaction {
+public interface ControlPanelData {
 
-    final long emoteId;
+    List<ControlPanel> getControlPanels();
 
-    public MenuReactionEmote(long emoteId) {
-        this.emoteId = emoteId;
-    }
-
-    @Override
-    public boolean matches(MessageReaction.ReactionEmote reaction) {
-        return reaction.isEmote() && reaction.getIdLong() == emoteId;
-    }
 }

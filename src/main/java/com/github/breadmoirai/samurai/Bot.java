@@ -18,6 +18,7 @@ import com.github.breadmoirai.breadbot.framework.BreadBot;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.breadbot.plugins.owner.ApplicationOwnerPlugin;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
+import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelPlugin;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
 import com.github.breadmoirai.samurai.plugins.derby.prefix.DerbyPrefixPlugin;
 import com.github.breadmoirai.samurai.plugins.games.GamePlugin;
@@ -86,6 +87,7 @@ public class Bot {
                 .addPlugin(new GooglePlugin(config.getString("google.key"), config.getString("google.engine")))
                 .addPlugin(new GamePlugin())
                 .addPlugin(new TriviaPlugin())
+                .addPlugin(new ControlPanelPlugin())
                 .addCommand(new ShutdownCommand(service))
                 .bindResultHandler(Dispatchable.class, new DispatchableDispatcher())
                 .setEvaluateCommandOnMessageUpdate(true)
