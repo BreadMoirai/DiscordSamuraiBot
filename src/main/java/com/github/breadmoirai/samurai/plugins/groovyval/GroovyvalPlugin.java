@@ -31,11 +31,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,8 +81,11 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
         binding.setVariable("bread", client);
         final List<CommandPlugin> plugins = client.getPlugins();
         binding.setVariable("plugins", plugins);
-        for (final CommandPlugin plugin : plugins) {
-            binding.setVariable(plugin.getName().toLowerCase(), plugin);
+        final Map<Type, CommandPlugin> pluginTypeMap = createPluginTypeMap(plugins);
+        for (final Map.Entry<Type, CommandPlugin> pluginEntry : pluginTypeMap.entrySet()) {
+            final String simpleName = ((Class<?>) pluginEntry.getKey()).getSimpleName();
+            binding.setVariable(simpleName.substring(0, 1).toLowerCase() + simpleName.substring(1),
+                                pluginEntry.getValue());
         }
     }
 
@@ -144,5 +150,37 @@ public class GroovyvalPlugin implements CommandPlugin, EventListener {
 
     public Binding getBinding() {
         return binding;
+    }
+
+    private Map<Type, CommandPlugin> createPluginTypeMap(List<CommandPlugin> modules) {
+        final HashMap<Type, CommandPlugin> typeMap = new HashMap<>(modules.size());
+        for (CommandPlugin module : modules) {
+            Class<?> moduleClass = module.getClass();
+            do {
+                typeMap.put(moduleClass, module);
+                for (Class<?> inter : moduleClass.getInterfaces()) {
+                    final List<Class<?>> interfaceList = getInterfaceHierarchy(inter, CommandPlugin.class);
+                    if (interfaceList != null) {
+                        for (Class<?> interfaceClass : interfaceList)
+                            typeMap.put(interfaceClass, module);
+                    }
+                }
+            } while (CommandPlugin.class.isAssignableFrom(moduleClass = moduleClass.getSuperclass()));
+        }
+        return typeMap;
+    }
+
+    private List<Class<?>> getInterfaceHierarchy(Class<?> from, Class<?> toSuper) {
+        if (!from.isInterface())
+            return null;
+        if (from == toSuper)
+            return new ArrayList<>();
+        final Class<?>[] interfaces = from.getInterfaces();
+        if (interfaces.length == 0)
+            return null;
+        final List<Class<?>> interfaceList = getInterfaceHierarchy(interfaces[0], toSuper);
+        if (interfaceList != null)
+            interfaceList.add(0, from);
+        return interfaceList;
     }
 }

@@ -23,6 +23,8 @@ import groovy.lang.Binding;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 import static com.github.breadmoirai.samurai.plugins.groovyval.GroovyvalPlugin.getFunctionName;
@@ -115,6 +117,20 @@ public class EvalCommand {
     @Command
     public void rmfunc(@Required @Content String content, GroovyvalPlugin plugin) {
         plugin.getFunctions().removeIf(s -> getFunctionName(s).equalsIgnoreCase(content));
+    }
+
+    @Command
+    public String vars(CommandEvent event, GroovyvalPlugin plugin) {
+        setVariables(event, plugin.getBinding());
+        final StringJoiner sj = new StringJoiner("\n", "```\n", "\n```");
+        final Map variables = plugin.getBinding().getVariables();
+        final Set set = variables.entrySet();
+        for (final Object o : set) {
+            final Map.Entry entry = (Map.Entry) o;
+            sj.add(entry.getKey().toString() + " : " + entry.getValue().getClass().getSimpleName());
+        }
+        removeVariables(plugin.getBinding());
+        return sj.toString();
     }
 
 
