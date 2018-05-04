@@ -46,42 +46,57 @@ public class ColorRoleCommand {
                     .appendDescription(colorHex(color))
                     .appendDescription("`\n")
                     .appendDescription(color.toString())
-                    .color(color);
+                    .color(color)
+                    .send();
         } else if (c == null) {
             Color color = author.getColor();
             event.reply().embed().appendDescription("Your color is `")
                     .appendDescription(colorHex(color))
                     .appendDescription("`\n")
                     .appendDescription(color.toString())
-                    .color(color);
+                    .color(color)
+                    .send();
         } else {
             final String colorHex = colorHex(c);
             final String name = "Color: " + colorHex;
             final Guild guild = event.getGuild();
             final List<Role> colorRoleToAdd = guild.getRolesByName(name, false);
-            final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
+            final List<Role> colorRoleToRemove = author.getRoles()
+                    .stream()
+                    .filter(role -> role.getName().startsWith("Color: "))
+                    .collect(Collectors.toList());
             if (!colorRoleToAdd.isEmpty() && colorRoleToRemove.containsAll(colorRoleToAdd)) {
-                event.reply("You already have this color!");
+                event.send("You already have this color!");
                 return;
             }
             final GuildController guildController = guild.getController();
             if (!colorRoleToAdd.isEmpty()) {
-                guildController.modifyMemberRoles(author, colorRoleToAdd, colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
+                guildController.modifyMemberRoles(author, colorRoleToAdd, colorRoleToRemove)
+                        .queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
             } else {
                 guildController.createRole().setName(name).setColor(c).setPermissions(0L).queue(role -> {
                     guildController.modifyRolePositions(false).selectPosition(role).moveTo(2).queue();
-                    guildController.modifyMemberRoles(author, Collections.singletonList(role), colorRoleToRemove).queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
+                    guildController.modifyMemberRoles(author, Collections.singletonList(role), colorRoleToRemove)
+                            .queue(aVoid -> deleteEmptyRoles(author, colorRoleToRemove));
                 });
             }
-            event.reply("Your color has been successfully set to `" + colorHex + "`");
+            event.send("Your color has been successfully set to `" + colorHex + "`");
         }
     }
 
     @Command
     public String uncolor(@Author Member author, Guild guild) {
-        final List<Role> colorRoleToRemove = author.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).collect(Collectors.toList());
+        final List<Role> colorRoleToRemove = author.getRoles()
+                .stream()
+                .filter(role -> role.getName().startsWith("Color: "))
+                .collect(Collectors.toList());
         guild.getController().removeRolesFromMember(author, colorRoleToRemove).queue();
-        guild.getRoles().stream().filter(role -> role.getName().startsWith("Color: ")).filter(role -> guild.getMembersWithRoles(role).isEmpty()).map(Role::delete).forEach(RestAction::queue);
+        guild.getRoles()
+                .stream()
+                .filter(role -> role.getName().startsWith("Color: "))
+                .filter(role -> guild.getMembersWithRoles(role).isEmpty())
+                .map(Role::delete)
+                .forEach(RestAction::queue);
         return "Your color has been reset to the default color.";
 
     }

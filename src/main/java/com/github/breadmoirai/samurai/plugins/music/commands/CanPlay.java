@@ -28,6 +28,6 @@ public class CanPlay extends AbstractMusicCommand {
     public void onCommand(CommandEvent event) {
         final Member selfMember = event.getGuild().getSelfMember();
         final String permss = event.getGuild().getVoiceChannels().stream().map(voiceChannel -> (PermissionUtil.checkPermission(voiceChannel, selfMember, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK) ? "+" : "-") + voiceChannel.getName()).collect(Collectors.joining("\n", "```diff\n", "\n```"));
-        event.reply(permss);
+        event.send(permss);
     }
 }

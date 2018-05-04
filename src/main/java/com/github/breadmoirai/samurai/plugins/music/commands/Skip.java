@@ -52,7 +52,7 @@ public class Skip extends AbstractMusicCommand {
                     audioManager.scheduler.clear();
                     final StringBuilder db = eb.getDescriptionBuilder();
                     db.append('`').append(size).append(" songs`");
-                    event.reply().setEmbed(eb.build());
+                    event.reply().setEmbed(eb.build()).send();
                     return;
                 } else {
                     final List<Integer> argList = event.getArguments().ints().boxed().collect(Collectors.toList());
@@ -73,11 +73,11 @@ public class Skip extends AbstractMusicCommand {
                         if (currentTrack != null) {
                             message.editMessage(new EmbedBuilder(message.getEmbeds().get(0)).appendDescription("\n**Now Playing:** ").appendDescription(Play.trackInfoDisplay(currentTrack)).build()).queue();
                         }
-                    });
+                    }).send();
                     return;
                 }
             }
-            event.reply().setEmbed(eb.build());
+            event.reply().setEmbed(eb.build()).send();
         }
     }
 }

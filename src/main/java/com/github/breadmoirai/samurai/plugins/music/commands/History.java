@@ -43,7 +43,7 @@ public class History extends AbstractMusicCommand {
             final AtomicInteger i = new AtomicInteger(0);
             sb.append("**History**");
             history.stream().limit(10).map(track -> Play.trackInfoDisplay(track, true)).map(s -> String.format("\n`%d.` %s", i.incrementAndGet(), s)).forEachOrdered(sb::append);
-            event.reply().setEmbed(eb.build());
+            event.reply().setEmbed(eb.build()).send();
         }
     }
 

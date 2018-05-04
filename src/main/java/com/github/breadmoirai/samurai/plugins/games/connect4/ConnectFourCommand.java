@@ -53,24 +53,27 @@ public class ConnectFourCommand {
             event.reply("Who is willing to accept ")
                     .append(player)
                     .append("'s challenge to a perilous game of **Connect Four**")
-                    .onSuccess(openChallenge(event, player, waiter, pointWager, plugin));
+                    .onSuccess(openChallenge(event, player, waiter, pointWager, plugin)).send();
 
         } else if (opponent.getUser().equals(event.getJDA().getSelfUser())) {
-            return new ConnectFourGame(player, new MiniMaxStrategy(ConnectFourGame.X_BOUND, ConnectFourGame.Y_BOUND, 4), 0L, waiter, onWin(pointWager, plugin));
+            return new ConnectFourGame(player, new MiniMaxStrategy(ConnectFourGame.X_BOUND, ConnectFourGame.Y_BOUND, 4),
+                                       0L, waiter, onWin(pointWager, plugin));
         } else {
             event.reply()
                     .append(opponent)
                     .append(", are you willing to accept ")
                     .append(player)
                     .append("'s challenge to a perilous game of **Connect Four**")
-                    .onSuccess(closedChallenge(event, player, opponent, waiter, pointWager, plugin));
+                    .onSuccess(closedChallenge(event, player, opponent, waiter, pointWager, plugin)).send();
         }
         return null;
     }
 
     private BiConsumer<Pair<Member, Member>, EmbedBuilder> onWin(double wager, DerbyPointPlugin plugin) {
         return (pair, embed) -> {
-            embed.addField("The Winner is **" + pair.getKey().getAsMention() + "**", pair.getKey().getEffectiveName() + " gains **" + wager + "** points from " + pair.getValue().getEffectiveName(), false);
+            embed.addField("The Winner is **" + pair.getKey().getAsMention() + "**",
+                           pair.getKey().getEffectiveName() + " gains **" + wager + "** points from " + pair.getValue()
+                                   .getEffectiveName(), false);
             embed.setImage(pair.getKey().getUser().getEffectiveAvatarUrl());
             plugin.offsetPoints(pair.getKey().getUser().getIdLong(), wager);
             plugin.offsetPoints(pair.getValue().getUser().getIdLong(), wager * -1);
@@ -90,9 +93,11 @@ public class ConnectFourCommand {
                     .action(reaction -> {
                         final String name = reaction.getReactionEmote().getName();
                         if (name.equals(SHIELD)) {
-                            message.editMessageFormat("**%s**'s challenge to **%s** has been denied", player.getEffectiveName(), opponent.getEffectiveName()).queue();
+                            message.editMessageFormat("**%s**'s challenge to **%s** has been denied",
+                                                      player.getEffectiveName(), opponent.getEffectiveName()).queue();
                         } else {
-                            new ConnectFourGame(player, reaction.getMember(), message.getIdLong(), waiter, onWin(pointWager, points))
+                            new ConnectFourGame(player, reaction.getMember(), message.getIdLong(), waiter,
+                                                onWin(pointWager, points))
                                     .dispatch(event.getChannel());
                         }
                     })
@@ -111,7 +116,8 @@ public class ConnectFourCommand {
                     .on(message)
                     .withName(CROSSED_SWORDS)
                     .action(reaction -> {
-                        new ConnectFourGame(player, reaction.getMember(), message.getIdLong(), waiter, onWin(pointWager, points))
+                        new ConnectFourGame(player, reaction.getMember(), message.getIdLong(), waiter,
+                                            onWin(pointWager, points))
                                 .dispatch(event.getChannel());
                     })
                     .build();

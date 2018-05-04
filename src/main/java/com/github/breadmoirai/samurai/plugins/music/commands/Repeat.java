@@ -30,16 +30,17 @@ public class Repeat extends AbstractMusicCommand {
         if (managerOptional.isPresent()) {
             final GuildAudioManager guildAudioManager = managerOptional.get();
             final AudioTrack current = guildAudioManager.scheduler.getCurrent();
-            if (current == null) event.reply("There is nothing to repeat");
+            if (current == null) event.send("There is nothing to repeat");
             final boolean b = guildAudioManager.scheduler.toggleRepeat();
-            if (!b) event.reply("Repeat stopped");
+            if (!b) event.send("Repeat stopped");
             else
                 event.reply()
                         .setEmbed(new EmbedBuilder()
-                                .appendDescription(Play.trackInfoDisplay(current, true))
-                                .appendDescription(" is now playing on repeat")
-                                .build());
+                                          .appendDescription(Play.trackInfoDisplay(current, true))
+                                          .appendDescription(" is now playing on repeat")
+                                          .build())
+                        .send();
         }
-        event.reply("There is nothing to repeat.");
+        event.send("There is nothing to repeat.");
     }
 }

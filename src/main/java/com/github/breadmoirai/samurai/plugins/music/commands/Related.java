@@ -44,11 +44,11 @@ public class Related {
                 if (uri.toLowerCase().contains("youtube")) {
                     final List<String> related = plugin.getRelated(uri.substring(uri.lastIndexOf('=') + 1), size);
                     if (related.isEmpty()) {
-                        event.reply("No related tracks exist");
+                        event.send("No related tracks exist");
                         return null;
                     }
                     return new TrackLoader(event, plugin, audioManager, related, String.format("Tracks related to [%s](%s)", playingTrack.getInfo().title, uri));
-                } else event.reply("Related tracks are not available for sources other than youtube");
+                } else event.send("Related tracks are not available for sources other than youtube");
             }
         }
         return null;

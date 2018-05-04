@@ -20,17 +20,20 @@ import net.dv8tion.jda.core.entities.MessageReaction;
 
 public class ControlPanelOptionEmote extends ControlPanelOption {
 
-    private final long emoji;
+    private final long emote;
 
-    public ControlPanelOptionEmote(int panelId, long emoji, long target) {
+    public ControlPanelOptionEmote(int panelId, long emote, long target) {
         super(panelId, target);
-        this.emoji = emoji;
+        this.emote = emote;
     }
 
     @Override
     public boolean test(MessageReaction reaction) {
         return reaction.getReactionEmote().isEmote() &&
-                reaction.getReactionEmote().getIdLong() == emoji;
+                reaction.getReactionEmote().getIdLong() == emote;
     }
 
+    public long getEmote() {
+        return emote;
+    }
 }

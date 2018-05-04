@@ -19,12 +19,18 @@ package com.github.breadmoirai.samurai.plugins.controlpanel.derby;
 import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanel;
 import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelBuilder;
 import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelData;
+import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelOption;
+import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelOptionEmoji;
+import com.github.breadmoirai.samurai.plugins.controlpanel.ControlPanelOptionEmote;
 import com.github.breadmoirai.samurai.plugins.derby.JdbiExtension;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.PreparedBatch;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -64,37 +70,86 @@ public class ControlPanelDataDerbyImpl extends JdbiExtension implements ControlP
         return withHandle(handle -> {
             final TIntObjectMap<ControlPanelBuilder> cpMap;
             cpMap = handle.createQuery("SELECT * FROM ControlPanels")
-                          .map(new ControlPanelRowMapper())
-                          .collect(Collector.of(TIntObjectHashMap::new,
-                                                (map, cp) -> map.put(cp.getId(), cp),
-                                                (map1, map2) -> {
-                                                    map1.putAll(map2);
-                                                    return map1;
-                                                }));
+                    .map(new ControlPanelRowMapper())
+                    .collect(Collector.of(TIntObjectHashMap::new,
+                                          (map, cp) -> map.put(cp.getId(), cp),
+                                          (map1, map2) -> {
+                                              map1.putAll(map2);
+                                              return map1;
+                                          }));
             handle.createQuery("SELECT * FROM ControlPanelEmojis")
-                  .map(new ControlPanelEmojiMapper())
-                  .forEach(option -> cpMap.get(option.getPanelId()).addOption(option));
+                    .map(new ControlPanelEmojiMapper())
+                    .forEach(option -> cpMap.get(option.getPanelId()).addOption(option));
             handle.createQuery("SELECT * FROM ControlPanelEmotes")
-                  .map(new ControlPanelEmoteMapper())
-                  .forEach(option -> cpMap.get(option.getPanelId()).addOption(option));
+                    .map(new ControlPanelEmoteMapper())
+                    .forEach(option -> cpMap.get(option.getPanelId()).addOption(option));
             return cpMap.valueCollection()
-                        .parallelStream()
-                        .map(ControlPanelBuilder::build)
-                        .collect(Collectors.toList());
+                    .parallelStream()
+                    .map(ControlPanelBuilder::build)
+                    .collect(Collectors.toList());
         });
     }
 
-    public ControlPanelBuilder createControlPanel(long guildId, long channelId, long messageId) {
+    public ControlPanel getControlPanel(int id) {
+        return withHandle(handle -> {
+            final Optional<ControlPanelBuilder> first = handle.createQuery("SELECT * FROM ControlPanels WHERE Id = ?")
+                    .bind(0, id)
+                    .map(new ControlPanelRowMapper())
+                    .findFirst();
+            if (!first.isPresent()) {
+                return null;
+            }
+            final ControlPanelBuilder builder = first.get();
+            handle.createQuery("SELECT * FROM ControlPanelEmojis WHERE Id = ?")
+                    .bind(0, id)
+                    .map(new ControlPanelEmojiMapper())
+                    .forEach(builder::addOption);
+            handle.createQuery("SELECT * FROM ControlPanelEmotes WHERE Id = ?")
+                    .bind(0, id)
+                    .map(new ControlPanelEmoteMapper())
+                    .forEach(builder::addOption);
+            return builder.build();
+        });
+    }
+
+    public ControlPanel createControlPanel(long guildId, long channelId, long messageId, char type,
+                                           List<ControlPanelOption> options) {
         final Integer id = withHandle(handle -> handle
-                .createUpdate("INSERT (guildId, channelId, messageId) " +
-                                      "INTO ControlPanels VALUES (?, ?, ?)")
+                .createUpdate("INSERT (GuildId, ChannelId, MessageId, PanelType) " +
+                                      "INTO ControlPanels VALUES (?, ?, ?, ?)")
                 .bind(0, guildId)
                 .bind(1, channelId)
                 .bind(2, messageId)
+                .bind(3, type)
                 .executeAndReturnGeneratedKeys("Id")
                 .mapTo(Integer.class)
                 .findOnly());
+        final Map<Boolean, List<ControlPanelOption>> optionTypeMap = options.stream()
+                .collect(Collectors.partitioningBy(ControlPanelOptionEmoji.class::isInstance));
+        useHandle(handle -> {
+            final PreparedBatch batch = handle
+                    .prepareBatch("INSERT INTO ControlPanelEmojis VALUES (?, ?, ?)");
+            for (final ControlPanelOption option : optionTypeMap.get(true)) {
+                final ControlPanelOptionEmoji emoji = (ControlPanelOptionEmoji) option;
+                batch.add(id, emoji.getEmoji(), emoji.getTarget());
+            }
+            batch.execute();
+        });
+        useHandle(handle -> {
+            final PreparedBatch batch = handle.prepareBatch("INSERT INTO ControlPanelEmotes VALUES (?, ?, ?)");
+            for (final ControlPanelOption controlPanelOption : optionTypeMap.get(false)) {
+                final ControlPanelOptionEmote emote = (ControlPanelOptionEmote) controlPanelOption;
+                batch.add(id, emote.getEmote(), emote.getTarget());
+            }
+            batch.execute();
+        });
+        return getControlPanel(id);
+    }
 
+    public void deleteControlPanel(int controlPanelId) {
+        execute("DELETE FROM ControlPanelEmojis WHERE Id = ?", controlPanelId);
+        execute("DELETE FROM ControlPanelEmotes WHERE Id = ?", controlPanelId);
+        execute("DELETE FROM ControlPanels WHERE Id = ?", controlPanelId);
     }
 
 }

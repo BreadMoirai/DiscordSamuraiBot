@@ -44,16 +44,17 @@ public class Play {
         if (!managerOptional.isPresent()) {
             final VoiceChannel channel = event.getMember().getVoiceState().getChannel();
             if (channel == null) {
-                event.reply("Samurai has not joined a voice channel yet. Use `" + event.getPrefix() + "join [voice channel name]`.");
+                event.send(
+                        "Samurai has not joined a voice channel yet. Use `" + event.getPrefix() + "join [voice channel name]`.");
                 return null;
             } else if (plugin.openConnection(channel)) {
                 managerOptional = plugin.retrieveManager(event.getGuildId());
             } else {
-                event.reply("Could not open voice connection");
+                event.send("Could not open voice connection");
                 return null;
             }
             if (!managerOptional.isPresent()) {
-                event.reply("Could not retrieve voice connection");
+                event.send("Could not retrieve voice connection");
                 return null;
             }
         }
@@ -76,9 +77,9 @@ public class Play {
         } else {
             final MessageEmbed embed = nowPlaying(audioManager);
             if (embed == null) {
-                event.reply("Nothing is playing right now.");
+                event.send("Nothing is playing right now.");
             } else {
-                event.reply().setEmbed(embed);
+                event.reply().setEmbed(embed).send();
             }
         }
         return null;

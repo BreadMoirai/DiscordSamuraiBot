@@ -16,25 +16,79 @@
 
 package com.github.breadmoirai.samurai.plugins.controlpanel;
 
+import com.github.breadmoirai.breadbot.framework.AbstractCommandPlugin;
 import com.github.breadmoirai.breadbot.framework.BreadBot;
-import com.github.breadmoirai.breadbot.framework.CommandPlugin;
 import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.controlpanel.derby.ControlPanelDataDerbyImpl;
 import com.github.breadmoirai.samurai.plugins.derby.DerbyDatabase;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 
-public class ControlPanelPlugin implements CommandPlugin {
+public class ControlPanelPlugin extends AbstractCommandPlugin implements EventListener {
 
     private ControlPanelDataDerbyImpl data;
+    private EventWaiter waiter;
 
-    @Override
-    public void initialize(BreadBotBuilder builder) {
-        builder.addCommand(this);
+    public void i(BreadBotBuilder builder) {
+        builder.addCommand(ControlPanelCommand::new);
     }
 
-    @Override
-    public void onBreadReady(BreadBot client) {
+    public void r(BreadBot client) {
         final DerbyDatabase database = client.getPluginOrThrow(DerbyDatabase.class);
         this.data = database.getExtension(ControlPanelDataDerbyImpl::new);
+        this.waiter = client.getPluginOrThrow(EventWaiterPlugin.class).getEventWaiter();
     }
 
+    @Override
+    protected void initialize() {
+        addCommand(ControlPanelCommand::new);
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        if (event instanceof ReadyEvent) {
+            for (ControlPanel controlPanel : data.getControlPanels()) {
+                validatePanel(event.getJDA(), controlPanel);
+            }
+        }
+    }
+
+    /**
+     * on start up
+     */
+    private void validatePanel(JDA jda, ControlPanel controlPanel) {
+        final int id = controlPanel.getId();
+        final long guildId = controlPanel.getGuildId();
+        final long channelId = controlPanel.getChannelId();
+        final long messageId = controlPanel.getMessageId();
+        final Guild guild = jda.getGuildById(guildId);
+        if (guild == null) {
+            data.deleteControlPanel(id);
+            return;
+        }
+        final TextChannel channel = guild.getTextChannelById(channelId);
+        if (channel == null) {
+            data.deleteControlPanel(id);
+            return;
+        }
+
+        channel.getMessageById(messageId).queue(message -> waiter.waitForReaction()
+                .on(message)
+                .action(event -> controlPanel
+                        .getOptions()
+                        .stream()
+                        .filter(option -> option.test(event.getReaction()))
+                        .findFirst()
+                        .ifPresent(option -> {
+                            boolean isAdd = event instanceof MessageReactionAddEvent;
+                            controlPanel.getType().operate(option.getTarget(), event.getMember(), isAdd);
+                        })));
+    }
 }

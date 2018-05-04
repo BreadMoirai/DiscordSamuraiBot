@@ -21,7 +21,9 @@ public class Shuffle extends AbstractMusicCommand {
 
     @Override
     public void onCommand(CommandEvent event) {
-        getPlugin(event).retrieveManager(event.getGuildId()).map(guildAudioManager -> "`" + guildAudioManager.scheduler.shuffleQueue() + "` tracks shuffled").ifPresent(event::reply);
+        getPlugin(event).retrieveManager(event.getGuildId())
+                .map(guildAudioManager -> "`" + guildAudioManager.scheduler.shuffleQueue() + "` tracks shuffled")
+                .ifPresent(event::send);
     }
 
 }

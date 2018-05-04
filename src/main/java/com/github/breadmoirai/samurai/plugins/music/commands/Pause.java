@@ -32,7 +32,7 @@ public class Pause extends AbstractMusicCommand {
         managerOptional.ifPresent(audioManager -> {
             final boolean paused = event.getKey().equalsIgnoreCase("pause");
             audioManager.player.setPaused(paused);
-            event.reply("Playback has `").append(paused ? "paused" : "resumed").append('`');
+            event.reply("Playback has `").append(paused ? "paused" : "resumed").append('`').send();
         });
     }
 }

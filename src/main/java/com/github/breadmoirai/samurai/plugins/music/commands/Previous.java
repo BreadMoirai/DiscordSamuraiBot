@@ -48,7 +48,7 @@ public class Previous extends AbstractMusicCommand {
             descriptionBuilder
                     .append(String.format("Playing [`%02d:%02d`/`%02d:%02d`]", currentTrack.getPosition() / (60 * 1000), currentTrack.getPosition() / 1000, trackInfo.length / (60 * 1000), (trackInfo.length / 1000) % 60))
                     .append("\n[").append(trackInfo.title).append("](").append(trackInfo.uri).append(")\n");
-            event.reply().setEmbed(embedBuilder.build());
+            event.reply().setEmbed(embedBuilder.build()).send();
         }
     }
 }

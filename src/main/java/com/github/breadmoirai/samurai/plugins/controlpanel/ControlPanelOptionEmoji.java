@@ -33,4 +33,7 @@ public class ControlPanelOptionEmoji extends ControlPanelOption {
                 reaction.getReactionEmote().getName().equals(emoji);
     }
 
+    public String getEmoji() {
+        return emoji;
+    }
 }

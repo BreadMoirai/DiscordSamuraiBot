@@ -39,7 +39,7 @@ public class GoogleCommand {
         }
         final JSONObject search = plugin.retrieveSearchResults(content, 1);
         if (search == null) {
-            event.reply("An unexpected error occurred.");
+            event.send("An unexpected error occurred.");
             return;
         }
         final JSONObject searchInformation = search.getJSONObject("searchInformation");
@@ -64,16 +64,16 @@ public class GoogleCommand {
                                             }
                                         });
                             });
-                        });
+                        }).send();
             } else {
-                event.reply("No results found.");
+                event.send("No results found.");
                 return;
             }
         }
         JSONArray items = search.getJSONArray("items");
         final JSONObject jsonObject = items.getJSONObject(0);
         final SearchResult result = SearchResult.fromGoogle(jsonObject);
-        event.replyFormat("**%s**%n__%s__%n%s", result.getTitle(), result.getUrl(), result.getContent());
+        event.sendFormat("**%s**%n__%s__%n%s", result.getTitle(), result.getUrl(), result.getContent());
     }
 
 }

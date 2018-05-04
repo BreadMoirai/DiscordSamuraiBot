@@ -36,4 +36,28 @@ public class ControlPanel {
         this.type = type;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public long getGuildId() {
+        return guildId;
+    }
+
+    public long getChannelId() {
+        return channelId;
+    }
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public List<ControlPanelOption> getOptions() {
+        return options;
+    }
+
+    public ControlPanelType getType() {
+        return type;
+    }
+
 }
