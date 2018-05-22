@@ -18,7 +18,6 @@ package com.github.breadmoirai.samurai.plugins.controlpanel;
 
 import com.github.breadmoirai.breadbot.framework.AbstractCommandPlugin;
 import com.github.breadmoirai.breadbot.framework.BreadBot;
-import com.github.breadmoirai.breadbot.framework.builder.BreadBotBuilder;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
 import com.github.breadmoirai.samurai.plugins.controlpanel.derby.ControlPanelDataDerbyImpl;
@@ -36,19 +35,16 @@ public class ControlPanelPlugin extends AbstractCommandPlugin implements EventLi
     private ControlPanelDataDerbyImpl data;
     private EventWaiter waiter;
 
-    public void i(BreadBotBuilder builder) {
-        builder.addCommand(ControlPanelCommand::new);
-    }
-
-    public void r(BreadBot client) {
-        final DerbyDatabase database = client.getPluginOrThrow(DerbyDatabase.class);
-        this.data = database.getExtension(ControlPanelDataDerbyImpl::new);
-        this.waiter = client.getPluginOrThrow(EventWaiterPlugin.class).getEventWaiter();
-    }
-
     @Override
     protected void initialize() {
         addCommand(ControlPanelCommand::new);
+    }
+
+    @Override
+    public void onBreadReady(BreadBot client) {
+        final DerbyDatabase database = client.getPluginOrThrow(DerbyDatabase.class);
+        this.data = database.getExtension(ControlPanelDataDerbyImpl::new);
+        this.waiter = client.getPluginOrThrow(EventWaiterPlugin.class).getEventWaiter();
     }
 
     @Override
@@ -60,10 +56,14 @@ public class ControlPanelPlugin extends AbstractCommandPlugin implements EventLi
         }
     }
 
+    public ControlPanelData getData() {
+        return data;
+    }
+
     /**
      * on start up
      */
-    private void validatePanel(JDA jda, ControlPanel controlPanel) {
+    public void validatePanel(JDA jda, ControlPanel controlPanel) {
         final int id = controlPanel.getId();
         final long guildId = controlPanel.getGuildId();
         final long channelId = controlPanel.getChannelId();
@@ -79,16 +79,22 @@ public class ControlPanelPlugin extends AbstractCommandPlugin implements EventLi
             return;
         }
 
-        channel.getMessageById(messageId).queue(message -> waiter.waitForReaction()
-                .on(message)
-                .action(event -> controlPanel
-                        .getOptions()
-                        .stream()
-                        .filter(option -> option.test(event.getReaction()))
-                        .findFirst()
-                        .ifPresent(option -> {
-                            boolean isAdd = event instanceof MessageReactionAddEvent;
-                            controlPanel.getType().operate(option.getTarget(), event.getMember(), isAdd);
-                        })));
+        channel.getMessageById(messageId)
+                .queue(message -> waiter.waitForReaction()
+                               .on(message)
+                               .action(event -> controlPanel
+                                       .getOptions()
+                                       .stream()
+                                       .filter(option -> option.test(event.getReaction()))
+                                       .findFirst()
+                                       .ifPresent(option -> {
+                                           boolean isAdd = event instanceof
+                                                   MessageReactionAddEvent;
+                                           controlPanel.getType().operate(option.getTarget()
+                                                   , event.getMember(), isAdd);
+                                       }))
+                               .stopIf((e, i) -> false)
+                               .build(),
+                       failure -> data.deleteControlPanel(id));
     }
 }

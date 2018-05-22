@@ -80,7 +80,7 @@ public class Bot {
                 .addPlugin(new GroovyvalPlugin())
                 .addPlugin(new DerbyDatabase("botdata"))
                 .addPlugin(new DerbyPointPlugin())
-                .addPlugin(new DerbyPrefixPlugin("!"))
+                .addPlugin(new DerbyPrefixPlugin("%"))
                 .addPlugin(new MusicPlugin(config.getString("google.key"), service))
                 .addPlugin(new RollPollPlugin(service))
                 .addPlugin(new BreadMoiraiSamuraiPlugin())

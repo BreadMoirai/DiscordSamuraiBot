@@ -41,6 +41,8 @@ public enum ControlPanelType {
         }
     }),
     Channel((target, member, enable) -> {
+        if (member.hasPermission(Permission.ADMINISTRATOR)) return;
+        //check for hierarchy
         final Guild guild = member.getGuild();
         final TextChannel channel = guild.getTextChannelById(target);
         if (channel != null) {
@@ -102,9 +104,9 @@ public enum ControlPanelType {
 
     public static ControlPanelType fromChar(char c) {
         switch (c) {
-            case 'r':
+            case 'R':
                 return Role;
-            case 'c':
+            case 'C':
                 return Channel;
             default:
                 throw new EnumConstantNotPresentException(ControlPanelType.class, "" + c);

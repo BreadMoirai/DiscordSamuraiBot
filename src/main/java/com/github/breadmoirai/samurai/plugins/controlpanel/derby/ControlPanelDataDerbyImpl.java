@@ -46,21 +46,22 @@ public class ControlPanelDataDerbyImpl extends JdbiExtension implements ControlP
                             "  ChannelId     BIGINT  NOT NULL,\n" +
                             "  MessageId     BIGINT  NOT NULL,\n" +
                             "  PanelType     CHAR(1) NOT NULL,\n" +
-                            "  CONSTRAINT TYPE_SPACE CHECK (PanelType IN ('R', 'C', 'A'))\n" +
+                            "  CONSTRAINT CP_PK PRIMARY KEY (Id),\n" +
+                            "  CONSTRAINT CP_TYPE_SPACE CHECK (PanelType IN ('R', 'C', 'A'))\n" +
                             ")");
             execute("CREATE TABLE ControlPanelEmojis (\n" +
                             "  Id            INT         NOT NULL,\n" +
                             "  Emoji         VARCHAR(14) NOT NULL,\n" +
                             "  Target        BIGINT      NOT NULL,\n" +
                             "  CONSTRAINT CP_Emojis_PK PRIMARY KEY (Id, Emoji),\n" +
-                            "  CONSTRAINT CP_Emojis_FK FOREIGN KEY (Id) REFERENCES ControlPanels (Id)\n" +
+                            "  CONSTRAINT CP_Emojis_FK FOREIGN KEY (Id) REFERENCES ControlPanels(Id)\n" +
                             ")");
             execute("CREATE TABLE ControlPanelEmotes (\n" +
                             "  Id            INT    NOT NULL,\n" +
                             "  Emote         BIGINT NOT NULL,\n" +
                             "  Target        BIGINT NOT NULL,\n" +
                             "  CONSTRAINT CP_Emotes_PK PRIMARY KEY (Id, Emote),\n" +
-                            "  CONSTRAINT CP_Emotes_FK FOREIGN KEY (Id) REFERENCES ControlPanels (Id)\n" +
+                            "  CONSTRAINT CP_Emotes_FK FOREIGN KEY (Id) REFERENCES ControlPanels(Id)\n" +
                             ")");
         }
     }
@@ -90,6 +91,7 @@ public class ControlPanelDataDerbyImpl extends JdbiExtension implements ControlP
         });
     }
 
+    @Override
     public ControlPanel getControlPanel(int id) {
         return withHandle(handle -> {
             final Optional<ControlPanelBuilder> first = handle.createQuery("SELECT * FROM ControlPanels WHERE Id = ?")
@@ -112,40 +114,44 @@ public class ControlPanelDataDerbyImpl extends JdbiExtension implements ControlP
         });
     }
 
+    @Override
     public ControlPanel createControlPanel(long guildId, long channelId, long messageId, char type,
                                            List<ControlPanelOption> options) {
         final Integer id = withHandle(handle -> handle
-                .createUpdate("INSERT (GuildId, ChannelId, MessageId, PanelType) " +
-                                      "INTO ControlPanels VALUES (?, ?, ?, ?)")
+                .createUpdate("INSERT INTO ControlPanels (GuildId, ChannelId, MessageId, PanelType)" +
+                                      " VALUES (?, ?, ?, ?)")
                 .bind(0, guildId)
                 .bind(1, channelId)
                 .bind(2, messageId)
                 .bind(3, type)
-                .executeAndReturnGeneratedKeys("Id")
+                .executeAndReturnGeneratedKeys("ID")
                 .mapTo(Integer.class)
                 .findOnly());
         final Map<Boolean, List<ControlPanelOption>> optionTypeMap = options.stream()
                 .collect(Collectors.partitioningBy(ControlPanelOptionEmoji.class::isInstance));
-        useHandle(handle -> {
-            final PreparedBatch batch = handle
-                    .prepareBatch("INSERT INTO ControlPanelEmojis VALUES (?, ?, ?)");
-            for (final ControlPanelOption option : optionTypeMap.get(true)) {
-                final ControlPanelOptionEmoji emoji = (ControlPanelOptionEmoji) option;
-                batch.add(id, emoji.getEmoji(), emoji.getTarget());
-            }
-            batch.execute();
-        });
-        useHandle(handle -> {
-            final PreparedBatch batch = handle.prepareBatch("INSERT INTO ControlPanelEmotes VALUES (?, ?, ?)");
-            for (final ControlPanelOption controlPanelOption : optionTypeMap.get(false)) {
-                final ControlPanelOptionEmote emote = (ControlPanelOptionEmote) controlPanelOption;
-                batch.add(id, emote.getEmote(), emote.getTarget());
-            }
-            batch.execute();
-        });
+        if (!optionTypeMap.get(true).isEmpty())
+            useHandle(handle -> {
+                final PreparedBatch batch = handle
+                        .prepareBatch("INSERT INTO ControlPanelEmojis VALUES (?, ?, ?)");
+                for (final ControlPanelOption option : optionTypeMap.get(true)) {
+                    final ControlPanelOptionEmoji emoji = (ControlPanelOptionEmoji) option;
+                    batch.add(id, emoji.getEmoji(), emoji.getTarget());
+                }
+                batch.execute();
+            });
+        if (!optionTypeMap.get(false).isEmpty())
+            useHandle(handle -> {
+                final PreparedBatch batch = handle.prepareBatch("INSERT INTO ControlPanelEmotes VALUES (?, ?, ?)");
+                for (final ControlPanelOption controlPanelOption : optionTypeMap.get(false)) {
+                    final ControlPanelOptionEmote emote = (ControlPanelOptionEmote) controlPanelOption;
+                    batch.add(id, emote.getEmote(), emote.getTarget());
+                }
+                batch.execute();
+            });
         return getControlPanel(id);
     }
 
+    @Override
     public void deleteControlPanel(int controlPanelId) {
         execute("DELETE FROM ControlPanelEmojis WHERE Id = ?", controlPanelId);
         execute("DELETE FROM ControlPanelEmotes WHERE Id = ?", controlPanelId);

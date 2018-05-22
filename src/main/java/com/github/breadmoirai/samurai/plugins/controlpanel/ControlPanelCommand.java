@@ -21,19 +21,25 @@ import com.github.breadmoirai.breadbot.framework.annotation.command.MainCommand;
 import com.github.breadmoirai.breadbot.framework.event.CommandArgumentList;
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
 import com.github.breadmoirai.breadbot.framework.parameter.CommandArgument;
+import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 
 import javax.inject.Inject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class ControlPanelCommand {
 
     @Inject
     public ControlPanelPlugin plugin;
+    @Inject
+    public EventWaiter waiter;
 
     @MainCommand
     public void createCP(CommandEvent event) {
@@ -65,6 +71,10 @@ public class ControlPanelCommand {
                     event.send("`" + target.getArgument() + "` is not a valid text channel.");
                     return;
                 }
+                if (!event.getMember().hasPermission(textChannel.get(), Permission.MANAGE_PERMISSIONS)) {
+                    event.send("Missing Permission to `Manage Permissions` in channel: " + textChannel.get()
+                            .getAsMention());
+                }
                 final long targetId = textChannel.get().getIdLong();
                 if (createOption(event, options, reaction, targetId)) return;
             } else {
@@ -77,8 +87,37 @@ public class ControlPanelCommand {
                 if (createOption(event, options, reaction, targetId)) return;
             }
         }
-        channel.getMessageById(messageArg.parseLong()).queue(message -> {
-
+        if (!isTargetChannel) {
+            if (event.requirePermission(Permission.MANAGE_ROLES)) {
+                return;
+            }
+        }
+        final long messageId = messageArg.parseLong();
+        channel.getMessageById(messageId).queue(message -> {
+            final ControlPanel controlPanel = plugin.getData()
+                    .createControlPanel(channel.getGuild().getIdLong(), channel.getIdLong(), messageId,
+                                        isTargetChannel ? 'C' : 'R', options);
+            for (final ControlPanelOption option : controlPanel.getOptions()) {
+                if (option instanceof ControlPanelOptionEmoji) {
+                    message.addReaction(((ControlPanelOptionEmoji) option).getEmoji()).queue();
+                } else {
+                    final Emote emote = event.getJDA().getEmoteById(((ControlPanelOptionEmote) option).getEmote());
+                    message.addReaction(emote).queue();
+                }
+            }
+            waiter.waitForReaction()
+                    .on(message)
+                    .action(e -> controlPanel
+                            .getOptions()
+                            .stream()
+                            .filter(option -> option.test(e.getReaction()))
+                            .findFirst()
+                            .ifPresent(option -> {
+                                boolean isAdd = e instanceof MessageReactionAddEvent;
+                                controlPanel.getType().operate(option.getTarget(), e.getMember(), isAdd);
+                            }))
+                    .stopIf((e, i) -> false)
+                    .build();
         }, throwable -> {
             event.send("Message does not exist.");
         });
@@ -100,6 +139,18 @@ public class ControlPanelCommand {
             } else {
                 options.add(new ControlPanelOptionEmote(0, reaction.getEmote().getIdLong(), targetId));
             }
+        } else {
+            final String name = reaction.getArgument();
+            final List<Emote> emotes = event.getJDA().getEmotes();
+            final Stream<Emote> exact = emotes.stream().filter(emote -> emote.getName().equalsIgnoreCase(name));
+            final Stream<Emote> close = emotes.stream()
+                    .filter(emote -> emote.getName().toLowerCase().contains(name.toLowerCase()));
+            final Optional<Emote> first = Stream.concat(exact, close).findFirst();
+            if (!first.isPresent()) {
+                event.reply("Could not find an emote that matches the name: `").append(name).append("`");
+                return true;
+            }
+            options.add(new ControlPanelOptionEmote(0, first.get().getIdLong(), targetId));
         }
         return false;
     }

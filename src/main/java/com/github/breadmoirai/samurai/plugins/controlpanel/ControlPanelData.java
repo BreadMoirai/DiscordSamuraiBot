@@ -22,4 +22,10 @@ public interface ControlPanelData {
 
     List<ControlPanel> getControlPanels();
 
+    ControlPanel getControlPanel(int id);
+
+    ControlPanel createControlPanel(long guildId, long channelId, long messageId, char type,
+                                    List<ControlPanelOption> options);
+
+    void deleteControlPanel(int controlPanelId);
 }

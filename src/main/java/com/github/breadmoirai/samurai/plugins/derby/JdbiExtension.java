@@ -1,5 +1,6 @@
 package com.github.breadmoirai.samurai.plugins.derby;
 
+import org.intellij.lang.annotations.Language;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
@@ -84,7 +85,7 @@ public abstract class JdbiExtension {
                 .findFirst());
     }
 
-    protected final void execute(String sql, Object... args) {
+    protected final void execute(@Language("sql") String sql, Object... args) {
         useHandle(handle -> handle.execute(sql, args));
     }
 
