@@ -15,6 +15,7 @@
 package com.github.breadmoirai.samurai.plugins.music;
 
 import com.github.breadmoirai.breadbot.framework.event.CommandEvent;
+import com.github.breadmoirai.breadbot.framework.parameter.CommandArgument;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventActionFuture;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiter;
 import com.github.breadmoirai.breadbot.plugins.waiter.EventWaiterPlugin;
@@ -52,20 +53,19 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
     private final List<String> request;
     private final boolean lucky;
     private final boolean loadAsPlaylist;
+    private final EventActionFuture[] futures = new EventActionFuture[6];
     private int page;
     private AudioPlaylist playlist;
     private List<AudioTrack> tracklist;
     private MessageChannel channel;
     private boolean closed;
     private String requester;
-
     private long authorId;
     private long messageId;
-
-    private final EventActionFuture[] futures = new EventActionFuture[6];
     private EventWaiter waiter;
 
-    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, List<String> content, String playlistName) {
+    public TrackLoader(CommandEvent event, MusicPlugin plugin, GuildAudioManager audioManager, List<String> content,
+                       String playlistName) {
         this.plugin = plugin;
         this.audioManager = audioManager;
         this.request = content;
@@ -189,7 +189,9 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
         final int size = tracklist.size();
         final boolean isInts = event.getArguments().stream().allMatch(arg -> arg.isInteger() || arg.isRange());
         if (isInts) {
-            final TIntHashSet argInts = event.getArguments().ints().collect(TIntHashSet::new, TIntHashSet::add, TIntHashSet::addAll);
+            final TIntHashSet argInts = event.getArguments()
+                    .ints()
+                    .collect(TIntHashSet::new, TIntHashSet::add, TIntHashSet::addAll);
             final IntPredicate contains = argInts::contains;
             final List<AudioTrack> collect = IntStream.rangeClosed(1, size)
                     .map(i -> size - i + 1)
@@ -201,6 +203,17 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
                 tracklist.removeAll(collect);
                 resetMessage(true);
             }
+        } else {
+            final List<String> args = event.getArguments()
+                    .stream()
+                    .map(CommandArgument::getArgument)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+            tracklist.removeIf(track -> {
+                final String title = track.getInfo().title.toLowerCase();
+                return select ? args.stream().anyMatch(title::contains) : args.stream().noneMatch(title::contains);
+            });
+
         }
     }
 
@@ -212,16 +225,21 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
         return false;
     }
 
-
     private void resetMessage(boolean listChanged) {
         page = 0;
         channel.editMessageById(getMessageId(), buildPlaylistDisplay()).queue();
         if (listChanged && tracklist.size() <= 10) {
             channel.getMessageById(getMessageId()).queue(
-                    message -> message.getReactions().stream().filter(
-                            messageReaction -> messageReaction.getReactionEmote().getName().equals(PAGE_REACTION)).findAny().ifPresent(
-                            pageReaction -> pageReaction.getUsers().queue(users -> users.forEach(
-                                    user -> pageReaction.removeReaction(user).queue()))));
+                    message -> message.getReactions()
+                            .stream()
+                            .filter(
+                                    messageReaction -> messageReaction.getReactionEmote()
+                                            .getName()
+                                            .equals(PAGE_REACTION))
+                            .findAny()
+                            .ifPresent(
+                                    pageReaction -> pageReaction.getUsers().queue(users -> users.forEach(
+                                            user -> pageReaction.removeReaction(user).queue()))));
         }
     }
 
@@ -241,9 +259,13 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
             final int i = audioManager.scheduler.getQueue().indexOf(track);
 
             if (i != -1) {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(track, true), i + 1)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription(
+                        String.format("Queued track: %s at position `%d`", Play.trackInfoDisplay(track, true), i + 1))
+                        .build()).queue();
             } else {
-                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ").appendDescription(Play.trackInfoDisplay(track, true)).build()).queue();
+                channel.editMessageById(getMessageId(), new EmbedBuilder().setDescription("Now Playing: ")
+                        .appendDescription(Play.trackInfoDisplay(track, true))
+                        .build()).queue();
             }
             unregister();
         } else {
@@ -290,7 +312,10 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
             sb.append("\n... `").append(start).append("` more tracks");
         }
         final int end = start + 10;
-        IntStream.range(start, end).filter(value -> value < tSize).mapToObj(i -> String.format("%n`%d.` %s", i + 1, Play.trackInfoDisplay(tracklist.get(i), false))).forEachOrdered(sb::append);
+        IntStream.range(start, end)
+                .filter(value -> value < tSize)
+                .mapToObj(i -> String.format("%n`%d.` %s", i + 1, Play.trackInfoDisplay(tracklist.get(i), false)))
+                .forEachOrdered(sb::append);
         if (end < tSize)
             sb.append("\n... `").append(tSize - end).append("` more tracks");
         return new MessageBuilder().setContent("").setEmbed(eb.build()).build();
@@ -299,8 +324,13 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
     private Message buildFinishedDisplay() {
         EmbedBuilder eb = new EmbedBuilder();
         final StringBuilder sb = eb.getDescriptionBuilder();
-        sb.append("**").append(playlist.getName()).append("**\n`")
-                .append(tracklist.size()).append("` tracks loaded at position `").append(audioManager.scheduler.getQueue().size()).append('`');
+        sb.append("**")
+                .append(playlist.getName())
+                .append("**\n`")
+                .append(tracklist.size())
+                .append("` tracks loaded at position `")
+                .append(audioManager.scheduler.getQueue().size())
+                .append('`');
         return new MessageBuilder().setEmbed(eb.build()).build();
     }
 
@@ -346,7 +376,6 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
                 .queue(message -> message.clearReactions().queue());
         unregister();
     }
-
 
     public void close(TextChannel channel) {
         closed = true;

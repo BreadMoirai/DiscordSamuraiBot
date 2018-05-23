@@ -14,7 +14,6 @@ mainClassName = "com.github.breadmoirai.samurai.Bot"
 
 sourceSets.main.java {
     exclude 'unused'
-
 }
 
 repositories {
@@ -32,7 +31,7 @@ dependencies {
 
 //    compile 'com.github.breadmoirai:breadbot-framework:0.12.7'
 
-    implementation 'com.github.BreadMoirai:BreadBotFramework:development-SNAPSHOT'
+    compile 'com.github.BreadMoirai:BreadBotFramework:development-SNAPSHOT'
 
     compile 'net.sf.trove4j:trove4j:3.0.3'
     compile 'org.reflections:reflections:0.9.10'
