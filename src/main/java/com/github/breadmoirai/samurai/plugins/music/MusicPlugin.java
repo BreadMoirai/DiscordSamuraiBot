@@ -31,6 +31,7 @@ import com.github.breadmoirai.samurai.plugins.music.commands.Play;
 import com.github.breadmoirai.samurai.plugins.music.commands.Previous;
 import com.github.breadmoirai.samurai.plugins.music.commands.Related;
 import com.github.breadmoirai.samurai.plugins.music.commands.Repeat;
+import com.github.breadmoirai.samurai.plugins.music.commands.Seek;
 import com.github.breadmoirai.samurai.plugins.music.commands.Shuffle;
 import com.github.breadmoirai.samurai.plugins.music.commands.Skip;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -87,7 +88,8 @@ public class MusicPlugin implements CommandPlugin, EventListener {
                 .addCommand(new Shuffle())
                 .addCommand(new Skip())
                 .addCommand(event -> event.reply("Sorry, but I'm too poor for this. My free amazon AWS trial is over and changing volume is the single most computationally expensive part of this bot."), command -> command.setKeys("volume", "vol"))
-                .addCommand(new MusicHelp());
+                .addCommand(new MusicHelp())
+                .addCommand(new Seek());
     }
 
     @Override

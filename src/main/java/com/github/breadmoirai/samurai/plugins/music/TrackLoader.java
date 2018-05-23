@@ -209,11 +209,12 @@ public class TrackLoader implements AudioLoadResultHandler, Dispatchable {
                     .map(CommandArgument::getArgument)
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
-            tracklist.removeIf(track -> {
+            final boolean isChanged = tracklist.removeIf(track -> {
                 final String title = track.getInfo().title.toLowerCase();
-                return select ? args.stream().anyMatch(title::contains) : args.stream().noneMatch(title::contains);
+                return select ? args.stream().noneMatch(title::contains)
+                        : args.stream().anyMatch(title::contains);
             });
-
+            resetMessage(isChanged);
         }
     }
 
